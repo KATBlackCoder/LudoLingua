@@ -20,4 +20,15 @@ export default defineNuxtConfig({
     },
   },
   modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxt/ui', '@pinia/nuxt'],
+  css: ['~/assets/css/main.css'],
+  app: {
+    head: {
+      title: 'LudoLingua',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: 'RPG Maker game translation tool' }
+      ]
+    }
+  }
 });

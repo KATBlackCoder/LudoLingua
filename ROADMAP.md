@@ -4,7 +4,7 @@ This document outlines the planned development phases for the LudoLingua applica
 
 ---
 
-### Phase 1: Project Setup & Core Foundation (Milestone 1)
+### ✅ Phase 1: Project Setup & Core Foundation (Milestone 1)
 
 **Goal:** Establish a solid, working project structure with all necessary dependencies and a basic UI shell.
 
@@ -12,14 +12,14 @@ This document outlines the planned development phases for the LudoLingua applica
     *   **Frontend (npm):** `@nuxt/ui`, `pinia`.
     *   **Backend (cargo):** `tokio`, `anyhow`, `serde`, `tauri-plugin-log`, `tauri-plugin-window-state`.
 *   **Tasks & Files to Create/Modify:**
-    *   [ ] Initialize a new Nuxt.js project and add Tauri.
-    *   [ ] **Frontend:**
+    *   [x] Initialize a new Nuxt.js project and add Tauri.
+    *   [x] **Frontend:**
         *   Configure `nuxt.config.ts` (disable SSR, add modules).
         *   Create `layouts/default.vue` with a basic structure (`<NuxtPage />`).
         *   Create placeholder pages: `pages/index.vue`, `pages/glossary.vue`, `pages/settings.vue`.
         *   Create `stores/ui.ts` for managing global UI state.
         *   Create `assets/css/main.css` for global styles.
-    *   [ ] **Backend:**
+    *   [x] **Backend:**
         *   Set up `src/main.rs` and `src/lib.rs` with the Tauri builder.
         *   Create `src/core/mod.rs` and `src/core/error.rs`.
         *   Create an empty command structure: `src/commands/mod.rs` and `src/commands/handler.rs`.

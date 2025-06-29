@@ -1,0 +1,5 @@
+/* Global styles for LudoLingua */
+
+/* Tailwind CSS and Nuxt UI */
+@import "tailwindcss";
+@import "@nuxt/ui";
