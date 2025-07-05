@@ -1,5 +1,5 @@
-use std::fmt;
 use std::error::Error;
+use std::fmt;
 
 /// The main error type for the application.
 /// This wraps other error types and provides a unified error handling approach.
@@ -35,4 +35,4 @@ impl fmt::Display for AppError {
 impl Error for AppError {}
 
 /// A specialized Result type for the application.
-pub type AppResult<T> = Result<T, AppError>; 
+pub type AppResult<T> = Result<T, AppError>;
