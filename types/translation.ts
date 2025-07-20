@@ -14,8 +14,10 @@ export enum TranslationStatus {
 export enum PromptType {
   Name = 'Name',
   Description = 'Description',
+  Dialogue = 'Dialogue',
   Item = 'Item',
   Skill = 'Skill',
+  Other = 'Other',
 }
 
 /**

@@ -1,3 +1,4 @@
+import type { Language } from './language';
 import type { TextUnit } from './translation';
 
 /**
@@ -25,6 +26,8 @@ export interface EngineInfo {
   name: string;
   path: string;
   engine_type: EngineType;
+  source_language: Language;
+  target_language: Language;
   version?: string;
   detection_criteria: EngineCriteria;
 }

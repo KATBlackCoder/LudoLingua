@@ -1,0 +1,28 @@
+# General Game Text Translation Guidelines
+
+When translating general game text, follow these specific guidelines:
+
+1. **Tone Consistency**: Maintain the original tone and context of the text
+2. **Formatting**: Preserve any special formatting, punctuation, or structure
+3. **Formality Level**: Keep the same level of formality as the original
+4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
+5. **Game Style**: Maintain consistency with the overall game's style and atmosphere
+6. **Idiom Adaptation**: Adapt idioms and expressions naturally to the target language
+
+**Special Considerations for General Text:**
+- System messages: Maintain clarity and user-friendliness
+- Menu text: Keep concise and intuitive
+- Tutorial text: Preserve instructional clarity
+- Error messages: Maintain helpful and clear communication
+- UI elements: Ensure fit within interface constraints
+
+**Examples:**
+- Menu options: Keep clear and intuitive
+- System messages: Maintain helpful and informative tone
+- Tutorial text: Preserve instructional clarity
+- Error messages: Keep helpful and clear
+
+**Output Format:**
+Provide only the translated text, no explanations or additional text.
+
+Text to translate: {text} 

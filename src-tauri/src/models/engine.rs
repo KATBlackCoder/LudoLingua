@@ -1,6 +1,7 @@
-use std::path::{Path, PathBuf};
-use serde::{Serialize, Deserialize};
 use crate::models::translation::TextUnit;
+use serde::{Deserialize, Serialize};
+use std::path::{Path, PathBuf};
+use crate::models::language::Language;
 
 /// Represents the type of game engine detected in a project.
 ///
@@ -10,10 +11,10 @@ use crate::models::translation::TextUnit;
 pub enum EngineType {
     /// RPG Maker MV engine (JavaScript-based)
     RpgMakerMv,
-    
+
     /// RPG Maker MZ engine (newer JavaScript-based version)
     RpgMakerMz,
-    
+
     /// Engine could not be determined or is not supported
     Unknown,
 }
@@ -25,18 +26,18 @@ pub enum EngineType {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EngineCriteria {
     /// Required files that must exist for this engine type to be detected
-    /// 
+    ///
     /// Example: ["package.json", "index.html"]
     pub required_files: Vec<String>,
-    
+
     /// Required folders that must exist for this engine type to be detected
-    /// 
+    ///
     /// Example: ["data", "img"]
     pub required_folders: Vec<String>,
-    
+
     /// Optional files that may exist and help identify the engine
     /// If None, no optional files are checked
-    /// 
+    ///
     /// Example: Some(["js/rpg_core.js", "js/rpg_managers.js"])
     pub optional_files: Option<Vec<String>>,
 }
@@ -49,18 +50,24 @@ pub struct EngineCriteria {
 pub struct EngineInfo {
     /// Name of the game project
     pub name: String,
-    
+
     /// Root filesystem path to the game project files
     pub path: PathBuf,
-    
+
     /// Detected type of game engine
     pub engine_type: EngineType,
-    
+
+    /// Source language of the game project
+    pub source_language: Language,
+
+    /// Target language of the game project
+    pub target_language: Language,
+
     /// Version of the game engine if it could be determined
-    /// 
+    ///
     /// Example: Some("1.6.1")
     pub version: Option<String>,
-    
+
     /// Criteria that were used to detect this engine type
     pub detection_criteria: EngineCriteria,
 }
@@ -73,7 +80,7 @@ pub struct EngineInfo {
 pub struct GameDataFile {
     /// Name or identifier of the file (e.g., "Actors", "Items", "Map001")
     pub name: String,
-    
+
     /// Relative path to the file from the project root
     pub path: String,
 
@@ -82,4 +89,4 @@ pub struct GameDataFile {
 
     /// Total number of text units in the file (for quick reference)
     pub text_unit_count: u32,
-} 
+}

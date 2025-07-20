@@ -17,6 +17,10 @@ The following diagram illustrates the complete file and directory layout for the
 │   └── default.json
 ├── migrations/       # SQL migration files for the glossary, managed by sqlx-cli
 │   └── [timestamp]_create_glossary_table.sql
+├── models/           # JSON configuration files for LLM provider models
+│   ├── ollama.json        # Available Ollama models using ModelInfo structure
+│   ├── openai.json        # Available OpenAI models (future)
+│   └── anthropic.json     # Available Anthropic models (future)
 ├── prompts/          # Prompt templates for the LLM
 │   └── [prompt_name].txt # e.g., item_name.txt, dialogue.txt
 ├── src/
@@ -105,6 +109,12 @@ These modules contain the active business logic. They are the "brains" of the ap
 ### External Resources and Final Assembly
 
 *   **`migrations/`**: Contains the version history of our database schema in raw `.sql` files. `sqlx-cli` is used to manage these. The application automatically applies them on startup to ensure the user's database is always up-to-date.
+*   **`models/`**: Contains JSON configuration files that define available models for each LLM provider. Each file follows the `ModelInfo` structure defined in `src/models/provider.rs` with `display_name` and `model_name` fields. This approach enables:
+    *   **Runtime Configuration**: Model lists can be updated without recompiling the application.
+    *   **User Customization**: Advanced users can modify these files to add custom models or remove unwanted ones.
+    *   **Provider Isolation**: Each provider's models are cleanly separated in dedicated JSON files.
+    *   **Graceful Fallback**: If JSON files are missing or corrupt, providers fall back to hardcoded default models.
+    *   **Maintainability**: Easier to keep model catalogs up-to-date as providers release new models.
 *   **`prompts/`**: Stores `.txt` files that are used as templates for prompting the AI. The application logic dynamically injects glossary terms and source text into these templates to create context-rich prompts.
 *   **`lib.rs` & `main.rs`**: These are the final assembly points. `main.rs` is a minimal entrypoint that calls `lib.rs`. `lib.rs` uses the Tauri application builder to assemble all the pieces: it initializes the database connection pool, registers the command handler from `src/commands`, and starts the application.
 

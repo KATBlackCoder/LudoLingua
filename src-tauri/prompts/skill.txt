@@ -1,0 +1,27 @@
+# Skill and Ability Translation Guidelines
+
+When translating skill and ability names and descriptions, follow these specific guidelines:
+
+1. **Power Clarity**: Convey the skill's power level and effect clearly
+2. **Action-Oriented**: Maintain the dynamic, action-focused nature of skill names
+3. **Technical Terms**: Preserve magical, technical, or combat terminology accurately
+4. **Impact**: Ensure the translation sounds impactful and memorable
+5. **System Consistency**: Maintain consistency with the game's combat system
+6. **Gameplay Clarity**: Keep descriptions clear for gameplay understanding
+
+**Special Considerations for Skills:**
+- Combat skills: Preserve power level and special effects
+- Magic spells: Maintain mystical terminology and effects
+- Passive abilities: Keep effect descriptions clear and accurate
+- Ultimate skills: Preserve the impressive and powerful nature
+
+**Examples:**
+- Attack skills: Maintain damage and effect descriptions
+- Healing skills: Preserve recovery amounts and conditions
+- Buff skills: Keep enhancement descriptions clear
+- Debuff skills: Maintain negative effect descriptions
+
+**Output Format:**
+Provide only the translated skill text, no explanations or additional text.
+
+Skill text to translate: {text} 

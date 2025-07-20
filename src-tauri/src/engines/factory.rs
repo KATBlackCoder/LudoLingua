@@ -1,10 +1,10 @@
-use std::path::Path;
 use std::fs;
+use std::path::Path;
 
 use crate::core::engine::Engine;
 use crate::core::error::{AppError, AppResult};
 use crate::engines::rpg_maker_mv::engine::RpgMakerMvEngine;
-use crate::models::engine::{EngineType, EngineCriteria};
+use crate::models::engine::{EngineCriteria, EngineType};
 
 /// Factory function to get the appropriate engine implementation based on project path.
 ///
@@ -43,7 +43,7 @@ pub fn get_engine(project_path: &Path) -> AppResult<Box<dyn Engine>> {
 
     // Detect the engine type based on project structure
     let engine_type = detect_engine_type(project_path)?;
-    
+
     // Return the appropriate engine implementation based on the detected type
     match engine_type {
         EngineType::RpgMakerMv => Ok(Box::new(RpgMakerMvEngine::new()) as Box<dyn Engine>),
@@ -51,13 +51,11 @@ pub fn get_engine(project_path: &Path) -> AppResult<Box<dyn Engine>> {
             // For now, use the MV engine for MZ projects too
             // In the future, we'll implement a dedicated MZ engine
             Ok(Box::new(RpgMakerMvEngine::new()) as Box<dyn Engine>)
-        },
-        EngineType::Unknown => {
-            Err(AppError::Other(format!(
-                "Could not determine engine type for project at: {}",
-                project_path.display()
-            )))
         }
+        EngineType::Unknown => Err(AppError::Other(format!(
+            "Could not determine engine type for project at: {}",
+            project_path.display()
+        ))),
     }
 }
 
@@ -78,7 +76,7 @@ fn detect_engine_type(project_path: &Path) -> AppResult<EngineType> {
     if matches_criteria(project_path, &RpgMakerMvEngine::get_detection_criteria())? {
         return Ok(EngineType::RpgMakerMv);
     }
-    
+
     // Future: Add checks for other engine types here
     // Example:
     // if matches_criteria(project_path, &RpgMakerMzEngine::get_detection_criteria())? {
@@ -100,10 +98,13 @@ fn detect_engine_type(project_path: &Path) -> AppResult<EngineType> {
 ///
 /// * `AppResult<bool>` - True if the project matches the criteria, false otherwise
 fn matches_criteria(project_path: &Path, criteria: &EngineCriteria) -> AppResult<bool> {
-    use log::{info, debug};
-    
-    debug!("Checking project at {} against criteria", project_path.display());
-    
+    use log::{debug, info};
+
+    debug!(
+        "Checking project at {} against criteria",
+        project_path.display()
+    );
+
     // Check required files
     for file in &criteria.required_files {
         let file_path = project_path.join(file);
@@ -129,7 +130,7 @@ fn matches_criteria(project_path: &Path, criteria: &EngineCriteria) -> AppResult
         // If there are optional files, at least one must exist
         if !optional_files.is_empty() {
             let mut found_optional = false;
-            
+
             for file in optional_files {
                 let file_path = project_path.join(file);
                 debug!("Checking optional file: {}", file_path.display());
@@ -139,7 +140,7 @@ fn matches_criteria(project_path: &Path, criteria: &EngineCriteria) -> AppResult
                     break;
                 }
             }
-            
+
             if !found_optional {
                 debug!("No optional files found");
                 // We'll make this more lenient - don't fail if optional files aren't found
@@ -151,4 +152,4 @@ fn matches_criteria(project_path: &Path, criteria: &EngineCriteria) -> AppResult
 
     debug!("Project matches criteria");
     Ok(true)
-} 
+}

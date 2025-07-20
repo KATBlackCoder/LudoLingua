@@ -1,0 +1,27 @@
+# Dialogue and Narrative Translation Guidelines
+
+When translating dialogue and narrative text, follow these specific guidelines:
+
+1. **Character Voice**: Maintain each speaker's unique personality and tone
+2. **Emotional Context**: Preserve emotional subtext and character relationships
+3. **Formality Register**: Keep the same level of formality and speech patterns
+4. **Natural Flow**: Ensure dialogue sounds natural in the target language
+5. **Formatting**: Preserve special formatting, punctuation, and line breaks
+6. **Cultural Nuance**: Adapt cultural references appropriately
+
+**Special Considerations for Dialogue:**
+- Character relationships: Maintain appropriate honorifics and speech levels
+- Emotional states: Preserve anger, sadness, joy, etc. in speech patterns
+- Cultural references: Adapt or explain cultural elements appropriately
+- Speech patterns: Maintain character-specific speech quirks and mannerisms
+
+**Examples:**
+- Formal speech: Maintain respectful language and honorifics
+- Casual speech: Keep natural, conversational tone
+- Emotional dialogue: Preserve intensity and character voice
+- Narrative text: Maintain atmospheric and descriptive elements
+
+**Output Format:**
+Provide only the translated dialogue, no explanations or additional text.
+
+Dialogue to translate: {text} 

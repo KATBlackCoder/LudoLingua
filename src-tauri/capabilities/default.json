@@ -9,6 +9,7 @@
     "core:default",
     "log:default",
     "dialog:allow-open",
-    "dialog:default"
+    "dialog:default",
+    "store:default"
   ]
 }

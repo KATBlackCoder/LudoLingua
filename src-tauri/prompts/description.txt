@@ -1,0 +1,26 @@
+# Description and Profile Translation Guidelines
+
+When translating descriptions and profiles, follow these specific guidelines:
+
+1. **Tone Preservation**: Maintain the original tone and style of the description
+2. **Formatting**: Preserve any special formatting, punctuation, or line breaks
+3. **Formality Level**: Keep the same level of formality as the original
+4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
+5. **Consistency**: Maintain consistency with similar descriptions in the game
+6. **Clarity**: Ensure the description remains clear and informative
+
+**Special Considerations for Descriptions:**
+- Character profiles: Maintain personality traits and background information
+- Item descriptions: Preserve functional information and lore
+- Location descriptions: Keep atmospheric and setting details
+- System descriptions: Maintain technical accuracy and clarity
+
+**Examples:**
+- Character profiles: Preserve personality traits and relationships
+- Item descriptions: Maintain functional details while keeping lore elements
+- Location descriptions: Keep atmospheric elements and setting details
+
+**Output Format:**
+Provide only the translated description, no explanations or additional text.
+
+Description to translate: {text} 

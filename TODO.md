@@ -1,3 +1,12 @@
+# LudoLingua Development Strategy
+
+## Development Approach
+**Strategy:** Complete all phases (1-5) using only Actors.json parsing to build a fully functional translation application. After the core application is complete and tested, we'll add support for additional RPG Maker MV file types.
+
+This approach ensures we have a complete, working translation workflow before expanding to other file types.
+
+---
+
 # Phase 2: File Handling & Data Parsing
 
 ## Dependencies
@@ -47,7 +56,7 @@
     - [x] Display the loaded project's name on the page (e.g., `{{ projectStore.projectInfo?.name }}`).
 
 ## 5. File Parsing & Display (The Core Loop)
-- [x] **Phase 1: Actors.json Parsing (Initial Focus)**:
+- [x] **Actors.json Parsing (Current Focus)**:
     - [x] **Note:** The RPG Maker MV project contains a `www/data` directory where all translatable `.json` files are located.
     - [x] Create `src/engines/rpg_maker_mv/files/mod.rs`.
     - [x] Create `src/engines/rpg_maker_mv/files/actors.rs`:
@@ -56,21 +65,6 @@
         - [x] Focus on extracting actor names, nicknames, profiles, and other translatable text.
     - [x] Update `extract_text_units` in `src/engines/rpg_maker_mv/engine.rs` to only parse `Actors.json` for now.
     - [x] Test the implementation with a sample RPG Maker MV project.
-- [ ] **Phase 2: Other Files (After Actors.json is Working)**:
-    - [ ] Implement parsers for other data files (e.g., `Items.json`, `Skills.json`).
-    - [ ] Create parsers for event-based files (e.g., `MapXXX.json`, `CommonEvents.json`).
-    - [ ] Extract text from commands with specific code values:
-        - [ ] `101` (Show Text - Message Window attributes)
-        - [ ] `401` (Show Text - Message content lines)
-        - [ ] `102` (Show Choices)
-        - [ ] `402` (When [Choice] selected - Choice content)
-        - [ ] `405` (Show Scrolling Text)
-        - [ ] `108` (Comment)
-        - [ ] `408` (Comment continuation)
-        - [ ] `320` (Change Actor Name)
-        - [ ] `324` (Change Actor Nickname)
-        - [ ] `355` (Script)
-        - [ ] `655` (Script continuation)
 - [x] **Frontend Display**:
     - [x] Create `components/editor/TranslationTable.vue`.
     - [x] Use `<UTable>` inside to display the `textUnits` from the `projectStore`.
@@ -83,15 +77,72 @@
     - [x] Create `components/layout/ProjectInfoAlert.vue` to display project info globally.
     - [x] Update `layouts/default.vue` to include the project info alert below the header.
 
+# ✅ Completed: Phase 3 - Translation Core & UI
+
+## LLM System Implementation (COMPLETED)
+- [x] **Backend LLM Architecture:**
+    - [x] Created LLM trait abstraction in `src/llm/trait_def.rs`
+    - [x] Implemented Ollama provider in `src/llm/ollama.rs`
+    - [x] Created LLM factory in `src/llm/factory.rs`
+    - [x] Embedded prompt templates in `src-tauri/prompts/`
+    - [x] Created translation commands in `src/commands/translation.rs`
+    - [x] Created settings commands in `src/commands/settings.rs`
+    - [x] Added all translation commands to handler.rs
+
+- [x] **Frontend Translation System:**
+    - [x] Created LLM types in `types/llm.ts`
+    - [x] Built settings store in `stores/settings.ts`
+    - [x] Created LLM settings form in `components/settings/LlmSettingsForm.vue`
+    - [x] Created translation settings form in `components/settings/TranslationSettingsForm.vue`
+    - [x] Built complete settings page in `pages/settings.vue`
+    - [x] Added translation functions to project store
+    - [x] Enhanced TranslationTable with translate buttons and status indicators
+
+- [x] **Architecture Improvements:**
+    - [x] Moved prompt templates from frontend to backend (`src-tauri/prompts/`)
+    - [x] Embedded prompts in binary using `include_str!()` for better distribution
+    - [x] Added context-aware prompt selection based on text type
+    - [x] Implemented proper error handling and connection testing
+
+## ✅ Completed LLM Architecture Refactoring (Best-of-Breed Approach)
+- [x] **Migrated to hybrid service-specific crate approach:**
+    - [x] Used dedicated `ollama-rs` crate for Ollama integration (857 stars, feature-rich)
+    - [x] Created `src/llm/services/` directory for service adapters
+    - [x] Implemented `src/llm/services/ollama.rs` using ollama-rs crate with full API support
+    - [x] Created `LlmProvider` trait with `async_trait` for object-safe async methods
+    - [x] Updated `LlmConfig` in `models/provider.rs` with proper `Default` implementation
+    - [x] Implemented `TranslationLanguages` struct for comprehensive translation requests
+    - [x] Created `Language` interface with code, name, and native_name fields
+    - [x] Maintained factory pattern in `src/llm/factory.rs` for provider instantiation
+    - [x] Removed custom HTTP client code in favor of ollama-rs optimized implementation
+    - [x] Updated all frontend components to use new `Language` objects instead of strings
+    - [x] Enhanced prompt template loading from `prompts/` directory with fallback handling
+    - [x] Updated translation workflow to one-by-one processing (removed batch translation)
+    - [x] Fixed all TypeScript interfaces to match new backend architecture
+
+## ✅ Phase 3.6: JSON Model Configuration System - Completed
+
+**Goal:** Replace hardcoded model definitions with external JSON configuration files for better maintainability and user customization.
+
+*   **JSON Model Configuration Completed:**
+    - [x] **Created `src-tauri/models/` directory** for provider model definitions
+    - [x] **Created `src-tauri/models/ollama.json`** with available Ollama models using `ModelInfo` structure
+    - [x] **Updated `src/llm/services/ollama.rs`** to load models from JSON instead of hardcoded lists
+    - [x] **Added JSON parsing and validation** for model configurations with proper error handling
+    - [x] **Implemented graceful fallback** to hardcoded defaults if JSON files are missing/corrupt
+    - [x] **Updated provider factory** to use JSON-based model loading
+    - [x] **Created template JSON files** for future providers (openai.json, anthropic.json, etc.)
+    - [x] **Added logging** for model configuration loading status and error reporting
+    - [x] **Enhanced maintainability** by separating configuration data from code logic
+
 # Next Tasks
 
-## Frontend Refactoring
-- [x] Refactor index page to use Nuxt UI components
-- [x] Improve project loading experience with better feedback
-- [x] Create reusable components for common UI patterns
-- [x] Remove the `hello` test command and related UI
-- [x] Simplify TranslationTable to use basic UTable implementation
-- [x] Move project information to a global alert component
+## Phase 4: Glossary / Termbase (Actors.json focus)
+- [ ] Implement glossary functionality for Actors.json translations
+- [ ] Create glossary management UI
+- [ ] Add term consistency checking
+
+## Frontend Enhancements (Optional)
 - [ ] Implement responsive design for different screen sizes
 - [ ] Add proper loading states and transitions
 - [ ] Enhance the TranslationTable with features:
@@ -100,11 +151,46 @@
     - [ ] Add pagination for better performance with large datasets
     - [ ] Add a search/filter feature
 
-## Phase 2 Completion
-- [ ] Implement parsers for additional game data files (Items.json, Skills.json)
-- [ ] Create parsers for event-based files (MapXXX.json, CommonEvents.json)
+## Phase 4: Glossary / Termbase (Actors.json focus)
+- [ ] Implement glossary functionality for Actors.json translations
+- [ ] Create glossary management UI
 
-## Phase 3 Preparation
-- [ ] Implement the glossary page UI
-- [ ] Create settings page with LLM configuration options
-- [ ] Prepare for translation functionality integration
+## Phase 5: Backup-Based Project Saving & Final Touches (Actors.json focus)
+- [ ] **Backend - Backup System:**
+    - [ ] Create selective backup system (only translatable files like Actors.json)
+    - [ ] Implement `create_project_backup()` maintaining folder structure
+    - [ ] Add `get_backup_path()` for original/backup path resolution
+    - [x] Rename `save_text_units` → `inject_text_units` (memory text replacement)
+    - [ ] Create `save_files()` with dual modes: backup-only vs direct-to-original
+    - [ ] Add backup validation and integrity checks
+- [ ] **Frontend - Backup UI:**
+    - [ ] Add backup status tracking (exists, working location, save mode)
+    - [ ] Implement save mode selection UI with safety warnings
+    - [ ] Create backup status indicators and working location display
+    - [ ] Add "Save to Backup" and "Apply to Original" buttons
+    - [ ] Implement backup management (create, refresh, cleanup)
+- [ ] **Workflow Enhancement:**
+    - [ ] Modify project loading to auto-create selective backup
+    - [ ] Ensure translation work happens on backup copies
+    - [ ] Add file conflict detection and resolution
+- [ ] Add final polish and testing with backup-based workflow
+
+## Future Expansion (After Core Application is Complete)
+- [ ] **Additional File Types Support:**
+    - [ ] Implement parsers for other data files (e.g., `Items.json`, `Skills.json`)
+    - [ ] Create parsers for event-based files (e.g., `MapXXX.json`, `CommonEvents.json`)
+    - [ ] Extract text from commands with specific code values:
+        - [ ] `101` (Show Text - Message Window attributes)
+        - [ ] `401` (Show Text - Message content lines)
+        - [ ] `102` (Show Choices)
+        - [ ] `402` (When [Choice] selected - Choice content)
+        - [ ] `405` (Show Scrolling Text)
+        - [ ] `108` (Comment)
+        - [ ] `408` (Comment continuation)
+        - [ ] `320` (Change Actor Name)
+        - [ ] `324` (Change Actor Nickname)
+        - [ ] `355` (Script)
+        - [ ] `655` (Script continuation)
+- [ ] **Additional Engine Support:**
+    - [ ] Implement RPG Maker MZ support
+    - [ ] Add support for other RPG Maker versions

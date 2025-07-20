@@ -5,11 +5,7 @@
         <h1 class="text-2xl font-bold">LudoLingua</h1>
         <nav>
           <UButtonGroup>
-            <UButton
-              to="/"
-              variant="ghost"
-              :active="$route.path === '/'"
-            >
+            <UButton to="/" variant="ghost" :active="$route.path === '/'">
               <template #leading>
                 <UIcon name="i-heroicons-home" />
               </template>
@@ -54,4 +50,4 @@
 
 <script setup lang="ts">
 // Header component logic can go here
-</script> 
+</script>

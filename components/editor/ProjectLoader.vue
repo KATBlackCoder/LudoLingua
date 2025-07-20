@@ -5,7 +5,7 @@
       icon="i-heroicons-folder-open"
       color="primary"
       size="lg"
-      :loading="projectStore.isLoading"
+      :loading="engineStore.isLoading"
       @click="openProjectDialog"
     />
   </div>
@@ -13,9 +13,9 @@
 
 <script setup lang="ts">
 import { open } from '@tauri-apps/plugin-dialog';
-import { useProjectStore } from '~/stores/project';
+import { useEngineStore } from '~/stores/engine';
 
-const projectStore = useProjectStore();
+const engineStore = useEngineStore();
 
 async function openProjectDialog() {
   try {
@@ -28,7 +28,7 @@ async function openProjectDialog() {
     
     if (selected) {
       // If the user selected a folder, load the project
-      await projectStore.loadProject(selected as string);
+      await engineStore.loadProject(selected as string);
     }
   } catch (error) {
     console.error('Error opening project:', error);

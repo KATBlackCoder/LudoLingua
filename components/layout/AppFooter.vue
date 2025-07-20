@@ -16,15 +16,7 @@
               href="https://github.com/yourusername/ludolingua"
             />
           </UTooltip>
-          <UTooltip text="Toggle dark mode">
-            <UButton
-              color="neutral"
-              variant="ghost"
-              :icon="$colorMode.value === 'dark' ? 'i-heroicons-sun' : 'i-heroicons-moon'"
-              square
-              @click="$colorMode.preference = $colorMode.value === 'dark' ? 'light' : 'dark'"
-            />
-          </UTooltip>
+          <ColorModeButton />
         </div>
       </div>
     </UContainer>
@@ -32,5 +24,7 @@
 </template>
 
 <script setup lang="ts">
+import ColorModeButton from './ColorModeButton.vue';
+
 // Footer component logic can go here
 </script> 

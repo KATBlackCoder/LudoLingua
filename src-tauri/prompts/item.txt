@@ -1,0 +1,27 @@
+# Item Name and Description Translation Guidelines
+
+When translating item names and descriptions, follow these specific guidelines:
+
+1. **Function Clarity**: Maintain clear understanding of the item's purpose and function
+2. **Concise Names**: Keep item names short, memorable, and easy to read
+3. **Fantastical Elements**: Preserve magical, mystical, or fantastical terminology
+4. **UI Constraints**: Ensure translations fit within game interface limitations
+5. **Category Consistency**: Maintain consistency within similar item categories
+6. **Lore Preservation**: Keep important lore and background information
+
+**Special Considerations for Items:**
+- Equipment: Maintain clear function and stat information
+- Consumables: Preserve usage instructions and effects
+- Quest items: Keep story significance and purpose clear
+- Decorative items: Maintain aesthetic and atmospheric descriptions
+
+**Examples:**
+- Weapons: Preserve power level and special abilities
+- Armor: Maintain protection values and special properties
+- Potions: Keep effect descriptions clear and accurate
+- Quest items: Preserve story significance and usage context
+
+**Output Format:**
+Provide only the translated item text, no explanations or additional text.
+
+Item text to translate: {text} 
