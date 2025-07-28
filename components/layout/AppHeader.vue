@@ -11,16 +11,7 @@
               </template>
               Home
             </UButton>
-            <UButton
-              to="/glossary"
-              variant="ghost"
-              :active="$route.path === '/glossary'"
-            >
-              <template #leading>
-                <UIcon name="i-heroicons-book-open" />
-              </template>
-              Glossary
-            </UButton>
+
             <UButton
               to="/settings"
               variant="ghost"

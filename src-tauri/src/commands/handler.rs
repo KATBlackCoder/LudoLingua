@@ -1,15 +1,15 @@
 // This file contains all #[tauri::command] wrappers.
 // It's the only file that contains the tauri::command macro.
 
-use log::{debug};
+use log::debug;
 
 use crate::commands::engine;
 use crate::commands::provider;
 use crate::commands::translation;
 use crate::models::engine::{EngineInfo, GameDataFile};
+use crate::models::language::Language;
 use crate::models::provider::{LlmConfig, ModelInfo};
 use crate::models::translation::TextUnit;
-use crate::models::language::Language;
 
 /// Load a project from a selected directory
 #[tauri::command]
@@ -55,18 +55,12 @@ pub async fn inject_text_units(
 pub async fn translate_text_unit(
     text_unit: TextUnit,
     config: LlmConfig,
-    engine_info: EngineInfo, 
-    glossary_terms: Option<Vec<(String, String)>>,
+    engine_info: EngineInfo,
 ) -> Result<TextUnit, String> {
     debug!("Command: translate_text_unit - {}", text_unit.id);
-    translation::translate_text_unit( 
-        text_unit,
-        config,
-        engine_info,
-        glossary_terms,
-    )
-    .await
-    .map_err(|e| e.to_string())
+    translation::translate_text_unit(text_unit, config, engine_info)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Test LLM connection

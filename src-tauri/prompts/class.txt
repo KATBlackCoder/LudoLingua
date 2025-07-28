@@ -1,0 +1,57 @@
+# Class Translation Guidelines
+
+## For Class Names (field_type === "name"):
+1. **Archetype Clarity**: Maintain clear understanding of the character role/archetype
+2. **RPG Conventions**: Use standard RPG class terminology (Warrior, Mage, etc.)
+3. **Consistency**: Maintain consistency with similar RPG class systems
+4. **Cultural Adaptation**: Adapt class names appropriately for target culture
+5. **Role Clarity**: Ensure the class role is immediately understandable
+6. **UI Constraints**: Keep class names short for menu display
+7. **Gameplay Context**: Consider the class's role in combat and gameplay
+
+**Special Considerations for Class Names:**
+- Combat classes: Maintain clear combat role and function
+- Support classes: Preserve healing and support terminology
+- Hybrid classes: Keep balanced role descriptions
+- Advanced classes: Maintain progression and specialization terms
+
+**Class Name Examples:**
+- 戦士 → Warrior
+- 魔法使い → Mage
+- 僧侶 → Priest
+- 盗賊 → Thief
+- 騎士 → Knight
+- 忍者 → Ninja
+
+## For Class Descriptions (field_type === "note"):
+1. **Role Description**: Maintain clear description of the class's role and abilities
+2. **Gameplay Context**: Preserve information about class mechanics and playstyle
+3. **Consistency**: Maintain consistency with similar class descriptions
+4. **Clarity**: Ensure the description helps players understand the class
+5. **Formatting**: Preserve any special formatting, punctuation, or line breaks
+6. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
+7. **Specialization Details**: Keep information about class specializations and abilities
+
+**Special Considerations for Class Descriptions:**
+- Combat roles: Maintain clear descriptions of combat function
+- Support abilities: Preserve healing and support descriptions
+- Specialization paths: Keep information about class progression
+- Gameplay mechanics: Maintain clear explanation of class abilities
+
+**Class Description Examples:**
+- "A frontline fighter with high HP and defense." → "A frontline fighter with high HP and defense."
+- "魔法を使う職業。攻撃魔法が得意。" → "A class that uses magic. Skilled in offensive spells."
+- "Healing specialist with support abilities." → "Healing specialist with support abilities."
+
+## For All Class Text:
+- Maintain RPG class terminology
+- Ensure gameplay clarity and accuracy
+- Keep consistent terminology across the game
+- Preserve any special characters or codes
+- Maintain class category consistency
+
+**Output Format:**
+Provide only the translated class text, no explanations or additional text.
+
+Class text to translate: {text}
+Field type: {field_type}

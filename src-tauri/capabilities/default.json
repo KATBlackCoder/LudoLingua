@@ -7,9 +7,10 @@
   ],
   "permissions": [
     "core:default",
-    "log:default",
-    "dialog:allow-open",
-    "dialog:default",
-    "store:default"
+        "log:default",
+        "dialog:allow-open",
+        "dialog:default",
+        "store:default",
+        "fs:default"
   ]
 }

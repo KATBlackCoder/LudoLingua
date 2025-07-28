@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { useAppToast } from "~/composables/useAppToast";
+import { load } from "@tauri-apps/plugin-store";
 
 export const useLanguageStore = defineStore("language", () => {
   // State
@@ -35,6 +36,17 @@ export const useLanguageStore = defineStore("language", () => {
   });
 
   // Actions
+  async function loadLanguageSettings() {
+    const store = await load("ludollingua-settings.json", { autoSave: false });
+    const val = await store.get<{
+      source_language: { id: string; label: string; native_name: string };
+      target_language: { id: string; label: string; native_name: string };
+    }>("user_settings");
+    currentSourceLanguage.value = val?.source_language.id || "en";
+    currentTargetLanguage.value = val?.target_language.id || "fr";
+  }
+  loadLanguageSettings()
+
   function setLanguage(sourceLanguage: string, targetLanguage: string) {
     currentSourceLanguage.value = sourceLanguage;
     currentTargetLanguage.value = targetLanguage;

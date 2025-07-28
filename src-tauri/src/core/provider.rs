@@ -18,17 +18,11 @@ pub trait LlmProvider: Send + Sync {
     ///
     /// * `text_unit` - The text unit to translate
     /// * `engine_info` - The engine info containing language context
-    /// * `glossary_terms` - Optional glossary terms for consistency
     ///
     /// # Returns
     ///
     /// * `AppResult<String>` - The translated text
-    async fn translate(
-        &self,
-        text_unit: &TextUnit,
-        engine_info: &EngineInfo,
-        glossary_terms: Option<&[(String, String)]>,
-    ) -> AppResult<String>;
+    async fn translate(&self, text_unit: &TextUnit, engine_info: &EngineInfo) -> AppResult<String>;
 
     /// Returns self as Any for downcasting to specific provider implementations
     fn as_any(&self) -> &dyn Any;

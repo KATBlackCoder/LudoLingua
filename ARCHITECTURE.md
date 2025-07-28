@@ -67,6 +67,15 @@ The frontend and backend communicate through Tauri's command system:
 - **Purpose**: Models are passed to the database and LLM modules for persistence and processing.
 - **Interaction**: The glossary database operations use model structs, and the LLM module receives translation models to process.
 
+#### Glossary System Integration
+
+- **Purpose**: The glossary system provides consistent translation vocabulary and terminology management.
+- **Interaction**: 
+  - Glossary terms are stored in SQLite database with language-specific pairs
+  - Terms are automatically injected into translation prompts via the shared prompt builder
+  - Users can customize character names and game-specific terminology
+  - Fallback system uses curated vocabulary when database is empty
+
 ### 3. Frontend Component Interactions
 
 #### Pages → Components
@@ -105,11 +114,12 @@ The frontend and backend communicate through Tauri's command system:
 3. The page calls `projectStore.translateText()`
 4. The store invokes the backend command `translate_text`
 5. The backend command handler retrieves relevant glossary terms from the database
-6. The LLM module is called with the text and glossary context
-7. The AI model generates a translation
-8. The result is returned to the frontend
-9. The store updates the translation state
-10. The UI components reactively update to show the translated text
+6. The shared prompt builder injects glossary terms into the translation prompt
+7. The LLM module is called with the enhanced prompt containing glossary context
+8. The AI model generates a translation with consistent terminology
+9. The result is returned to the frontend
+10. The store updates the translation state
+11. The UI components reactively update to show the translated text
 
 ## Directory Structure
 

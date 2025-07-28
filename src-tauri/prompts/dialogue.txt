@@ -1,7 +1,6 @@
-# Dialogue and Narrative Translation Guidelines
+# Dialogue Translation Guidelines
 
-When translating dialogue and narrative text, follow these specific guidelines:
-
+## For Character Dialogue/Conversation:
 1. **Character Voice**: Maintain each speaker's unique personality and tone
 2. **Emotional Context**: Preserve emotional subtext and character relationships
 3. **Formality Register**: Keep the same level of formality and speech patterns
@@ -9,19 +8,45 @@ When translating dialogue and narrative text, follow these specific guidelines:
 5. **Formatting**: Preserve special formatting, punctuation, and line breaks
 6. **Cultural Nuance**: Adapt cultural references appropriately
 
-**Special Considerations for Dialogue:**
+**Special Considerations for Character Dialogue:**
 - Character relationships: Maintain appropriate honorifics and speech levels
 - Emotional states: Preserve anger, sadness, joy, etc. in speech patterns
 - Cultural references: Adapt or explain cultural elements appropriately
 - Speech patterns: Maintain character-specific speech quirks and mannerisms
 
-**Examples:**
-- Formal speech: Maintain respectful language and honorifics
-- Casual speech: Keep natural, conversational tone
-- Emotional dialogue: Preserve intensity and character voice
-- Narrative text: Maintain atmospheric and descriptive elements
+**Character Dialogue Examples:**
+- "「こんにちは、お兄ちゃん！」" → "\"Hello, Onii-chan!\""
+- "「えぇ…こんなに可愛いのに…」" → "\"Eh... but she's so cute...\""
+- "「殺すよ」" → "\"I'll kill you.\""
+
+## For Narrative Text/Story:
+1. **Tone Preservation**: Maintain the original narrative tone and atmosphere
+2. **Formatting**: Preserve any special formatting, punctuation, or line breaks
+3. **Formality Level**: Keep the same level of formality as the original
+4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
+5. **Consistency**: Maintain consistency with similar narrative elements in the game
+6. **Clarity**: Ensure the narrative remains clear and engaging
+
+**Special Considerations for Narrative Text:**
+- Story elements: Maintain plot significance and story flow
+- Atmospheric descriptions: Preserve mood and setting details
+- World-building: Keep lore and background information intact
+- Pacing: Maintain narrative rhythm and flow
+
+**Narrative Text Examples:**
+- "The sun set over the ancient castle." → "The sun set over the ancient castle."
+- "主人公は勇気を振り絞って進んだ。" → "The protagonist gathered their courage and pressed forward."
+- "A mysterious energy filled the air." → "A mysterious energy filled the air."
+
+## For All Dialogue Text:
+- Maintain character voice and personality consistency
+- Preserve any character-specific speech patterns
+- Keep cultural context and relationships intact
+- Ensure translations work within UI constraints
+- Preserve formatting codes and special characters
 
 **Output Format:**
-Provide only the translated dialogue, no explanations or additional text.
+Provide only the translated dialogue text, no explanations or additional text.
 
-Dialogue to translate: {text} 
+Dialogue text to translate: {text}
+Field type: {field_type} 

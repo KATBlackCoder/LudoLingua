@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::models::language::Language;
+use serde::{Deserialize, Serialize};
 
 /// Represents the status of a text unit's translation process.
 ///
@@ -27,7 +27,7 @@ pub enum TranslationStatus {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PromptType {
     /// Prompt specialized for translating character or location names
-    Name,
+    Character,
 
     /// Prompt specialized for translating longer descriptive text
     Description,
@@ -35,11 +35,17 @@ pub enum PromptType {
     /// Prompt specialized for translating dialogue
     Dialogue,
 
+    /// Prompt specialized for translating weapon names and descriptions
+    Weapon,
+
     /// Prompt specialized for translating item names and descriptions
     Item,
 
     /// Prompt specialized for translating skill names and descriptions
     Skill,
+
+    /// Prompt specialized for translating class names and descriptions
+    Class,
 
     /// Prompt specialized for translating other text types
     Other,

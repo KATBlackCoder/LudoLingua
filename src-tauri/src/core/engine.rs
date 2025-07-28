@@ -24,7 +24,11 @@ pub trait Engine: Send + Sync {
     fn extract_text_units(&self, project_info: &EngineInfo) -> AppResult<Vec<TextUnit>>;
 
     /// Inject translated text units back into the project files
-    fn inject_text_units(&self, project_info: &EngineInfo, text_units: &[TextUnit]) -> AppResult<()>;
+    fn inject_text_units(
+        &self,
+        project_info: &EngineInfo,
+        text_units: &[TextUnit],
+    ) -> AppResult<()>;
 
     /// Returns self as Any for downcasting to specific engine implementations
     fn as_any(&self) -> &dyn Any;

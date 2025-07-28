@@ -1,12 +1,13 @@
-use log::{debug, info, warn};
+use log::{debug, info};
 use serde_json::Value;
 use std::any::Any;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use crate::core::engine::Engine;
 use crate::core::error::{AppError, AppResult};
-use crate::engines::rpg_maker_mv::files::actors;
+use crate::engines::rpg_maker_mv::files::{actors, armors, classes, items, skills, weapons};
+use crate::engines::common;
 use crate::models::engine::{EngineCriteria, EngineInfo, EngineType, GameDataFile};
 use crate::models::language::Language;
 use crate::models::translation::TextUnit;
@@ -97,6 +98,8 @@ impl RpgMakerMvEngine {
         Ok((name, version))
     }
 
+
+
     /// Extracts text units from all supported game data files.
     ///
     /// # Arguments
@@ -116,42 +119,70 @@ impl RpgMakerMvEngine {
         );
         let mut game_data_files = Vec::new();
 
-        // For Phase 1, we're only implementing Actors.json parsing
-        // Check for different possible locations of Actors.json
-        let possible_paths = ["www/data/Actors.json"];
+        // Extract text from Actors.json
+        let actors_paths = ["www/data/Actors.json"];
+        let actors_files = common::extract_file_type_text(
+            project_info,
+            &actors_paths,
+            actors::extract_text,
+            "Actors.json",
+        )?;
+        game_data_files.extend(actors_files);
 
-        let mut actors_found = false;
+        // Extract text from Items.json
+        let items_paths = ["www/data/Items.json"];
+        let items_files = common::extract_file_type_text(
+            project_info,
+            &items_paths,
+            items::extract_text,
+            "Items.json",
+        )?;
+        game_data_files.extend(items_files);
 
-        for path in possible_paths.iter() {
-            let file_path = project_info.path.join(path);
-            if file_path.exists() {
-                debug!("Found Actors.json at: {}", file_path.display());
+        // Extract text from Skills.json
+        let skills_paths = ["www/data/Skills.json"];
+        let skills_files = common::extract_file_type_text(
+            project_info,
+            &skills_paths,
+            skills::extract_text,
+            "Skills.json",
+        )?;
+        game_data_files.extend(skills_files);
 
-                // Extract text from Actors.json
-                match actors::extract_text(&project_info.path, path) {
-                    Ok(game_data_file) => {
-                        info!(
-                            "Extracted {} text units from {}",
-                            game_data_file.text_unit_count, path
-                        );
+        // Extract text from Weapons.json
+        let weapons_paths = ["www/data/Weapons.json"];
+        let weapons_files = common::extract_file_type_text(
+            project_info,
+            &weapons_paths,
+            weapons::extract_text,
+            "Weapons.json",
+        )?;
+        game_data_files.extend(weapons_files);
 
-                        // Add the game data file to our collection
-                        game_data_files.push(game_data_file);
+        // Extract text from Armors.json
+        let armors_paths = ["www/data/Armors.json"];
+        let armors_files = common::extract_file_type_text(
+            project_info,
+            &armors_paths,
+            armors::extract_text,
+            "Armors.json",
+        )?;
+        game_data_files.extend(armors_files);
 
-                        actors_found = true;
-                        break; // We found and processed Actors.json, no need to check other paths
-                    }
-                    Err(e) => {
-                        warn!("Failed to extract text from {}: {}", path, e);
-                        // Continue trying other paths
-                    }
-                }
-            }
-        }
+        // Extract text from Classes.json
+        let classes_paths = ["www/data/Classes.json"];
+        let classes_files = common::extract_file_type_text(
+            project_info,
+            &classes_paths,
+            classes::extract_text,
+            "Classes.json",
+        )?;
+        game_data_files.extend(classes_files);
 
-        if !actors_found {
-            warn!("Could not find Actors.json in any expected location");
-        }
+        info!(
+            "Extracted {} game data files from RPG Maker MV project",
+            game_data_files.len()
+        );
 
         Ok(game_data_files)
     }
@@ -176,46 +207,65 @@ impl RpgMakerMvEngine {
             project_info.name
         );
 
-        // Filter text units by file type to inject only relevant ones
-        let actor_units: Vec<&TextUnit> = text_units
-            .iter()
-            .filter(|unit| unit.id.starts_with("actor_"))
-            .collect();
+        // Inject actor translations
+        common::inject_file_type_translations(
+            project_info,
+            text_units,
+            "actor_",
+            &["www/data/Actors.json"],
+            actors::inject_translations,
+            "actor",
+        )?;
 
-        if !actor_units.is_empty() {
-            // Check for different possible locations of Actors.json
-            let possible_paths = ["www/data/Actors.json"];
+        // Inject item translations
+        common::inject_file_type_translations(
+            project_info,
+            text_units,
+            "item_",
+            &["www/data/Items.json"],
+            items::inject_translations,
+            "item",
+        )?;
 
-            let mut actors_injected = false;
+        // Inject skill translations
+        common::inject_file_type_translations(
+            project_info,
+            text_units,
+            "skill_",
+            &["www/data/Skills.json"],
+            skills::inject_translations,
+            "skill",
+        )?;
 
-            for path in possible_paths.iter() {
-                let file_path = project_info.path.join(path);
-                if file_path.exists() {
-                    debug!("Injecting into Actors.json at: {}", file_path.display());
+        // Inject weapon translations
+        common::inject_file_type_translations(
+            project_info,
+            text_units,
+            "weapon_",
+            &["www/data/Weapons.json"],
+            weapons::inject_translations,
+            "weapon",
+        )?;
 
-                    // Inject translations into Actors.json (pass slice instead of cloning)
-                    match actors::inject_translations(&project_info.path, path, &actor_units) {
-                        Ok(()) => {
-                            info!(
-                                "Successfully injected {} actor translations into {}",
-                                actor_units.len(),
-                                path
-                            );
-                            actors_injected = true;
-                            break; // We successfully injected, no need to check other paths
-                        }
-                        Err(e) => {
-                            warn!("Failed to inject translations into {}: {}", path, e);
-                            // Continue trying other paths
-                        }
-                    }
-                }
-            }
+        // Inject armor translations
+        common::inject_file_type_translations(
+            project_info,
+            text_units,
+            "armor_",
+            &["www/data/Armors.json"],
+            armors::inject_translations,
+            "armor",
+        )?;
 
-            if !actors_injected && !actor_units.is_empty() {
-                warn!("Could not inject actor translations - Actors.json not found in any expected location");
-            }
-        }
+        // Inject class translations
+        common::inject_file_type_translations(
+            project_info,
+            text_units,
+            "class_",
+            &["www/data/Classes.json"],
+            classes::inject_translations,
+            "class",
+        )?;
 
         info!("Translation injection completed");
         Ok(())
@@ -285,13 +335,23 @@ impl Engine for RpgMakerMvEngine {
         Ok(all_text_units)
     }
 
-    fn inject_text_units(&self, project_info: &EngineInfo, text_units: &[TextUnit]) -> AppResult<()> {
-        debug!("Injecting text units for RPG Maker MV project: {}", project_info.name);
-        
+    fn inject_text_units(
+        &self,
+        project_info: &EngineInfo,
+        text_units: &[TextUnit],
+    ) -> AppResult<()> {
+        debug!(
+            "Injecting text units for RPG Maker MV project: {}",
+            project_info.name
+        );
+
         // Use our inject_game_data_files method to inject translations back to the game files
         self.inject_game_data_files(project_info, text_units)?;
-        
-        info!("Successfully injected {} text units into project files", text_units.len());
+
+        info!(
+            "Successfully injected {} text units into project files",
+            text_units.len()
+        );
         Ok(())
     }
 

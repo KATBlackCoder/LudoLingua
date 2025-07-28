@@ -10,39 +10,37 @@ use super::common::{
     inject_text_units_for_object, inject_translations_into_file_with_objects
 };
 
-/// Represents an item in RPG Maker MV.
+/// Represents a character class in RPG Maker MV.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct Item {
+pub struct Class {
     #[serde(default)]
     pub id: i32,
     #[serde(default)]
     pub name: String,
-    #[serde(default)]
-    pub description: String,
     #[serde(default)]
     pub note: String,
     #[serde(flatten)]
     pub extra_fields: std::collections::HashMap<String, serde_json::Value>,
 }
 
-/// Extracts text units from an Items.json file and organizes them into a GameDataFile.
+/// Extracts text units from a Classes.json file and organizes them into a GameDataFile.
 pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataFile> {
-    // Parse function for Items.json
-    let parse_items = |content: &str| -> AppResult<Vec<Option<Item>>> {
+    // Parse function for Classes.json
+    let parse_classes = |content: &str| -> AppResult<Vec<Option<Class>>> {
         serde_json::from_str(content)
-            .map_err(|e| AppError::Parsing(format!("Failed to parse Items.json: {}", e)))
+            .map_err(|e| AppError::Parsing(format!("Failed to parse Classes.json: {}", e)))
     };
 
-    // Extract function for each item
-    let extract_item_units = |item: &Item, index: usize, file_path: &str| -> Vec<TextUnit> {
+    // Extract function for each class
+    let extract_class_units = |class: &Class, index: usize, file_path: &str| -> Vec<TextUnit> {
         extract_text_units_for_object(
-            "item",
-            item.id,
+            "class",
+            class.id,
             file_path,
             index,
             vec![
-                ("name", &item.name, PromptType::Character),
-                ("description", &item.description, PromptType::Description),
+                ("name", &class.name, PromptType::Character),
+                ("note", &class.note, PromptType::Other),
             ],
         )
     };
@@ -51,18 +49,18 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     extract_text_from_file_with_objects(
         project_path,
         file_path,
-        "Items.json",
-        parse_items,
-        extract_item_units,
+        "Classes.json",
+        parse_classes,
+        extract_class_units,
     )
 }
 
-/// Injects translated text units back into the Items.json file.
+/// Injects translated text units back into the Classes.json file.
 ///
 /// # Arguments
 ///
 /// * `project_path` - The path to the project directory
-/// * `file_path` - The path to the Items.json file, relative to the project directory
+/// * `file_path` - The path to the Classes.json file, relative to the project directory
 /// * `text_units` - Slice of translated text units to inject
 ///
 /// # Returns
@@ -73,21 +71,21 @@ pub fn inject_translations(
     file_path: &str,
     text_units: &[&TextUnit],
 ) -> AppResult<()> {
-    // Parse function for Items.json
-    let parse_items = |content: &str| -> AppResult<Vec<Option<Item>>> {
+    // Parse function for Classes.json
+    let parse_classes = |content: &str| -> AppResult<Vec<Option<Class>>> {
         serde_json::from_str(content)
-            .map_err(|e| AppError::Parsing(format!("Failed to parse Items.json: {}", e)))
+            .map_err(|e| AppError::Parsing(format!("Failed to parse Classes.json: {}", e)))
     };
 
-    // Update function for each item
-    let update_item = |item: &mut Item, text_unit_map: &HashMap<String, &TextUnit>| {
+    // Update function for each class
+    let update_class = |class: &mut Class, text_unit_map: &HashMap<String, &TextUnit>| {
         inject_text_units_for_object(
-            "item",
-            item.id,
+            "class",
+            class.id,
             text_unit_map,
             vec![
-                ("name", &mut item.name),
-                ("description", &mut item.description),
+                ("name", &mut class.name),
+                ("note", &mut class.note),
             ],
         );
     };
@@ -96,9 +94,9 @@ pub fn inject_translations(
     inject_translations_into_file_with_objects(
         project_path,
         file_path,
-        "Items.json",
+        "Classes.json",
         text_units,
-        parse_items,
-        update_item,
+        parse_classes,
+        update_class,
     )
 } 

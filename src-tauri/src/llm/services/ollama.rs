@@ -4,14 +4,13 @@ use ollama_rs::generation::completion::request::GenerationRequest;
 use ollama_rs::Ollama;
 use serde::{Deserialize, Serialize};
 use std::any::Any;
-use std::fs;
-use std::path::Path;
 
 use crate::core::error::{AppError, AppResult};
 use crate::core::provider::LlmProvider;
 use crate::models::engine::EngineInfo;
 use crate::models::provider::{LlmConfig, ModelInfo};
-use crate::models::translation::{PromptType, TextUnit};
+use crate::models::translation::TextUnit;
+use crate::utils::prompts::builder::PromptBuilder;
 
 /// JSON configuration structure for Ollama models
 #[derive(Debug, Deserialize, Serialize)]
@@ -111,121 +110,13 @@ impl OllamaProvider {
             .unwrap_or_else(|| self.config.model.display_name.clone())
     }
 
-    /// Build a translation prompt based on the text unit, engine info, and glossary terms
-    fn build_translation_prompt(
+    /// Build a translation prompt using the shared prompt builder
+    async fn build_translation_prompt(
         &self,
         text_unit: &TextUnit,
         engine_info: &EngineInfo,
-        glossary_terms: Option<&[(String, String)]>,
     ) -> String {
-        // Load basic template
-        let basic_template = match self.load_prompt_template("prompts/basic.txt") {
-            Ok(template) => template,
-            Err(e) => {
-                error!("Failed to load basic template: {}", e);
-                return self.build_fallback_prompt(text_unit, engine_info, glossary_terms);
-            }
-        };
-
-        // Load specific template based on prompt type
-        let specific_template = match text_unit.prompt_type {
-            PromptType::Name => "prompts/character.txt",
-            PromptType::Description => "prompts/description.txt",
-            PromptType::Dialogue => "prompts/dialogue.txt",
-            PromptType::Item => "prompts/item.txt",
-            PromptType::Skill => "prompts/skill.txt",
-            PromptType::Other => "prompts/other.txt",
-        };
-
-        let specific_content = match self.load_prompt_template(specific_template) {
-            Ok(content) => content,
-            Err(e) => {
-                error!(
-                    "Failed to load specific template {}: {}",
-                    specific_template, e
-                );
-                String::new()
-            }
-        };
-
-        // Combine templates
-        let mut template = basic_template;
-        template.push_str("\n\n");
-        template.push_str(&specific_content);
-
-        // Build glossary section
-        let glossary_section = if let Some(terms) = glossary_terms {
-            if !terms.is_empty() {
-                let mut section = String::from("Glossary terms to use:\n");
-                for (source, target) in terms {
-                    section.push_str(&format!("- {} → {}\n", source, target));
-                }
-                section
-            } else {
-                String::new()
-            }
-        } else {
-            String::new()
-        };
-
-        // Replace template variables
-        template
-            .replace(
-                "{source_language}",
-                &engine_info.source_language.native_name,
-            )
-            .replace(
-                "{target_language}",
-                &engine_info.target_language.native_name,
-            )
-            .replace("{context}", "RPG Maker game content")
-            .replace("{glossary_section}", &glossary_section)
-            .replace("{text}", &text_unit.source_text)
-    }
-
-    /// Load a prompt template from the filesystem
-    fn load_prompt_template(&self, template_path: &str) -> AppResult<String> {
-        let path = Path::new(template_path);
-        fs::read_to_string(path).map_err(|e| {
-            AppError::FileSystem(format!(
-                "Failed to read prompt template {}: {}",
-                template_path, e
-            ))
-        })
-    }
-
-    /// Build a fallback prompt when template loading fails
-    fn build_fallback_prompt(
-        &self,
-        text_unit: &TextUnit,
-        engine_info: &EngineInfo,
-        glossary_terms: Option<&[(String, String)]>,
-    ) -> String {
-        let mut prompt = String::from(
-            "You are a professional translator specializing in game localization.\n\n",
-        );
-
-        prompt.push_str(&format!(
-            "Translate the following text from {} to {}:\n\n",
-            engine_info.source_language.native_name, engine_info.target_language.native_name
-        ));
-
-        // Add glossary terms if provided
-        if let Some(terms) = glossary_terms {
-            if !terms.is_empty() {
-                prompt.push_str("Use these glossary terms for consistency:\n");
-                for (source, target) in terms {
-                    prompt.push_str(&format!("- {} → {}\n", source, target));
-                }
-                prompt.push_str("\n");
-            }
-        }
-
-        prompt.push_str(&format!(
-            "Text to translate: {}\n\nTranslation:",
-            text_unit.source_text
-        ));
-        prompt
+        PromptBuilder::build_translation_prompt(text_unit, engine_info).await
     }
 }
 
@@ -246,19 +137,14 @@ impl LlmProvider for OllamaProvider {
         }
     }
 
-    async fn translate(
-        &self,
-        text_unit: &TextUnit,
-        engine_info: &EngineInfo,
-        glossary_terms: Option<&[(String, String)]>,
-    ) -> AppResult<String> {
+    async fn translate(&self, text_unit: &TextUnit, engine_info: &EngineInfo) -> AppResult<String> {
         debug!(
             "Translating text with Ollama: {} -> {}",
             engine_info.source_language.id, engine_info.target_language.id
         );
 
-        // Build the translation prompt
-        let prompt = self.build_translation_prompt(text_unit, engine_info, glossary_terms);
+        // Build the translation prompt using shared prompt builder
+        let prompt = self.build_translation_prompt(text_unit, engine_info).await;
 
         // Create the generation request
         let request = GenerationRequest::new(self.config.model.model_name.clone(), prompt);

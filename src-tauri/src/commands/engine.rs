@@ -145,8 +145,6 @@ pub async fn extract_game_data_files(
     }
 }
 
-
-
 /// Injects translated text units into a project's files.
 ///
 /// This command is called from the frontend to inject translations back into the project files.
@@ -164,7 +162,11 @@ pub async fn inject_text_units(
     project_info: EngineInfo,
     text_units: Vec<TextUnit>,
 ) -> Result<(), String> {
-    info!("Injecting {} text units into project: {}", text_units.len(), project_info.name);
+    info!(
+        "Injecting {} text units into project: {}",
+        text_units.len(),
+        project_info.name
+    );
 
     // Get the appropriate engine for this project
     let engine_result = get_engine(&project_info.path);

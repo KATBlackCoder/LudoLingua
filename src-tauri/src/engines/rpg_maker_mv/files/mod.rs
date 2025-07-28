@@ -8,5 +8,9 @@
 // pub mod events;
 
 pub mod actors;
+pub mod armors;
+pub mod classes;
 pub mod common;
-
+pub mod items;
+pub mod skills;
+pub mod weapons;

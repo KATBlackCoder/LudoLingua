@@ -29,3 +29,8 @@ logs
 
 # other
 game
+
+# Database files (exclude from git but allow in development)
+/ludolingua.db*
+*.db-wal
+*.db-shm

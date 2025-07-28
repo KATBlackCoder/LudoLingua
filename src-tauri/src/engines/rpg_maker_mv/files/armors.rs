@@ -10,9 +10,9 @@ use super::common::{
     inject_text_units_for_object, inject_translations_into_file_with_objects
 };
 
-/// Represents an item in RPG Maker MV.
+/// Represents an armor in RPG Maker MV.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct Item {
+pub struct Armor {
     #[serde(default)]
     pub id: i32,
     #[serde(default)]
@@ -25,24 +25,24 @@ pub struct Item {
     pub extra_fields: std::collections::HashMap<String, serde_json::Value>,
 }
 
-/// Extracts text units from an Items.json file and organizes them into a GameDataFile.
+/// Extracts text units from an Armors.json file and organizes them into a GameDataFile.
 pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataFile> {
-    // Parse function for Items.json
-    let parse_items = |content: &str| -> AppResult<Vec<Option<Item>>> {
+    // Parse function for Armors.json
+    let parse_armors = |content: &str| -> AppResult<Vec<Option<Armor>>> {
         serde_json::from_str(content)
-            .map_err(|e| AppError::Parsing(format!("Failed to parse Items.json: {}", e)))
+            .map_err(|e| AppError::Parsing(format!("Failed to parse Armors.json: {}", e)))
     };
 
-    // Extract function for each item
-    let extract_item_units = |item: &Item, index: usize, file_path: &str| -> Vec<TextUnit> {
+    // Extract function for each armor
+    let extract_armor_units = |armor: &Armor, index: usize, file_path: &str| -> Vec<TextUnit> {
         extract_text_units_for_object(
-            "item",
-            item.id,
+            "armor",
+            armor.id,
             file_path,
             index,
             vec![
-                ("name", &item.name, PromptType::Character),
-                ("description", &item.description, PromptType::Description),
+                ("name", &armor.name, PromptType::Character),
+                ("description", &armor.description, PromptType::Description),
             ],
         )
     };
@@ -51,18 +51,18 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     extract_text_from_file_with_objects(
         project_path,
         file_path,
-        "Items.json",
-        parse_items,
-        extract_item_units,
+        "Armors.json",
+        parse_armors,
+        extract_armor_units,
     )
 }
 
-/// Injects translated text units back into the Items.json file.
+/// Injects translated text units back into the Armors.json file.
 ///
 /// # Arguments
 ///
 /// * `project_path` - The path to the project directory
-/// * `file_path` - The path to the Items.json file, relative to the project directory
+/// * `file_path` - The path to the Armors.json file, relative to the project directory
 /// * `text_units` - Slice of translated text units to inject
 ///
 /// # Returns
@@ -73,21 +73,21 @@ pub fn inject_translations(
     file_path: &str,
     text_units: &[&TextUnit],
 ) -> AppResult<()> {
-    // Parse function for Items.json
-    let parse_items = |content: &str| -> AppResult<Vec<Option<Item>>> {
+    // Parse function for Armors.json
+    let parse_armors = |content: &str| -> AppResult<Vec<Option<Armor>>> {
         serde_json::from_str(content)
-            .map_err(|e| AppError::Parsing(format!("Failed to parse Items.json: {}", e)))
+            .map_err(|e| AppError::Parsing(format!("Failed to parse Armors.json: {}", e)))
     };
 
-    // Update function for each item
-    let update_item = |item: &mut Item, text_unit_map: &HashMap<String, &TextUnit>| {
+    // Update function for each armor
+    let update_armor = |armor: &mut Armor, text_unit_map: &HashMap<String, &TextUnit>| {
         inject_text_units_for_object(
-            "item",
-            item.id,
+            "armor",
+            armor.id,
             text_unit_map,
             vec![
-                ("name", &mut item.name),
-                ("description", &mut item.description),
+                ("name", &mut armor.name),
+                ("description", &mut armor.description),
             ],
         );
     };
@@ -96,9 +96,9 @@ pub fn inject_translations(
     inject_translations_into_file_with_objects(
         project_path,
         file_path,
-        "Items.json",
+        "Armors.json",
         text_units,
-        parse_items,
-        update_item,
+        parse_armors,
+        update_armor,
     )
-} 
+}

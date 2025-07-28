@@ -1,8 +1,7 @@
-use log::{error, info};
-use crate::models::provider::{ModelInfo, Provider, LlmConfig};
 use crate::llm::factory::LlmFactory;
+use crate::models::provider::{LlmConfig, ModelInfo, Provider};
+use log::{error, info};
 use serde_json;
-
 
 /// Test the LLM connection for a given config
 pub async fn test_llm_connection(config: LlmConfig) -> Result<bool, String> {
@@ -32,10 +31,8 @@ pub async fn get_available_models(provider: String) -> Result<Vec<ModelInfo>, St
 
 /// Returns a list of all supported provider names as strings.
 pub async fn get_available_providers() -> Result<Vec<String>, String> {
-    Ok(
-        LlmFactory::get_available_providers()
-            .into_iter()
-            .map(|p| format!("{:?}", p).to_lowercase())
-            .collect()
-    )
+    Ok(LlmFactory::get_available_providers()
+        .into_iter()
+        .map(|p| format!("{:?}", p).to_lowercase())
+        .collect())
 }

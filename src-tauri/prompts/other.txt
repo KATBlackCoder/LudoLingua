@@ -1,7 +1,6 @@
-# General Game Text Translation Guidelines
+# System Text Translation Guidelines
 
-When translating general game text, follow these specific guidelines:
-
+## For Menu Text/UI Elements:
 1. **Tone Consistency**: Maintain the original tone and context of the text
 2. **Formatting**: Preserve any special formatting, punctuation, or structure
 3. **Formality Level**: Keep the same level of formality as the original
@@ -9,20 +8,65 @@ When translating general game text, follow these specific guidelines:
 5. **Game Style**: Maintain consistency with the overall game's style and atmosphere
 6. **Idiom Adaptation**: Adapt idioms and expressions naturally to the target language
 
-**Special Considerations for General Text:**
-- System messages: Maintain clarity and user-friendliness
-- Menu text: Keep concise and intuitive
-- Tutorial text: Preserve instructional clarity
-- Error messages: Maintain helpful and clear communication
-- UI elements: Ensure fit within interface constraints
+**Special Considerations for Menu Text:**
+- Menu options: Keep concise and intuitive
+- Button labels: Maintain clear action descriptions
+- Navigation elements: Preserve logical flow and hierarchy
+- Status indicators: Keep information clear and accessible
 
-**Examples:**
-- Menu options: Keep clear and intuitive
-- System messages: Maintain helpful and informative tone
+**Menu Text Examples:**
+- "開始" → "Start"
+- "設定" → "Settings"
+- "セーブ" → "Save"
+- "ロード" → "Load"
+
+## For Tutorial Text/Instructions:
+1. **Tone Consistency**: Maintain the original tone and context of the text
+2. **Formatting**: Preserve any special formatting, punctuation, or structure
+3. **Formality Level**: Keep the same level of formality as the original
+4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
+5. **Game Style**: Maintain consistency with the overall game's style and atmosphere
+6. **Idiom Adaptation**: Adapt idioms and expressions naturally to the target language
+
+**Special Considerations for Tutorial Text:**
 - Tutorial text: Preserve instructional clarity
-- Error messages: Keep helpful and clear
+- Help text: Maintain helpful and informative tone
+- Guide text: Keep step-by-step instructions clear
+- Tips: Preserve helpful hints and suggestions
+
+**Tutorial Text Examples:**
+- "Press A to confirm." → "Press A to confirm."
+- "Aボタンで決定します。" → "Press A to confirm."
+- "Use the D-pad to move." → "Use the D-pad to move."
+
+## For Error Messages/System Alerts:
+1. **Tone Consistency**: Maintain the original tone and context of the text
+2. **Formatting**: Preserve any special formatting, punctuation, or structure
+3. **Formality Level**: Keep the same level of formality as the original
+4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
+5. **Game Style**: Maintain consistency with the overall game's style and atmosphere
+6. **Idiom Adaptation**: Adapt idioms and expressions naturally to the target language
+
+**Special Considerations for Error Messages:**
+- Error messages: Keep helpful and clear communication
+- Warning messages: Maintain appropriate urgency and clarity
+- System alerts: Preserve important information and actions
+- Status messages: Keep information accurate and timely
+
+**Error Message Examples:**
+- "File not found." → "File not found."
+- "ファイルが見つかりません。" → "File not found."
+- "Save failed." → "Save failed."
+
+## For All System Text:
+- Maintain system tone and consistency
+- Preserve any special formatting or codes
+- Keep user-friendly and clear communication
+- Ensure text works within UI constraints
+- Maintain consistency across similar elements
 
 **Output Format:**
-Provide only the translated text, no explanations or additional text.
+Provide only the translated system text, no explanations or additional text.
 
-Text to translate: {text} 
+System text to translate: {text}
+Field type: {field_type} 

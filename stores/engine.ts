@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
 import type { EngineInfo, GameDataFile } from '../types/engine';
 import type { TextUnit } from '../types/translation';
-import { useSettingsStore } from './settings';
+import { useLanguageStore } from './language';
 
 export const useEngineStore = defineStore('engine', () => {
   // State
@@ -12,10 +12,8 @@ export const useEngineStore = defineStore('engine', () => {
   const gameDataFiles = ref<GameDataFile[]>([]);
   const isLoading = ref(false);
   const error = ref<string | null>(null);
-
   // Store references
-  const settingsStore = useSettingsStore();
-
+  const languageStore = useLanguageStore();
   // Computed
   const hasProject = computed(() => projectInfo.value !== null);
   const projectName = computed(() => projectInfo.value?.name || 'No Project');
@@ -34,8 +32,8 @@ export const useEngineStore = defineStore('engine', () => {
       console.log('Loading project from:', projectPath);
       
       // Get language settings from the settings store
-      const sourceLanguage = settingsStore.userSettings.source_language;
-      const targetLanguage = settingsStore.userSettings.target_language;
+      const sourceLanguage = languageStore.getLanguage.source_language;
+      const targetLanguage = languageStore.getLanguage.target_language;
       
       // Call the backend command to load the project with language parameters
       const result = await invoke<EngineInfo>('load_project', { 
@@ -44,6 +42,7 @@ export const useEngineStore = defineStore('engine', () => {
         targetLanguage
       });
       
+      console.log('Project loaded successfully languages:', sourceLanguage, targetLanguage);
       projectInfo.value = result;
       
       // Extract text units from the loaded project
@@ -60,6 +59,7 @@ export const useEngineStore = defineStore('engine', () => {
         files: files.length,
         textUnits: extractedUnits.length,
       });
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load project';
       error.value = errorMessage;
@@ -168,6 +168,7 @@ export const useEngineStore = defineStore('engine', () => {
     totalTextUnits,
     getTextUnits,
     getGameDataFiles,
+    
     // Actions
     loadProject,
     refreshProject,

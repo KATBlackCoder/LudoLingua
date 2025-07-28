@@ -44,9 +44,15 @@ The following diagram illustrates the complete file and directory layout for the
 │   │           └── [file_name].rs # e.g., actors.rs, items.rs
 │   ├── llm/          # AI translation logic and model interaction
 │   │   ├── mod.rs
-│   │   ├── trait.rs       # Defines the common `Translator` trait
-│   │   ├── factory.rs     # Selects the correct LLM provider/model
-│   │   └── [provider].rs  # e.g., ollama.rs, gguf.rs
+│   │   ├── services/      # Service-specific provider implementations
+│   │   │   ├── mod.rs
+│   │   │   └── ollama.rs  # Ollama provider using ollama-rs crate
+│   │   └── factory.rs     # Selects the correct LLM provider/model
+│   ├── utils/         # Application-wide utilities and shared functionality
+│   │   ├── mod.rs
+│   │   └── prompts/       # Prompt-specific utilities
+│   │       ├── mod.rs
+│   │       └── builder.rs  # Shared prompt building logic for all providers
 │   ├── db/           # Database interaction layer using sqlx
 │   │   ├── mod.rs
 │   │   ├── connection.rs # Logic for establishing the SQLite connection pool
@@ -91,9 +97,12 @@ These modules contain the active business logic. They are the "brains" of the ap
         *   `mod.rs`: Adhering to our "imports only" rule, this file simply declares the `engine` and `files` modules and re-exports the main engine struct (e.g., `pub use engine::RpgMakerMv;`).
 
 *   **`src/llm`**: This module handles all communication with Large Language Models.
-    *   `trait.rs`: Defines the `Translator` trait, a contract for any AI provider we want to support.
-    *   `factory.rs`: Similar to the engine factory, this reads the user's settings to determine which AI provider and model to use (e.g., Ollama, a local file).
-    *   `[provider].rs`: Each file is a self-contained implementation for a specific AI provider, handling the unique details of its API.
+    *   `services/`: Contains service-specific provider implementations using the best available crates for each service.
+        *   `ollama.rs`: Ollama provider implementation using the `ollama-rs` crate for optimal performance and features.
+    *   `factory.rs`: Similar to the engine factory, this reads the user's settings to determine which AI provider and model to use (e.g., Ollama, OpenAI).
+*   **`src/utils`**: This module contains application-wide utilities and shared functionality that can be reused across different parts of the application.
+    *   `prompts/`: Contains utilities specifically for prompt building and management.
+        *   `builder.rs`: Shared prompt building logic that can be used by all LLM providers, ensuring consistency and reducing code duplication.
 
 *   **`src/db`**: This module is the sole gatekeeper for our SQLite database.
     *   `connection.rs`: Manages the creation of a database connection pool, which is essential for performance.

@@ -1,27 +1,56 @@
-# Item Name and Description Translation Guidelines
+# Item Translation Guidelines
 
-When translating item names and descriptions, follow these specific guidelines:
-
+## For Item Names (field_type === "name"):
 1. **Function Clarity**: Maintain clear understanding of the item's purpose and function
 2. **Concise Names**: Keep item names short, memorable, and easy to read
-3. **Fantastical Elements**: Preserve magical, mystical, or fantastical terminology
+3. **Item Types**: Preserve specific item terminology (potion, ring, accessory, etc.)
 4. **UI Constraints**: Ensure translations fit within game interface limitations
-5. **Category Consistency**: Maintain consistency within similar item categories
+5. **Category Consistency**: Maintain consistency within item categories
 6. **Lore Preservation**: Keep important lore and background information
+7. **Usage Context**: Consider if it's a consumable, accessory, or quest item
 
-**Special Considerations for Items:**
-- Equipment: Maintain clear function and stat information
-- Consumables: Preserve usage instructions and effects
+**Special Considerations for Item Names:**
+- Consumables: Maintain clear usage and effect information
+- Accessories: Preserve enhancement and protection properties
 - Quest items: Keep story significance and purpose clear
 - Decorative items: Maintain aesthetic and atmospheric descriptions
 
-**Examples:**
-- Weapons: Preserve power level and special abilities
-- Armor: Maintain protection values and special properties
-- Potions: Keep effect descriptions clear and accurate
-- Quest items: Preserve story significance and usage context
+**Item Name Examples:**
+- 回復薬 → Healing Potion
+- 魔法の指輪 → Magic Ring
+- 聖なる石 → Sacred Stone
+- 幸運のチャーム → Lucky Charm
+
+## For Item Descriptions (field_type === "description"):
+1. **Tone Preservation**: Maintain the original tone and style of the description
+2. **Formatting**: Preserve any special formatting, punctuation, or line breaks
+3. **Formality Level**: Keep the same level of formality as the original
+4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
+5. **Consistency**: Maintain consistency with similar descriptions in the game
+6. **Clarity**: Ensure the description remains clear and informative
+7. **Usage Details**: Preserve usage instructions and effect descriptions
+8. **Lore Elements**: Keep story significance and background information
+
+**Special Considerations for Item Descriptions:**
+- Consumable descriptions: Preserve usage instructions and effect details
+- Accessory descriptions: Maintain enhancement and protection details
+- Quest item descriptions: Keep story significance and usage context
+- Decorative descriptions: Maintain atmospheric elements and setting details
+
+**Item Description Examples:**
+- "Restores HP when consumed.\n[Recovery: 100 HP]" → "Restores HP when consumed.\n[Recovery: 100 HP]"
+- "魔法の力が宿る指輪。\n[Magic +5]" → "A ring imbued with magical power.\n[Magic +5]"
+- "A cute pink heart charm.\nA girly accessory that adds a feminine touch." → "A cute pink heart charm.\nA girly accessory that adds a feminine touch."
+
+## For All Item Text:
+- Maintain fantasy/medieval terminology
+- Ensure cultural appropriateness
+- Keep consistent terminology across the game
+- Preserve any special characters or codes
+- Maintain item category consistency
 
 **Output Format:**
 Provide only the translated item text, no explanations or additional text.
 
-Item text to translate: {text} 
+Item text to translate: {text}
+Field type: {field_type} 

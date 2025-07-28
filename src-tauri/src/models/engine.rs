@@ -1,7 +1,7 @@
+use crate::models::language::Language;
 use crate::models::translation::TextUnit;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
-use crate::models::language::Language;
 
 /// Represents the type of game engine detected in a project.
 ///
