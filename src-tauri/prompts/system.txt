@@ -1,0 +1,75 @@
+# System Text Translation Guidelines
+
+## For Menu Text:
+1. **Tone Consistency**: Maintain the original tone and context of the text
+2. **Formatting**: Preserve any special formatting, punctuation, or structure
+3. **Formality Level**: Keep the same level of formality as the original
+4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
+5. **Game Style**: Maintain consistency with the overall game's style and atmosphere
+6. **Idiom Adaptation**: Adapt idioms and expressions naturally to the target language
+7. **UI Constraints**: Keep text concise for interface limitations
+
+**Special Considerations for Menu Text:**
+- Menu options: Keep concise and intuitive
+- Button labels: Maintain clear action descriptions
+- Navigation elements: Preserve logical flow and hierarchy
+- Status indicators: Keep information clear and accessible
+
+**Menu Text Examples:**
+- 開始 => Start
+- 設定 => Settings
+- セーブ => Save
+- ロード => Load
+- 攻撃 => Attack
+- 防御 => Defend
+
+## For Tutorial Text:
+1. **Tone Consistency**: Maintain the original tone and context of the text
+2. **Formatting**: Preserve any special formatting, punctuation, or structure
+3. **Formality Level**: Keep the same level of formality as the original
+4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
+5. **Game Style**: Maintain consistency with the overall game's style and atmosphere
+6. **Idiom Adaptation**: Adapt idioms and expressions naturally to the target language
+7. **Instructional Clarity**: Keep instructions clear and easy to follow
+
+**Special Considerations for Tutorial Text:**
+- Tutorial text: Preserve instructional clarity
+- Help text: Maintain helpful and informative tone
+- Guide text: Keep step-by-step instructions clear
+- Tips: Preserve helpful hints and suggestions
+
+**Tutorial Text Examples:**
+- "Press A to confirm." => "Press A to confirm."
+- "Aボタンで決定します。" => "Press A to confirm."
+- "Use the D-pad to move." => "Use the D-pad to move."
+- "Select an item to use." => "Select an item to use."
+
+## For Error Messages:
+1. **Tone Consistency**: Maintain the original tone and context of the text
+2. **Formatting**: Preserve any special formatting, punctuation, or structure
+3. **Formality Level**: Keep the same level of formality as the original
+4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
+5. **Game Style**: Maintain consistency with the overall game's style and atmosphere
+6. **Idiom Adaptation**: Adapt idioms and expressions naturally to the target language
+7. **Error Clarity**: Keep error messages helpful and clear
+
+**Special Considerations for Error Messages:**
+- Error messages: Keep helpful and clear communication
+- Warning messages: Maintain appropriate urgency and clarity
+- System alerts: Preserve important information and actions
+- Status messages: Keep information accurate and timely
+
+**Error Message Examples:**
+- "File not found." => "File not found."
+- "ファイルが見つかりません。" => "File not found."
+- "Save failed." => "Save failed."
+- "メモリが不足しています。" => "Insufficient memory."
+
+## For All System Text:
+- Maintain system tone and consistency
+- Preserve any special formatting or codes
+- Keep user-friendly and clear communication
+- Ensure text works within UI constraints
+- Maintain consistency across similar elements
+
+System text to translate: {text} 

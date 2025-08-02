@@ -1,0 +1,22 @@
+{
+  "user_settings": {
+    "provider": "ollama",
+    "model": {
+      "display_name": "Qwen2.5 7B",
+      "model_name": "qwen2.5:latest"
+    },
+    "source_language": {
+      "id": "ja",
+      "label": "Japanese",
+      "native_name": "日本語"
+    },
+    "target_language": {
+      "id": "en",
+      "label": "English",
+      "native_name": "English"
+    },
+    "base_url": "http://localhost:11434",
+    "temperature": 0.7,
+    "max_tokens": 2048
+  }
+}

@@ -6,7 +6,7 @@ use std::path::Path;
 
 use crate::core::engine::Engine;
 use crate::core::error::{AppError, AppResult};
-use crate::engines::rpg_maker_mv::files::{actors, armors, classes, items, skills, weapons};
+use crate::engines::rpg_maker_mv::files::{actors, armors, classes, common_events, enemies, items, maps, maps_infos, skills, states, system, troops, weapons};
 use crate::engines::common;
 use crate::models::engine::{EngineCriteria, EngineInfo, EngineType, GameDataFile};
 use crate::models::language::Language;
@@ -119,7 +119,7 @@ impl RpgMakerMvEngine {
         );
         let mut game_data_files = Vec::new();
 
-        // Extract text from Actors.json
+       /*  // Extract text from Actors.json
         let actors_paths = ["www/data/Actors.json"];
         let actors_files = common::extract_file_type_text(
             project_info,
@@ -179,6 +179,80 @@ impl RpgMakerMvEngine {
         )?;
         game_data_files.extend(classes_files);
 
+        // Extract text from System.json
+        let system_paths = ["www/data/System.json"];
+        let system_files = common::extract_file_type_text(
+            project_info,
+            &system_paths,
+            system::extract_text,
+            "System.json",
+        )?;
+        game_data_files.extend(system_files);
+
+        // Extract text from States.json
+        let states_paths = ["www/data/States.json"];
+        let states_files = common::extract_file_type_text(
+            project_info,
+            &states_paths,
+            states::extract_text,
+            "States.json",
+        )?;
+        game_data_files.extend(states_files);
+
+        // Extract text from Enemies.json
+        let enemies_paths = ["www/data/Enemies.json"];
+        let enemies_files = common::extract_file_type_text(
+            project_info,
+            &enemies_paths,
+            enemies::extract_text,
+            "Enemies.json",
+        )?;
+        game_data_files.extend(enemies_files);
+
+        // Extract text from CommonEvents.json
+        let common_events_paths = ["www/data/CommonEvents.json"];
+        let common_events_files = common::extract_file_type_text(
+            project_info,
+            &common_events_paths,
+            common_events::extract_text,
+            "CommonEvents.json",
+        )?;
+        game_data_files.extend(common_events_files);
+
+        // Extract text from Troops.json
+        let troops_paths = ["www/data/Troops.json"];
+        let troops_files = common::extract_file_type_text(
+            project_info,
+            &troops_paths,
+            troops::extract_text,
+            "Troops.json",
+        )?;
+        game_data_files.extend(troops_files);
+
+        // Extract text from MapInfos.json
+        let map_infos_paths = ["www/data/MapInfos.json"];
+        let map_infos_files = common::extract_file_type_text(
+            project_info,
+            &map_infos_paths,
+            maps_infos::extract_text,
+            "MapInfos.json",
+        )?;
+        game_data_files.extend(map_infos_files);*/
+
+        // Extract text from MapXXX.json files (dynamic discovery)
+        let map_files = maps::discover_map_files(&project_info.path)?;
+        for map_file_path in &map_files {
+            match maps::extract_text(&project_info.path, map_file_path) {
+                Ok(map_file) => {
+                    game_data_files.push(map_file);
+                }
+                Err(e) => {
+                    log::warn!("Failed to extract text from {}: {}", map_file_path, e);
+                    // Continue with other map files
+                }
+            }
+        }
+
         info!(
             "Extracted {} game data files from RPG Maker MV project",
             game_data_files.len()
@@ -207,7 +281,7 @@ impl RpgMakerMvEngine {
             project_info.name
         );
 
-        // Inject actor translations
+       /* // Inject actor translations
         common::inject_file_type_translations(
             project_info,
             text_units,
@@ -266,6 +340,88 @@ impl RpgMakerMvEngine {
             classes::inject_translations,
             "class",
         )?;
+
+        // Inject system translations
+        common::inject_file_type_translations(
+            project_info,
+            text_units,
+            "system_",
+            &["www/data/System.json"],
+            system::inject_translations,
+            "system",
+        )?;
+
+        // Inject states translations
+        common::inject_file_type_translations(
+            project_info,
+            text_units,
+            "state_",
+            &["www/data/States.json"],
+            states::inject_translations,
+            "state",
+        )?;
+
+        // Inject enemies translations
+        common::inject_file_type_translations(
+            project_info,
+            text_units,
+            "enemy_",
+            &["www/data/Enemies.json"],
+            enemies::inject_translations,
+            "enemy",
+        )?;
+
+        // Inject common events translations
+        common::inject_file_type_translations(
+            project_info,
+            text_units,
+            "common_event_",
+            &["www/data/CommonEvents.json"],
+            common_events::inject_translations,
+            "common_event",
+        )?;
+
+        // Inject troops translations
+        common::inject_file_type_translations(
+            project_info,
+            text_units,
+            "troop_",
+            &["www/data/Troops.json"],
+            troops::inject_translations,
+            "troop",
+        )?;
+
+        // Inject map infos translations
+        common::inject_file_type_translations(
+            project_info,
+            text_units,
+            "map_info_",
+            &["www/data/MapInfos.json"],
+            maps_infos::inject_translations,
+            "map_info",
+        )?;*/
+
+        // Inject map event translations (dynamic discovery)
+        let map_files = maps::discover_map_files(&project_info.path)?;
+        for map_file_path in &map_files {
+            // Filter text units for this specific map file
+            let map_event_units: Vec<&TextUnit> = text_units
+                .iter()
+                .filter(|unit| unit.id.starts_with("map_event_"))
+                .collect();
+
+            if !map_event_units.is_empty() {
+                match maps::inject_translations(&project_info.path, map_file_path, &map_event_units) {
+                    Ok(_) => {
+                        log::info!("Successfully injected translations into {}", map_file_path);
+                    }
+                    Err(e) => {
+                        log::warn!("Failed to inject translations into {}: {}", map_file_path, e);
+                        // Continue with other map files
+                    }
+                }
+            }
+        }
 
         info!("Translation injection completed");
         Ok(())

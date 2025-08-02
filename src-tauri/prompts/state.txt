@@ -1,0 +1,89 @@
+# Status Effect (State) Translation Guidelines
+
+## For Status Effect Names:
+1. **RPG Terminology**: Use consistent RPG status effect terminology
+2. **Battle Context**: Consider the battle/combat context of the effect
+3. **Clarity**: Ensure the name clearly indicates what the effect does
+4. **Consistency**: Maintain consistency with similar effects in the game
+5. **Cultural Adaptation**: Use familiar RPG terms for the target audience
+6. **Conciseness**: Keep names short and memorable for battle UI
+
+**Special Considerations for Status Effect Names:**
+- Combat effects: Use action-oriented, clear terminology
+- Duration effects: Indicate if temporary or permanent
+- Intensity levels: Consider severity (poison vs. deadly poison)
+- RPG conventions: Use familiar terms (poison, sleep, confusion, etc.)
+
+**Status Effect Name Examples:**
+- "毒" => "Poison"
+- "睡眠" => "Sleep"
+- "混乱" => "Confusion"
+- "防御" => "Defense"
+- "不死身" => "Immortal"
+
+## For Status Effect Descriptions:
+1. **Mechanical Clarity**: Clearly explain what the effect does
+2. **Game Balance**: Maintain the intended game balance implications
+3. **Player Understanding**: Ensure players understand the effect's impact
+4. **Consistency**: Keep consistent with similar effect descriptions
+5. **Conciseness**: Be clear and concise for UI display
+6. **Technical Accuracy**: Preserve important mechanical details
+
+**Special Considerations for Status Effect Descriptions:**
+- Duration: Clearly indicate how long the effect lasts
+- Effects: Explain what changes (stats, behavior, etc.)
+- Removal: Mention how the effect can be removed
+- Stacking: Indicate if effects can stack or overlap
+
+**Status Effect Description Examples:**
+- "Damages the target over time" => "Damages the target over time"
+- "Prevents the target from acting" => "Prevents the target from acting"
+- "Increases defense temporarily" => "Increases defense temporarily"
+
+## For Battle Messages:
+1. **Placeholder Preservation**: Maintain all placeholders (%1, %2, %3, etc.)
+2. **Battle Intensity**: Keep the action-oriented, dramatic battle tone
+3. **Character Integration**: Ensure character names integrate naturally
+4. **Clarity**: Make the message clear even in fast-paced battle
+5. **Consistency**: Maintain consistent battle message style
+6. **Context Awareness**: Consider the specific battle context
+
+**Special Considerations for Battle Messages:**
+- Message1 (Applied to target): "X has been affected!"
+- Message2 (Applied by user): "X affected Y!"
+- Message3 (Active state): "X is currently affected"
+- Message4 (Removed): "X's effect has been cured!"
+
+**Battle Message Examples:**
+- "は毒にかかった！" => "%1 has been poisoned!"
+- "に毒をかけた！" => "%1 poisoned %2!"
+- "は眠っている。" => "%1 is sleeping."
+- "の毒が消えた！" => "%1's poison has been cured!"
+- "は我に返った！" => "%1 has come to their senses!"
+- "は目を覚ました！" => "%1 has woken up!"
+
+## For Developer Notes:
+1. **Technical Preservation**: Maintain important technical information
+2. **Developer Context**: Keep developer-specific information intact
+3. **Formatting**: Preserve any special formatting or structure
+4. **Reference Integrity**: Maintain important references and links
+5. **Clarity**: Ensure technical information remains clear
+
+**Special Considerations for Developer Notes:**
+- Technical references: Maintain precise technical information
+- Game mechanics: Preserve important game system details
+- Debug information: Keep debugging and testing information
+- Implementation notes: Maintain development context
+
+**Developer Note Examples:**
+- "ステート１番はＨＰが０になったときに自動的に付加されます。" => "State 1 is automatically applied when HP reaches 0."
+- "Debug: State testing" => "Debug: State testing"
+
+## For All Status Effect Text:
+- Maintain RPG battle context and terminology
+- Preserve game mechanics and balance implications
+- Keep consistent with other status effects in the game
+- Ensure text works within battle UI constraints
+- Maintain the dramatic, action-oriented tone of RPG battles
+
+Status effect text to translate: {text}

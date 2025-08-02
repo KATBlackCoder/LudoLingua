@@ -29,17 +29,17 @@ pub enum PromptType {
     /// Prompt specialized for translating character or location names
     Character,
 
-    /// Prompt specialized for translating longer descriptive text
-    Description,
+    /// Prompt specialized for translating status effect names and descriptions
+    State,
+
+    /// Prompt specialized for translating system text, menus, and UI elements
+    System,
 
     /// Prompt specialized for translating dialogue
     Dialogue,
 
-    /// Prompt specialized for translating weapon names and descriptions
-    Weapon,
-
-    /// Prompt specialized for translating item names and descriptions
-    Item,
+    /// Prompt specialized for translating equipment names and descriptions (weapons, armor, items, accessories)
+    Equipment,
 
     /// Prompt specialized for translating skill names and descriptions
     Skill,

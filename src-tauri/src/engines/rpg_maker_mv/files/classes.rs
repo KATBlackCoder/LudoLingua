@@ -39,8 +39,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
             file_path,
             index,
             vec![
-                ("name", &class.name, PromptType::Character),
-                ("note", &class.note, PromptType::Other),
+                ("name", &class.name, PromptType::Class),
             ],
         )
     };

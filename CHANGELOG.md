@@ -8,35 +8,111 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **Items.json Support:** Complete implementation for RPG Maker MV Items.json file parsing and translation
-  - Added `src/engines/rpg_maker_mv/files/items.rs` with `Item` struct and translatable fields
-  - Implemented `extract_text` and `inject_translations` functions for Items.json
-  - Updated engine to detect and process Items.json alongside Actors.json
-  - Added proper ID prefixing (`item_`) for text unit identification
-- **Skills.json Support:** Complete implementation for RPG Maker MV Skills.json file parsing and translation
-  - Added `src/engines/rpg_maker_mv/files/skills.rs` with `Skill` struct and translatable fields
-  - Implemented `extract_text` and `inject_translations` functions for Skills.json
-  - Updated engine to detect and process Skills.json alongside Actors.json and Items.json
-  - Added proper ID prefixing (`skill_`) for text unit identification
-  - Supports extraction of skill names, descriptions, messages, and notes
-- **Weapons.json Support:** Complete implementation for RPG Maker MV Weapons.json file parsing and translation
-  - Added `src/engines/rpg_maker_mv/files/weapons.rs` with `Weapon` struct and translatable fields
-  - Implemented `extract_text` and `inject_translations` functions for Weapons.json
-  - Updated engine to detect and process Weapons.json alongside other file types
-  - Added proper ID prefixing (`weapon_`) for text unit identification
-  - Supports extraction of weapon names, descriptions, and notes
-- **Armors.json Support:** Complete implementation for RPG Maker MV Armors.json file parsing and translation
-  - Added `src/engines/rpg_maker_mv/files/armors.rs` with `Armor` struct and translatable fields
-  - Implemented `extract_text` and `inject_translations` functions for Armors.json
-  - Updated engine to detect and process Armors.json alongside other file types
-  - Added proper ID prefixing (`armor_`) for text unit identification
-  - Supports extraction of armor names, descriptions, and notes
-- **Classes.json Support:** Complete implementation for RPG Maker MV Classes.json file parsing and translation
-  - Added `src/engines/rpg_maker_mv/files/classes.rs` with `Class` struct and translatable fields
-  - Implemented `extract_text` and `inject_translations` functions for Classes.json
-  - Updated engine to detect and process Classes.json alongside other file types
-  - Added proper ID prefixing (`class_`) for text unit identification
-  - Supports extraction of class names and notes
+- **Complete RPG Maker MV File Support:** Successfully implemented support for all 7 major RPG Maker MV data files
+  - **Items.json Support:** Complete implementation for RPG Maker MV Items.json file parsing and translation
+    - Added `src/engines/rpg_maker_mv/files/items.rs` with `Item` struct and translatable fields
+    - Implemented `extract_text` and `inject_translations` functions for Items.json
+    - Updated engine to detect and process Items.json alongside Actors.json
+    - Added proper ID prefixing (`item_`) for text unit identification
+  - **Skills.json Support:** Complete implementation for RPG Maker MV Skills.json file parsing and translation
+    - Added `src/engines/rpg_maker_mv/files/skills.rs` with `Skill` struct and translatable fields
+    - Implemented `extract_text` and `inject_translations` functions for Skills.json
+    - Updated engine to detect and process Skills.json alongside Actors.json and Items.json
+    - Added proper ID prefixing (`skill_`) for text unit identification
+    - Supports extraction of skill names, descriptions, messages, and notes
+  - **Weapons.json Support:** Complete implementation for RPG Maker MV Weapons.json file parsing and translation
+    - Added `src/engines/rpg_maker_mv/files/weapons.rs` with `Weapon` struct and translatable fields
+    - Implemented `extract_text` and `inject_translations` functions for Weapons.json
+    - Updated engine to detect and process Weapons.json alongside other file types
+    - Added proper ID prefixing (`weapon_`) for text unit identification
+    - Supports extraction of weapon names, descriptions, and notes
+  - **Armors.json Support:** Complete implementation for RPG Maker MV Armors.json file parsing and translation
+    - Added `src/engines/rpg_maker_mv/files/armors.rs` with `Armor` struct and translatable fields
+    - Implemented `extract_text` and `inject_translations` functions for Armors.json
+    - Updated engine to detect and process Armors.json alongside other file types
+    - Added proper ID prefixing (`armor_`) for text unit identification
+    - Supports extraction of armor names, descriptions, and notes
+      - **Classes.json Support:** Complete implementation for RPG Maker MV Classes.json file parsing and translation
+    - Added `src/engines/rpg_maker_mv/files/classes.rs` with `Class` struct and translatable fields
+    - Implemented `extract_text` and `inject_translations` functions for Classes.json
+    - Updated engine to detect and process Classes.json alongside other file types
+    - Added proper ID prefixing (`class_`) for text unit identification
+    - Supports extraction of class names and notes
+    - **System.json Support:** Complete implementation for RPG Maker MV System.json file parsing and translation
+    - Added `src/engines/rpg_maker_mv/files/system.rs` with `System` and `Terms` structs for complex nested structure
+    - Implemented custom `extract_text` and `inject_translations` functions for System.json's unique single-object structure
+    - Updated engine to detect and process System.json alongside other file types
+    - Added proper ID prefixing (`system_`) for text unit identification
+    - Supports extraction of game title, currency unit, armor types, elements, equipment types, skill types, weapon types, switches, variables, and UI terms/messages
+    - Handles complex nested structure with terms object containing basic, commands, params, and messages arrays
+    - Fixed System.json message translation to use correct prompt type (System instead of Other) for proper system text handling
+    - **States.json Support:** Complete implementation for RPG Maker MV States.json file parsing and translation
+    - Added `src/engines/rpg_maker_mv/files/states.rs` with `State` struct and translatable fields
+    - Implemented `extract_text` and `inject_translations` functions using common helper functions
+    - Updated engine to detect and process States.json alongside other file types
+    - Added proper ID prefixing (`state_`) for text unit identification
+    - Supports extraction of status effect names, descriptions, battle messages, and developer notes
+    - Created specialized `state.txt` prompt file for RPG status effect translation
+    - Added `PromptType::State` enum variant for status effect-specific translation guidance
+    - Handles complex array structure with null values and empty states filtering
+    - Enhanced `state.txt` prompt with better battle message examples and stricter output formatting
+    - **Enemies.json Support:** Complete implementation for RPG Maker MV Enemies.json file parsing and translation
+    - Added `src/engines/rpg_maker_mv/files/enemies.rs` with `Enemy` struct and translatable fields
+    - Implemented `extract_text` and `inject_translations` functions using common helper functions
+    - Updated engine to detect and process Enemies.json alongside other file types
+    - Added proper ID prefixing (`enemy_`) for text unit identification
+    - Supports extraction of enemy names and developer notes
+    - Handles complex array structure with null values and empty enemies filtering
+- **CommonEvents.json Support:** Complete implementation for RPG Maker MV CommonEvents.json file parsing and translation
+- Added `src/engines/rpg_maker_mv/files/common_events.rs` with `CommonEvent` and `EventCommand` structs
+- Implemented `extract_text` and `inject_translations` functions using common helper functions
+- Updated engine to detect and process CommonEvents.json alongside other file types
+- Added proper ID prefixing (`common_event_`) for text unit identification
+- Supports extraction of event names, message content (code 401), comments (code 108), and other translatable parameters
+- Handles complex event command structure with nested parameters and command codes
+- Used appropriate prompt types (Character for names, Dialogue for messages, Other for comments and parameters)
+- Handles complex array structure with null values and empty events filtering
+- **MapInfos.json Support:** Complete implementation for RPG Maker MV MapInfos.json file parsing and translation
+- Added `src/engines/rpg_maker_mv/files/maps_infos.rs` with `MapInfo` struct and translatable fields
+- Implemented `extract_text` and `inject_translations` functions using common helper functions
+- Updated engine to detect and process MapInfos.json alongside other file types
+- Added proper ID prefixing (`map_info_`) for text unit identification
+- Supports extraction of map names from the map tree/structure file
+- Handles complex array structure with null values and empty map entries filtering
+- Used appropriate prompt types (Character for map names)
+- Distinguished between MapInfos.json (map metadata) and MapXXX.json (map content) files
+- **MapXXX.json Support:** Complete implementation for RPG Maker MV MapXXX.json file parsing and translation with dynamic file discovery
+- Added `src/engines/rpg_maker_mv/files/maps.rs` with comprehensive data structures for Map, MapEvent, EventPage, and EventCommand
+- Implemented dynamic file discovery to automatically handle Map001.json, Map002.json, etc.
+- Added `extract_text` and `inject_translations` functions following the established architecture pattern
+- Updated engine to include dynamic MapXXX.json discovery and processing
+- Added proper ID prefixing (`map_event_`) for text unit identification
+- Supports extraction of event names, notes, messages (code 401), and comments (code 108) from map events
+- Handles complex nested structure with events, pages, and commands
+- Used appropriate prompt types (Character for event names, Dialogue for messages, Other for notes/comments)
+- Robust error handling with graceful fallback for individual map files
+- Dynamic file discovery eliminates need for hardcoded map file lists
+- **Enhanced Prompt System:** Comprehensive prompt architecture optimization for better translation quality
+  - **Streamlined Base Prompt:** Created `erobasic.txt` as optimized base prompt (removed overwhelming examples)
+  - **Unified Equipment Prompts:** Consolidated `weapon.txt` and `item.txt` into unified `equipment.txt`
+  - **Specific Translation Guides:** Added mandatory translation mappings to all prompt files for consistency
+  - **Enhanced Output Format:** Improved instructions to prevent unwanted comments, prefixes, and metadata
+  - **Field-Specific Guidelines:** Added tailored instructions for character names, equipment, skills, and classes
+  - **Erotic Content Handling:** Enhanced terminology and examples for adult game content translation
+  - **Organized Dialogue Examples:** Moved dialogue-specific examples from `basic.txt` to `dialogue.txt` for better organization
+  - **Flexible Skill Guidelines:** Replaced rigid skill message mappings with flexible pattern-based guidelines
+  - **Enhanced Class Translations:** Improved RPG class distinctions (勇者 → Hero, 戦士 → Warrior)
+- **Improved Debugging & Monitoring:** Enhanced application monitoring and debugging capabilities
+  - **Project Statistics Enhancement:** Added language configuration display to `ProjectStats.vue`
+  - **Translation Quality Monitoring:** Added comprehensive logging to `TranslationTable.vue` for translation debugging
+  - **Settings Store Improvements:** Enhanced provider store with proper initialization and settings loading
+  - **Configuration Display:** Added AI and language configuration logging for troubleshooting
+- **Enhanced User Interface:** Improved user experience with better workflow and usability features
+  - **Load New Project:** Added "Load New Project" button to main page header for easy project switching
+  - **Reset Functionality:** Added "Reset" button to TranslationTable for clearing all translations
+  - **Enhanced Button States:** Improved button availability logic (Inject only when translation finished)
+  - **Better Progress Tracking:** Enhanced translation progress indicators and status management
+  - **Improved User Experience:** Streamlined project loading workflow with better feedback
 
 ### Changed
 - **Common Helper Functions Architecture:** Refactored engine implementation to use reusable helper functions
@@ -53,6 +129,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - File-specific modules now focus only on their unique data structures and field logic
   - Eliminated boilerplate code for file existence checks, JSON parsing, and iteration
   - Improved maintainability and readability of all file processing code
+- **Prompt System Architecture:** Comprehensive prompt system optimization and consolidation
+  - **Consolidated Equipment Prompts:** Merged `weapon.txt` and `item.txt` into unified `equipment.txt` for better consistency
+  - **Updated PromptType Enum:** Replaced separate `Weapon` and `Item` types with unified `Equipment` type
+  - **Streamlined Base Prompt:** Created `erobasic.txt` as optimized base prompt, removing overwhelming examples
+  - **Enhanced Translation Quality:** Added mandatory translation mappings and improved output format instructions
+  - **Field-Specific Optimization:** Added tailored guidelines for different text types (character names, equipment, skills, etc.)
+  - **Improved LLM Integration:** Updated `PromptBuilder` and file parsers to use new consolidated prompt system
+  - **Organized Dialogue Examples:** Moved dialogue-specific examples from `basic.txt` to `dialogue.txt` for better organization
+  - **Flexible Skill Guidelines:** Replaced rigid skill message mappings with flexible pattern-based guidelines for better cross-game compatibility
+  - **Enhanced Class Translations:** Improved RPG class distinctions with proper translations (勇者 → Hero, 戦士 → Warrior)
+- **User Interface Enhancements:** Improved user experience and workflow
+  - **Project Management:** Added "Load New Project" functionality for easy project switching
+  - **Translation Workflow:** Enhanced TranslationTable with Reset button and improved button states
+  - **Progress Tracking:** Better translation progress indicators and status management
+  - **User Feedback:** Improved loading states, error handling, and visual feedback
 
 ### Technical Improvements
 - **Engine Architecture:** Reduced code complexity by ~100 lines through common helper functions
@@ -62,6 +153,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **File Module Architecture:** Achieved ~70% code reduction in file modules through advanced common functions
 - **Code Maintainability:** File-specific modules now focus only on unique data structures and field logic
 - **Boilerplate Elimination:** Removed repetitive file I/O, JSON parsing, and iteration code from all file modules
+- **Prompt System Optimization:** Streamlined prompt architecture with ~50% reduction in prompt complexity
+- **Translation Quality Enhancement:** Eliminated LLM output inconsistencies through mandatory translation mappings
+- **Debugging Capabilities:** Enhanced monitoring and debugging tools for better translation quality assessment
+- **Settings Management:** Improved settings store initialization and configuration display for better user experience
+- **User Experience:** Enhanced workflow with better button states, progress tracking, and project management
+- **Cross-Game Compatibility:** Flexible skill guidelines allow for different game styles and translation preferences
+- **Prompt Organization:** Better separation of concerns with dialogue examples properly organized in dedicated files
 
 ## [0.1.0] - 2024-01-XX
 

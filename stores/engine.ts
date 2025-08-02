@@ -6,6 +6,8 @@ import type { TextUnit } from '../types/translation';
 import { useLanguageStore } from './language';
 
 export const useEngineStore = defineStore('engine', () => {
+  // Toast
+  const toast = useToast();
   // State
   const projectInfo = ref<EngineInfo | null>(null);
   const textUnits = ref<TextUnit[]>([]);
@@ -28,9 +30,7 @@ export const useEngineStore = defineStore('engine', () => {
     try {
       isLoading.value = true;
       error.value = null;
-      
-      console.log('Loading project from:', projectPath);
-      
+         
       // Get language settings from the settings store
       const sourceLanguage = languageStore.getLanguage.source_language;
       const targetLanguage = languageStore.getLanguage.target_language;
@@ -42,7 +42,6 @@ export const useEngineStore = defineStore('engine', () => {
         targetLanguage
       });
       
-      console.log('Project loaded successfully languages:', sourceLanguage, targetLanguage);
       projectInfo.value = result;
       
       // Extract text units from the loaded project
@@ -52,13 +51,6 @@ export const useEngineStore = defineStore('engine', () => {
       // Get game data files directly from the backend
       const files = await invoke<GameDataFile[]>('extract_game_data_files', { projectInfo: result });
       setGameDataFiles(files);
-
-      console.log('Project loaded successfully:', {
-        name: result.name,
-        engine: result.engine_type,
-        files: files.length,
-        textUnits: extractedUnits.length,
-      });
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load project';
@@ -86,16 +78,19 @@ export const useEngineStore = defineStore('engine', () => {
     try {
       isLoading.value = true;
       error.value = null;
-      
-      console.log('Saving project translations:', projectInfo.value.name);
-      
+          
       // Call the backend command to inject all text units back into project files
       await invoke('inject_text_units', {
         projectInfo: projectInfo.value,
         textUnits: textUnits.value
       });
       
-      console.log('Project saved successfully');
+      toast.add({
+        title: 'Project saved successfully',
+        description: 'All translations have been injected back into the project files',
+        color: 'success',
+        icon: 'check-circle'
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save project';
       error.value = errorMessage;

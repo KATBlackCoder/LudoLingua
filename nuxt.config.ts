@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   // (optional) Enable the Nuxt devtools
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   // Enable SSG
   ssr: false,
   // Enables the development server to be discoverable by other devices when running on iOS physical devices

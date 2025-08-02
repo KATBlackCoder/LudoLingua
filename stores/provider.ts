@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
+import { load } from '@tauri-apps/plugin-store'
 import type { Provider, ModelInfo, ProviderConfig } from '~/types/provider'
 import { useAppToast } from '~/composables/useAppToast'
 
@@ -119,6 +120,32 @@ export const useProviderStore = defineStore('provider', () => {
       isLoading.value = false
     }
   }
+
+  // Action: Load provider settings from persistent storage
+  async function loadProviderSettings() {
+    try {
+      const store = await load("ludollingua-settings.json", { autoSave: false });
+      const val = await store.get<{
+        provider: string;
+        model: ModelInfo;
+        base_url?: string;
+        temperature: number;
+        max_tokens: number;
+      }>("provider_settings");
+      
+      if (val) {
+        selectedProvider.value = val.provider || 'ollama';
+        selectedModel.value = val.model || null;
+        // Note: base_url, temperature, max_tokens would be used if we had them in state
+      }
+    } catch (error) {
+      console.error('Failed to load provider settings:', error);
+      // Keep default values if loading fails
+    }
+  }
+
+  // Initialize settings when store is created
+  loadProviderSettings();
 
   function clearError() {
     error.value = null

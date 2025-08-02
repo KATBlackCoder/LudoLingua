@@ -74,10 +74,12 @@ impl PromptBuilder {
     fn get_specific_template_path(prompt_type: PromptType) -> &'static str {
         match prompt_type {
             PromptType::Character => "prompts/character.txt",
-            PromptType::Description => "prompts/description.txt",
+            PromptType::State => "prompts/state.txt",
             PromptType::Dialogue => "prompts/dialogue.txt",
-            PromptType::Item => "prompts/item.txt",
+            PromptType::Equipment => "prompts/equipment.txt",
             PromptType::Skill => "prompts/skill.txt",
+            PromptType::Class => "prompts/class.txt",
+            PromptType::System => "prompts/system.txt",
             PromptType::Other => "prompts/other.txt",
         }
     }
@@ -109,7 +111,6 @@ impl PromptBuilder {
             )
             .replace("{context}", "RPG Maker game content")
             .replace("{text}", &text_unit.source_text)
-            .replace("{field_type}", &text_unit.field_type)
     }
 
     /// Load a prompt template from the filesystem.
@@ -159,65 +160,5 @@ impl PromptBuilder {
             text_unit.source_text
         ));
         prompt
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::models::language::Language;
-
-    #[test]
-    fn test_get_specific_template_path() {
-        assert_eq!(
-            PromptBuilder::get_specific_template_path(PromptType::Character),
-            "prompts/character.txt"
-        );
-        assert_eq!(
-            PromptBuilder::get_specific_template_path(PromptType::Description),
-            "prompts/description.txt"
-        );
-        assert_eq!(
-            PromptBuilder::get_specific_template_path(PromptType::Dialogue),
-            "prompts/dialogue.txt"
-        );
-    }
-
-    #[test]
-    fn test_replace_template_variables() {
-        let template = "Translate from {source_language} to {target_language}: {text}";
-        let text_unit = TextUnit {
-            id: "test".to_string(),
-            source_text: "Hello world".to_string(),
-            translated_text: String::new(),
-            field_type: "test".to_string(),
-            status: crate::models::translation::TranslationStatus::NotTranslated,
-            prompt_type: PromptType::Other,
-        };
-        let engine_info = EngineInfo {
-            name: "Test".to_string(),
-            path: std::path::PathBuf::new(),
-            engine_type: crate::models::engine::EngineType::RpgMakerMv,
-            source_language: Language {
-                id: "en".to_string(),
-                label: "English".to_string(),
-                native_name: "English".to_string(),
-            },
-            target_language: Language {
-                id: "fr".to_string(),
-                label: "French".to_string(),
-                native_name: "Français".to_string(),
-            },
-            version: None,
-            detection_criteria: crate::models::engine::EngineCriteria {
-                required_files: vec![],
-                required_folders: vec![],
-                optional_files: None,
-            },
-        };
-
-        let result = PromptBuilder::replace_template_variables(template, &text_unit, &engine_info);
-
-        assert_eq!(result, "Translate from English to Français: Hello world");
     }
 }

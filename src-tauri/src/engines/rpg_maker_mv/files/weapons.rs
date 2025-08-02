@@ -41,9 +41,8 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
             file_path,
             index,
             vec![
-                ("name", &weapon.name, PromptType::Character),
-                ("description", &weapon.description, PromptType::Description),
-                ("note", &weapon.note, PromptType::Other),
+                ("name", &weapon.name, PromptType::Equipment),
+                ("description", &weapon.description, PromptType::Equipment),
             ],
         )
     };

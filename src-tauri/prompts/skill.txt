@@ -1,6 +1,6 @@
 # Skill Translation Guidelines
 
-## For Skill Names (field_type === "name"):
+## For Skill Names:
 1. **Power Clarity**: Convey the skill's power level and effect clearly
 2. **Action-Oriented**: Maintain the dynamic, action-focused nature of skill names
 3. **Technical Terms**: Preserve magical, technical, or combat terminology accurately
@@ -16,12 +16,27 @@
 - Ultimate skills: Preserve the impressive and powerful nature
 
 **Skill Name Examples:**
-- ファイアボール → Fireball
-- ヒール → Heal
-- 雷撃 → Thunder Strike
-- 究極奥義 → Ultimate Technique
+- ファイアボール => Fireball
+- ヒール => Heal
+- 雷撃 => Thunder Strike
+- 究極奥義 => Ultimate Technique
+- 理性奪取 => Sanity Drain
+- 性欲操作 => Libido Manipulation
+- 淫魔の誘惑 => Succubus Seduction
 
-## For Skill Descriptions (field_type === "description"):
+**Specific Skill Translations (Use These Exact Translations):**
+- **Skill Names:** 攻撃 => Attack, 防御 => Defend, 連続攻撃 => Continuous Assault, ２回攻撃 => Double Attack, ３回攻撃 => Triple Attack, 逃げる => Escape, 様子を見る => Check Up, ヒール => Heal, ファイア => Fire, スパーク => Spark
+
+**Skill Message Guidelines:**
+- Translate `の攻撃！` as an action phrase (e.g., "attacks!", "strikes!", "launches an attack!")
+- Translate `は身を守っている。` as a defensive phrase (e.g., "is protecting itself", "defends", "guards")
+- Translate `は逃げてしまった。` as a fleeing phrase (e.g., "has fled", "escapes", "runs away")
+- Translate `は様子を見ている。` as an observation phrase (e.g., "is observing", "watches carefully", "assesses the situation")
+- Translate `は%1を唱えた！` as a spell-casting phrase (e.g., "casts %1!", "chants %1!", "uses %1!")
+- Maintain the dramatic, action-oriented tone of battle messages
+- Preserve the excitement and intensity of combat scenes
+
+## For Skill Descriptions:
 1. **Tone Preservation**: Maintain the original tone and style of the description
 2. **Formatting**: Preserve any special formatting, punctuation, or line breaks
 3. **Formality Level**: Keep the same level of formality as the original
@@ -38,11 +53,14 @@
 - Debuff skill descriptions: Maintain negative effect descriptions
 
 **Skill Description Examples:**
-- "Deals fire damage to all enemies.\n[Damage: 150%]" → "Deals fire damage to all enemies.\n[Damage: 150%]"
-- "Recovers HP for all allies.\n[Recovery: 200 HP]" → "Recovers HP for all allies.\n[Recovery: 200 HP]"
-- "Increases attack power for 3 turns.\n[Attack +50%]" → "Increases attack power for 3 turns.\n[Attack +50%]"
+- "Deals fire damage to all enemies.\n[Damage: 150%]" => "Deals fire damage to all enemies.\n[Damage: 150%]"
+- "Recovers HP for all allies.\n[Recovery: 200 HP]" => "Recovers HP for all allies.\n[Recovery: 200 HP]"
+- "Increases attack power for 3 turns.\n[Attack +50%]" => "Increases attack power for 3 turns.\n[Attack +50%]"
+- "相手の理性を奪う。\n[Sanity -30]" => "Drains the opponent's sanity.\n[Sanity -30]"
+- "性欲を高める効果。\n[Libido +40]" => "Effect that increases libido.\n[Libido +40]"
+- "子宮の状態を悪化させる。\n[Womb Status -25]" => "Worsens womb condition.\n[Womb Status -25]"
 
-## For Skill Messages (field_type === "message1" or "message2"):
+## For Skill Messages:
 1. **Combat Context**: Maintain the dramatic, action-oriented nature of battle messages
 2. **Character Voice**: Preserve the speaking character's personality and tone
 3. **Emotional Impact**: Keep the excitement and intensity of battle scenes
@@ -57,9 +75,12 @@
 - Victory/defeat messages: Maintain appropriate emotional tone
 
 **Skill Message Examples:**
-- "Fireball deals massive damage!" → "Fireball deals massive damage!"
-- "Healing light restores your strength!" → "Healing light restores your strength!"
-- "The enemy is paralyzed!" → "The enemy is paralyzed!"
+- "Fireball deals massive damage!" => "Fireball deals massive damage!"
+- "Healing light restores your strength!" => "Healing light restores your strength!"
+- "The enemy is paralyzed!" => "The enemy is paralyzed!"
+- "理性を奪われた！" => "Sanity has been drained!"
+- "性欲が高まっている！" => "Libido is rising!"
+- "子宮の状態が悪化した！" => "Womb condition has worsened!"
 
 ## For All Skill Text:
 - Maintain combat/magical terminology
@@ -68,8 +89,4 @@
 - Preserve any special characters or codes
 - Maintain skill category consistency
 
-**Output Format:**
-Provide only the translated skill text, no explanations or additional text.
-
-Skill text to translate: {text}
-Field type: {field_type} 
+Skill text to translate: {text} 

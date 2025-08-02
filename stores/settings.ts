@@ -130,7 +130,6 @@ export const useSettingsStore = defineStore('settings', () => {
       // Sync with language store to update UI components
       languageStore.setLanguage(settings.source_language.id, settings.target_language.id);
       
-      console.log('User settings loaded:', settings);
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Failed to load user settings';
       console.error('Failed to load user settings:', e);

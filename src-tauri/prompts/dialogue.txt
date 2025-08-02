@@ -15,9 +15,9 @@
 - Speech patterns: Maintain character-specific speech quirks and mannerisms
 
 **Character Dialogue Examples:**
-- "「こんにちは、お兄ちゃん！」" → "\"Hello, Onii-chan!\""
-- "「えぇ…こんなに可愛いのに…」" → "\"Eh... but she's so cute...\""
-- "「殺すよ」" → "\"I'll kill you.\""
+- "「こんにちは、お兄ちゃん！」" => "\"Hello, Onii-chan!\""
+- "「えぇ…こんなに可愛いのに…」" => "\"Eh... but she's so cute...\""
+- "「殺すよ」" => "\"I'll kill you.\""
 
 ## For Narrative Text/Story:
 1. **Tone Preservation**: Maintain the original narrative tone and atmosphere
@@ -34,9 +34,9 @@
 - Pacing: Maintain narrative rhythm and flow
 
 **Narrative Text Examples:**
-- "The sun set over the ancient castle." → "The sun set over the ancient castle."
-- "主人公は勇気を振り絞って進んだ。" → "The protagonist gathered their courage and pressed forward."
-- "A mysterious energy filled the air." → "A mysterious energy filled the air."
+- "The sun set over the ancient castle." => "The sun set over the ancient castle."
+- "主人公は勇気を振り絞って進んだ。" => "The protagonist gathered their courage and pressed forward."
+- "A mysterious energy filled the air." => "A mysterious energy filled the air."
 
 ## For All Dialogue Text:
 - Maintain character voice and personality consistency
@@ -45,8 +45,34 @@
 - Ensure translations work within UI constraints
 - Preserve formatting codes and special characters
 
-**Output Format:**
-Provide only the translated dialogue text, no explanations or additional text.
 
-Dialogue text to translate: {text}
-Field type: {field_type} 
+
+**Output Examples for Dialogue:**
+Input: 「\SE[タイプライター]こいつからは幼女の匂いが　しないでござる」
+Output: "\SE[タイプライター]This one doesn't smell like a little girl."
+
+Input: 「えぇ…\c[7]こんなに可愛いのに…」
+Output: "Eh... \c[7]but she's so cute..."
+
+Input: [Kurone]: あのさ
+Output: [Kurone]: Hey.
+
+Input: [Kurone]: \v[0]がお前に手を焼いてるみたいだったよ
+Output: [Kurone]: It seems like \v[0] is having a hard time with you.
+
+Input: [Kurone]: 他はどうでも良いけど、\n"\c[10]私の標的\c"に余計な事 しないでくれない？
+Output: [Kurone]: I don't care about the others,\nbut could you not interfere with "\c[10]my target\c"?
+
+Input: [Kurone]: 殺すよ
+Output: [Kurone]: I'll kill you.
+
+Input: \C[18]―――――――――――\.\.お前は死ぬ\|\^
+Output: \C[18]―――――――――――\.\.You will die\|\^
+
+Input: 　　　・・・
+Output: ...
+
+Input: ハートが可愛いピンク色のチャーム。\n女の子らしさが増すワンポイントアクセサリー。
+Output: A cute pink heart charm.\nA girly accessory that adds a feminine touch.
+
+Dialogue text to translate: {text} 

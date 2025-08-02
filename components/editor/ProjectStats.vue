@@ -10,7 +10,7 @@
         </div>
       </template>
       
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <!-- Translation Scope -->
         <div class="space-y-2">
           <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">Translation Scope</h4>
@@ -37,6 +37,21 @@
             <div class="flex justify-between">
               <span class="text-sm">Model:</span>
               <span class="text-sm font-medium">{{ settingsStore.userSettings.model.display_name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Language Configuration -->
+        <div class="space-y-2">
+          <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">Language Configuration</h4>
+          <div class="space-y-1">
+            <div class="flex justify-between">
+              <span class="text-sm">Source:</span>
+              <span class="text-sm font-medium">{{ settingsStore.userSettings.source_language.label }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm">Target:</span>
+              <span class="text-sm font-medium">{{ settingsStore.userSettings.target_language.label }}</span>
             </div>
           </div>
         </div>
@@ -76,12 +91,33 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useEngineStore } from '~/stores/engine';
 import { useSettingsStore } from '~/stores/settings';
 
 const engineStore = useEngineStore();
 const settingsStore = useSettingsStore();
+
+// Initialize settings and log configuration for debugging
+onMounted(async () => {
+  try {
+    await settingsStore.initializeStores()
+    
+    // Log configuration after settings are loaded
+    console.log('=== AI Configuration ===');
+    console.log('Provider:', settingsStore.userSettings.provider);
+    console.log('Model:', settingsStore.userSettings.model?.display_name || 'Not set');
+    console.log('Base URL:', settingsStore.userSettings.base_url);
+    console.log('Temperature:', settingsStore.userSettings.temperature);
+    console.log('Max Tokens:', settingsStore.userSettings.max_tokens);
+    console.log('=== Language Configuration ===');
+    console.log('Source Language:', settingsStore.userSettings.source_language.label);
+    console.log('Target Language:', settingsStore.userSettings.target_language.label);
+    console.log('========================');
+  } catch (error) {
+    console.error('Failed to initialize settings:', error)
+  }
+})
 
 // Computed properties for statistics
 const estimatedTokens = computed(() => {

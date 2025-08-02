@@ -5,6 +5,15 @@
         <template #header>
           <div class="flex items-center justify-between">
             <h2 class="text-xl font-semibold">Welcome to LudoLingua</h2>
+            <UButton
+              v-if="engineStore.hasProject"
+              label="Load New Project"
+              icon="i-heroicons-folder-open"
+              color="secondary"
+              size="sm"
+              :loading="engineStore.isLoading"
+              @click="loadNewProject"
+            />
           </div>
         </template>
         
@@ -46,6 +55,7 @@
 </template>
 
 <script setup lang="ts">
+import { open } from '@tauri-apps/plugin-dialog';
 import { useEngineStore } from '../stores/engine';
 import ProjectLoader from '../components/editor/ProjectLoader.vue';
 import ProjectStats from '../components/editor/ProjectStats.vue';
@@ -53,4 +63,21 @@ import TranslationTable from '../components/editor/TranslationTable.vue';
 
 const engineStore = useEngineStore();
 
+async function loadNewProject() {
+  try {
+    // Open a folder selection dialog
+    const selected = await open({
+      directory: true,
+      multiple: false,
+      title: 'Select RPG Maker Project Folder'
+    });
+    
+    if (selected) {
+      // If the user selected a folder, load the new project
+      await engineStore.loadProject(selected as string);
+    }
+  } catch (error) {
+    console.error('Error opening project:', error);
+  }
+}
 </script> 

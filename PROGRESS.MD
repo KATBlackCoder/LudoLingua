@@ -427,9 +427,23 @@ This document tracks the completed milestones of the LudoLingua application, bas
     *   [x] **Faster development** - Less code to maintain and debug
     *   [x] **Better user experience** - Simpler interface without unnecessary features
 
-### ✅ Phase 5: Additional File Types Support - PARTIALLY COMPLETED
+### ✅ Phase 5: Additional File Types Support - COMPLETED
 
 **Goal:** Expand translation support beyond Actors.json to include other RPG Maker MV data files and event-based content.
+
+**✅ Successfully completed support for 12 RPG Maker MV file types:**
+- Actors.json ✅
+- Items.json ✅  
+- Skills.json ✅
+- Weapons.json ✅
+- Armors.json ✅
+- Classes.json ✅
+- System.json ✅
+- States.json ✅
+- Enemies.json ✅
+- CommonEvents.json ✅
+- MapInfos.json ✅
+- MapXXX.json ✅
 
 *   **✅ Completed: Common Helper Functions Architecture**
     *   [x] **Created `src/engines/common.rs`** with reusable helper functions for all engine implementations
@@ -516,14 +530,143 @@ This document tracks the completed milestones of the LudoLingua application, bas
         *   [x] Consistent ID prefixing (`class_`) for text unit identification
         *   [x] Reused common helper functions for clean, maintainable code
 
+*   **✅ Completed: System.json Support**
+    *   [x] **Created `src/engines/rpg_maker_mv/files/system.rs`** with complete System.json implementation
+    *   [x] **Implemented `System` and `Terms` structs** for complex nested structure handling
+    *   [x] **Added custom `extract_text` and `inject_translations` functions** for unique single-object structure
+    *   [x] **Updated engine** to include System.json in file detection alongside other file types
+    *   [x] **Tested with sample RPG Maker MV project** - System.json extraction and injection working correctly
+    *   [x] **Benefits achieved:**
+        *   [x] Successfully extracted game title, currency unit, elements, switches, variables, and UI terms/messages
+        *   [x] Proper translation injection back into System.json files
+        *   [x] Consistent ID prefixing (`system_`) for text unit identification
+        *   [x] Handled complex nested structure with terms object containing basic, commands, params, and messages arrays
+        *   [x] Fixed System.json message translation to use correct prompt type (System instead of Other)
+
+*   **✅ Completed: States.json Support**
+    *   [x] **Created `src/engines/rpg_maker_mv/files/states.rs`** with complete States.json implementation
+    *   [x] **Implemented `State` struct** with translatable fields (name, description, message1, message2, message3, message4, note)
+    *   [x] **Added `extract_text` and `inject_translations` functions** using common helper functions
+    *   [x] **Updated engine** to include States.json in file detection alongside other file types
+    *   [x] **Created specialized `state.txt` prompt file** for RPG status effect translation
+    *   [x] **Added `PromptType::State` enum variant** for status effect-specific translation guidance
+    *   [x] **Tested with sample RPG Maker MV project** - States.json extraction and injection working correctly
+    *   [x] **Benefits achieved:**
+        *   [x] Successfully extracted status effect names, descriptions, battle messages, and developer notes
+        *   [x] Proper translation injection back into States.json files
+        *   [x] Consistent ID prefixing (`state_`) for text unit identification
+        *   [x] Handled complex array structure with null values and empty states filtering
+        *   [x] Specialized prompt guidance for RPG status effect terminology and battle context
+
+*   **✅ Completed: Enemies.json Support**
+    *   [x] **Created `src/engines/rpg_maker_mv/files/enemies.rs`** with complete Enemies.json implementation
+    *   [x] **Implemented `Enemy` struct** with translatable fields (name, note)
+    *   [x] **Added `extract_text` and `inject_translations` functions** using common helper functions
+    *   [x] **Updated engine** to include Enemies.json in file detection alongside other file types
+    *   [x] **Tested with sample RPG Maker MV project** - Enemies.json extraction and injection working correctly
+    *   [x] **Benefits achieved:**
+        *   [x] Successfully extracted enemy names and developer notes from Enemies.json
+        *   [x] Proper translation injection back into Enemies.json files
+        *   [x] Consistent ID prefixing (`enemy_`) for text unit identification
+        *   [x] Handled complex array structure with null values and empty enemies filtering
+        *   [x] Used appropriate prompt types (Character for names, Other for notes)
+
+*   **✅ Completed: CommonEvents.json Support**
+    *   [x] **Created `src/engines/rpg_maker_mv/files/common_events.rs`** with complete CommonEvents.json implementation
+    *   [x] **Implemented `CommonEvent` and `EventCommand` structs** for complex event command structure handling
+    *   [x] **Added `extract_text` and `inject_translations` functions** using common helper functions
+    *   [x] **Updated engine** to include CommonEvents.json in file detection alongside other file types
+    *   [x] **Tested with sample RPG Maker MV project** - CommonEvents.json extraction and injection working correctly
+    *   [x] **Benefits achieved:**
+        *   [x] Successfully extracted event names, message content (code 401), comments (code 108), and other translatable parameters
+        *   [x] Proper translation injection back into CommonEvents.json files
+        *   [x] Consistent ID prefixing (`common_event_`) for text unit identification
+        *   [x] Handled complex event command structure with nested parameters and command codes
+        *   [x] Used appropriate prompt types (Character for names, Dialogue for messages, Other for comments and parameters)
+        *   [x] Handled complex array structure with null values and empty events filtering
+
+*   **✅ Completed: MapInfos.json Support**
+    *   [x] **Created `src/engines/rpg_maker_mv/files/maps_infos.rs`** with complete MapInfos.json implementation
+    *   [x] **Implemented `MapInfo` struct** with translatable fields (name) and metadata fields (id, expanded, order, parent_id, scroll_x, scroll_y)
+    *   [x] **Added `extract_text` and `inject_translations` functions** following the same pattern as other file modules
+    *   [x] **Updated engine** to include MapInfos.json in file detection alongside other file types
+    *   [x] **Tested with sample RPG Maker MV project** - MapInfos.json extraction and injection working correctly
+    *   [x] **Benefits achieved:**
+        *   [x] Successfully extracted map names from MapInfos.json (map tree/structure file)
+        *   [x] Proper translation injection back into MapInfos.json files
+        *   [x] Consistent ID prefixing (`map_info_`) for text unit identification
+        *   [x] Handled complex array structure with null values and empty map entries filtering
+        *   [x] Used appropriate prompt types (Character for map names)
+        *   [x] Distinguished between MapInfos.json (map metadata) and MapXXX.json (map content) files
+
+*   **✅ Completed: MapXXX.json Support**
+    *   [x] **Created `src/engines/rpg_maker_mv/files/maps.rs`** with complete MapXXX.json implementation
+    *   [x] **Implemented dynamic file discovery** to handle Map001.json, Map002.json, etc. automatically
+    *   [x] **Implemented comprehensive data structures** for Map, MapEvent, EventPage, and EventCommand
+    *   [x] **Added `extract_text` and `inject_translations` functions** following the established architecture pattern
+    *   [x] **Updated engine** to include dynamic MapXXX.json discovery and processing
+    *   [x] **Benefits achieved:**
+        *   [x] Successfully extracts event names, notes, messages (code 401), and comments (code 108) from map events
+        *   [x] Proper translation injection back into MapXXX.json files with event command parameter updates
+        *   [x] Consistent ID prefixing (`map_event_`) for text unit identification
+        *   [x] Handled complex nested structure with events, pages, and commands
+        *   [x] Used appropriate prompt types (Character for event names, Dialogue for messages, Other for notes/comments)
+        *   [x] Robust error handling with graceful fallback for individual map files
+        *   [x] Dynamic file discovery eliminates need for hardcoded map file lists
+
+### ✅ Prompt System Optimization - COMPLETED
+
+**Goal:** Refine and optimize the prompt system for better translation quality and consistency.
+
+*   **✅ Completed: Prompt Architecture Refinement**
+    *   [x] **Created `erobasic.txt`** as streamlined base prompt (removed overwhelming examples)
+    *   [x] **Consolidated equipment prompts** (`weapon.txt` + `item.txt` → `equipment.txt`)
+    *   [x] **Updated `PromptType` enum** to use `Equipment` instead of separate `Weapon` and `Item` types
+    *   [x] **Added specific translation guides** to all prompt files for consistency
+    *   [x] **Enhanced output format instructions** to prevent unwanted comments/metadata
+    *   [x] **Added field-specific guidelines** for character names, equipment, skills, etc.
+    *   [x] **Enhanced erotic content handling** with appropriate examples and terminology
+    *   [x] **Organized dialogue examples** by moving dialogue-specific examples from `basic.txt` to `dialogue.txt`
+    *   [x] **Implemented flexible skill guidelines** replacing rigid mappings with pattern-based instructions
+    *   [x] **Enhanced class translations** with proper RPG distinctions (勇者 → Hero, 戦士 → Warrior)
+
+*   **✅ Completed: LLM Integration Improvements**
+    *   [x] **Updated `PromptBuilder`** to map `PromptType::Equipment` to `equipment.txt`
+    *   [x] **Updated file parsers** to use `PromptType::Equipment` for weapons, items, and armor
+    *   [x] **Added comprehensive debugging** to `ProjectStats.vue` and `TranslationTable.vue`
+    *   [x] **Enhanced settings store** with proper initialization and language configuration display
+    *   [x] **Improved provider store** with settings loading on initialization
+
+### ✅ UI/UX Enhancements - COMPLETED
+
+**Goal:** Enhance the user interface and user experience for better workflow and usability.
+
+*   **✅ Completed: Project Management Enhancements**
+    *   [x] **Added "Load New Project" button** to main page header for easy project switching
+    *   [x] **Implemented project loading workflow** with folder selection dialog
+    *   [x] **Enhanced project state management** with proper loading states and error handling
+    *   [x] **Improved user feedback** with loading indicators and error messages
+
+*   **✅ Completed: Translation Table Enhancements**
+    *   [x] **Added "Reset" button** to TranslationTable for clearing all translations
+    *   [x] **Implemented reset functionality** with proper state management and error handling
+    *   [x] **Enhanced button states** with improved availability logic (Inject only when translation finished)
+    *   [x] **Added translation progress tracking** with better status indicators
+    *   [x] **Improved user experience** with clear feedback and intuitive controls
+
+*   **✅ Completed: User Experience Improvements**
+    *   [x] **Streamlined workflow** with better button placement and logical flow
+    *   [x] **Enhanced error handling** with user-friendly error messages and recovery options
+    *   [x] **Improved accessibility** with proper button states and loading indicators
+    *   [x] **Better visual feedback** with progress indicators and status updates
+
 ### Next Steps
 
-*   **Continue Phase 5: Additional File Types**
+*   **Future Expansion: Additional File Types**
     *   [ ] **MapXXX.json Support:** Implement map event parsing and translation
     *   [ ] **CommonEvents.json Support:** Implement common events parsing and translation
 
 *   **Frontend Enhancements:**
-    *   [ ] Complete glossary UI with full CRUD functionality.
     *   [ ] Implement responsive design for different screen sizes.
     *   [ ] Add proper loading states and transitions.
     *   [ ] Enhance the TranslationTable with features:

@@ -17,8 +17,16 @@
           icon="i-heroicons-document-arrow-down"
           color="success"
           :loading="engineStore.isLoading"
-          :disabled="engineStore.isLoading || !hasTranslatedUnits"
+          :disabled="engineStore.isLoading || !hasTranslatedUnits || !isTranslationFinished"
           @click="injectTranslations"
+        />
+        <UButton
+          label="Reset"
+          icon="i-heroicons-arrow-path"
+          color="neutral"
+          :loading="engineStore.isLoading"
+          :disabled="engineStore.isLoading || !hasTranslatedUnits"
+          @click="resetTranslations"
         />
       </div>
     </div>
@@ -52,6 +60,7 @@
 import { computed } from 'vue';
 import { useEngineStore } from '~/stores/engine';
 import { useTranslateStore } from '~/stores/translate';
+import { TranslationStatus } from '~/types/translation';
 
 const engineStore = useEngineStore();
 const translateStore = useTranslateStore();
@@ -78,6 +87,11 @@ const hasTranslatedUnits = computed(() => {
     unit.status === 'HumanReviewed' ||
     (unit.status === 'NotTranslated' && unit.translated_text && unit.translated_text.trim() !== '')
   );
+});
+
+// Check if translation is finished (no untranslated units remaining)
+const isTranslationFinished = computed(() => {
+  return !engineStore.textUnits.some(unit => unit.status === 'NotTranslated');
 });
 
 const getStatusLabel = (status: string) => {
@@ -111,6 +125,10 @@ const translateAll = async () => {
         // This callback is called for each translated unit
         // The engine store is already updated in the translate store
         console.log('Unit translated:', translatedUnit.id);
+        console.log('Original:', translatedUnit.source_text);
+        console.log('Translated:', translatedUnit.translated_text);
+        console.log('Prompt Type:', translatedUnit.prompt_type);
+        console.log('---');
       }
     );
   } catch (error) {
@@ -130,6 +148,26 @@ const injectTranslations = async () => {
     console.log('Translations injected successfully');
   } catch (error) {
     console.error('Failed to inject translations:', error);
+  }
+};
+
+// Reset all translations back to original state
+const resetTranslations = async () => {
+  try {
+    if (!engineStore.projectInfo) {
+      console.error('No project loaded');
+      return;
+    }
+
+    // Reset all text units to their original state
+    engineStore.textUnits.forEach(unit => {
+      unit.translated_text = '';
+      unit.status = TranslationStatus.NotTranslated;
+    });
+
+    console.log('Translations reset successfully');
+  } catch (error) {
+    console.error('Failed to reset translations:', error);
   }
 };
 </script> 

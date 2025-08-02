@@ -34,7 +34,7 @@ export const useTranslateStore = defineStore('translate', () => {
       isTranslating.value = true;
       currentTranslatingUnit.value = textUnit;
 
-      console.log('Translating text unit:', textUnit.id);
+      //console.log('Translating text unit:', textUnit.id);
       const translatedUnit = await invoke<TextUnit>('translate_text_unit', {
         textUnit: engineStore.getTextUnitById(textUnit.id),
         config: providerStore.currentProviderConfig,
@@ -51,7 +51,7 @@ export const useTranslateStore = defineStore('translate', () => {
         failedTranslations.value.splice(failedIndex, 1);
       }
 
-      console.log('Translation completed for:', textUnit.id);
+      //console.log('Translation completed for:', textUnit.id);
       return translatedUnit;
     } catch (error) {
       console.error('Translation error:', error);

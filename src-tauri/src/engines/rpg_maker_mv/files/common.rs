@@ -13,7 +13,7 @@ use std::path::Path;
 /// - index: index in the file array
 /// - fields: Vec of (field_name, value, PromptType)
 ///
-/// Returns Vec<TextUnit> for all non-empty values.
+/// Returns Vec<TextUnit> for all non-empty, non-technical values.
 pub fn extract_text_units_for_object(
     object_type: &str,
     object_id: i32,
@@ -23,7 +23,8 @@ pub fn extract_text_units_for_object(
 ) -> Vec<TextUnit> {
     let mut units = Vec::new();
     for (field, value, prompt_type) in fields {
-        if !value.is_empty() {
+        // Skip empty values and technical content
+        if !value.is_empty() && !is_technical_content(value) {
             units.push(TextUnit {
                 id: format!("{}_{}_{}", object_type, object_id, field),
                 source_text: value.to_string(),
@@ -214,6 +215,195 @@ pub fn inject_text_units_for_object(
         if let Some(unit) = text_units.get(&unit_id) {
             if !unit.translated_text.is_empty() {
                 *field_ref = unit.translated_text.clone();
+            }
+        }
+    }
+}
+
+/// Represents a single event command for common event processing
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct EventCommand {
+    /// Command code (101 = Show Text, 401 = Message, 108 = Comment, etc.)
+    pub code: i32,
+    /// Indentation level
+    pub indent: i32,
+    /// Command parameters (array of values)
+    pub parameters: Vec<serde_json::Value>,
+}
+
+/// Extracts text units from event commands
+///
+/// # Arguments
+/// * `object_type` - Type of object (e.g., "common_event", "troop")
+/// * `object_id` - ID of the object
+/// * `commands` - Vector of event commands to process
+/// * `_file_path` - File path for context (unused but kept for consistency)
+///
+/// # Returns
+/// * `Vec<TextUnit>` - Vector of extracted text units
+pub fn extract_text_units_from_event_commands(
+    object_type: &str,
+    object_id: i32,
+    commands: &[EventCommand],
+    _file_path: &str,
+) -> Vec<TextUnit> {
+    let mut text_units = Vec::new();
+
+    for (command_index, command) in commands.iter().enumerate() {
+        match command.code {
+            101 => {
+                // Show Text - Message window attributes
+                // Parameters: [0] = window type, [1] = position, [2] = background, [3] = position type
+                // No translatable text in this command
+            }
+            401 => {
+                // Show Text - Message content
+                if let Some(text_param) = command.parameters.get(0) {
+                    if let Some(text) = text_param.as_str() {
+                        if !text.is_empty() && !is_technical_content(text) {
+                            text_units.push(TextUnit {
+                                id: format!("{}_{}_message_{}", object_type, object_id, command_index),
+                                source_text: text.to_string(),
+                                translated_text: String::new(),
+                                field_type: "message".to_string(),
+                                status: TranslationStatus::NotTranslated,
+                                prompt_type: PromptType::Dialogue,
+                            });
+                        }
+                    }
+                }
+            }
+            // 108 => {
+            //     // Comment - Developer comments, not player-facing text
+            //     // Skipping these as they are internal documentation
+            // }
+            // Add more specific command codes here as needed
+            // 356 => { /* Change Enemy Name */ }
+            // 357 => { /* Change Enemy HP */ }
+            // etc.
+            _ => {
+                // Skip all other command codes - they don't contain translatable text
+                // This is much safer than trying to guess what might be translatable
+            }
+        }
+    }
+
+    text_units
+}
+
+/// Checks if content is technical and shouldn't be translated
+///
+/// # Arguments
+/// * `content` - The content to check
+///
+/// # Returns
+/// * `bool` - True if the content is technical and should be skipped
+fn is_technical_content(content: &str) -> bool {
+    let content = content.trim();
+    
+    // Skip empty or whitespace-only content
+    if content.is_empty() {
+        return true;
+    }
+    
+    // Skip pure formatting codes (like "\\n[2]" alone)
+    if content == "\\n[1]" || content == "\\n[2]" || content == "\\n[3]" || content == "\\n[4]" || content == "\\n[5]" {
+        return true;
+    }
+    
+    // Skip file names and extensions (images, sounds, etc.)
+    // But be careful not to skip RPG Maker formatting codes like "\\n[2]"
+    if content.contains('.') || content.contains('/') || 
+       (content.contains('\\') && !content.contains("\\n[")) {
+        return true;
+    }
+    
+    // Skip JavaScript code and expressions
+    if content.contains("user.") || content.contains("use.") || content.contains("&&") || content.contains("==") {
+        return true;
+    }
+    
+    // Skip technical markers
+    if content == "終わり" || content == "==" || content.starts_with("==") {
+        return true;
+    }
+    
+    // Skip sound effect names (usually English words)
+    if content.chars().all(|c| c.is_ascii_alphabetic()) && content.len() <= 20 {
+        return true;
+    }
+    
+    // Skip numeric-only content
+    if content.chars().all(|c| c.is_ascii_digit()) {
+        return true;
+    }
+    
+    // Skip very short content that's likely technical
+    // But allow Japanese/Chinese characters even if short
+    if content.len() <= 3 {
+        // If it contains non-ASCII characters or Japanese punctuation, it might be translatable
+        if content.chars().any(|c| c.is_alphabetic() && !c.is_ascii()) ||
+           content.contains('・') || content.contains('…') || content.contains('。') {
+            return false;
+        }
+        return true;
+    }
+    
+    // If content contains Japanese characters or other translatable text, allow it
+    // even if it also contains formatting codes
+    if content.chars().any(|c| c.is_alphabetic() && !c.is_ascii()) {
+        return false;
+    }
+    
+    // If content contains common Japanese punctuation or quotes, allow it
+    if content.contains('「') || content.contains('」') || content.contains('、') || 
+       content.contains('。') || content.contains('・') || content.contains('…') {
+        return false;
+    }
+    
+    false
+}
+
+
+
+/// Injects translated text back into event commands
+///
+/// # Arguments
+/// * `object_type` - Type of object (e.g., "common_event", "troop")
+/// * `object_id` - ID of the object
+/// * `commands` - Vector of event commands to update
+/// * `text_unit_map` - HashMap of text units for lookup
+///
+/// Updates the command parameters with translated text if available.
+pub fn inject_text_units_into_event_commands(
+    object_type: &str,
+    object_id: i32,
+    commands: &mut [EventCommand],
+    text_unit_map: &HashMap<String, &TextUnit>,
+) {
+    for (command_index, command) in commands.iter_mut().enumerate() {
+        match command.code {
+            401 => {
+                // Show Text - Message content
+                if let Some(text_param) = command.parameters.get_mut(0) {
+                    if text_param.as_str().is_some() {
+                        let unit_id = format!("{}_{}_message_{}", object_type, object_id, command_index);
+                        if let Some(text_unit) = text_unit_map.get(&unit_id) {
+                            *text_param = serde_json::Value::String(text_unit.translated_text.clone());
+                        }
+                    }
+                }
+            }
+            // 108 => {
+            //     // Comment - Developer comments, not player-facing text
+            //     // Skipping these as they are internal documentation
+            // }
+            // Add more specific command codes here as needed
+            // 356 => { /* Change Enemy Name */ }
+            // 357 => { /* Change Enemy HP */ }
+            // etc.
+            _ => {
+                // Skip all other command codes - they don't contain translatable text
             }
         }
     }

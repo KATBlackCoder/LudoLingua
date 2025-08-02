@@ -1,6 +1,6 @@
 # Character Translation Guidelines
 
-## For Character Names (field_type === "name"):
+## For Character Names:
 1. **Preserve Character Identity**: Maintain the original character's personality and feel
 2. **Cultural Sensitivity**: Consider cultural context and meaning behind the name
 3. **Readability**: Ensure the name is pronounceable and natural in the target language
@@ -14,13 +14,24 @@
 - For fantasy/sci-fi names, maintain the exotic feel while ensuring readability
 - For historical/period names, maintain authenticity
 - For modern names, use common equivalents in the target language
+- If the name cannot be reasonably translated or interpreted, preserve it as-is.
+- Always prioritize consistency over literal meaning if a conflict occurs.
 
 **Character Name Examples:**
-- イルヴィナ → Illvina 
-- クロネ → Kurone 
-- お兄ちゃん → Onii-chan
+- イルヴィナ => Illvina 
+- クロネ => Kurone 
+- お兄ちゃん => Onii-chan
+- 淫魔 => Succubus
+- 夢魔 => Succubus
 
-## For Character Nicknames (field_type === "nickname"):
+**Specific Name Translations (Use These Exact Translations):**
+- たえ => Tae
+- たえちゃん => Tae-chan
+- すみれ => Sumire
+- お兄ちゃん => Onii-chan
+- たえちゃん　＆　お兄ちゃん => Tae-chan & Onii-chan
+
+## For Character Nicknames:
 1. **Character Voice**: Maintain character's speech patterns and personality
 2. **Relationship Context**: Consider who uses this nickname and why
 3. **Formality Level**: Preserve appropriate honorifics and speech levels
@@ -35,11 +46,13 @@
 - Keep character-specific speech patterns intact
 
 **Character Nickname Examples:**
-- お兄ちゃん → Onii-chan (from younger sibling)
-- クロネ様 → Kurone-sama (formal address)
-- イルヴィナちゃん → Illvina-chan (affectionate)
+- お兄ちゃん => Onii-chan (from younger sibling)
+- クロネ様 => Kurone-sama (formal address)
+- イルヴィナちゃん => Illvina-chan (affectionate)
+- 淫魔ちゃん => Succubus-chan (affectionate)
+- 夢魔様 => Succubus-sama (formal)
 
-## For Character Profiles (field_type === "profile"):
+## For Character Profiles:
 1. **Tone Preservation**: Maintain the original tone and style of the description
 2. **Formatting**: Preserve any special formatting, punctuation, or line breaks
 3. **Formality Level**: Keep the same level of formality as the original
@@ -57,8 +70,11 @@
 - Character personality: Maintain unique speech patterns and mannerisms
 
 **Character Profile Examples:**
-- "A mysterious girl with silver hair and red eyes." → "A mysterious girl with silver hair and red eyes."
-- "主人公の幼馴染。明るく活発な性格。" → "The protagonist's childhood friend. Has a bright and energetic personality."
+- "A mysterious girl with silver hair and red eyes." => "A mysterious girl with silver hair and red eyes."
+- "主人公の幼馴染。明るく活発な性格。" => "The protagonist's childhood friend. Has a bright and energetic personality."
+- "性欲が高く、理性を失いやすい性格。" => "Has a high libido and tends to lose sanity easily."
+- "淫魔としての本性を持つ。男性を誘惑するのが得意。" => "Has the nature of a succubus. Skilled at seducing men."
+- "夢魔の力で相手の理性を奪うことができる。" => "Can steal the opponent's sanity with succubus powers."
 
 ## For All Character Text:
 - Maintain character voice and personality consistency
@@ -66,8 +82,4 @@
 - Keep cultural context and relationships intact
 - Ensure translations work within UI constraints
 
-**Output Format:**
-Provide only the translated character text, no explanations or additional text.
-
-Character text to translate: {text}
-Field type: {field_type} 
+Character text to translate: {text} 
