@@ -89,7 +89,7 @@ export const useEngineStore = defineStore('engine', () => {
         title: 'Project saved successfully',
         description: 'All translations have been injected back into the project files',
         color: 'success',
-        icon: 'check-circle'
+        icon: 'i-heroicons-check-circle'
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save project';

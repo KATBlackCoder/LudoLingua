@@ -9,26 +9,45 @@
 6. **Lore Preservation**: Keep important lore and background information
 7. **Usage Context**: Consider combat, defensive, enhancement, or consumable properties
 
-**Special Considerations for Equipment Names:**
-- **Weapons**: Maintain clear weapon type, material, and combat function
-- **Armor**: Preserve defensive properties and material information
-- **Accessories**: Keep enhancement and protection properties clear
-- **Consumables**: Maintain clear usage and effect information
-- **Quest items**: Preserve story significance and purpose
-- **Magical equipment**: Keep mystical terminology and effects
-- **Legendary equipment**: Preserve unique and powerful nature
-
 **Equipment Name Examples:**
-- **Weapons:** 鉄の剣 => Iron Sword, 魔法の弓 => Magic Bow, 聖なる剣 => Sacred Sword
-- **Armor:** 鉄の盾 => Iron Shield, 魔法の鎧 => Magic Armor, 聖なる兜 => Sacred Helm
-- **Accessories:** 魔法の指輪 => Magic Ring, 幸運のチャーム => Lucky Charm
-- **Consumables:** 回復薬 => Healing Potion, 媚薬 => Aphrodisiac, 理性回復薬 => Sanity Recovery Potion
-- **Magical:** 理性奪取の剣 => Sanity Drain Sword, 性欲操作の杖 => Libido Manipulation Staff
+Input: 鉄の剣
+Output: Iron Sword
 
-**Specific Equipment Translations (Use These Exact Translations):**
-- **Items:** ポーション => Potion, マジックウォーター => Magic Water, ディスペルハーブ => Dispel Herb, スティミュラント => Stimulator
-- **Weapons:** 剣 => Sword, 斧 => Axe, 杖 => Staff, 弓 => Bow
-- **Armor:** 盾 => Shield, 帽子 => Hat, 服 => Clothes, 指輪 => Ring
+Input: 魔法の弓
+Output: Magic Bow
+
+Input: 聖なる剣
+Output: Sacred Sword
+
+Input: 鉄の盾
+Output: Iron Shield
+
+Input: 魔法の鎧
+Output: Magic Armor
+
+Input: 聖なる兜
+Output: Sacred Helm
+
+Input: 魔法の指輪
+Output: Magic Ring
+
+Input: 幸運のチャーム
+Output: Lucky Charm
+
+Input: 回復薬
+Output: Healing Potion
+
+Input: 媚薬
+Output: Aphrodisiac
+
+Input: 理性回復薬
+Output: Sanity Recovery Potion
+
+Input: 理性奪取の剣
+Output: Sanity Drain Sword
+
+Input: 性欲操作の杖
+Output: Libido Manipulation Staff
 
 ## For Equipment Descriptions:
 1. **Tone Preservation**: Maintain the original tone and style of the description
@@ -40,22 +59,24 @@
 7. **Property Details**: Preserve combat stats, defensive values, enhancement effects, or usage instructions
 8. **Lore Elements**: Keep story significance and background information
 
-**Special Considerations for Equipment Descriptions:**
-- **Weapon descriptions**: Preserve damage, accuracy, and special combat properties
-- **Armor descriptions**: Maintain defensive values and protection details
-- **Accessory descriptions**: Keep enhancement and protection details
-- **Consumable descriptions**: Preserve usage instructions and effect details
-- **Quest item descriptions**: Maintain story significance and usage context
-- **Magical equipment**: Preserve mystical effects and enchantment details
-- **Legendary equipment**: Maintain impressive and powerful descriptions
-
 **Equipment Description Examples:**
-- **Weapons:** "A sturdy iron sword.\n[Attack +5]" => "A sturdy iron sword.\n[Attack +5]"
-- **Armor:** "魔法の力が宿る鎧。\n[Defense +10]" => "Armor imbued with magical power.\n[Defense +10]"
-- **Accessories:** "A cute pink heart charm.\nA girly accessory that adds a feminine touch." => "A cute pink heart charm.\nA girly accessory that adds a feminine touch."
-- **Consumables:** "Restores HP when consumed.\n[Recovery: 100 HP]" => "Restores HP when consumed.\n[Recovery: 100 HP]"
-- **Magical:** "理性を奪う呪いの剣。\n[Attack +15][Sanity -20]" => "A cursed sword that drains sanity.\n[Attack +15][Sanity -20]"
-- **Erotic:** "性欲を高める媚薬。\n[Libido +50]" => "An aphrodisiac that increases libido.\n[Libido +50]"
+Input: A sturdy iron sword.\n[Attack +5]
+Output: A sturdy iron sword.\n[Attack +5]
+
+Input: 魔法の力が宿る鎧。\n[Defense +10]
+Output: Armor imbued with magical power.\n[Defense +10]
+
+Input: A cute pink heart charm.\nA girly accessory that adds a feminine touch.
+Output: A cute pink heart charm.\nA girly accessory that adds a feminine touch.
+
+Input: Restores HP when consumed.\n[Recovery: 100 HP]
+Output: Restores HP when consumed.\n[Recovery: 100 HP]
+
+Input: 理性を奪う呪いの剣。\n[Attack +15][Sanity -20]
+Output: A cursed sword that drains sanity.\n[Attack +15][Sanity -20]
+
+Input: 性欲を高める媚薬。\n[Libido +50]
+Output: An aphrodisiac that increases libido.\n[Libido +50]
 
 ## For All Equipment Text:
 - Maintain fantasy/medieval terminology

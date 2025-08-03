@@ -1,6 +1,7 @@
 use crate::core::error::{AppError, AppResult};
 use crate::models::engine::GameDataFile;
 use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
+use crate::utils::text_processing::{is_technical_content, replace_formatting_codes_for_translation, restore_formatting_codes_after_translation};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -212,10 +213,18 @@ pub fn inject_text_units_for_object(
 ) {
     for (field_name, field_ref) in fields {
         let unit_id = format!("{}_{}_{}", object_type, object_id, field_name);
+        log::debug!("Looking for text unit with ID: {}", unit_id);
+        
         if let Some(unit) = text_units.get(&unit_id) {
+            log::debug!("Found text unit: {} -> '{}'", unit_id, unit.translated_text);
             if !unit.translated_text.is_empty() {
+                log::info!("Injecting translation: '{}' -> '{}'", field_ref, unit.translated_text);
                 *field_ref = unit.translated_text.clone();
+            } else {
+                log::debug!("Text unit has empty translation, skipping");
             }
+        } else {
+            log::debug!("No text unit found for ID: {}", unit_id);
         }
     }
 }
@@ -261,14 +270,40 @@ pub fn extract_text_units_from_event_commands(
                 if let Some(text_param) = command.parameters.get(0) {
                     if let Some(text) = text_param.as_str() {
                         if !text.is_empty() && !is_technical_content(text) {
+                            // Replace formatting codes with placeholders for cleaner translation
+                            let clean_text = replace_formatting_codes_for_translation(text);
                             text_units.push(TextUnit {
                                 id: format!("{}_{}_message_{}", object_type, object_id, command_index),
-                                source_text: text.to_string(),
+                                source_text: clean_text,
                                 translated_text: String::new(),
                                 field_type: "message".to_string(),
                                 status: TranslationStatus::NotTranslated,
                                 prompt_type: PromptType::Dialogue,
                             });
+                        }
+                    }
+                }
+            }
+            102 => {
+                // Show Choices - Choice menu options
+                // Parameters: [0] = array of choice strings, [1] = cancel type, [2] = default choice, [3] = position type, [4] = background type
+                if let Some(choices_param) = command.parameters.get(0) {
+                    if let Some(choices_array) = choices_param.as_array() {
+                        for (choice_index, choice_param) in choices_array.iter().enumerate() {
+                            if let Some(choice_text) = choice_param.as_str() {
+                                if !choice_text.is_empty() && !is_technical_content(choice_text) {
+                                    // Replace formatting codes with placeholders for cleaner translation
+                                    let clean_text = replace_formatting_codes_for_translation(choice_text);
+                                    text_units.push(TextUnit {
+                                        id: format!("{}_{}_choice_{}_{}", object_type, object_id, command_index, choice_index),
+                                        source_text: clean_text,
+                                        translated_text: String::new(),
+                                        field_type: "choice".to_string(),
+                                        status: TranslationStatus::NotTranslated,
+                                        prompt_type: PromptType::Dialogue,
+                                    });
+                                }
+                            }
                         }
                     }
                 }
@@ -298,71 +333,7 @@ pub fn extract_text_units_from_event_commands(
 ///
 /// # Returns
 /// * `bool` - True if the content is technical and should be skipped
-fn is_technical_content(content: &str) -> bool {
-    let content = content.trim();
-    
-    // Skip empty or whitespace-only content
-    if content.is_empty() {
-        return true;
-    }
-    
-    // Skip pure formatting codes (like "\\n[2]" alone)
-    if content == "\\n[1]" || content == "\\n[2]" || content == "\\n[3]" || content == "\\n[4]" || content == "\\n[5]" {
-        return true;
-    }
-    
-    // Skip file names and extensions (images, sounds, etc.)
-    // But be careful not to skip RPG Maker formatting codes like "\\n[2]"
-    if content.contains('.') || content.contains('/') || 
-       (content.contains('\\') && !content.contains("\\n[")) {
-        return true;
-    }
-    
-    // Skip JavaScript code and expressions
-    if content.contains("user.") || content.contains("use.") || content.contains("&&") || content.contains("==") {
-        return true;
-    }
-    
-    // Skip technical markers
-    if content == "終わり" || content == "==" || content.starts_with("==") {
-        return true;
-    }
-    
-    // Skip sound effect names (usually English words)
-    if content.chars().all(|c| c.is_ascii_alphabetic()) && content.len() <= 20 {
-        return true;
-    }
-    
-    // Skip numeric-only content
-    if content.chars().all(|c| c.is_ascii_digit()) {
-        return true;
-    }
-    
-    // Skip very short content that's likely technical
-    // But allow Japanese/Chinese characters even if short
-    if content.len() <= 3 {
-        // If it contains non-ASCII characters or Japanese punctuation, it might be translatable
-        if content.chars().any(|c| c.is_alphabetic() && !c.is_ascii()) ||
-           content.contains('・') || content.contains('…') || content.contains('。') {
-            return false;
-        }
-        return true;
-    }
-    
-    // If content contains Japanese characters or other translatable text, allow it
-    // even if it also contains formatting codes
-    if content.chars().any(|c| c.is_alphabetic() && !c.is_ascii()) {
-        return false;
-    }
-    
-    // If content contains common Japanese punctuation or quotes, allow it
-    if content.contains('「') || content.contains('」') || content.contains('、') || 
-       content.contains('。') || content.contains('・') || content.contains('…') {
-        return false;
-    }
-    
-    false
-}
+
 
 
 
@@ -388,9 +359,59 @@ pub fn inject_text_units_into_event_commands(
                 if let Some(text_param) = command.parameters.get_mut(0) {
                     if text_param.as_str().is_some() {
                         let unit_id = format!("{}_{}_message_{}", object_type, object_id, command_index);
+                        log::debug!("Looking for event command text unit with ID: {}", unit_id);
+                        
                         if let Some(text_unit) = text_unit_map.get(&unit_id) {
-                            *text_param = serde_json::Value::String(text_unit.translated_text.clone());
+                            log::debug!("Found event command text unit: {} -> '{}'", unit_id, text_unit.translated_text);
+                            // Only update if translated text is not empty
+                            if !text_unit.translated_text.is_empty() {
+                                // Restore formatting codes from placeholders
+                                let restored_text = restore_formatting_codes_after_translation(&text_unit.translated_text);
+                                log::info!("Injecting event command translation: '{}' -> '{}'", text_param.as_str().unwrap(), restored_text);
+                                *text_param = serde_json::Value::String(restored_text);
+                            } else {
+                                log::debug!("Event command text unit has empty translation, skipping");
+                            }
+                        } else {
+                            log::debug!("No event command text unit found for ID: {}", unit_id);
                         }
+                    }
+                }
+            }
+            102 => {
+                // Show Choices - Choice menu options
+                // Parameters: [0] = array of choice strings, [1] = cancel type, [2] = default choice, [3] = position type, [4] = background type
+                if let Some(choices_param) = command.parameters.get_mut(0) {
+                    if let Some(choices_array) = choices_param.as_array() {
+                        let mut updated_choices = Vec::new();
+                        for (choice_index, choice_param) in choices_array.iter().enumerate() {
+                            if let Some(choice_text) = choice_param.as_str() {
+                                let unit_id = format!("{}_{}_choice_{}_{}", object_type, object_id, command_index, choice_index);
+                                log::debug!("Looking for choice text unit with ID: {}", unit_id);
+                                
+                                if let Some(text_unit) = text_unit_map.get(&unit_id) {
+                                    log::debug!("Found choice text unit: {} -> '{}'", unit_id, text_unit.translated_text);
+                                    // Only update if translated text is not empty
+                                    if !text_unit.translated_text.is_empty() {
+                                        // Restore formatting codes from placeholders
+                                        let restored_text = restore_formatting_codes_after_translation(&text_unit.translated_text);
+                                        log::info!("Injecting choice translation: '{}' -> '{}'", choice_text, restored_text);
+                                        updated_choices.push(serde_json::Value::String(restored_text));
+                                    } else {
+                                        log::debug!("Choice text unit has empty translation, keeping original");
+                                        updated_choices.push(choice_param.clone());
+                                    }
+                                } else {
+                                    log::debug!("No choice text unit found for ID: {}", unit_id);
+                                    updated_choices.push(choice_param.clone());
+                                }
+                            } else {
+                                // Keep non-string parameters as-is
+                                updated_choices.push(choice_param.clone());
+                            }
+                        }
+                        // Update the choices array with translated text
+                        *choices_param = serde_json::Value::Array(updated_choices);
                     }
                 }
             }

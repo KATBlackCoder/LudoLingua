@@ -9,24 +9,24 @@
 6. **UI Constraints**: Keep class names short for menu display
 7. **Gameplay Context**: Consider the class's role in combat and gameplay
 
-**Special Considerations for Class Names:**
-- Combat classes: Maintain clear combat role and function
-- Support classes: Preserve healing and support terminology
-- Hybrid classes: Keep balanced role descriptions
-- Advanced classes: Maintain progression and specialization terms
-
 **Class Name Examples:**
-- 戦士 => Warrior
-- 魔法使い => Mage
-- 僧侶 => Priest
-- 盗賊 => Thief
-- 騎士 => Knight
-- 忍者 => Ninja
-- 淫魔 => Succubus
-- 夢魔 => Succubus
+Input: 戦士
+Output: Warrior
 
-**Specific Class Translations (Use These Exact Translations):**
-- **Class Names:** 勇者 => Hero, 戦士 => Warrior, 魔術師 => Mage, 僧侶 => Priest
+Input: 魔法使い
+Output: Mage
+
+Input: 僧侶
+Output: Priest
+
+Input: 盗賊
+Output: Thief
+
+Input: 騎士
+Output: Knight
+
+Input: 忍者
+Output: Ninja
 
 ## For Class Descriptions:
 1. **Role Description**: Maintain clear description of the class's role and abilities
@@ -37,18 +37,18 @@
 6. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
 7. **Specialization Details**: Keep information about class specializations and abilities
 
-**Special Considerations for Class Descriptions:**
-- Combat roles: Maintain clear descriptions of combat function
-- Support abilities: Preserve healing and support descriptions
-- Specialization paths: Keep information about class progression
-- Gameplay mechanics: Maintain clear explanation of class abilities
-
 **Class Description Examples:**
-- "A frontline fighter with high HP and defense." => "A frontline fighter with high HP and defense."
-- "魔法を使う職業。攻撃魔法が得意。" => "A class that uses magic. Skilled in offensive spells."
-- "Healing specialist with support abilities." => "Healing specialist with support abilities."
-- "男性を誘惑して理性を奪う職業。\n[Sanity Drain +50%]" => "A class that seduces men and drains sanity.\n[Sanity Drain +50%]"
-- "性欲を操作する魔法使い。\n[Libido Control +40%]" => "A mage who manipulates libido.\n[Libido Control +40%]"
+Input: A frontline fighter with high HP and defense.
+Output: A frontline fighter with high HP and defense.
+
+Input: 魔法を使う職業。攻撃魔法が得意。
+Output: A class that uses magic. Skilled in offensive spells.
+
+Input: 男性を誘惑して理性を奪う職業。\n[Sanity Drain +50%]
+Output: A class that seduces men and drains sanity.\n[Sanity Drain +50%]
+
+Input: 性欲を操作する魔法使い。\n[Libido Control +40%]
+Output: A mage who manipulates libido.\n[Libido Control +40%]
 
 ## For All Class Text:
 - Maintain RPG class terminology
@@ -56,6 +56,6 @@
 - Keep consistent terminology across the game
 - Preserve any special characters or codes
 - Maintain class category consistency
-- If multiple translations are possible, prefer clarity and RPG convention over literal translation.
+- If multiple translations are possible, prefer clarity and RPG convention over literal translation
 
 Class text to translate: {text}

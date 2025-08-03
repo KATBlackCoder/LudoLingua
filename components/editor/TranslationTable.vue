@@ -28,6 +28,13 @@
           :disabled="engineStore.isLoading || !hasTranslatedUnits"
           @click="resetTranslations"
         />
+        <UButton
+          label="Export JSON"
+          icon="i-heroicons-document-arrow-up"
+          color="warning"
+          :disabled="!hasTranslatedUnits"
+          @click="exportToJson"
+        />
       </div>
     </div>
 
@@ -168,6 +175,57 @@ const resetTranslations = async () => {
     console.log('Translations reset successfully');
   } catch (error) {
     console.error('Failed to reset translations:', error);
+  }
+};
+
+// Export finished translations to JSON file
+const exportToJson = () => {
+  try {
+    // Filter only translated units
+    const translatedUnits = engineStore.textUnits.filter(unit => 
+      unit.status === 'MachineTranslated' || 
+      unit.status === 'HumanReviewed' ||
+      (unit.status === 'NotTranslated' && unit.translated_text && unit.translated_text.trim() !== '')
+    );
+
+    if (translatedUnits.length === 0) {
+      console.warn('No translated units to export');
+      return;
+    }
+
+    // Create export data
+    const exportData = {
+      project_name: engineStore.projectInfo?.name || 'Unknown Project',
+      export_date: new Date().toISOString(),
+      total_units: engineStore.textUnits.length,
+      translated_units: translatedUnits.length,
+      translations: translatedUnits.map(unit => ({
+        id: unit.id,
+        source_text: unit.source_text,
+        translated_text: unit.translated_text,
+        prompt_type: unit.prompt_type,
+        status: unit.status,
+        field_type: unit.field_type
+      }))
+    };
+
+    // Convert to JSON string with pretty formatting
+    const jsonString = JSON.stringify(exportData, null, 2);
+
+    // Create and download the file
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `translations_${engineStore.projectInfo?.name || 'project'}_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    console.log(`Exported ${translatedUnits.length} translations to JSON`);
+  } catch (error) {
+    console.error('Failed to export translations:', error);
   }
 };
 </script> 

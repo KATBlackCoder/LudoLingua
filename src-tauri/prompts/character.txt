@@ -14,22 +14,12 @@
 - For fantasy/sci-fi names, maintain the exotic feel while ensuring readability
 - For historical/period names, maintain authenticity
 - For modern names, use common equivalents in the target language
-- If the name cannot be reasonably translated or interpreted, preserve it as-is.
-- Always prioritize consistency over literal meaning if a conflict occurs.
+- If the name cannot be reasonably translated or interpreted, preserve it as-is
+- Always prioritize consistency over literal meaning if a conflict occurs
 
 **Character Name Examples:**
-- イルヴィナ => Illvina 
-- クロネ => Kurone 
-- お兄ちゃん => Onii-chan
-- 淫魔 => Succubus
-- 夢魔 => Succubus
-
-**Specific Name Translations (Use These Exact Translations):**
-- たえ => Tae
-- たえちゃん => Tae-chan
-- すみれ => Sumire
-- お兄ちゃん => Onii-chan
-- たえちゃん　＆　お兄ちゃん => Tae-chan & Onii-chan
+Input: クロネ
+Output: Kurone
 
 ## For Character Nicknames:
 1. **Character Voice**: Maintain character's speech patterns and personality
@@ -39,18 +29,12 @@
 5. **Consistency**: Use consistent nickname translations throughout the game
 6. **Emotional Context**: Preserve the emotional tone and relationship dynamics
 
-**Special Considerations for Character Nicknames:**
-- Consider the speaker's relationship to the character
-- Maintain appropriate formality levels (casual vs. formal)
-- Preserve cultural nickname conventions
-- Keep character-specific speech patterns intact
-
 **Character Nickname Examples:**
-- お兄ちゃん => Onii-chan (from younger sibling)
-- クロネ様 => Kurone-sama (formal address)
-- イルヴィナちゃん => Illvina-chan (affectionate)
-- 淫魔ちゃん => Succubus-chan (affectionate)
-- 夢魔様 => Succubus-sama (formal)
+Input: クロネ様
+Output: Kurone-sama (formal address)
+
+Input: イルヴィナちゃん
+Output: Illvina-chan (affectionate)
 
 ## For Character Profiles:
 1. **Tone Preservation**: Maintain the original tone and style of the description
@@ -63,18 +47,12 @@
 8. **Background Information**: Keep important lore and history intact
 9. **Personality Traits**: Maintain unique speech patterns and mannerisms
 
-**Special Considerations for Character Profiles:**
-- Character profiles: Maintain personality traits and background information
-- Character relationships: Preserve relationship dynamics and social context
-- Character background: Keep important lore and history intact
-- Character personality: Maintain unique speech patterns and mannerisms
-
 **Character Profile Examples:**
-- "A mysterious girl with silver hair and red eyes." => "A mysterious girl with silver hair and red eyes."
-- "主人公の幼馴染。明るく活発な性格。" => "The protagonist's childhood friend. Has a bright and energetic personality."
-- "性欲が高く、理性を失いやすい性格。" => "Has a high libido and tends to lose sanity easily."
-- "淫魔としての本性を持つ。男性を誘惑するのが得意。" => "Has the nature of a succubus. Skilled at seducing men."
-- "夢魔の力で相手の理性を奪うことができる。" => "Can steal the opponent's sanity with succubus powers."
+Input: A mysterious girl with silver hair and red eyes.
+Output: A mysterious girl with silver hair and red eyes.
+
+Input: 主人公の幼馴染。明るく活発な性格。
+Output: The protagonist's childhood friend. Has a bright and energetic personality.
 
 ## For All Character Text:
 - Maintain character voice and personality consistency

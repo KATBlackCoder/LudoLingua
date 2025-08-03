@@ -1,0 +1,52 @@
+## SHARED VOCABULARY AND TERMINOLOGY
+
+This file contains only game-specific terms that need consistent translation or special context.
+
+### Game Characters
+Input: イルヴィナ
+Output: Illvina
+
+Input: たえ
+Output: Tae
+
+Input: たえちゃん
+Output: Tae-chan
+
+Input: すみれ
+Output: Sumire
+
+### Essential Game Terms
+Input: シコる
+Output: masturbate
+
+Input: H
+Output: sex
+
+Input: 物陰
+Output: hiding spot
+
+Input: ギャル
+Output: gal
+
+Input: 性欲
+Output: libido
+
+Input: 催眠アプリ
+Output: hypnosis app
+
+Input: 体力
+Output: stamina
+
+Input: 経験値
+Output: experience
+
+### Translation Rules
+Input: コイツ
+Output: this bastard (male) / this bitch (female)
+
+Input: 回
+Output: x
+
+Input: 人
+Output: x
+

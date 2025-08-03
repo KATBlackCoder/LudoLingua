@@ -8,18 +8,21 @@
 5. **Cultural Adaptation**: Use familiar RPG terms for the target audience
 6. **Conciseness**: Keep names short and memorable for battle UI
 
-**Special Considerations for Status Effect Names:**
-- Combat effects: Use action-oriented, clear terminology
-- Duration effects: Indicate if temporary or permanent
-- Intensity levels: Consider severity (poison vs. deadly poison)
-- RPG conventions: Use familiar terms (poison, sleep, confusion, etc.)
-
 **Status Effect Name Examples:**
-- "毒" => "Poison"
-- "睡眠" => "Sleep"
-- "混乱" => "Confusion"
-- "防御" => "Defense"
-- "不死身" => "Immortal"
+Input: 毒
+Output: Poison
+
+Input: 睡眠
+Output: Sleep
+
+Input: 混乱
+Output: Confusion
+
+Input: 防御
+Output: Defense
+
+Input: 不死身
+Output: Immortal
 
 ## For Status Effect Descriptions:
 1. **Mechanical Clarity**: Clearly explain what the effect does
@@ -29,16 +32,15 @@
 5. **Conciseness**: Be clear and concise for UI display
 6. **Technical Accuracy**: Preserve important mechanical details
 
-**Special Considerations for Status Effect Descriptions:**
-- Duration: Clearly indicate how long the effect lasts
-- Effects: Explain what changes (stats, behavior, etc.)
-- Removal: Mention how the effect can be removed
-- Stacking: Indicate if effects can stack or overlap
-
 **Status Effect Description Examples:**
-- "Damages the target over time" => "Damages the target over time"
-- "Prevents the target from acting" => "Prevents the target from acting"
-- "Increases defense temporarily" => "Increases defense temporarily"
+Input: Damages the target over time
+Output: Damages the target over time
+
+Input: Prevents the target from acting
+Output: Prevents the target from acting
+
+Input: Increases defense temporarily
+Output: Increases defense temporarily
 
 ## For Battle Messages:
 1. **Placeholder Preservation**: Maintain all placeholders (%1, %2, %3, etc.)
@@ -48,19 +50,24 @@
 5. **Consistency**: Maintain consistent battle message style
 6. **Context Awareness**: Consider the specific battle context
 
-**Special Considerations for Battle Messages:**
-- Message1 (Applied to target): "X has been affected!"
-- Message2 (Applied by user): "X affected Y!"
-- Message3 (Active state): "X is currently affected"
-- Message4 (Removed): "X's effect has been cured!"
-
 **Battle Message Examples:**
-- "は毒にかかった！" => "%1 has been poisoned!"
-- "に毒をかけた！" => "%1 poisoned %2!"
-- "は眠っている。" => "%1 is sleeping."
-- "の毒が消えた！" => "%1's poison has been cured!"
-- "は我に返った！" => "%1 has come to their senses!"
-- "は目を覚ました！" => "%1 has woken up!"
+Input: は毒にかかった！
+Output: %1 has been poisoned!
+
+Input: に毒をかけた！
+Output: %1 poisoned %2!
+
+Input: は眠っている。
+Output: %1 is sleeping.
+
+Input: の毒が消えた！
+Output: %1's poison has been cured!
+
+Input: は我に返った！
+Output: %1 has come to their senses!
+
+Input: は目を覚ました！
+Output: %1 has woken up!
 
 ## For Developer Notes:
 1. **Technical Preservation**: Maintain important technical information
@@ -69,15 +76,12 @@
 4. **Reference Integrity**: Maintain important references and links
 5. **Clarity**: Ensure technical information remains clear
 
-**Special Considerations for Developer Notes:**
-- Technical references: Maintain precise technical information
-- Game mechanics: Preserve important game system details
-- Debug information: Keep debugging and testing information
-- Implementation notes: Maintain development context
-
 **Developer Note Examples:**
-- "ステート１番はＨＰが０になったときに自動的に付加されます。" => "State 1 is automatically applied when HP reaches 0."
-- "Debug: State testing" => "Debug: State testing"
+Input: ステート１番はＨＰが０になったときに自動的に付加されます。
+Output: State 1 is automatically applied when HP reaches 0.
+
+Input: Debug: State testing
+Output: Debug: State testing
 
 ## For All Status Effect Text:
 - Maintain RPG battle context and terminology

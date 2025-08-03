@@ -6,6 +6,7 @@ use std::fs;
 use crate::core::error::{AppError, AppResult};
 use crate::models::engine::GameDataFile;
 use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
+use crate::utils::text_processing::is_technical_content;
 
 /// Represents the RPG Maker MV System.json file structure.
 /// This struct only includes translatable fields from the System.json file.
@@ -211,7 +212,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
 
     // Extract switches
     for (index, switch_name) in system.switches.iter().enumerate() {
-        if !switch_name.is_empty() {
+        if !switch_name.is_empty() && !is_technical_content(switch_name) {
             text_units.push(TextUnit {
                 id: format!("system_switch_{}", index),
                 source_text: switch_name.clone(),
@@ -225,7 +226,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
 
     // Extract variables
     for (index, variable_name) in system.variables.iter().enumerate() {
-        if !variable_name.is_empty() {
+        if !variable_name.is_empty() && !is_technical_content(variable_name) {
             text_units.push(TextUnit {
                 id: format!("system_variable_{}", index),
                 source_text: variable_name.clone(),
@@ -240,7 +241,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     // Extract basic terms
     for (index, basic_term) in system.terms.basic.iter().enumerate() {
         if let Some(term) = basic_term {
-            if !term.is_empty() {
+            if !term.is_empty() && !is_technical_content(term) {
                 text_units.push(TextUnit {
                     id: format!("system_basic_term_{}", index),
                     source_text: term.clone(),
@@ -256,7 +257,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     // Extract command terms
     for (index, command_term) in system.terms.commands.iter().enumerate() {
         if let Some(term) = command_term {
-            if !term.is_empty() {
+            if !term.is_empty() && !is_technical_content(term) {
                 text_units.push(TextUnit {
                     id: format!("system_command_term_{}", index),
                     source_text: term.clone(),

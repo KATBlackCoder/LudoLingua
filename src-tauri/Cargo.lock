@@ -99,6 +99,7 @@ dependencies = [
  "chrono",
  "log",
  "ollama-rs",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",

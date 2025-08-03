@@ -15,7 +15,7 @@ pub struct PromptBuilder;
 impl PromptBuilder {
     /// Build a translation prompt based on the text unit and engine info.
     ///
-    /// This function creates a comprehensive prompt by combining basic and specific templates,
+    /// This function creates a comprehensive prompt by combining basic, vocabulary, and specific templates,
     /// and replacing template variables with actual content.
     ///
     /// # Arguments
@@ -39,6 +39,15 @@ impl PromptBuilder {
             }
         };
 
+        // Load vocabulary template
+        let vocabulary_template = match Self::load_prompt_template("prompts/vocabularies.txt") {
+            Ok(template) => template,
+            Err(e) => {
+                error!("Failed to load vocabulary template: {}", e);
+                String::new()
+            }
+        };
+
         // Load specific template based on prompt type
         let specific_template = Self::get_specific_template_path(text_unit.prompt_type);
 
@@ -53,8 +62,10 @@ impl PromptBuilder {
             }
         };
 
-        // Combine templates
+        // Combine templates: basic + vocabulary + specific
         let mut template = basic_template;
+        template.push_str("\n\n");
+        template.push_str(&vocabulary_template);
         template.push_str("\n\n");
         template.push_str(&specific_content);
 

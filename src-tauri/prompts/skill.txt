@@ -9,32 +9,18 @@
 6. **Gameplay Clarity**: Keep descriptions clear for gameplay understanding
 7. **Category Context**: Consider if it's an attack, healing, buff, or debuff skill
 
-**Special Considerations for Skill Names:**
-- Combat skills: Preserve power level and special effects
-- Magic spells: Maintain mystical terminology and effects
-- Passive abilities: Keep effect descriptions clear and accurate
-- Ultimate skills: Preserve the impressive and powerful nature
-
 **Skill Name Examples:**
-- ファイアボール => Fireball
-- ヒール => Heal
-- 雷撃 => Thunder Strike
-- 究極奥義 => Ultimate Technique
-- 理性奪取 => Sanity Drain
-- 性欲操作 => Libido Manipulation
-- 淫魔の誘惑 => Succubus Seduction
+Input: ファイアボール
+Output: Fireball
 
-**Specific Skill Translations (Use These Exact Translations):**
-- **Skill Names:** 攻撃 => Attack, 防御 => Defend, 連続攻撃 => Continuous Assault, ２回攻撃 => Double Attack, ３回攻撃 => Triple Attack, 逃げる => Escape, 様子を見る => Check Up, ヒール => Heal, ファイア => Fire, スパーク => Spark
+Input: ヒール
+Output: Heal
 
-**Skill Message Guidelines:**
-- Translate `の攻撃！` as an action phrase (e.g., "attacks!", "strikes!", "launches an attack!")
-- Translate `は身を守っている。` as a defensive phrase (e.g., "is protecting itself", "defends", "guards")
-- Translate `は逃げてしまった。` as a fleeing phrase (e.g., "has fled", "escapes", "runs away")
-- Translate `は様子を見ている。` as an observation phrase (e.g., "is observing", "watches carefully", "assesses the situation")
-- Translate `は%1を唱えた！` as a spell-casting phrase (e.g., "casts %1!", "chants %1!", "uses %1!")
-- Maintain the dramatic, action-oriented tone of battle messages
-- Preserve the excitement and intensity of combat scenes
+Input: 雷撃
+Output: Thunder Strike
+
+Input: 究極奥義
+Output: Ultimate Technique
 
 ## For Skill Descriptions:
 1. **Tone Preservation**: Maintain the original tone and style of the description
@@ -46,19 +32,24 @@
 7. **Combat Details**: Preserve damage, effect, and condition descriptions
 8. **Technical Accuracy**: Maintain precise gameplay mechanics and values
 
-**Special Considerations for Skill Descriptions:**
-- Combat skill descriptions: Maintain damage and effect descriptions
-- Healing skill descriptions: Preserve recovery amounts and conditions
-- Buff skill descriptions: Keep enhancement descriptions clear
-- Debuff skill descriptions: Maintain negative effect descriptions
-
 **Skill Description Examples:**
-- "Deals fire damage to all enemies.\n[Damage: 150%]" => "Deals fire damage to all enemies.\n[Damage: 150%]"
-- "Recovers HP for all allies.\n[Recovery: 200 HP]" => "Recovers HP for all allies.\n[Recovery: 200 HP]"
-- "Increases attack power for 3 turns.\n[Attack +50%]" => "Increases attack power for 3 turns.\n[Attack +50%]"
-- "相手の理性を奪う。\n[Sanity -30]" => "Drains the opponent's sanity.\n[Sanity -30]"
-- "性欲を高める効果。\n[Libido +40]" => "Effect that increases libido.\n[Libido +40]"
-- "子宮の状態を悪化させる。\n[Womb Status -25]" => "Worsens womb condition.\n[Womb Status -25]"
+Input: Deals fire damage to all enemies.\n[Damage: 150%]
+Output: Deals fire damage to all enemies.\n[Damage: 150%]
+
+Input: Recovers HP for all allies.\n[Recovery: 200 HP]
+Output: Recovers HP for all allies.\n[Recovery: 200 HP]
+
+Input: Increases attack power for 3 turns.\n[Attack +50%]
+Output: Increases attack power for 3 turns.\n[Attack +50%]
+
+Input: 相手の理性を奪う。\n[Sanity -30]
+Output: Drains the opponent's sanity.\n[Sanity -30]
+
+Input: 性欲を高める効果。\n[Libido +40]
+Output: Effect that increases libido.\n[Libido +40]
+
+Input: 子宮の状態を悪化させる。\n[Womb Status -25]
+Output: Worsens womb condition.\n[Womb Status -25]
 
 ## For Skill Messages:
 1. **Combat Context**: Maintain the dramatic, action-oriented nature of battle messages
@@ -68,19 +59,15 @@
 5. **Consistency**: Maintain consistency with similar battle messages in the game
 6. **Clarity**: Ensure the message remains clear and impactful
 
-**Special Considerations for Skill Messages:**
-- Battle announcements: Maintain dramatic and exciting tone
-- Character dialogue: Preserve character personality and speech patterns
-- Effect descriptions: Keep clear and impactful descriptions
-- Victory/defeat messages: Maintain appropriate emotional tone
-
 **Skill Message Examples:**
-- "Fireball deals massive damage!" => "Fireball deals massive damage!"
-- "Healing light restores your strength!" => "Healing light restores your strength!"
-- "The enemy is paralyzed!" => "The enemy is paralyzed!"
-- "理性を奪われた！" => "Sanity has been drained!"
-- "性欲が高まっている！" => "Libido is rising!"
-- "子宮の状態が悪化した！" => "Womb condition has worsened!"
+Input: Fireball deals massive damage!
+Output: Fireball deals massive damage!
+
+Input: Healing light restores your strength!
+Output: Healing light restores your strength!
+
+Input: The enemy is paralyzed!
+Output: The enemy is paralyzed!
 
 ## For All Skill Text:
 - Maintain combat/magical terminology

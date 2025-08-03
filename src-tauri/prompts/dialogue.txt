@@ -8,16 +8,15 @@
 5. **Formatting**: Preserve special formatting, punctuation, and line breaks
 6. **Cultural Nuance**: Adapt cultural references appropriately
 
-**Special Considerations for Character Dialogue:**
-- Character relationships: Maintain appropriate honorifics and speech levels
-- Emotional states: Preserve anger, sadness, joy, etc. in speech patterns
-- Cultural references: Adapt or explain cultural elements appropriately
-- Speech patterns: Maintain character-specific speech quirks and mannerisms
-
 **Character Dialogue Examples:**
-- "「こんにちは、お兄ちゃん！」" => "\"Hello, Onii-chan!\""
-- "「えぇ…こんなに可愛いのに…」" => "\"Eh... but she's so cute...\""
-- "「殺すよ」" => "\"I'll kill you.\""
+Input: 「こんにちは、お兄ちゃん！」
+Output: Hello, Onii-chan!
+
+Input: 「えぇ…こんなに可愛いのに…」
+Output: Eh... but she's so cute...
+
+Input: 「殺すよ」
+Output: I'll kill you.
 
 ## For Narrative Text/Story:
 1. **Tone Preservation**: Maintain the original narrative tone and atmosphere
@@ -27,16 +26,12 @@
 5. **Consistency**: Maintain consistency with similar narrative elements in the game
 6. **Clarity**: Ensure the narrative remains clear and engaging
 
-**Special Considerations for Narrative Text:**
-- Story elements: Maintain plot significance and story flow
-- Atmospheric descriptions: Preserve mood and setting details
-- World-building: Keep lore and background information intact
-- Pacing: Maintain narrative rhythm and flow
-
 **Narrative Text Examples:**
-- "The sun set over the ancient castle." => "The sun set over the ancient castle."
-- "主人公は勇気を振り絞って進んだ。" => "The protagonist gathered their courage and pressed forward."
-- "A mysterious energy filled the air." => "A mysterious energy filled the air."
+Input: The sun set over the ancient castle.
+Output: The sun set over the ancient castle.
+
+Input: 主人公は勇気を振り絞って進んだ。
+Output: The protagonist gathered their courage and pressed forward.
 
 ## For All Dialogue Text:
 - Maintain character voice and personality consistency
@@ -45,29 +40,18 @@
 - Ensure translations work within UI constraints
 - Preserve formatting codes and special characters
 
-
-
 **Output Examples for Dialogue:**
-Input: 「\SE[タイプライター]こいつからは幼女の匂いが　しないでござる」
-Output: "\SE[タイプライター]This one doesn't smell like a little girl."
+Input: 「こいつからは幼女の匂いが　しないでござる」
+Output: This one doesn't smell like a little girl.
 
-Input: 「えぇ…\c[7]こんなに可愛いのに…」
-Output: "Eh... \c[7]but she's so cute..."
+Input: [VARIABLE_0]がお前に手を焼いてるみたいだったよ
+Output: It seems like [VARIABLE_0] is having a hard time with you.
 
-Input: [Kurone]: あのさ
-Output: [Kurone]: Hey.
+Input: 他はどうでも良いけど、\n"私の標的"に余計な事 しないでくれない？
+Output: I don't care about the others,\nbut could you not interfere with "my target"?
 
-Input: [Kurone]: \v[0]がお前に手を焼いてるみたいだったよ
-Output: [Kurone]: It seems like \v[0] is having a hard time with you.
-
-Input: [Kurone]: 他はどうでも良いけど、\n"\c[10]私の標的\c"に余計な事 しないでくれない？
-Output: [Kurone]: I don't care about the others,\nbut could you not interfere with "\c[10]my target\c"?
-
-Input: [Kurone]: 殺すよ
-Output: [Kurone]: I'll kill you.
-
-Input: \C[18]―――――――――――\.\.お前は死ぬ\|\^
-Output: \C[18]―――――――――――\.\.You will die\|\^
+Input: [COLOR_18]―――――――――――\.\.お前は死ぬ\|\^
+Output: [COLOR_18]―――――――――――\.\.You will die\|\^
 
 Input: 　　　・・・
 Output: ...
@@ -75,4 +59,4 @@ Output: ...
 Input: ハートが可愛いピンク色のチャーム。\n女の子らしさが増すワンポイントアクセサリー。
 Output: A cute pink heart charm.\nA girly accessory that adds a feminine touch.
 
-Dialogue text to translate: {text} 
+Dialogue text to translate: {text}

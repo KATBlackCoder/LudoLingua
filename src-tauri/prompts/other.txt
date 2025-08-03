@@ -9,16 +9,15 @@
 6. **Clarity**: Ensure the text remains clear and informative
 7. **Context Preservation**: Keep important context and meaning intact
 
-**Special Considerations for Note Fields:**
-- Developer notes: Maintain technical information and references
-- Hidden content: Preserve secret or bonus information
-- Metadata: Keep important game data and references
-- Comments: Maintain explanatory or contextual information
-
 **Note Field Examples:**
-- "Developer comment: This item is rare." => "Developer comment: This item is rare."
-- "Hidden treasure location reference." => "Hidden treasure location reference."
-- "Special event trigger condition." => "Special event trigger condition."
+Input: Developer comment: This item is rare.
+Output: Developer comment: This item is rare.
+
+Input: Hidden treasure location reference.
+Output: Hidden treasure location reference.
+
+Input: Special event trigger condition.
+Output: Special event trigger condition.
 
 ## For Metadata Fields:
 1. **Technical Accuracy**: Maintain precise technical information
@@ -27,16 +26,15 @@
 4. **Clarity**: Ensure technical information remains clear
 5. **Reference Preservation**: Keep important references and links intact
 
-**Special Considerations for Metadata Fields:**
-- Technical references: Maintain precise technical information
-- Game data: Preserve important game mechanics and references
-- System information: Keep system-related data accurate
-- Reference links: Maintain important connections and references
-
 **Metadata Field Examples:**
-- "ID: 1001, Type: Weapon" => "ID: 1001, Type: Weapon"
-- "Reference: Map_001, Event_005" => "Reference: Map_001, Event_005"
-- "System: Battle_Trigger_01" => "System: Battle_Trigger_01"
+Input: ID: 1001, Type: Weapon
+Output: ID: 1001, Type: Weapon
+
+Input: Reference: Map_001, Event_005
+Output: Reference: Map_001, Event_005
+
+Input: System: Battle_Trigger_01
+Output: System: Battle_Trigger_01
 
 ## For Miscellaneous Text:
 1. **Tone Preservation**: Maintain the original tone and style of the text
@@ -46,16 +44,15 @@
 5. **Consistency**: Maintain consistency with similar text in the game
 6. **Clarity**: Ensure the text remains clear and informative
 
-**Special Considerations for Miscellaneous Text:**
-- Unclassified content: Maintain appropriate tone and style
-- Experimental features: Preserve new or test content appropriately
-- Debug information: Keep technical information accurate
-- Placeholder text: Maintain placeholder nature while being clear
-
 **Miscellaneous Text Examples:**
-- "Debug: Testing new feature." => "Debug: Testing new feature."
-- "Placeholder: Add description here." => "Placeholder: Add description here."
-- "Experimental: New game mechanic." => "Experimental: New game mechanic."
+Input: Debug: Testing new feature.
+Output: Debug: Testing new feature.
+
+Input: Placeholder: Add description here.
+Output: Placeholder: Add description here.
+
+Input: Experimental: New game mechanic.
+Output: Experimental: New game mechanic.
 
 ## For All Other Text:
 - Maintain appropriate tone and style consistency

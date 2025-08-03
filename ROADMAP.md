@@ -55,23 +55,115 @@
 - [x] Placeholder preservation in system messages
 - [x] Support for 500+ text units from System.json
 
-## Current Phase: Additional RPG Maker MV File Types
+### ✅ Phase 5.7: Additional RPG Maker MV File Types
+**Goal:** Complete comprehensive RPG Maker MV support
+- [x] **System Files (High Impact, Easy):**
+  - [x] **System.json** - Game title, UI elements, currency, elements
+  - [x] **States.json** - Status effect names and descriptions  
+  - [x] **Enemies.json** - Enemy names and descriptions
+- [x] **Event Files (High Impact, Complex):**
+  - [x] **CommonEvents.json** - Common events with dialogue
+  - [x] **Troops.json** - Troop names and event commands
+- [x] **Map Files (Complex but High Value):**
+  - [x] **MapXXX.json** - Individual map files with event dialogue
 
-### 🎯 Priority 1: System Files (High Impact, Easy) - COMPLETED ✅
-- [x] **System.json** - Game title, UI elements, currency, elements
-- [x] **States.json** - Status effect names and descriptions  
-- [x] **Enemies.json** - Enemy names and descriptions
+### ✅ Phase 5.8: Smart Content Filtering & Quality Enhancement
+**Goal:** Implement intelligent filtering to reduce translation noise and improve quality
+- [x] **Universal Content Filtering:**
+  - Extend `is_technical_content()` filtering to all file types
+  - Apply smart filtering to field names, descriptions, and notes
+  - Filter out technical IDs, placeholders, and non-translatable content
+  - Consistent filtering across all RPG Maker MV file types
+- [x] **Advanced Filtering Rules:**
+  - Single character names (like "ｘ") - likely placeholders
+  - Numeric-only names (like "9") - likely technical IDs
+  - Short technical abbreviations (HP, MP, ATK, etc.)
+  - File paths and asset references
+  - JavaScript code and expressions
+  - Developer markers and comments
+- [x] **Quality Improvements:**
+  - Reduce translation noise by filtering technical content
+  - Focus translation efforts on actual player-facing text
+  - Improve translation consistency by removing edge cases
+  - Better separation of translatable vs. technical content
 
-### 🎯 Priority 2: Event Files (High Impact, Complex)
-- [x] **CommonEvents.json** - Common events with dialogue
-- [ ] **Troops.json** - Troop names and event commands
+## Current Phase: Major Platform Upgrade & Polish
 
-### 🎯 Priority 3: Map Files (Complex but High Value)
-- [ ] **MapXXX.json** - Individual map files with event dialogue
+### 🎯 Phase 6: Comprehensive Platform Upgrade
+**Goal:** Modernize the entire application with latest technologies and enhanced UI/UX
 
-## Next Phase: Large Scale Translation Support
+#### **6.1: Nuxt 4 Migration**
+- [ ] **Framework Upgrade:**
+  - [ ] Migrate from Nuxt 3 to Nuxt 4
+  - [ ] Update all dependencies to latest versions
+  - [ ] Test compatibility with Tauri integration
+  - [ ] Update TypeScript configurations
+  - [ ] Migrate to new Nuxt 4 APIs and conventions
+  - [ ] Update build configuration for optimal performance
 
-### Phase 6: Translation Performance & Progress Management
+#### **6.2: PrimeVue UI Migration**
+- [ ] **UI Framework Replacement:**
+  - [ ] Replace Nuxt UI with [PrimeVue](https://primevue.org/) for enhanced data table capabilities
+  - [ ] Install and configure PrimeVue with proper theming
+  - [ ] Migrate all existing components to PrimeVue equivalents
+  - [ ] Implement PrimeVue DataTable for advanced translation table features
+  - [ ] Add PrimeVue components: DataTable, MultiSelect, Dropdown, ProgressBar, etc.
+  - [ ] Implement responsive design with PrimeVue's mobile-first approach
+  - [ ] Add PrimeVue themes and dark mode support
+
+#### **6.3: Enhanced Data Table Features**
+- [ ] **Advanced Translation Table:**
+  - [ ] Implement PrimeVue DataTable with sorting, filtering, and pagination
+  - [ ] Add column-specific filters (file type, status, prompt type)
+  - [ ] Implement row selection and bulk operations
+  - [ ] Add inline editing capabilities for manual translation corrections
+  - [ ] Implement export functionality (CSV, JSON)
+  - [ ] Add translation progress visualization with ProgressBar
+  - [ ] Implement virtual scrolling for large datasets (2000+ text units)
+  - [ ] Add search functionality across all columns
+  - [ ] Implement column resizing and reordering
+
+#### **6.4: Frontend Polish & Refinement**
+- [ ] **UI/UX Enhancements:**
+  - [ ] Redesign main dashboard with modern card-based layout
+  - [ ] Implement advanced project statistics with charts and metrics
+  - [ ] Add file type filtering and grouping in sidebar
+  - [ ] Implement drag-and-drop file upload for project loading
+  - [ ] Add keyboard shortcuts for common operations
+  - [ ] Implement toast notifications for better user feedback
+  - [ ] Add loading states and skeleton screens
+  - [ ] Implement responsive design for tablet and mobile devices
+  - [ ] Add accessibility features (ARIA labels, keyboard navigation)
+
+#### **6.5: Backend Polish & Refinement**
+- [ ] **Performance Optimizations:**
+  - [ ] Implement connection pooling for LLM API calls
+  - [ ] Add caching layer for frequently accessed data
+  - [ ] Optimize file parsing for large projects
+  - [ ] Implement background processing for long-running operations
+  - [ ] Add comprehensive error handling and recovery
+  - [ ] Implement retry mechanisms for failed API calls
+  - [ ] Add performance monitoring and logging
+
+- [ ] **Architecture Improvements:**
+  - [ ] Refactor command handlers for better error handling
+  - [ ] Implement proper async/await patterns throughout
+  - [ ] Add input validation and sanitization
+  - [ ] Implement proper resource cleanup
+  - [ ] Add comprehensive logging and debugging tools
+  - [ ] Optimize memory usage for large projects
+
+#### **6.6: Translation Workflow Enhancements**
+- [ ] **Advanced Translation Features:**
+  - [ ] Implement batch translation with progress tracking
+  - [ ] Add translation memory for consistent terminology
+  - [ ] Implement undo/redo functionality
+  - [ ] Add translation validation and quality checks
+  - [ ] Implement save/load translation sessions
+  - [ ] Add translation export/import capabilities
+  - [ ] Implement translation history and versioning
+
+### Phase 7: Large Scale Translation Support
 **Goal:** Optimize translation workflow for large projects (2000+ text units)
 - [ ] **Progress Management System:**
   - Real-time progress tracking and display
@@ -95,47 +187,26 @@
   - File-level connection management (one connection per file type)
   - Hybrid approach: file-level connections + batch API calls
 
-### ✅ Phase 6.5: Smart Content Filtering & Quality Enhancement
-**Goal:** Implement intelligent filtering to reduce translation noise and improve quality
-- [x] **Universal Content Filtering:**
-  - Extend `is_technical_content()` filtering to all file types
-  - Apply smart filtering to field names, descriptions, and notes
-  - Filter out technical IDs, placeholders, and non-translatable content
-  - Consistent filtering across Actors, Items, Skills, Weapons, Armors, Classes, System, States, Enemies
-- [x] **Advanced Filtering Rules:**
-  - Single character names (like "ｘ") - likely placeholders
-  - Numeric-only names (like "9") - likely technical IDs
-  - Short technical abbreviations (HP, MP, ATK, etc.)
-  - File paths and asset references
-  - JavaScript code and expressions
-  - Developer markers and comments
-- [x] **Quality Improvements:**
-  - Reduce translation noise by filtering technical content
-  - Focus translation efforts on actual player-facing text
-  - Improve translation consistency by removing edge cases
-  - Better separation of translatable vs. technical content
-- [x] **Implementation Strategy:**
-  - Update `extract_text_units_for_object()` to use filtering
-  - Apply filtering to all RPG Maker MV file types
-  - Maintain backward compatibility with existing translations
-  - Add configuration options for filtering sensitivity
+## Future Phase: Release Preparation
 
-## Future Phase: Polishing & Distribution
-
-### Phase 7: Release Preparation
+### Phase 8: Release Preparation
 **Goal:** Prepare for public release with comprehensive RPG Maker MV support
-- [ ] **Frontend Enhancements:**
-  - File type filtering in TranslationTable
-  - Translation progress per file type
-  - Enhanced project statistics
-- [ ] **Backend Improvements:**
-  - Comprehensive error handling
-  - Batch translation across file types
-  - File type-specific prompt selection
-- [ ] **Testing & Polish:**
-  - Thorough manual testing
-  - Performance optimization
-  - User experience refinement
+- [ ] **Testing & Quality Assurance:**
+  - [ ] Comprehensive unit and integration testing
+  - [ ] Performance testing with large projects
+  - [ ] Cross-platform compatibility testing
+  - [ ] User acceptance testing
+  - [ ] Security audit and vulnerability assessment
+- [ ] **Documentation & Support:**
+  - [ ] Complete user documentation and tutorials
+  - [ ] Developer documentation and API reference
+  - [ ] Video tutorials and walkthroughs
+  - [ ] FAQ and troubleshooting guide
+- [ ] **Distribution & Deployment:**
+  - [ ] Automated build and release pipeline
+  - [ ] Cross-platform packaging (Windows, macOS, Linux)
+  - [ ] Auto-update system implementation
+  - [ ] App store distribution (if applicable)
 
 ## Future Vision
 
@@ -165,8 +236,8 @@
 - **Parsing:** Serde for JSON handling
 
 ### Frontend  
-- **Framework:** Nuxt.js (SPA mode)
-- **UI:** Nuxt UI + Tailwind CSS
+- **Framework:** Nuxt 4 (SPA mode)
+- **UI:** PrimeVue + Tailwind CSS
 - **State:** Pinia stores
 - **Validation:** Zod schemas
 
@@ -175,5 +246,5 @@
 - **File Processing:** Common helper functions for consistency
 - **Prompt System:** Context-aware template selection
 - **Translation:** One-by-one processing with error handling
-- **Progress Management:** Real-time tracking and batch processing (Phase 6)
-- **Network Optimization:** File-level connection management + batch API calls (Phase 6) 
+- **Progress Management:** Real-time tracking and batch processing
+- **Network Optimization:** File-level connection management + batch API calls 

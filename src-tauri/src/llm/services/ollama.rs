@@ -55,17 +55,17 @@ impl OllamaProvider {
 
         match serde_json::from_str::<OllamaModelsConfig>(json_content) {
             Ok(config) => {
-                info!(
-                    "Successfully loaded {} Ollama models from JSON configuration",
-                    config.models.len()
-                );
+                // info!(
+                //     "Successfully loaded {} Ollama models from JSON configuration",
+                //     config.models.len()
+                // );
                 config.models
             }
             Err(e) => {
-                warn!(
-                    "Failed to parse Ollama models JSON configuration: {}. Using fallback models.",
-                    e
-                );
+                // warn!(
+                //     "Failed to parse Ollama models JSON configuration: {}. Using fallback models.",
+                //     e
+                // );
                 Self::get_fallback_models()
             }
         }
@@ -123,25 +123,25 @@ impl OllamaProvider {
 #[async_trait]
 impl LlmProvider for OllamaProvider {
     async fn test_connection(&self) -> AppResult<bool> {
-        debug!("Testing connection to Ollama");
+        // debug!("Testing connection to Ollama");
 
         match self.client.list_local_models().await {
             Ok(_) => {
-                info!("Successfully connected to Ollama");
+                // info!("Successfully connected to Ollama");
                 Ok(true)
             }
             Err(e) => {
-                error!("Failed to connect to Ollama: {}", e);
+                // error!("Failed to connect to Ollama: {}", e);
                 Ok(false)
             }
         }
     }
 
     async fn translate(&self, text_unit: &TextUnit, engine_info: &EngineInfo) -> AppResult<String> {
-        debug!(
-            "Translating text with Ollama: {} -> {}",
-            engine_info.source_language.id, engine_info.target_language.id
-        );
+        // debug!(
+        //     "Translating text with Ollama: {} -> {}",
+        //     engine_info.source_language.id, engine_info.target_language.id
+        // );
 
         // Build the translation prompt using shared prompt builder
         let prompt = self.build_translation_prompt(text_unit, engine_info).await;
@@ -153,11 +153,11 @@ impl LlmProvider for OllamaProvider {
         match self.client.generate(request).await {
             Ok(response) => {
                 let translated_text = response.response.trim().to_string();
-                info!("Successfully translated text using Ollama");
+                // info!("Successfully translated text using Ollama");
                 Ok(translated_text)
             }
             Err(e) => {
-                error!("Failed to translate text with Ollama: {}", e);
+                // error!("Failed to translate text with Ollama: {}", e);
                 Err(AppError::Llm(format!("Ollama translation failed: {}", e)))
             }
         }

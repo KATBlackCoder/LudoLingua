@@ -113,14 +113,14 @@ impl RpgMakerMvEngine {
         &self,
         project_info: &EngineInfo,
     ) -> AppResult<Vec<GameDataFile>> {
-        debug!(
-            "Extracting game data files from RPG Maker MV project: {}",
-            project_info.name
-        );
+        // debug!(
+        //     "Extracting game data files from RPG Maker MV project: {}",
+        //     project_info.name
+        // );
         let mut game_data_files = Vec::new();
 
-       /*  // Extract text from Actors.json
-        let actors_paths = ["www/data/Actors.json"];
+        // Extract text from Actors.json
+        /*let actors_paths = ["www/data/Actors.json"];
         let actors_files = common::extract_file_type_text(
             project_info,
             &actors_paths,
@@ -207,7 +207,7 @@ impl RpgMakerMvEngine {
             enemies::extract_text,
             "Enemies.json",
         )?;
-        game_data_files.extend(enemies_files);
+        game_data_files.extend(enemies_files);*/
 
         // Extract text from CommonEvents.json
         let common_events_paths = ["www/data/CommonEvents.json"];
@@ -219,7 +219,7 @@ impl RpgMakerMvEngine {
         )?;
         game_data_files.extend(common_events_files);
 
-        // Extract text from Troops.json
+        /*// Extract text from Troops.json
         let troops_paths = ["www/data/Troops.json"];
         let troops_files = common::extract_file_type_text(
             project_info,
@@ -247,16 +247,16 @@ impl RpgMakerMvEngine {
                     game_data_files.push(map_file);
                 }
                 Err(e) => {
-                    log::warn!("Failed to extract text from {}: {}", map_file_path, e);
+                    // log::warn!("Failed to extract text from {}: {}", map_file_path, e);
                     // Continue with other map files
                 }
             }
         }
 
-        info!(
-            "Extracted {} game data files from RPG Maker MV project",
-            game_data_files.len()
-        );
+        // info!(
+        //     "Extracted {} game data files from RPG Maker MV project",
+        //     game_data_files.len()
+        // );
 
         Ok(game_data_files)
     }
@@ -276,13 +276,13 @@ impl RpgMakerMvEngine {
         project_info: &EngineInfo,
         text_units: &[TextUnit],
     ) -> AppResult<()> {
-        debug!(
-            "Injecting translations into RPG Maker MV project: {}",
-            project_info.name
-        );
+        // debug!(
+        //     "Injecting translations into RPG Maker MV project: {}",
+        //     project_info.name
+        // );
 
-       /* // Inject actor translations
-        common::inject_file_type_translations(
+        // Inject actor translations
+        /*common::inject_file_type_translations(
             project_info,
             text_units,
             "actor_",
@@ -369,7 +369,7 @@ impl RpgMakerMvEngine {
             &["www/data/Enemies.json"],
             enemies::inject_translations,
             "enemy",
-        )?;
+        )?;*/
 
         // Inject common events translations
         common::inject_file_type_translations(
@@ -381,7 +381,7 @@ impl RpgMakerMvEngine {
             "common_event",
         )?;
 
-        // Inject troops translations
+        /*// Inject troops translations
         common::inject_file_type_translations(
             project_info,
             text_units,
@@ -403,12 +403,24 @@ impl RpgMakerMvEngine {
 
         // Inject map event translations (dynamic discovery)
         let map_files = maps::discover_map_files(&project_info.path)?;
+        log::info!("Found {} map files to process", map_files.len());
+        
         for map_file_path in &map_files {
+            // Extract map ID from file path
+            let map_id = maps::extract_map_id(map_file_path);
+            log::info!("Processing map file: {} with map_id: {}", map_file_path, map_id);
+
             // Filter text units for this specific map file
             let map_event_units: Vec<&TextUnit> = text_units
                 .iter()
-                .filter(|unit| unit.id.starts_with("map_event_"))
+                .filter(|unit| unit.id.starts_with(&format!("map_{}_event_", map_id)))
                 .collect();
+
+            log::info!("Found {} text units for map {}: {:?}", 
+                map_event_units.len(), 
+                map_id, 
+                map_event_units.iter().map(|u| &u.id).collect::<Vec<_>>()
+            );
 
             if !map_event_units.is_empty() {
                 match maps::inject_translations(&project_info.path, map_file_path, &map_event_units) {
@@ -420,10 +432,12 @@ impl RpgMakerMvEngine {
                         // Continue with other map files
                     }
                 }
+            } else {
+                log::info!("No text units found for map {}", map_id);
             }
         }
 
-        info!("Translation injection completed");
+        // info!("Translation injection completed");
         Ok(())
     }
 }
@@ -442,10 +456,10 @@ impl Engine for RpgMakerMvEngine {
             Ok(result) => result,
             Err(e) => {
                 // If package.json doesn't exist or can't be read, use the folder name as project name
-                info!(
-                    "Couldn't read package.json: {}. Using folder name instead.",
-                    e
-                );
+                // info!(
+                //     "Couldn't read package.json: {}. Using folder name instead.",
+                //     e
+                // );
                 let folder_name = path
                     .file_name()
                     .and_then(|name| name.to_str())
@@ -473,10 +487,10 @@ impl Engine for RpgMakerMvEngine {
     }
 
     fn extract_text_units(&self, project_info: &EngineInfo) -> AppResult<Vec<TextUnit>> {
-        debug!(
-            "Extracting text units from RPG Maker MV project: {}",
-            project_info.name
-        );
+        // debug!(
+        //     "Extracting text units from RPG Maker MV project: {}",
+        //     project_info.name
+        // );
 
         // Extract game data files
         let game_data_files = self.extract_game_data_files(project_info)?;
@@ -487,7 +501,7 @@ impl Engine for RpgMakerMvEngine {
             all_text_units.extend(file.text_units.clone());
         }
 
-        info!("Total extracted text units: {}", all_text_units.len());
+        // info!("Total extracted text units: {}", all_text_units.len());
         Ok(all_text_units)
     }
 
@@ -496,18 +510,18 @@ impl Engine for RpgMakerMvEngine {
         project_info: &EngineInfo,
         text_units: &[TextUnit],
     ) -> AppResult<()> {
-        debug!(
-            "Injecting text units for RPG Maker MV project: {}",
-            project_info.name
-        );
+        // debug!(
+        //     "Injecting text units for RPG Maker MV project: {}",
+        //     project_info.name
+        // );
 
         // Use our inject_game_data_files method to inject translations back to the game files
         self.inject_game_data_files(project_info, text_units)?;
 
-        info!(
-            "Successfully injected {} text units into project files",
-            text_units.len()
-        );
+        // info!(
+        //     "Successfully injected {} text units into project files",
+        //     text_units.len()
+        // );
         Ok(())
     }
 

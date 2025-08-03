@@ -2,3 +2,4 @@
 // that can be reused across different parts of the application.
 
 pub mod prompts;
+pub mod text_processing;
