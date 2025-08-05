@@ -24,8 +24,8 @@ logs
 !.env.example
 
 # Cursor
-.cursor
-.cursorrules
+#.cursor
+#.cursorrules
 
 # other
 game

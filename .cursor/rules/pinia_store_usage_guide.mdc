@@ -1,0 +1,56 @@
+---
+globs: *.vue,*.ts
+alwaysApply: false
+---
+# Pinia Store Usage Guide
+
+This guide outlines the standard way to create and use Pinia stores within the LudoLingua project, ensuring consistency and leveraging Nuxt 4 / Vue 3 best practices.
+
+## Core Principle: Setup Stores
+
+All Pinia stores in this project **MUST** be defined using the **Setup Store syntax**. This approach aligns with Vue 3's Composition API, offering greater flexibility, type safety, and composability compared to the Options API syntax for stores.
+
+## Store Definition Structure
+
+New stores should follow this general structure:
+
+1.  **Imports:** Import `defineStore` from `pinia`, `ref` (and other Vue reactiviy APIs as needed) from `vue`, `invoke` from `@tauri-apps/api/core` if backend communication is needed, and `useToast` from `#imports` for UI notifications.
+2.  **`defineStore` Call:**
+    *   The first argument is a unique string ID for the store (e.g., `'project'`, `'settings'`).
+    *   The second argument is the setup function `() => { ... }`.
+3.  **Inside the Setup Function:**
+    *   **State:** Define state properties using `ref()` (for simple values) or `reactive()` (for objects).
+    *   **Getters (Computed Properties):** Define getters using `computed()` if complex derived state is needed.
+    *   **Actions:** Define actions as regular `async` or synchronous functions. These functions will mutate the state refs directly (e.g., `myStateRef.value = ...`).
+    *   **Toast Initialization:** If using toasts, initialize `useToast()` once at the top of the setup function scope.
+    *   **Return:** Explicitly return all state properties, getters, and actions that should be accessible from outside the store.
+
+## Quick Generic Example
+
+Here's a very basic, self-contained example of a Setup Store and its usage:
+
+**1. Defining the Store (`stores/counter.ts` - hypothetical)**
+
+```typescript
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+
+export const useCounterStore = defineStore('counter', () => {
+  // State
+  const count = ref(0);
+
+  // Getter (Computed Property)
+  const doubleCount = computed(() => count.value * 2);
+
+  // Action
+  function increment() {
+    count.value++;
+  }
+
+  return {
+    count,
+    doubleCount,
+    increment,
+  };
+});
+```

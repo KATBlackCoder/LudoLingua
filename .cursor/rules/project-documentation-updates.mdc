@@ -1,0 +1,12 @@
+---
+alwaysApply: true
+---
+# Project Documentation Update Policy
+
+Always keep the project's documentation up-to-date.
+
+After any significant change, modification, or update to the codebase, you **must** update the following files to reflect the changes:
+
+*   `[CHANGELOG.md](mdc:CHANGELOG.md)`: Document all user-facing or notable technical changes here, following the Keep a Changelog format.
+*   `[PROGRESS.MD](mdc:PROGRESS.MD)`: Update this file to mark the completion of milestones or tasks as defined in the project roadmap.
+

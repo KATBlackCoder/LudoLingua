@@ -1,0 +1,17 @@
+---
+globs: src-tauri/*,lib.rs
+alwaysApply: false
+---
+# Tauri Application Entrypoint
+
+In this project, the setup of the Tauri application follows a clear separation of concerns between `main.rs` and `lib.rs`.
+
+*   **`[src/lib.rs](mdc:src-tauri/src/lib.rs)`**: This is the main library entry point where the Tauri application builder is configured. It is responsible for assembling all the different pieces of the backend:
+    *   Initializing the database connection pool.
+    *   Registering the command handler from the `commands` module.
+    *   Setting up all Tauri plugins.
+    *   Building and running the application.
+
+*   **`[src/main.rs](mdc:src-tauri/src/main.rs)`**: This file is a minimal binary entry point. Its only job is to call the `run()` function (or a similar public function) exported from `[src/lib.rs](mdc:src-tauri/src/lib.rs)`. It contains no application logic itself.
+
+This pattern keeps the executable (`[src/main.rs](mdc:src-tauri/src/main.rs)`) clean and simple, while concentrating all the complex setup logic within the library crate (`[src/lib.rs](mdc:src-tauri/src/lib.rs)`), which is good practice for testing and organization.

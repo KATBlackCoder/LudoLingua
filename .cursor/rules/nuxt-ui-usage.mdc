@@ -1,0 +1,301 @@
+---
+globs: *.vue
+alwaysApply: false
+---
+
+# Nuxt UI Usage Policy
+
+This project uses Nuxt UI for all UI components and elements. Follow these guidelines for consistent, performant, and accessible user interfaces.
+
+## Core Principles
+
+### Component Usage
+- **Always use Nuxt UI components** instead of raw HTML elements
+- **Prefer semantic components** that match the intended functionality
+- **Use composition over inheritance** - combine smaller components for complex UIs
+- **Leverage Nuxt UI's built-in accessibility features**
+
+### Performance Guidelines
+- **Optimize for large datasets** (2000+ translation units)
+- **Use virtual scrolling** for long lists and tables
+- **Implement proper loading states** and skeleton screens
+- **Minimize component re-renders** with proper reactive patterns
+
+## Component Categories
+
+### Data Display
+- **UDataTable**: For translation tables with sorting, filtering, pagination
+- **UCard**: For content containers and project information
+- **UBadge**: For status indicators and file type labels
+- **UAvatar**: For user/profile images
+- **UProgress**: For translation progress indicators
+
+### Forms & Input
+- **UFormField**: Wrap all form inputs for consistent styling
+- **UInput**: Text input with validation support
+- **USelect**: Dropdown selections for language/model choices
+- **UTextarea**: Multi-line text input for translations
+- **UCheckbox**: Boolean selections
+- **URadio**: Single-choice selections
+
+### Navigation
+- **UButton**: Primary action buttons with variants (primary, secondary, ghost)
+- **UButtonGroup**: Group related actions together
+- **UTabs**: Organize content into logical sections
+- **UBreadcrumb**: Show navigation hierarchy
+- **UPagination**: Navigate through large datasets
+
+### Feedback & Notifications
+- **UToast**: Show success/error messages
+- **UAlert**: Display important information or warnings
+- **ULoading**: Show loading states during operations
+- **USkeleton**: Placeholder content while loading
+- **UModal**: Confirm actions or show detailed information
+
+### Layout
+- **UContainer**: Main content wrapper with responsive margins
+- **UGrid**: Responsive grid layouts
+- **UFlex**: Flexible layout containers
+- **USeparator**: Visual dividers between sections
+- **UDivider**: Horizontal or vertical separators
+
+## Icon Usage
+
+### Heroicons Integration
+- **Use `i-heroicons-*` format** for all icons
+- **Prefer semantic icon names** over generic ones
+- **Maintain consistent icon sizing** within components
+- **Use appropriate icon variants** (solid, outline, mini)
+
+### Common Icons
+```vue
+<!-- Navigation -->
+<i-heroicons-arrow-left />
+<i-heroicons-home />
+<i-heroicons-cog-6-tooth />
+
+<!-- Actions -->
+<i-heroicons-play />
+<i-heroicons-pause />
+<i-heroicons-stop />
+<i-heroicons-arrow-path />
+
+<!-- Status -->
+<i-heroicons-check-circle />
+<i-heroicons-exclamation-triangle />
+<i-heroicons-x-circle />
+
+<!-- File Operations -->
+<i-heroicons-folder-open />
+<i-heroicons-document-text />
+<i-heroicons-arrow-down-tray />
+```
+
+## Theming & Styling
+
+### Color System
+- **Use semantic color classes** (primary, secondary, success, warning, error)
+- **Leverage Nuxt UI's color palette** for consistency
+- **Support dark mode** with `.dark` class selector
+- **Use color variants** appropriately (solid, soft, outline)
+
+### Dark Mode Support
+```vue
+<template>
+  <UButton 
+    :icon="isDark ? 'i-heroicons-sun' : 'i-heroicons-moon'"
+    @click="toggleColorMode"
+  />
+</template>
+```
+
+### Responsive Design
+- **Use responsive utilities** for mobile-first design
+- **Test on multiple screen sizes** during development
+- **Implement proper touch targets** for mobile devices
+- **Use responsive grid layouts** for flexible content
+
+## Form Patterns
+
+### Validation Integration
+```vue
+<template>
+  <UFormField label="Project Path" required>
+    <UInput 
+      v-model="projectPath"
+      placeholder="Select RPG Maker project folder"
+      :error="errors.projectPath"
+    />
+  </UFormField>
+</template>
+```
+
+### Loading States
+```vue
+<template>
+  <UButton 
+    :loading="isLoading"
+    :disabled="isLoading"
+    @click="loadProject"
+  >
+    {{ isLoading ? 'Loading...' : 'Load Project' }}
+  </UButton>
+</template>
+```
+
+## Data Table Best Practices
+
+### Translation Table Example
+```vue
+<template>
+  <UDataTable
+    :rows="translationUnits"
+    :columns="columns"
+    :loading="isLoading"
+    :pagination="{ page: 1, pageCount: 10, pageSize: 50 }"
+    :search="{ placeholder: 'Search translations...' }"
+    :sort="{ column: 'original', direction: 'asc' }"
+  >
+    <template #status-data="{ row }">
+      <UBadge 
+        :color="getStatusColor(row.status)"
+        :variant="getStatusVariant(row.status)"
+      >
+        {{ row.status }}
+      </UBadge>
+    </template>
+  </UDataTable>
+</template>
+```
+
+### Performance Optimizations
+- **Use virtual scrolling** for large datasets
+- **Implement proper pagination** to limit rendered items
+- **Debounce search inputs** to prevent excessive filtering
+- **Use computed properties** for derived data
+
+## Error Handling
+
+### Toast Notifications
+```vue
+<script setup>
+const toast = useToast()
+
+const handleError = (error) => {
+  toast.add({
+    title: 'Error',
+    description: error.message,
+    color: 'red',
+    icon: 'i-heroicons-exclamation-triangle'
+  })
+}
+</script>
+```
+
+### Loading States
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center gap-2">
+        <h3>Project Statistics</h3>
+        <ULoading v-if="isLoading" size="sm" />
+      </div>
+    </template>
+    
+    <USkeleton v-if="isLoading" class="h-32" />
+    <div v-else>
+      <!-- Content -->
+    </div>
+  </UCard>
+</template>
+```
+
+## Accessibility Guidelines
+
+### ARIA Labels
+- **Always provide meaningful labels** for form inputs
+- **Use proper heading hierarchy** (h1, h2, h3, etc.)
+- **Add descriptive alt text** for images and icons
+- **Ensure keyboard navigation** works properly
+
+### Screen Reader Support
+```vue
+<template>
+  <UButton 
+    aria-label="Load new RPG Maker project"
+    @click="loadProject"
+  >
+    <i-heroicons-folder-open class="w-4 h-4" />
+    Load Project
+  </UButton>
+</template>
+```
+
+## Component Composition
+
+### Reusable Patterns
+```vue
+<!-- ProjectCard.vue -->
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold">{{ title }}</h3>
+        <UBadge :color="statusColor">{{ status }}</UBadge>
+      </div>
+    </template>
+    
+    <div class="space-y-4">
+      <slot />
+    </div>
+    
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <slot name="actions" />
+      </div>
+    </template>
+  </UCard>
+</template>
+```
+
+## Performance Tips
+
+### Lazy Loading
+- **Use dynamic imports** for heavy components
+- **Implement code splitting** for better initial load times
+- **Use `v-show` vs `v-if`** appropriately
+- **Optimize reactive dependencies** in computed properties
+
+### Memory Management
+- **Clean up event listeners** in `onUnmounted`
+- **Use `shallowRef`** for large objects that don't need deep reactivity
+- **Implement proper cleanup** for long-running operations
+
+## Testing Considerations
+
+### Component Testing
+- **Test component variants** and states
+- **Verify accessibility** with screen readers
+- **Test responsive behavior** across screen sizes
+- **Validate form interactions** and error states
+
+### Integration Testing
+- **Test component composition** and data flow
+- **Verify loading states** and error handling
+- **Test user interactions** and state changes
+- **Validate performance** with large datasets
+
+## Migration Guidelines
+
+### From Other UI Libraries
+- **Replace custom components** with Nuxt UI equivalents
+- **Update icon usage** to Heroicons format
+- **Refactor styling** to use Nuxt UI classes
+- **Test functionality** after migration
+
+### Legacy Code Updates
+- **Remove custom CSS** in favor of Nuxt UI utilities
+- **Update component props** to match Nuxt UI API
+- **Refactor event handling** to use Nuxt UI patterns
+- **Optimize performance** with Nuxt UI features

@@ -89,53 +89,38 @@
 
 ## Current Phase: Major Platform Upgrade & Polish
 
-### 🎯 Phase 6: Comprehensive Platform Upgrade
-**Goal:** Modernize the entire application with latest technologies and enhanced UI/UX
+### 🎯 Phase 6: Framework Migration
+**Goal:** Migrate to latest technologies and package manager
 
-#### **6.1: Nuxt 4 Migration**
+#### **6.1: Nuxt 4 + pnpm Migration**
 - [ ] **Framework Upgrade:**
   - [ ] Migrate from Nuxt 3 to Nuxt 4
+  - [ ] Switch from npm to pnpm for better performance
   - [ ] Update all dependencies to latest versions
   - [ ] Test compatibility with Tauri integration
   - [ ] Update TypeScript configurations
   - [ ] Migrate to new Nuxt 4 APIs and conventions
   - [ ] Update build configuration for optimal performance
+  - [ ] Update package.json with pnpm-specific configurations
+  - [ ] Migrate lock files and dependency management
+  - [ ] Update CI/CD and build scripts for pnpm
+  - [ ] Test package installation and build processes
 
-#### **6.2: PrimeVue UI Migration**
-- [ ] **UI Framework Replacement:**
-  - [ ] Replace Nuxt UI with [PrimeVue](https://primevue.org/) for enhanced data table capabilities
-  - [ ] Install and configure PrimeVue with proper theming
-  - [ ] Migrate all existing components to PrimeVue equivalents
-  - [ ] Implement PrimeVue DataTable for advanced translation table features
-  - [ ] Add PrimeVue components: DataTable, MultiSelect, Dropdown, ProgressBar, etc.
-  - [ ] Implement responsive design with PrimeVue's mobile-first approach
-  - [ ] Add PrimeVue themes and dark mode support
+### 🎯 Phase 7: Frontend & Backend Polish
+**Goal:** Optimize and refine both frontend and backend for better performance and user experience
 
-#### **6.3: Enhanced Data Table Features**
-- [ ] **Advanced Translation Table:**
-  - [ ] Implement PrimeVue DataTable with sorting, filtering, and pagination
-  - [ ] Add column-specific filters (file type, status, prompt type)
-  - [ ] Implement row selection and bulk operations
-  - [ ] Add inline editing capabilities for manual translation corrections
-  - [ ] Implement export functionality (CSV, JSON)
-  - [ ] Add translation progress visualization with ProgressBar
-  - [ ] Implement virtual scrolling for large datasets (2000+ text units)
-  - [ ] Add search functionality across all columns
-  - [ ] Implement column resizing and reordering
-
-#### **6.4: Frontend Polish & Refinement**
+#### **7.1: Frontend Polish & Refinement**
 - [ ] **UI/UX Enhancements:**
-  - [ ] Redesign main dashboard with modern card-based layout
-  - [ ] Implement advanced project statistics with charts and metrics
-  - [ ] Add file type filtering and grouping in sidebar
-  - [ ] Implement drag-and-drop file upload for project loading
-  - [ ] Add keyboard shortcuts for common operations
-  - [ ] Implement toast notifications for better user feedback
+  - [ ] Optimize existing Nuxt UI components for better performance
+  - [ ] Improve responsive design and mobile compatibility
   - [ ] Add loading states and skeleton screens
-  - [ ] Implement responsive design for tablet and mobile devices
-  - [ ] Add accessibility features (ARIA labels, keyboard navigation)
+  - [ ] Implement better error handling and user feedback
+  - [ ] Add keyboard shortcuts for common operations
+  - [ ] Enhance accessibility features (ARIA labels, keyboard navigation)
+  - [ ] Optimize component rendering and state management
+  - [ ] Add comprehensive toast notifications system
 
-#### **6.5: Backend Polish & Refinement**
+#### **7.2: Backend Polish & Refinement**
 - [ ] **Performance Optimizations:**
   - [ ] Implement connection pooling for LLM API calls
   - [ ] Add caching layer for frequently accessed data
@@ -153,8 +138,11 @@
   - [ ] Add comprehensive logging and debugging tools
   - [ ] Optimize memory usage for large projects
 
-#### **6.6: Translation Workflow Enhancements**
-- [ ] **Advanced Translation Features:**
+### 🎯 Phase 8: Translation Workflow Enhancement
+**Goal:** Implement advanced translation features and large-scale processing capabilities
+
+#### **8.1: Translation Workflow Optimization**
+- [ ] **Enhanced Translation Features:**
   - [ ] Implement batch translation with progress tracking
   - [ ] Add translation memory for consistent terminology
   - [ ] Implement undo/redo functionality
@@ -162,34 +150,36 @@
   - [ ] Implement save/load translation sessions
   - [ ] Add translation export/import capabilities
   - [ ] Implement translation history and versioning
+  - [ ] Optimize prompt system for better translation quality
+  - [ ] Add file-level progress tracking and status display
+  - [ ] Implement natural breakpoints for error recovery and user control
 
-### Phase 7: Large Scale Translation Support
-**Goal:** Optimize translation workflow for large projects (2000+ text units)
+#### **8.2: Large Scale Translation Support**
 - [ ] **Progress Management System:**
-  - Real-time progress tracking and display
-  - Progress bar component with current item/total
-  - Translation status per file type
-  - Pause/resume/cancel functionality
+  - [ ] Real-time progress tracking and display
+  - [ ] Progress bar component with current item/total
+  - [ ] Translation status per file type
+  - [ ] Pause/resume/cancel functionality
 - [ ] **Batch Processing Options:**
-  - File-by-file translation (System.json only, Items.json only, etc.)
-  - Selective translation by file type
-  - Background processing to keep UI responsive
-  - Progress persistence in database
-  - File-level progress tracking and status display
-  - Natural breakpoints for error recovery and user control
+  - [ ] File-by-file translation (System.json only, Items.json only, etc.)
+  - [ ] Selective translation by file type
+  - [ ] Background processing to keep UI responsive
+  - [ ] Progress persistence in database
+  - [ ] File-level progress tracking and status display
+  - [ ] Natural breakpoints for error recovery and user control
 - [ ] **Performance Optimizations:**
-  - Memory management for large text unit sets
-  - Efficient UI updates during translation
-  - Error recovery and checkpoint system
-  - Translation time estimation
-  - HTTP connection pooling for LLM API calls
-  - Batch API calls to reduce network overhead
-  - File-level connection management (one connection per file type)
-  - Hybrid approach: file-level connections + batch API calls
+  - [ ] Memory management for large text unit sets
+  - [ ] Efficient UI updates during translation
+  - [ ] Error recovery and checkpoint system
+  - [ ] Translation time estimation
+  - [ ] HTTP connection pooling for LLM API calls
+  - [ ] Batch API calls to reduce network overhead
+  - [ ] File-level connection management (one connection per file type)
+  - [ ] Hybrid approach: file-level connections + batch API calls
 
 ## Future Phase: Release Preparation
 
-### Phase 8: Release Preparation
+### Phase 9: Release Preparation
 **Goal:** Prepare for public release with comprehensive RPG Maker MV support
 - [ ] **Testing & Quality Assurance:**
   - [ ] Comprehensive unit and integration testing
@@ -237,7 +227,7 @@
 
 ### Frontend  
 - **Framework:** Nuxt 4 (SPA mode)
-- **UI:** PrimeVue + Tailwind CSS
+- **UI:** Nuxt UI (optimized for performance)
 - **State:** Pinia stores
 - **Validation:** Zod schemas
 

@@ -1,56 +1,43 @@
 # LudoLingua Development TODO
 
 ## Current Status
-**Phase:** Phase 6 - Comprehensive Platform Upgrade  
+**Phase:** Phase 6 - Framework Migration  
 **Last Completed:** MVP with full RPG Maker MV support (12 file types)  
-**Current Focus:** Nuxt 4 migration and PrimeVue UI replacement
+**Current Focus:** Nuxt 4 + pnpm migration
 
-## Next Priorities (Phase 6 - Platform Upgrade)
+## Next Priorities (Phase 6 - Framework Migration)
 
-### 🎯 Priority 1: Nuxt 4 Migration (Foundation)
+### 🎯 Priority 1: Nuxt 4 + pnpm Migration (Foundation)
 - [ ] **Framework Upgrade:**
   - [ ] Migrate from Nuxt 3 to Nuxt 4
+  - [ ] Switch from npm to pnpm for better performance
   - [ ] Update all dependencies to latest versions
   - [ ] Test compatibility with Tauri integration
   - [ ] Update TypeScript configurations
   - [ ] Migrate to new Nuxt 4 APIs and conventions
   - [ ] Update build configuration for optimal performance
+  - [ ] Update package.json with pnpm-specific configurations
+  - [ ] Migrate lock files and dependency management
+  - [ ] Update CI/CD and build scripts for pnpm
+  - [ ] Test package installation and build processes
 
-### 🎯 Priority 2: PrimeVue UI Migration (High Impact)
-- [ ] **UI Framework Replacement:**
-  - [ ] Replace Nuxt UI with PrimeVue for enhanced data table capabilities
-  - [ ] Install and configure PrimeVue with proper theming
-  - [ ] Migrate all existing components to PrimeVue equivalents
-  - [ ] Implement PrimeVue DataTable for advanced translation table features
-  - [ ] Add PrimeVue components: DataTable, MultiSelect, Dropdown, ProgressBar, etc.
-  - [ ] Implement responsive design with PrimeVue's mobile-first approach
-  - [ ] Add PrimeVue themes and dark mode support
+## Upcoming Phases
 
-### 🎯 Priority 3: Enhanced Data Table Features (Core Feature)
-- [ ] **Advanced Translation Table:**
-  - [ ] Implement PrimeVue DataTable with sorting, filtering, and pagination
-  - [ ] Add column-specific filters (file type, status, prompt type)
-  - [ ] Implement row selection and bulk operations
-  - [ ] Add inline editing capabilities for manual translation corrections
-  - [ ] Implement export functionality (CSV, JSON)
-  - [ ] Add translation progress visualization with ProgressBar
-  - [ ] Implement virtual scrolling for large datasets (2000+ text units)
-  - [ ] Add search functionality across all columns
-  - [ ] Implement column resizing and reordering
+### 🎯 Phase 7: Frontend & Backend Polish
+**Goal:** Optimize and refine both frontend and backend for better performance and user experience
 
-### 🎯 Priority 4: Frontend Polish & Refinement (UX)
+#### **7.1: Frontend Polish & Refinement**
 - [ ] **UI/UX Enhancements:**
-  - [ ] Redesign main dashboard with modern card-based layout
-  - [ ] Implement advanced project statistics with charts and metrics
-  - [ ] Add file type filtering and grouping in sidebar
-  - [ ] Implement drag-and-drop file upload for project loading
-  - [ ] Add keyboard shortcuts for common operations
-  - [ ] Implement toast notifications for better user feedback
+  - [ ] Optimize existing Nuxt UI components for better performance
+  - [ ] Improve responsive design and mobile compatibility
   - [ ] Add loading states and skeleton screens
-  - [ ] Implement responsive design for tablet and mobile devices
-  - [ ] Add accessibility features (ARIA labels, keyboard navigation)
+  - [ ] Implement better error handling and user feedback
+  - [ ] Add keyboard shortcuts for common operations
+  - [ ] Enhance accessibility features (ARIA labels, keyboard navigation)
+  - [ ] Optimize component rendering and state management
+  - [ ] Add comprehensive toast notifications system
 
-### 🎯 Priority 5: Backend Polish & Refinement (Performance)
+#### **7.2: Backend Polish & Refinement**
 - [ ] **Performance Optimizations:**
   - [ ] Implement connection pooling for LLM API calls
   - [ ] Add caching layer for frequently accessed data
@@ -68,8 +55,11 @@
   - [ ] Add comprehensive logging and debugging tools
   - [ ] Optimize memory usage for large projects
 
-### 🎯 Priority 6: Translation Workflow Enhancements (Features)
-- [ ] **Advanced Translation Features:**
+### 🎯 Phase 8: Translation Workflow Enhancement
+**Goal:** Implement advanced translation features and large-scale processing capabilities
+
+#### **8.1: Translation Workflow Optimization**
+- [ ] **Enhanced Translation Features:**
   - [ ] Implement batch translation with progress tracking
   - [ ] Add translation memory for consistent terminology
   - [ ] Implement undo/redo functionality
@@ -77,6 +67,32 @@
   - [ ] Implement save/load translation sessions
   - [ ] Add translation export/import capabilities
   - [ ] Implement translation history and versioning
+  - [ ] Optimize prompt system for better translation quality
+  - [ ] Add file-level progress tracking and status display
+  - [ ] Implement natural breakpoints for error recovery and user control
+
+#### **8.2: Large Scale Translation Support**
+- [ ] **Progress Management System:**
+  - [ ] Real-time progress tracking and display
+  - [ ] Progress bar component with current item/total
+  - [ ] Translation status per file type
+  - [ ] Pause/resume/cancel functionality
+- [ ] **Batch Processing Options:**
+  - [ ] File-by-file translation (System.json only, Items.json only, etc.)
+  - [ ] Selective translation by file type
+  - [ ] Background processing to keep UI responsive
+  - [ ] Progress persistence in database
+  - [ ] File-level progress tracking and status display
+  - [ ] Natural breakpoints for error recovery and user control
+- [ ] **Performance Optimizations:**
+  - [ ] Memory management for large text unit sets
+  - [ ] Efficient UI updates during translation
+  - [ ] Error recovery and checkpoint system
+  - [ ] Translation time estimation
+  - [ ] HTTP connection pooling for LLM API calls
+  - [ ] Batch API calls to reduce network overhead
+  - [ ] File-level connection management (one connection per file type)
+  - [ ] Hybrid approach: file-level connections + batch API calls
 
 ## Completed Achievements (MVP)
 
@@ -95,7 +111,7 @@
 
 ### Architecture
 - **Backend:** Rust + Tauri with trait-based engine system
-- **Frontend:** Nuxt.js + Pinia stores (migrating to Nuxt 4 + PrimeVue)
+- **Frontend:** Nuxt.js + Pinia stores (migrating to Nuxt 4 + pnpm)
 - **LLM:** Ollama integration with JSON model configs
 - **Storage:** Tauri Store plugin for settings
 
@@ -141,10 +157,10 @@ Each file follows the same pattern:
 - **Content Filtering:** Smart filtering to reduce translation noise
 
 ### 🔄 Current Approach
-- **Platform Upgrade:** Nuxt 4 + PrimeVue migration for enhanced capabilities
-- **Data Table Focus:** Advanced table features for better translation management
-- **Performance:** Backend optimizations for large-scale projects
-- **User Experience:** Modern UI/UX with professional-grade components
+- **Platform Upgrade:** Nuxt 4 + pnpm migration for enhanced performance
+- **Performance Focus:** Backend optimizations and translation workflow improvements
+- **User Experience:** Polish existing Nuxt UI components and add advanced features
+- **Scalability:** Large-scale translation support with batch processing
 
 ## Future Considerations
 - **RPG Maker MZ Support** - After platform upgrade completion

@@ -1,0 +1,66 @@
+---
+alwaysApply: true
+---
+# LudoLingua Project Overview
+
+This document outlines the core architecture and technology stack for the LudoLingua application. For a comprehensive breakdown, please refer to the full design document: [DESIGN.md](mdc:DESIGN.md).
+
+## 1. Purpose
+
+LudoLingua is a desktop application built with Tauri, designed for the offline translation of RPG Maker (MV, MZ) game files. It functions as an editor to load projects, manage text, and use AI for translation, saving the changes back to the project files.
+
+## 2. Architecture
+
+The application uses a hybrid model:
+
+*   **Frontend:** A Nuxt.js 4 Single-Page Application (SPA) responsible for the entire user interface. It is built with Nuxt UI and communicates with the backend via Tauri commands. 
+*   **Backend:** A Rust binary that handles all core logic, including:
+    *   File system operations (reading/writing game files).
+    *   Parsing RPG Maker's JSON data files using `serde`.
+    *   Making API calls to AI models for translation via the `llm` crate.
+    *   Managing the glossary/termbase with an embedded SQLite database using `sqlx`.
+    *   Handling user settings.
+
+This separation keeps the core logic secure and performant in Rust, while the UI remains modern and reactive with Nuxt. 
+
+## 3. Technology Stack
+
+### Key Backend Technologies
+*   **Core:** Rust with the Tokio async runtime.
+*   **AI:** The `llm` crate. 
+*   **Database:** `sqlx` with `sqlx-sqlite` for the SQLite termbase and `sqlx-cli` for migrations.
+*   **Data Parsing:** `serde` and `serde_json`.
+*   **Error Handling:** `anyhow`.
+*   **Tauri Plugins:**
+    *   `tauri-plugin-fs` & `tauri-plugin-dialog`: For file system access.
+    *   `tauri-plugin-store`: For persistent user settings.
+    *   `tauri-plugin-opener`: To open folders in the system's file explorer.
+    *   Other utility plugins: `log`, `updater`, `window-state`.
+
+### Key Frontend Technologies
+*   **Framework:** Nuxt.js 4 (with TypeScript and SSR disabled).
+*   **UI:** Nuxt UI with optimized performance and responsive design.
+*   **Package Manager:** pnpm for dependency management.
+*   **State Management:** Pinia for session state.
+*   **Styling:** Nuxt UI design system with responsive design.
+
+## 4. Dependency Management Workflow
+
+The installation of all project dependencies (npm packages and Cargo crates) is handled manually by the developer.
+
+Before the start of each development milestone, my role is to verify that all required dependencies are present in the project's configuration files. This involves:
+-   Checking `nuxt.config.ts` and `package.json` for frontend packages.
+-   Checking `Cargo.toml` for backend crates.
+
+If any dependencies are found to be missing, I will notify you to install them before I proceed with the milestone tasks.
+
+## 5. UI Component Guidelines
+
+### Nuxt UI Usage
+*   **Components:** Use Nuxt UI components for all UI elements (Button, Card, DataTable, etc.).
+*   **Icons:** Use Heroicons (`i-heroicons-*`) for all iconography.
+*   **Theming:** Leverage Nuxt UI's design system for consistent styling.
+*   **Dark Mode:** Use the `.dark` class selector for dark mode toggling.
+*   **Styling:** Use Nuxt UI's built-in styling system for responsive design.
+*   **Performance:** Optimize component rendering and state management for large datasets.
+
