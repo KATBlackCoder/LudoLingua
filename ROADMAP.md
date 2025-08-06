@@ -87,24 +87,26 @@
   - Improve translation consistency by removing edge cases
   - Better separation of translatable vs. technical content
 
-## Current Phase: Major Platform Upgrade & Polish
+## Current Phase: Frontend & Backend Polish
 
-### 🎯 Phase 6: Framework Migration
+### ✅ Phase 6: Framework Migration - COMPLETED
 **Goal:** Migrate to latest technologies and package manager
 
-#### **6.1: Nuxt 4 + pnpm Migration**
-- [ ] **Framework Upgrade:**
-  - [ ] Migrate from Nuxt 3 to Nuxt 4
-  - [ ] Switch from npm to pnpm for better performance
-  - [ ] Update all dependencies to latest versions
-  - [ ] Test compatibility with Tauri integration
-  - [ ] Update TypeScript configurations
-  - [ ] Migrate to new Nuxt 4 APIs and conventions
-  - [ ] Update build configuration for optimal performance
-  - [ ] Update package.json with pnpm-specific configurations
-  - [ ] Migrate lock files and dependency management
-  - [ ] Update CI/CD and build scripts for pnpm
-  - [ ] Test package installation and build processes
+#### **6.1: Nuxt 4 + pnpm Migration ✅ COMPLETED**
+- [x] **Framework Upgrade:**
+  - [x] Migrate from Nuxt 3 to Nuxt 4
+  - [x] Switch from npm to pnpm for better performance
+  - [x] Update all dependencies to latest versions
+  - [x] Test compatibility with Tauri integration
+  - [x] Update TypeScript configurations
+  - [x] Migrate to new Nuxt 4 APIs and conventions
+  - [x] Update build configuration for optimal performance
+  - [x] Update package.json with pnpm-specific configurations
+  - [x] Migrate lock files and dependency management
+  - [x] Update CI/CD and build scripts for pnpm
+  - [x] Test package installation and build processes
+  - [x] **Directory Structure Migration:** Automatically migrated to new Nuxt 4 `app/` directory structure
+  - [x] **Pinia Integration:** Resolved Pinia initialization issues with manual plugin setup
 
 ### 🎯 Phase 7: Frontend & Backend Polish
 **Goal:** Optimize and refine both frontend and backend for better performance and user experience

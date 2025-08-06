@@ -660,11 +660,70 @@ This document tracks the completed milestones of the LudoLingua application, bas
     *   [x] **Improved accessibility** with proper button states and loading indicators
     *   [x] **Better visual feedback** with progress indicators and status updates
 
+### ✅ Phase 6: Framework Migration - COMPLETED
+
+**Goal:** Migrate to latest technologies and package manager for enhanced performance and modern development practices.
+
+*   **✅ Completed: Nuxt 4 + pnpm Migration**
+    *   [x] **Framework Upgrade:**
+        *   [x] Migrated from Nuxt 3.18.1 to Nuxt 4.0.3
+        *   [x] Switched from npm to pnpm for better performance and dependency resolution
+        *   [x] Updated all dependencies to latest versions
+        *   [x] Tested compatibility with Tauri integration
+        *   [x] Updated TypeScript configurations
+        *   [x] Migrated to new Nuxt 4 APIs and conventions
+        *   [x] Updated build configuration for optimal performance
+        *   [x] Updated package.json with pnpm-specific configurations
+        *   [x] Migrated lock files and dependency management
+        *   [x] Updated CI/CD and build scripts for pnpm
+        *   [x] Tested package installation and build processes
+    *   [x] **Directory Structure Migration:**
+        *   [x] Automatically migrated to new Nuxt 4 `app/` directory structure using official codemod
+        *   [x] Moved all frontend files (components, pages, stores, types, etc.) to `app/` directory
+        *   [x] Updated file paths and imports to work with new structure
+        *   [x] Maintained backward compatibility during migration
+    *   [x] **Pinia Integration:**
+        *   [x] Resolved Pinia initialization issues with manual plugin setup
+        *   [x] Created `app/plugins/pinia.client.ts` for proper Pinia initialization
+        *   [x] Fixed module conflicts by removing `@pinia/nuxt` and handling initialization manually
+        *   [x] Ensured all stores work correctly with new architecture
+    *   [x] **Build and Development:**
+        *   [x] Verified successful build process with new structure
+        *   [x] Confirmed development server works correctly
+        *   [x] Tested all existing functionality with new framework
+        *   [x] Resolved all TypeScript and import issues
+
+*   **Benefits Achieved:**
+    *   [x] **Better Performance:** pnpm provides faster installs and better dependency resolution
+    *   [x] **Modern Structure:** New Nuxt 4 directory structure for better IDE support and performance
+    *   [x] **Future-Proof:** Latest Nuxt 4 with all the latest features and improvements
+    *   [x] **Tauri Compatible:** All Tauri integration still works perfectly
+    *   [x] **Enhanced Development:** Better TypeScript support and development experience
+
 ### Next Steps
 
+*   **Phase 7: Frontend & Backend Polish**
+    *   [ ] **UI/UX Enhancements:**
+        *   [ ] Optimize existing Nuxt UI components for better performance
+        *   [ ] Improve responsive design and mobile compatibility
+        *   [ ] Add loading states and skeleton screens
+        *   [ ] Implement better error handling and user feedback
+        *   [ ] Add keyboard shortcuts for common operations
+        *   [ ] Enhance accessibility features (ARIA labels, keyboard navigation)
+        *   [ ] Optimize component rendering and state management
+        *   [ ] Add comprehensive toast notifications system
+    *   [ ] **Backend Polish & Refinement:**
+        *   [ ] Implement connection pooling for LLM API calls
+        *   [ ] Add caching layer for frequently accessed data
+        *   [ ] Optimize file parsing for large projects
+        *   [ ] Implement background processing for long-running operations
+        *   [ ] Add comprehensive error handling and recovery
+        *   [ ] Implement retry mechanisms for failed API calls
+        *   [ ] Add performance monitoring and logging
+
 *   **Future Expansion: Additional File Types**
-    *   [ ] **MapXXX.json Support:** Implement map event parsing and translation
-    *   [ ] **CommonEvents.json Support:** Implement common events parsing and translation
+    *   [x] **MapXXX.json Support:** ✅ Implemented map event parsing and translation
+    *   [x] **CommonEvents.json Support:** ✅ Implemented common events parsing and translation
 
 *   **Frontend Enhancements:**
     *   [ ] Implement responsive design for different screen sizes.

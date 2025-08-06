@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Framework Migration to Nuxt 4 + pnpm:** Complete migration to latest technologies
+  - **Nuxt 4 Upgrade:** Migrated from Nuxt 3.18.1 to Nuxt 4.0.3 with all latest features
+  - **pnpm Package Manager:** Switched from npm to pnpm for better performance and dependency resolution
+  - **Directory Structure Migration:** Automatically migrated to new Nuxt 4 `app/` directory structure using official codemod
+  - **Pinia Integration:** Resolved Pinia initialization issues with manual plugin setup for better compatibility
+  - **Build System Updates:** Updated all dependencies, TypeScript configurations, and build processes
+  - **Development Experience:** Enhanced development workflow with better TypeScript support and modern architecture
 - **Complete RPG Maker MV File Support:** Successfully implemented support for all 7 major RPG Maker MV data files
   - **Items.json Support:** Complete implementation for RPG Maker MV Items.json file parsing and translation
     - Added `src/engines/rpg_maker_mv/files/items.rs` with `Item` struct and translatable fields
@@ -115,6 +122,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Improved User Experience:** Streamlined project loading workflow with better feedback
 
 ### Changed
+- **Framework Architecture:** Complete migration to Nuxt 4 with modern development practices
+  - **Package Manager:** Switched from npm to pnpm for improved performance and dependency management
+  - **Directory Structure:** Migrated to new Nuxt 4 `app/` directory structure for better organization and performance
+  - **Pinia Integration:** Manual Pinia initialization for better control and compatibility
+  - **Build System:** Updated to latest Nuxt 4 build system with enhanced TypeScript support
+  - **Development Workflow:** Improved development experience with modern tooling and architecture
 - **Common Helper Functions Architecture:** Refactored engine implementation to use reusable helper functions
   - Created `src/engines/common.rs` with generic `extract_file_type_text` and `inject_file_type_translations` functions
   - Updated RPG Maker MV engine to use common helper functions instead of private implementations
@@ -146,6 +159,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **User Feedback:** Improved loading states, error handling, and visual feedback
 
 ### Technical Improvements
+- **Framework Migration:** Successfully migrated to Nuxt 4 + pnpm with enhanced performance and modern architecture
+- **Package Management:** Improved dependency resolution and installation speed with pnpm
+- **Directory Structure:** Better organization with new Nuxt 4 `app/` directory structure for improved IDE support
+- **Pinia Compatibility:** Resolved initialization issues for better state management
+- **Build Performance:** Enhanced build system with latest Nuxt 4 optimizations
+- **Development Experience:** Modern development workflow with better TypeScript support and tooling
 - **Engine Architecture:** Reduced code complexity by ~100 lines through common helper functions
 - **Error Handling:** Consistent error handling and logging across all file types
 - **Reusability:** Common functions can be used across different RPG Maker versions (MV, MZ, etc.)

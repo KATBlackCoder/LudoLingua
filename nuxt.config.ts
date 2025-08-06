@@ -19,7 +19,7 @@ export default defineNuxtConfig({
       strictPort: true,
     },
   },
-  modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxt/ui', '@pinia/nuxt'],
+  modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxt/ui'],
   css: ['~/assets/css/main.css'],
   app: {
     head: {
