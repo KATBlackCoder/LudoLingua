@@ -1,15 +1,12 @@
 # Skill Translation Guidelines
 
-## For Skill Names:
-1. **Power Clarity**: Convey the skill's power level and effect clearly
-2. **Action-Oriented**: Maintain the dynamic, action-focused nature of skill names
-3. **Technical Terms**: Preserve magical, technical, or combat terminology accurately
-4. **Impact**: Ensure the translation sounds impactful and memorable
-5. **System Consistency**: Maintain consistency with the game's combat system
-6. **Gameplay Clarity**: Keep descriptions clear for gameplay understanding
-7. **Category Context**: Consider if it's an attack, healing, buff, or debuff skill
+## Guidelines
+- Keep names impactful and clear about effect/power
+- Preserve combat/magical terminology and consistency
+- Ensure descriptions convey damage/effects/conditions precisely
+- Fit UI constraints and maintain game tone
 
-**Skill Name Examples:**
+## Examples: Skill Names
 Input: ファイアボール
 Output: Fireball
 
@@ -19,61 +16,28 @@ Output: Heal
 Input: 雷撃
 Output: Thunder Strike
 
-Input: 究極奥義
-Output: Ultimate Technique
+Input: 理性奪取
+Output: Sanity Drain
 
-## For Skill Descriptions:
-1. **Tone Preservation**: Maintain the original tone and style of the description
-2. **Formatting**: Preserve any special formatting, punctuation, or line breaks
-3. **Formality Level**: Keep the same level of formality as the original
-4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
-5. **Consistency**: Maintain consistency with similar descriptions in the game
-6. **Clarity**: Ensure the description remains clear and informative
-7. **Combat Details**: Preserve damage, effect, and condition descriptions
-8. **Technical Accuracy**: Maintain precise gameplay mechanics and values
+Input: 催眠術
+Output: Hypnosis
 
-**Skill Description Examples:**
-Input: Deals fire damage to all enemies.\n[Damage: 150%]
-Output: Deals fire damage to all enemies.\n[Damage: 150%]
+## Examples: Descriptions
+Input: Deals fire damage to all enemies.[NEWLINE_1][Damage: 150%]
+Output: Deals fire damage to all enemies.[NEWLINE_1][Damage: 150%]
 
-Input: Recovers HP for all allies.\n[Recovery: 200 HP]
-Output: Recovers HP for all allies.\n[Recovery: 200 HP]
+Input: Recovers HP for all allies.[NEWLINE_1][Recovery: 200 HP]
+Output: Recovers HP for all allies.[NEWLINE_1][Recovery: 200 HP]
 
-Input: Increases attack power for 3 turns.\n[Attack +50%]
-Output: Increases attack power for 3 turns.\n[Attack +50%]
+Input: Increases attack power for 3 turns.[NEWLINE_1][Attack +50%]
+Output: Increases attack power for 3 turns.[NEWLINE_1][Attack +50%]
 
-Input: 相手の理性を奪う。\n[Sanity -30]
-Output: Drains the opponent's sanity.\n[Sanity -30]
+Input: 相手の理性を奪う。[NEWLINE_1][Sanity -30]
+Output: Drains the opponent's sanity.[NEWLINE_1][Sanity -30]
 
-Input: 性欲を高める効果。\n[Libido +40]
-Output: Effect that increases libido.\n[Libido +40]
-
-Input: 子宮の状態を悪化させる。\n[Womb Status -25]
-Output: Worsens womb condition.\n[Womb Status -25]
-
-## For Skill Messages:
-1. **Combat Context**: Maintain the dramatic, action-oriented nature of battle messages
-2. **Character Voice**: Preserve the speaking character's personality and tone
-3. **Emotional Impact**: Keep the excitement and intensity of battle scenes
-4. **Formatting**: Preserve any special formatting, punctuation, or line breaks
-5. **Consistency**: Maintain consistency with similar battle messages in the game
-6. **Clarity**: Ensure the message remains clear and impactful
-
-**Skill Message Examples:**
-Input: Fireball deals massive damage!
-Output: Fireball deals massive damage!
-
-Input: Healing light restores your strength!
-Output: Healing light restores your strength!
-
-Input: The enemy is paralyzed!
-Output: The enemy is paralyzed!
-
-## For All Skill Text:
-- Maintain combat/magical terminology
-- Ensure gameplay clarity and accuracy
-- Keep consistent terminology across the game
-- Preserve any special characters or codes
-- Maintain skill category consistency
-
-Skill text to translate: {text} 
+## Examples: Categories
+- Attack: Damage dealing abilities
+- Healing: Recovery abilities
+- Buff: Positive enhancements
+- Debuff: Negative impairments
+- Special/Ultimate: Unique or most powerful abilities 

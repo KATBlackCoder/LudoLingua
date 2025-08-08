@@ -1,14 +1,13 @@
 # Dialogue Translation Guidelines
 
-## For Character Dialogue/Conversation:
-1. **Character Voice**: Maintain each speaker's unique personality and tone
-2. **Emotional Context**: Preserve emotional subtext and character relationships
-3. **Formality Register**: Keep the same level of formality and speech patterns
-4. **Natural Flow**: Ensure dialogue sounds natural in the target language
-5. **Formatting**: Preserve special formatting, punctuation, and line breaks
-6. **Cultural Nuance**: Adapt cultural references appropriately
+## Guidelines
+- Maintain each speaker's voice and tone
+- Preserve emotional subtext and relationships
+- Keep natural flow in {target_language} at the same formality
+- Adapt cultural references appropriately
+- Ensure clarity and UI suitability
 
-**Character Dialogue Examples:**
+## Examples: Dialogue Lines
 Input: 「こんにちは、お兄ちゃん！」
 Output: Hello, Onii-chan!
 
@@ -18,45 +17,34 @@ Output: Eh... but she's so cute...
 Input: 「殺すよ」
 Output: I'll kill you.
 
-## For Narrative Text/Story:
-1. **Tone Preservation**: Maintain the original narrative tone and atmosphere
-2. **Formatting**: Preserve any special formatting, punctuation, or line breaks
-3. **Formality Level**: Keep the same level of formality as the original
-4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
-5. **Consistency**: Maintain consistency with similar narrative elements in the game
-6. **Clarity**: Ensure the narrative remains clear and engaging
+Input: 「こいつからは幼女の匂いが　しないでござる」
+Output: This one doesn't smell like a little girl.
 
-**Narrative Text Examples:**
+Input: 「他はどうでも良いけど、[NEWLINE_1]『私の標的』に余計な事 しないでくれない？」
+Output: I don't care about the others,[NEWLINE_1]but could you not interfere with 'my target'?
+
+Input: 「・・・」
+Output: ...
+
+## Examples: Narrative Lines
 Input: The sun set over the ancient castle.
 Output: The sun set over the ancient castle.
 
 Input: 主人公は勇気を振り絞って進んだ。
 Output: The protagonist gathered their courage and pressed forward.
 
-## For All Dialogue Text:
-- Maintain character voice and personality consistency
-- Preserve any character-specific speech patterns
-- Keep cultural context and relationships intact
-- Ensure translations work within UI constraints
-- Preserve formatting codes and special characters
+Input: イルヴィナは静かに微笑んだ。
+Output: Illvina smiled quietly.
 
-**Output Examples for Dialogue:**
-Input: 「こいつからは幼女の匂いが　しないでござる」
-Output: This one doesn't smell like a little girl.
+Input: 部屋の中は静寂に包まれていた。
+Output: The room was wrapped in silence.
 
+## Examples: Battle Messages
 Input: [VARIABLE_0]がお前に手を焼いてるみたいだったよ
 Output: It seems like [VARIABLE_0] is having a hard time with you.
 
-Input: 他はどうでも良いけど、\n"私の標的"に余計な事 しないでくれない？
-Output: I don't care about the others,\nbut could you not interfere with "my target"?
-
-Input: [COLOR_18]―――――――――――\.\.お前は死ぬ\|\^
-Output: [COLOR_18]―――――――――――\.\.You will die\|\^
+Input: [COLOR_18]―――――――――――[CTRL_DOT][CTRL_DOT]お前は死ぬ[CTRL_WAIT][CTRL_INSTANT]
+Output: [COLOR_18]―――――――――――[CTRL_DOT][CTRL_DOT]You will die[CTRL_WAIT][CTRL_INSTANT]
 
 Input: 　　　・・・
 Output: ...
-
-Input: ハートが可愛いピンク色のチャーム。\n女の子らしさが増すワンポイントアクセサリー。
-Output: A cute pink heart charm.\nA girly accessory that adds a feminine touch.
-
-Dialogue text to translate: {text}

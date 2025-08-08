@@ -5,6 +5,7 @@ use log::debug;
 
 use crate::commands::engine;
 use crate::commands::provider;
+use crate::commands::languages;
 use crate::commands::translation;
 use crate::models::engine::{EngineInfo, GameDataFile};
 use crate::models::language::Language;
@@ -70,17 +71,15 @@ pub async fn test_llm_connection(config: LlmConfig) -> Result<bool, String> {
     provider::test_llm_connection(config).await
 }
 
-/// Get available LLM providers
 #[tauri::command]
-pub async fn get_available_providers() -> Result<Vec<String>, String> {
-    debug!("Command: get_available_providers");
-    provider::get_available_providers().await
+pub async fn get_ollama_models() -> Result<Vec<ModelInfo>, String> {
+    debug!("Command: get_ollama_models");
+    provider::get_ollama_models().await
 }
 
+/// Get enabled languages from the bundled language catalog
 #[tauri::command]
-pub async fn get_available_models(provider: String) -> Result<Vec<ModelInfo>, String> {
-    // Call your backend logic to load models for the given provider
-    provider::get_available_models(provider)
-        .await
-        .map_err(|e| e.to_string())
+pub fn get_languages() -> Result<Vec<Language>, String> {
+    debug!("Command: get_languages");
+    languages::get_languages()
 }

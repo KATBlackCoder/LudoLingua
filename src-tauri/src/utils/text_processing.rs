@@ -13,6 +13,9 @@ pub fn replace_formatting_codes_for_translation(text: &str) -> String {
     // Replace color codes: \C[n] -> [COLOR_n]
     let color_regex = Regex::new(r"\\C\[(\d+)\]").unwrap();
     result = color_regex.replace_all(&result, "[COLOR_$1]").to_string();
+    // Lowercase color code: \c[n] -> [COLOR_n]
+    let color_regex_lower = Regex::new(r"\\c\[(\d+)\]").unwrap();
+    result = color_regex_lower.replace_all(&result, "[COLOR_$1]").to_string();
     
     // Replace name codes: \N[n] -> [NAME_n]
     let name_regex = Regex::new(r"\\N\[(\d+)\]").unwrap();
@@ -24,6 +27,7 @@ pub fn replace_formatting_codes_for_translation(text: &str) -> String {
     
     // Replace other common RPG Maker codes
     result = result.replace("\\V[", "[VARIABLE_");
+    result = result.replace("\\v[", "[variable_");
     result = result.replace("\\S[", "[SWITCH_");
     result = result.replace("\\I[", "[ITEM_");
     result = result.replace("\\W[", "[WEAPON_");
@@ -31,6 +35,16 @@ pub fn replace_formatting_codes_for_translation(text: &str) -> String {
     result = result.replace("\\P[", "[ACTOR_");
     result = result.replace("\\G", "[GOLD]");
     result = result.replace("\\$", "[CURRENCY]");
+
+    // Map parameter placeholders: %n -> [ARG_n]
+    let arg_regex = Regex::new(r"%(\d+)").unwrap();
+    result = arg_regex.replace_all(&result, "[ARG_$1]").to_string();
+
+    // Normalize control codes
+    result = result.replace("\\.", "[CTRL_DOT]");
+    result = result.replace("\\|", "[CTRL_WAIT]");
+    result = result.replace("\\^", "[CTRL_INSTANT]");
+    result = result.replace("\\!", "[CTRL_INPUT]");
     
     // Replace RPG Maker conditional expressions
     let conditional_regex = Regex::new(r"en\(v\[(\d+)\]>(\d+)\)").unwrap();
@@ -63,6 +77,7 @@ pub fn restore_formatting_codes_after_translation(text: &str) -> String {
     
     // Restore other common RPG Maker codes
     result = result.replace("[VARIABLE_", "\\V[");
+    result = result.replace("[variable_", "\\v[");
     result = result.replace("[SWITCH_", "\\S[");
     result = result.replace("[ITEM_", "\\I[");
     result = result.replace("[WEAPON_", "\\W[");
@@ -70,6 +85,16 @@ pub fn restore_formatting_codes_after_translation(text: &str) -> String {
     result = result.replace("[ACTOR_", "\\P[");
     result = result.replace("[GOLD]", "\\G");
     result = result.replace("[CURRENCY]", "\\$");
+
+    // Restore parameter placeholders: [ARG_n] -> %n
+    let arg_regex = Regex::new(r"\[ARG_(\d+)\]").unwrap();
+    result = arg_regex.replace_all(&result, "%$1").to_string();
+
+    // Restore control codes
+    result = result.replace("[CTRL_DOT]", "\\.");
+    result = result.replace("[CTRL_WAIT]", "\\|");
+    result = result.replace("[CTRL_INSTANT]", "\\^");
+    result = result.replace("[CTRL_INPUT]", "\\!");
     
     // Restore RPG Maker conditional expressions
     let conditional_regex = Regex::new(r"\[CONDITIONAL_v(\d+)>(\d+)\]").unwrap();

@@ -8,6 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+### Changed
+- **Prompt Loading Robustness & DRY Runtime:**
+  - Embedded prompt templates in production builds to avoid filesystem path issues
+  - Kept filesystem loading in dev for easy iteration
+  - Moved `PromptType` → template path mapping onto the enum itself
+  - Filter `vocabularies.txt` by prompt type to reduce token usage and duplication
+  - Cleaned duplicate `#[allow(dead_code)]` attributes in Ollama service
+- **Language Catalog:**
+  - Added `src-tauri/models/language.json` catalog (id, label, native_name, dir, enabled)
+  - New backend command `get_languages` returns enabled languages from embedded JSON
+  - Frontend `language` store now loads languages from backend and applies RTL via `dir` on `<html>`
+  - Unified type: single `Language` model across BE/FE (removed separate catalog type)
+- **Prompt Placeholder Standardization:**
+  - Replaced RPG Maker percent parameters `%n` with bracketed `[ARG_n]` in prompts
+  - Standardized newline examples to use `[NEWLINE_1]` token instead of literal line breaks in examples
+  - Added `[NEWLINE_n]` to preserved token list in `prompts/basic.txt`
+  - Updated examples in `dialogue.txt`, `equipment.txt`, `skill.txt`, `class.txt`, and `state.txt` to reflect new tokens
+
+- **LLM Architecture Simplification (Ollama-only):**
+  - Removed multi-provider abstraction (trait + factory); direct `OllamaService` calls
+  - Simplified `LlmConfig` to Ollama-only fields; removed `Provider` enum and extra fields
+  - Renamed command to `get_ollama_models`; removed `get_available_providers`
+  - Frontend refactor to `OllamaConfig`; removed provider selector UI; invokes updated
+
 - **Framework Migration to Nuxt 4 + pnpm:** Complete migration to latest technologies
   - **Nuxt 4 Upgrade:** Migrated from Nuxt 3.18.1 to Nuxt 4.0.3 with all latest features
   - **pnpm Package Manager:** Switched from npm to pnpm for better performance and dependency resolution
@@ -100,7 +124,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Robust error handling with graceful fallback for individual map files
 - Dynamic file discovery eliminates need for hardcoded map file lists
 - **Enhanced Prompt System:** Comprehensive prompt architecture optimization for better translation quality
-  - **Streamlined Base Prompt:** Created `erobasic.txt` as optimized base prompt (removed overwhelming examples)
+  - **Streamlined Base Prompt:** Created `basic.txt` as optimized base prompt (removed overwhelming examples)
   - **Unified Equipment Prompts:** Consolidated `weapon.txt` and `item.txt` into unified `equipment.txt`
   - **Specific Translation Guides:** Added mandatory translation mappings to all prompt files for consistency
   - **Enhanced Output Format:** Improved instructions to prevent unwanted comments, prefixes, and metadata
@@ -145,7 +169,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Prompt System Architecture:** Comprehensive prompt system optimization and consolidation
   - **Consolidated Equipment Prompts:** Merged `weapon.txt` and `item.txt` into unified `equipment.txt` for better consistency
   - **Updated PromptType Enum:** Replaced separate `Weapon` and `Item` types with unified `Equipment` type
-  - **Streamlined Base Prompt:** Created `erobasic.txt` as optimized base prompt, removing overwhelming examples
+  - **Streamlined Base Prompt:** Created `basic.txt` as optimized base prompt, removing overwhelming examples
   - **Enhanced Translation Quality:** Added mandatory translation mappings and improved output format instructions
   - **Field-Specific Optimization:** Added tailored guidelines for different text types (character names, equipment, skills, etc.)
   - **Improved LLM Integration:** Updated `PromptBuilder` and file parsers to use new consolidated prompt system

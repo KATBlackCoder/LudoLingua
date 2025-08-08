@@ -1,21 +1,12 @@
-// Provider Configuration and Translation Types
-// These types mirror the Rust structs in the backend and are used for all provider-related settings.
+// Provider/LLM configuration types (Ollama-only)
 import type { Language } from './language';
 
-export type Provider = 'ollama' ;
-
-/**
- * ProviderConfig defines all settings required to connect to a language model provider.
- * This matches the Rust struct in the backend and is used for both Ollama and future providers.
- */
-export interface ProviderConfig {
-  provider: Provider;
-  model: ModelInfo; // Model selection (matches backend ModelInfo)
+/** Simplified config matching Rust `LlmConfig` (Ollama-only) */
+export interface OllamaConfig {
+  model: ModelInfo;
   base_url?: string;
-  api_key?: string;
   temperature: number;
   max_tokens: number;
-  extra_config: Record<string, string>;
 }
 
 /**
@@ -24,7 +15,7 @@ export interface ProviderConfig {
 export interface TranslationSettings {
   source_language: Language;
   target_language: Language;
-  provider_config: ProviderConfig;
+  provider_config: OllamaConfig;
 }
 
 /**
@@ -42,12 +33,9 @@ export interface ModelInfo {
 /**
  * Default provider configuration for Ollama (can be used as a template for other providers).
  */
-export const defaultProviderConfig: ProviderConfig = {
-  provider: 'ollama',
+export const defaultOllamaConfig: OllamaConfig = {
   model: { model_name: 'mistral:latest', display_name: 'Mistral 7B' },
   base_url: 'http://localhost:11434',
-  api_key: undefined,
   temperature: 0.7,
   max_tokens: 2048,
-  extra_config: {},
 };

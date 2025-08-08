@@ -20,8 +20,8 @@ pub fn run() {
             commands::handler::inject_text_units,
             commands::handler::translate_text_unit,
             commands::handler::test_llm_connection,
-            commands::handler::get_available_providers,
-            commands::handler::get_available_models
+            commands::handler::get_ollama_models,
+            commands::handler::get_languages
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

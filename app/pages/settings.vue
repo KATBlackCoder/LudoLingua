@@ -36,12 +36,11 @@
           </template>
 
           <div class="space-y-6">
-            <!-- Provider Settings Section -->
+            <!-- Model Settings Section (Ollama-only) -->
             <div>
-              <h3 class="text-md font-medium mb-4">Provider Configuration</h3>
+              <h3 class="text-md font-medium mb-4">Model Configuration</h3>
               <div class="space-y-4">
                 <div class="flex flex-wrap items-start gap-4">
-                  <ProviderSelector />
                   <ModelSelector />
                 </div>
               </div>
@@ -119,7 +118,6 @@
 import ConnectionTester from '~/components/settings/ConnectionTester.vue'
 import LanguageSelector from '~/components/settings/LanguageSelector.vue'
 import ModelSelector from '~/components/settings/ModelSelector.vue'
-import ProviderSelector from '~/components/settings/ProviderSelector.vue'
 import { useSettingsStore } from '~/stores/settings'
 import { useProviderStore } from '~/stores/provider'
 import { useLanguageStore } from '~/stores/language'

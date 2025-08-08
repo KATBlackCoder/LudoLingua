@@ -27,8 +27,7 @@ export const useTranslateStore = defineStore('translate', () => {
 
   // Actions
   const translateTextUnit = async (
-    textUnit: TextUnit,
-    glossaryTerms: [string, string][] = []
+    textUnit: TextUnit
   ): Promise<TextUnit> => {
     try {
       isTranslating.value = true;
@@ -39,7 +38,6 @@ export const useTranslateStore = defineStore('translate', () => {
         textUnit: engineStore.getTextUnitById(textUnit.id),
         config: providerStore.currentProviderConfig,
         engineInfo: engineStore.projectInfo,
-        glossaryTerms: glossaryTerms.length > 0 ? glossaryTerms : null,
       });
 
       // Update the engine store with the translated unit
@@ -80,7 +78,6 @@ export const useTranslateStore = defineStore('translate', () => {
 
   const startBatchTranslation = async (
     textUnits: TextUnit[],
-    glossaryTerms: [string, string][] = [],
     onUnitTranslated?: (unit: TextUnit) => void
   ) => {
     if (isTranslating.value) {
@@ -101,10 +98,7 @@ export const useTranslateStore = defineStore('translate', () => {
 
       for (const textUnit of textUnits) {
         try {
-          const translatedUnit = await translateTextUnit(
-            textUnit,
-            glossaryTerms
-          );
+          const translatedUnit = await translateTextUnit(textUnit);
 
           translationProgress.value++;
           onUnitTranslated?.(translatedUnit);

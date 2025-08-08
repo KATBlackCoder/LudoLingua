@@ -1,63 +1,52 @@
 # Character Translation Guidelines
 
-## For Character Names:
-1. **Preserve Character Identity**: Maintain the original character's personality and feel
-2. **Cultural Sensitivity**: Consider cultural context and meaning behind the name
-3. **Readability**: Ensure the name is pronounceable and natural in the target language
-4. **Consistency**: Use the same translation for the same character throughout the game
-5. **Honorifics**: Preserve Japanese honorifics (-san, -chan, -sama, etc.) when appropriate
-6. **Character Context**: Consider the character's role, personality, and relationships
-7. **UI Constraints**: Keep names short for menu display and interface limitations
+## Guidelines
+- Preserve character identity and personality
+- Ensure readability and naturalness in {target_language}
+- Use consistent translations across the game (names, nicknames)
+- Preserve honorifics (-san, -chan, -sama, etc.) when present
+- Consider role, personality, relationships, and cultural context
+- Keep names short for UI constraints
+- Maintain consistent character relationships and development
 
-**Special Considerations for Character Names:**
-- If the name has a meaning, consider translating the meaning while keeping it readable
-- For fantasy/sci-fi names, maintain the exotic feel while ensuring readability
-- For historical/period names, maintain authenticity
-- For modern names, use common equivalents in the target language
-- If the name cannot be reasonably translated or interpreted, preserve it as-is
-- Always prioritize consistency over literal meaning if a conflict occurs
-
-**Character Name Examples:**
+## Examples: Names
 Input: クロネ
 Output: Kurone
 
-## For Character Nicknames:
-1. **Character Voice**: Maintain character's speech patterns and personality
-2. **Relationship Context**: Consider who uses this nickname and why
-3. **Formality Level**: Preserve appropriate honorifics and speech levels
-4. **Cultural Adaptation**: Adapt nickname conventions appropriately
-5. **Consistency**: Use consistent nickname translations throughout the game
-6. **Emotional Context**: Preserve the emotional tone and relationship dynamics
+Input: イルヴィナ
+Output: Illvina
 
-**Character Nickname Examples:**
+Input: たえ
+Output: Tae
+
+Input: すみれ
+Output: Sumire
+
+Input: 主人公
+Output: Protagonist
+
+## Examples: Nicknames
 Input: クロネ様
 Output: Kurone-sama (formal address)
 
 Input: イルヴィナちゃん
 Output: Illvina-chan (affectionate)
 
-## For Character Profiles:
-1. **Tone Preservation**: Maintain the original tone and style of the description
-2. **Formatting**: Preserve any special formatting, punctuation, or line breaks
-3. **Formality Level**: Keep the same level of formality as the original
-4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
-5. **Consistency**: Maintain consistency with similar descriptions in the game
-6. **Clarity**: Ensure the description remains clear and informative
-7. **Character Relationships**: Preserve relationship dynamics and social context
-8. **Background Information**: Keep important lore and history intact
-9. **Personality Traits**: Maintain unique speech patterns and mannerisms
+Input: たえちゃん
+Output: Tae-chan (affectionate)
 
-**Character Profile Examples:**
+Input: すみれさん
+Output: Sumire-san (polite)
+
+## Examples: Profiles
 Input: A mysterious girl with silver hair and red eyes.
 Output: A mysterious girl with silver hair and red eyes.
 
 Input: 主人公の幼馴染。明るく活発な性格。
 Output: The protagonist's childhood friend. Has a bright and energetic personality.
 
-## For All Character Text:
-- Maintain character voice and personality consistency
-- Preserve any character-specific speech patterns
-- Keep cultural context and relationships intact
-- Ensure translations work within UI constraints
+Input: 銀髪赤眼の謎の少女。
+Output: A mysterious girl with silver hair and red eyes.
 
-Character text to translate: {text} 
+Input: 主人公の幼馴染。明るく活発な性格で、いつも主人公を支えてくれる。
+Output: The protagonist's childhood friend. Has a bright and energetic personality, always supporting the protagonist. 

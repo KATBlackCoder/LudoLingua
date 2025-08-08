@@ -1,7 +1,7 @@
 use log::{debug, info};
 
 use crate::core::error::AppResult;
-use crate::llm::factory::LlmFactory;
+use crate::llm::services::ollama::OllamaService;
 use crate::models::engine::EngineInfo;
 use crate::models::provider::LlmConfig;
 use crate::models::translation::{TextUnit, TranslationStatus};
@@ -14,11 +14,9 @@ pub async fn translate_text_unit(
 ) -> AppResult<TextUnit> {
     debug!("Translating text unit: {}", text_unit.id);
 
-    // Create LLM provider
-    let provider = LlmFactory::create_provider(config)?;
-
-    // Perform translation
-    let translated_text = provider.translate(&text_unit, &engine_info).await?;
+    // Create LLM service and perform translation
+    let service = OllamaService::new(config)?;
+    let translated_text = service.translate(&text_unit, &engine_info).await?;
 
     // Create updated text unit
     let mut updated_unit = text_unit;

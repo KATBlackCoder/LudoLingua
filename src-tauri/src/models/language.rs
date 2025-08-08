@@ -13,4 +13,8 @@ pub struct Language {
     pub label: String,
     /// Native name of the language (e.g., "English", "日本語", "Français")
     pub native_name: String,
+    /// Text direction: "ltr" or "rtl"
+    pub dir: String,
+    /// Whether this language should be exposed in the UI/catalog
+    pub enabled: bool,
 }

@@ -51,6 +51,22 @@ pub enum PromptType {
     Other,
 }
 
+impl PromptType {
+    /// Return the prompt template path associated with this prompt type.
+    pub fn template_path(self) -> &'static str {
+        match self {
+            PromptType::Character => "prompts/character.txt",
+            PromptType::State => "prompts/state.txt",
+            PromptType::System => "prompts/system.txt",
+            PromptType::Dialogue => "prompts/dialogue.txt",
+            PromptType::Equipment => "prompts/equipment.txt",
+            PromptType::Skill => "prompts/skill.txt",
+            PromptType::Class => "prompts/class.txt",
+            PromptType::Other => "prompts/other.txt",
+        }
+    }
+}
+
 /// Represents a single unit of text that can be translated.
 ///
 /// A TextUnit is the core data structure for managing translations. It contains

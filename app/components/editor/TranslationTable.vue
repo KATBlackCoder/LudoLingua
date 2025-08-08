@@ -50,6 +50,11 @@
       </p>
     </div>
 
+    <!-- Inline connection error -->
+    <div v-if="inlineError" class="mb-3 text-sm text-red-600 dark:text-red-400">
+      {{ inlineError }}
+    </div>
+
     <!-- Translation Table -->
     <UTable 
       :data="tableData" 
@@ -64,13 +69,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useEngineStore } from '~/stores/engine';
 import { useTranslateStore } from '~/stores/translate';
+import { useProviderStore } from '~/stores/provider';
 import { TranslationStatus } from '~/types/translation';
 
 const engineStore = useEngineStore();
 const translateStore = useTranslateStore();
+const providerStore = useProviderStore();
+const inlineError = ref<string | null>(null)
 
 // Convert all text units to table data format
 const tableData = computed(() => {
@@ -119,6 +127,12 @@ const getStatusLabel = (status: string) => {
 // Translate all untranslated units
 const translateAll = async () => {
   try {
+    inlineError.value = null
+    const ok = await providerStore.ensureConnected()
+    if (!ok) {
+      inlineError.value = 'Connection not available. Test connection and try again.'
+      return
+    }
     const untranslatedUnits = engineStore.textUnits.filter(unit => unit.status === 'NotTranslated');
 
     if (untranslatedUnits.length === 0) {
@@ -127,7 +141,6 @@ const translateAll = async () => {
 
     await translateStore.startBatchTranslation(
       untranslatedUnits,
-      [], // glossary terms (empty for now)
       (translatedUnit) => {
         // This callback is called for each translated unit
         // The engine store is already updated in the translate store

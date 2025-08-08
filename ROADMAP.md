@@ -41,7 +41,7 @@
 
 ### ✅ Phase 5.5: Prompt System Optimization
 **Goal:** Improve translation quality and user experience
-- [x] Streamlined base prompt (`erobasic.txt`)
+- [x] Streamlined base prompt (`basic.txt`)
 - [x] Unified equipment prompts (`equipment.txt`)
 - [x] Specific translation mappings for consistency
 - [x] Enhanced output formatting
@@ -111,7 +111,41 @@
 ### 🎯 Phase 7: Frontend & Backend Polish
 **Goal:** Optimize and refine both frontend and backend for better performance and user experience
 
-#### **7.1: Frontend Polish & Refinement**
+- Execution order:
+  - [x] Backend first: Ollama-only refactor (remove provider abstraction, rename command to `get_ollama_models`, robust prompt template packaging)
+  - [x] Frontend: settings UI shows connection status and last-tested, auto-tests on mount
+  - [ ] Then: batch groundwork (group by `PromptType`, throttle)
+
+ #### **7.1: Backend Polish & Refinement**
+  - [x] Simplify LLM to Ollama-only: remove provider abstraction in code (delete trait/factory) and call Ollama service directly
+  - [x] Remove `get_available_providers` command and all references
+  - [x] Rename command to `get_ollama_models` (no provider arg) and update frontend calls
+  - [x] Package prompt templates robustly (embed in prod, FS in dev)
+  - [ ] Integrate placeholder pre/post-processing via engines (`engines/.../files/common.rs`) using `text_processing.rs`; preserve bracket tokens end-to-end
+  - [ ] Compact prompts (basic + per-type) and add hard delimiters in input to reduce leakage
+  - [x] Add `models/language.json` (id, label, native_name, dir, enabled); expose `get_languages()` and use in FE store
+ - [ ] **Performance Optimizations:**
+  - [ ] Use a single shared Ollama client instance (reuse underlying HTTP client)
+  - [ ] Add caching layer for frequently accessed data
+  - [ ] Optimize file parsing for large projects
+  - [ ] Add comprehensive error handling and recovery
+  - [ ] Implement retry mechanisms for failed API calls
+  - [ ] Add performance monitoring and logging
+  - [ ] Batch groundwork: group by `PromptType` and translate sequentially per group; throttle (1–3 rps)
+
+- [ ] **Architecture Improvements:**
+  - [ ] Refactor command handlers for better error handling
+  - [ ] Implement proper async/await patterns throughout
+  - [ ] Add input validation and sanitization
+  - [ ] Implement proper resource cleanup
+  - [ ] Add comprehensive logging and debugging tools
+  - [ ] Optimize memory usage for large projects
+  
+#### **7.2: Frontend Polish & Refinement**
+ - [ ] Remove provider selector UI; settings are Ollama-only (keep model selector + connection tester)
+ - [ ] Auto-fetch models on settings mount; show connection status dot and last-tested time
+ - [ ] Housekeeping: remove unused `@pinia/nuxt` dependency; rename frontend type `ProviderConfig` → `OllamaConfig`; update invokes to `get_ollama_models`
+  - [ ] Improve prompts: adopt compact basic/per-type prompts; ensure vocabulary block injection; add input delimiters
 - [ ] **UI/UX Enhancements:**
   - [ ] Optimize existing Nuxt UI components for better performance
   - [ ] Improve responsive design and mobile compatibility
@@ -122,23 +156,6 @@
   - [ ] Optimize component rendering and state management
   - [ ] Add comprehensive toast notifications system
 
-#### **7.2: Backend Polish & Refinement**
-- [ ] **Performance Optimizations:**
-  - [ ] Implement connection pooling for LLM API calls
-  - [ ] Add caching layer for frequently accessed data
-  - [ ] Optimize file parsing for large projects
-  - [ ] Implement background processing for long-running operations
-  - [ ] Add comprehensive error handling and recovery
-  - [ ] Implement retry mechanisms for failed API calls
-  - [ ] Add performance monitoring and logging
-
-- [ ] **Architecture Improvements:**
-  - [ ] Refactor command handlers for better error handling
-  - [ ] Implement proper async/await patterns throughout
-  - [ ] Add input validation and sanitization
-  - [ ] Implement proper resource cleanup
-  - [ ] Add comprehensive logging and debugging tools
-  - [ ] Optimize memory usage for large projects
 
 ### 🎯 Phase 8: Translation Workflow Enhancement
 **Goal:** Implement advanced translation features and large-scale processing capabilities
@@ -231,7 +248,7 @@
 - **Framework:** Nuxt 4 (SPA mode)
 - **UI:** Nuxt UI (optimized for performance)
 - **State:** Pinia stores
-- **Validation:** Zod schemas
+ - **Validation:** (none; basic form checks in components)
 
 ### Architecture
 - **Engine System:** Trait-based with factory pattern

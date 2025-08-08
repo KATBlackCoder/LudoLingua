@@ -12,11 +12,13 @@ export enum TranslationStatus {
  * Type of prompt to be used for translation
  */
 export enum PromptType {
-  Name = 'Name',
-  Description = 'Description',
+  Character = 'Character',
+  State = 'State',
+  System = 'System',
   Dialogue = 'Dialogue',
-  Item = 'Item',
+  Equipment = 'Equipment',
   Skill = 'Skill',
+  Class = 'Class',
   Other = 'Other',
 }
 

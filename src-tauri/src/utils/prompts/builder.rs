@@ -39,9 +39,9 @@ impl PromptBuilder {
             }
         };
 
-        // Load vocabulary template
+        // Load vocabulary template and filter by prompt type to reduce token usage
         let vocabulary_template = match Self::load_prompt_template("prompts/vocabularies.txt") {
-            Ok(template) => template,
+            Ok(template) => Self::filter_vocabulary_sections(&template, text_unit.prompt_type),
             Err(e) => {
                 error!("Failed to load vocabulary template: {}", e);
                 String::new()
@@ -49,7 +49,7 @@ impl PromptBuilder {
         };
 
         // Load specific template based on prompt type
-        let specific_template = Self::get_specific_template_path(text_unit.prompt_type);
+        let specific_template = text_unit.prompt_type.template_path();
 
         let specific_content = match Self::load_prompt_template(specific_template) {
             Ok(content) => content,
@@ -73,26 +73,41 @@ impl PromptBuilder {
         Self::replace_template_variables(&template, text_unit, engine_info)
     }
 
-    /// Get the path to the specific template based on prompt type.
-    ///
-    /// # Arguments
-    ///
-    /// * `prompt_type` - The type of prompt to get the template for
-    ///
-    /// # Returns
-    ///
-    /// * `&'static str` - The path to the specific template file
-    fn get_specific_template_path(prompt_type: PromptType) -> &'static str {
-        match prompt_type {
-            PromptType::Character => "prompts/character.txt",
-            PromptType::State => "prompts/state.txt",
-            PromptType::Dialogue => "prompts/dialogue.txt",
-            PromptType::Equipment => "prompts/equipment.txt",
-            PromptType::Skill => "prompts/skill.txt",
-            PromptType::Class => "prompts/class.txt",
-            PromptType::System => "prompts/system.txt",
-            PromptType::Other => "prompts/other.txt",
+    /// Filter the shared vocabulary to only include sections relevant to the prompt type.
+    fn filter_vocabulary_sections(vocab: &str, prompt_type: PromptType) -> String {
+        let wanted_sections: &[&str] = match prompt_type {
+            PromptType::Dialogue | PromptType::Character => &[
+                "### Characters",
+                "### Essential Terms",
+            ],
+            PromptType::State | PromptType::Skill => &[
+                "### Status Effects",
+                "### Mechanics",
+                "### Essential Terms",
+            ],
+            PromptType::Equipment => &[
+                "### Mechanics",
+                "### Essential Terms",
+            ],
+            PromptType::System | PromptType::Class | PromptType::Other => &[
+                "### Mechanics",
+                "### Essential Terms",
+            ],
+        };
+
+        let mut output = String::new();
+        let mut keep = false;
+        for line in vocab.lines() {
+            let trimmed = line.trim();
+            if trimmed.starts_with("### ") {
+                keep = wanted_sections.iter().any(|h| *h == trimmed);
+            }
+            if keep {
+                output.push_str(line);
+                output.push('\n');
+            }
         }
+        output
     }
 
     /// Replace template variables with actual content.
@@ -121,6 +136,7 @@ impl PromptBuilder {
                 &engine_info.target_language.native_name,
             )
             .replace("{context}", "RPG Maker game content")
+            // Delimiters are defined in basic.txt Input Block; insert raw text here.
             .replace("{text}", &text_unit.source_text)
     }
 
@@ -133,6 +149,7 @@ impl PromptBuilder {
     /// # Returns
     ///
     /// * `AppResult<String>` - The template content or an error
+    #[cfg(debug_assertions)]
     fn load_prompt_template(template_path: &str) -> AppResult<String> {
         let path = Path::new(template_path);
         fs::read_to_string(path).map_err(|e| {
@@ -141,6 +158,30 @@ impl PromptBuilder {
                 template_path, e
             ))
         })
+    }
+
+    /// In production builds, embed prompts at compile time to avoid filesystem path issues.
+    #[cfg(not(debug_assertions))]
+    fn load_prompt_template(template_path: &str) -> AppResult<String> {
+        let content: &'static str = match template_path {
+            "prompts/basic.txt" => include_str!("../../../prompts/basic.txt"),
+            "prompts/vocabularies.txt" => include_str!("../../../prompts/vocabularies.txt"),
+            "prompts/character.txt" => include_str!("../../../prompts/character.txt"),
+            "prompts/state.txt" => include_str!("../../../prompts/state.txt"),
+            "prompts/dialogue.txt" => include_str!("../../../prompts/dialogue.txt"),
+            "prompts/equipment.txt" => include_str!("../../../prompts/equipment.txt"),
+            "prompts/skill.txt" => include_str!("../../../prompts/skill.txt"),
+            "prompts/class.txt" => include_str!("../../../prompts/class.txt"),
+            "prompts/system.txt" => include_str!("../../../prompts/system.txt"),
+            "prompts/other.txt" => include_str!("../../../prompts/other.txt"),
+            _ => {
+                return Err(AppError::FileSystem(format!(
+                    "Unknown prompt template path: {}",
+                    template_path
+                )))
+            }
+        };
+        Ok(content.to_string())
     }
 
     /// Build a fallback prompt when template loading fails.
@@ -166,8 +207,9 @@ impl PromptBuilder {
             engine_info.source_language.native_name, engine_info.target_language.native_name
         ));
 
+        // Keep delimiters in fallback for safety
         prompt.push_str(&format!(
-            "Text to translate: {}\n\nTranslation:",
+            "<<TEXT_START>>\n{}\n<<TEXT_END>>\n\n",
             text_unit.source_text
         ));
         prompt

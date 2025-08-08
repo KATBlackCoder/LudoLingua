@@ -1,12 +1,9 @@
-use async_trait::async_trait;
-use log::{debug, error, info, warn};
+//use log::debug;
 use ollama_rs::generation::completion::request::GenerationRequest;
 use ollama_rs::Ollama;
 use serde::{Deserialize, Serialize};
-use std::any::Any;
 
 use crate::core::error::{AppError, AppResult};
-use crate::core::provider::LlmProvider;
 use crate::models::engine::EngineInfo;
 use crate::models::provider::{LlmConfig, ModelInfo};
 use crate::models::translation::TextUnit;
@@ -18,15 +15,15 @@ struct OllamaModelsConfig {
     models: Vec<ModelInfo>,
 }
 
-/// Ollama LLM provider implementation using ollama-rs crate
+/// Ollama LLM service implementation using ollama-rs crate
 #[derive(Debug)]
-pub struct OllamaProvider {
+pub struct OllamaService {
     config: LlmConfig,
     client: Ollama,
 }
 
-impl OllamaProvider {
-    /// Create a new Ollama provider with the given configuration
+impl OllamaService {
+    /// Create a new Ollama service with the given configuration
     pub fn new(config: LlmConfig) -> AppResult<Self> {
         let base_url = config
             .base_url
@@ -61,10 +58,10 @@ impl OllamaProvider {
                 // );
                 config.models
             }
-            Err(e) => {
+            Err(_e) => {
                 // warn!(
                 //     "Failed to parse Ollama models JSON configuration: {}. Using fallback models.",
-                //     e
+                //     _e
                 // );
                 Self::get_fallback_models()
             }
@@ -86,6 +83,7 @@ impl OllamaProvider {
     }
 
     /// Get default model configuration for Ollama
+    #[allow(dead_code)]
     pub fn default_model() -> String {
         // Try to get the first model from JSON configuration, fallback to mistral
         Self::get_available_models()
@@ -95,6 +93,7 @@ impl OllamaProvider {
     }
 
     /// Validate if a model name is supported by this provider
+    #[allow(dead_code)]
     pub fn is_model_supported(model_name: &str) -> bool {
         Self::get_available_models()
             .iter()
@@ -102,6 +101,7 @@ impl OllamaProvider {
     }
 
     /// Get the display name for the current model
+    #[allow(dead_code)]
     pub fn get_model_display_name(&self) -> String {
         Self::get_available_models()
             .iter()
@@ -111,18 +111,11 @@ impl OllamaProvider {
     }
 
     /// Build a translation prompt using the shared prompt builder
-    async fn build_translation_prompt(
-        &self,
-        text_unit: &TextUnit,
-        engine_info: &EngineInfo,
-    ) -> String {
+    async fn build_translation_prompt(&self, text_unit: &TextUnit, engine_info: &EngineInfo) -> String {
         PromptBuilder::build_translation_prompt(text_unit, engine_info).await
     }
-}
 
-#[async_trait]
-impl LlmProvider for OllamaProvider {
-    async fn test_connection(&self) -> AppResult<bool> {
+    pub async fn test_connection(&self) -> AppResult<bool> {
         // debug!("Testing connection to Ollama");
 
         match self.client.list_local_models().await {
@@ -130,14 +123,14 @@ impl LlmProvider for OllamaProvider {
                 // info!("Successfully connected to Ollama");
                 Ok(true)
             }
-            Err(e) => {
+            Err(_e) => {
                 // error!("Failed to connect to Ollama: {}", e);
                 Ok(false)
             }
         }
     }
 
-    async fn translate(&self, text_unit: &TextUnit, engine_info: &EngineInfo) -> AppResult<String> {
+    pub async fn translate(&self, text_unit: &TextUnit, engine_info: &EngineInfo) -> AppResult<String> {
         // debug!(
         //     "Translating text with Ollama: {} -> {}",
         //     engine_info.source_language.id, engine_info.target_language.id
@@ -145,6 +138,8 @@ impl LlmProvider for OllamaProvider {
 
         // Build the translation prompt using shared prompt builder
         let prompt = self.build_translation_prompt(text_unit, engine_info).await;
+
+        //debug!("{}",prompt);
 
         // Create the generation request
         let request = GenerationRequest::new(self.config.model.model_name.clone(), prompt);
@@ -161,9 +156,5 @@ impl LlmProvider for OllamaProvider {
                 Err(AppError::Llm(format!("Ollama translation failed: {}", e)))
             }
         }
-    }
-
-    fn as_any(&self) -> &dyn Any {
-        self
     }
 }

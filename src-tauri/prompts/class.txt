@@ -1,15 +1,15 @@
 # Class Translation Guidelines
 
-## For Class Names:
-1. **Archetype Clarity**: Maintain clear understanding of the character role/archetype
-2. **RPG Conventions**: Use standard RPG class terminology (Warrior, Mage, etc.)
-3. **Consistency**: Maintain consistency with similar RPG class systems
-4. **Cultural Adaptation**: Adapt class names appropriately for target culture
-5. **Role Clarity**: Ensure the class role is immediately understandable
-6. **UI Constraints**: Keep class names short for menu display
-7. **Gameplay Context**: Consider the class's role in combat and gameplay
+## Guidelines
+- Use standard, clear RPG class terminology (Warrior, Mage, etc.)
+- Ensure role clarity and gameplay context
+- Maintain consistency with similar class systems
+- Adapt appropriately for target culture
+- Keep names concise for UI constraints
+- In descriptions, focus on role, mechanics, and clarity
+- Include specialization and category context where relevant
 
-**Class Name Examples:**
+## Examples: Class Names
 Input: 戦士
 Output: Warrior
 
@@ -28,34 +28,59 @@ Output: Knight
 Input: 忍者
 Output: Ninja
 
-## For Class Descriptions:
-1. **Role Description**: Maintain clear description of the class's role and abilities
-2. **Gameplay Context**: Preserve information about class mechanics and playstyle
-3. **Consistency**: Maintain consistency with similar class descriptions
-4. **Clarity**: Ensure the description helps players understand the class
-5. **Formatting**: Preserve any special formatting, punctuation, or line breaks
-6. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
-7. **Specialization Details**: Keep information about class specializations and abilities
+Input: 弓使い
+Output: Archer
 
-**Class Description Examples:**
+Input: 槍使い
+Output: Lancer
+
+Input: 呪術師
+Output: Sorcerer
+
+Input: 踊り子
+Output: Dancer
+
+Input: 商人
+Output: Merchant
+
+Input: 農夫
+Output: Farmer
+
+Input: 漁師
+Output: Fisherman
+
+Input: 鍛冶屋
+Output: Blacksmith
+
+Input: 薬師
+Output: Alchemist
+
+## Examples: Class Descriptions
 Input: A frontline fighter with high HP and defense.
 Output: A frontline fighter with high HP and defense.
 
-Input: 魔法を使う職業。攻撃魔法が得意。
-Output: A class that uses magic. Skilled in offensive spells.
+Input: 魔法を使う職業。攻撃魔法が得意。[NEWLINE_1][Range Attack +30%]
+Output: A class that uses magic. Skilled in offensive spells.[NEWLINE_1][Range Attack +30%]
 
-Input: 男性を誘惑して理性を奪う職業。\n[Sanity Drain +50%]
-Output: A class that seduces men and drains sanity.\n[Sanity Drain +50%]
+Input: 男性を誘惑して理性を奪う職業。[NEWLINE_1][Sanity Drain +50%]
+Output: A class that seduces men and drains sanity.[NEWLINE_1][Sanity Drain +50%]
 
-Input: 性欲を操作する魔法使い。\n[Libido Control +40%]
-Output: A mage who manipulates libido.\n[Libido Control +40%]
+Input: 性欲を操作する魔法使い。[NEWLINE_1][Libido Control +40%]
+Output: A mage who manipulates libido.[NEWLINE_1][Libido Control +40%]
 
-## For All Class Text:
-- Maintain RPG class terminology
-- Ensure gameplay clarity and accuracy
-- Keep consistent terminology across the game
-- Preserve any special characters or codes
-- Maintain class category consistency
-- If multiple translations are possible, prefer clarity and RPG convention over literal translation
+## Examples: Specializations
+Input: 戦士の上位職：パラディン
+Output: Warrior advanced class: Paladin
 
-Class text to translate: {text}
+Input: 魔法使いの上位職：賢者
+Output: Mage advanced class: Sage
+
+Input: 僧侶の上位職：司祭
+Output: Priest advanced class: Bishop
+
+Input: 盗賊の上位職：暗殺者
+Output: Thief advanced class: Assassin
+
+Input: 騎士の上位職：聖騎士
+Output: Knight advanced class: Holy Knight
+

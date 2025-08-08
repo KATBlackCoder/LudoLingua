@@ -1,8 +1,8 @@
 ## SHARED VOCABULARY AND TERMINOLOGY
 
-This file contains only game-specific terms that need consistent translation or special context.
+This file contains game-specific terms for consistent translation.
 
-### Game Characters
+### Characters
 Input: イルヴィナ
 Output: Illvina
 
@@ -15,7 +15,13 @@ Output: Tae-chan
 Input: すみれ
 Output: Sumire
 
-### Essential Game Terms
+Input: クロネ
+Output: Kurone
+
+Input: 主人公
+Output: Protagonist
+
+### Essential Terms
 Input: シコる
 Output: masturbate
 
@@ -40,6 +46,74 @@ Output: stamina
 Input: 経験値
 Output: experience
 
+Input: 理性
+Output: sanity
+
+Input: 子宮
+Output: womb
+
+Input: 媚薬
+Output: aphrodisiac
+
+Input: 幼女
+Output: little girl
+
+Input: パンツ
+Output: panties
+
+Input: お兄ちゃん
+Output: Onii-chan
+
+### Mechanics
+Input: HP
+Output: HP
+
+Input: MP
+Output: MP
+
+Input: TP
+Output: TP
+
+Input: 攻撃力
+Output: Attack
+
+Input: 防御力
+Output: Defense
+
+Input: 魔法力
+Output: Magic
+
+Input: 魔法防御
+Output: Magic Defense
+
+Input: 敏捷性
+Output: Agility
+
+Input: 運
+Output: Luck
+
+### Status Effects
+Input: 毒
+Output: Poison
+
+Input: 睡眠
+Output: Sleep
+
+Input: 混乱
+Output: Confusion
+
+Input: 麻痺
+Output: Paralysis
+
+Input: 沈黙
+Output: Silence
+
+Input: 盲目
+Output: Blind
+
+Input: 魅了
+Output: Charm
+
 ### Translation Rules
 Input: コイツ
 Output: this bastard (male) / this bitch (female)
@@ -49,4 +123,66 @@ Output: x
 
 Input: 人
 Output: x
+
+Input: レベル
+Output: Level
+
+Input: Lv
+Output: Lv
+
+Input: ％
+Output: %
+
+### Locations
+Input: 学校
+Output: school
+
+Input: 教室
+Output: classroom
+
+Input: 保健室
+Output: nurse's office
+
+Input: 屋上
+Output: rooftop
+
+Input: 廊下
+Output: hallway
+
+Input: トイレ
+Output: bathroom
+
+Input: 家
+Output: home
+
+Input: 部屋
+Output: room
+
+### Time & Weather
+Input: 朝
+Output: morning
+
+Input: 昼
+Output: afternoon
+
+Input: 夜
+Output: night
+
+Input: 今日
+Output: today
+
+Input: 明日
+Output: tomorrow
+
+Input: 昨日
+Output: yesterday
+
+Input: 晴れ
+Output: sunny
+
+Input: 雨
+Output: rain
+
+Input: 曇り
+Output: cloudy
 

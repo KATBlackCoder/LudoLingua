@@ -9,4 +9,6 @@ export interface Language {
     id: string;
     label: string;
     native_name: string;
+    dir: 'ltr' | 'rtl';
+    enabled: boolean;
   }

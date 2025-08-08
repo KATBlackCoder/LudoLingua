@@ -1,14 +1,13 @@
 # Status Effect (State) Translation Guidelines
 
-## For Status Effect Names:
-1. **RPG Terminology**: Use consistent RPG status effect terminology
-2. **Battle Context**: Consider the battle/combat context of the effect
-3. **Clarity**: Ensure the name clearly indicates what the effect does
-4. **Consistency**: Maintain consistency with similar effects in the game
-5. **Cultural Adaptation**: Use familiar RPG terms for the target audience
-6. **Conciseness**: Keep names short and memorable for battle UI
+## Guidelines
+- Use consistent RPG status effect terminology
+- Reflect battle context and clarity of effect
+- Keep names concise for battle UI
+- Ensure descriptions are concise and technically accurate
+- Maintain consistent battle message style and clarity
 
-**Status Effect Name Examples:**
+## Examples: Names
 Input: 毒
 Output: Poison
 
@@ -18,76 +17,45 @@ Output: Sleep
 Input: 混乱
 Output: Confusion
 
-Input: 防御
-Output: Defense
+Input: 理性喪失
+Output: Sanity Loss
 
-Input: 不死身
-Output: Immortal
+Input: 催眠状態
+Output: Hypnotized
 
-## For Status Effect Descriptions:
-1. **Mechanical Clarity**: Clearly explain what the effect does
-2. **Game Balance**: Maintain the intended game balance implications
-3. **Player Understanding**: Ensure players understand the effect's impact
-4. **Consistency**: Keep consistent with similar effect descriptions
-5. **Conciseness**: Be clear and concise for UI display
-6. **Technical Accuracy**: Preserve important mechanical details
-
-**Status Effect Description Examples:**
+## Examples: Descriptions
 Input: Damages the target over time
 Output: Damages the target over time
 
 Input: Prevents the target from acting
 Output: Prevents the target from acting
 
-Input: Increases defense temporarily
-Output: Increases defense temporarily
+Input: 理性を徐々に奪う
+Output: Gradually drains sanity
 
-## For Battle Messages:
-1. **Placeholder Preservation**: Maintain all placeholders (%1, %2, %3, etc.)
-2. **Battle Intensity**: Keep the action-oriented, dramatic battle tone
-3. **Character Integration**: Ensure character names integrate naturally
-4. **Clarity**: Make the message clear even in fast-paced battle
-5. **Consistency**: Maintain consistent battle message style
-6. **Context Awareness**: Consider the specific battle context
-
-**Battle Message Examples:**
+## Examples: Battle Messages
 Input: は毒にかかった！
-Output: %1 has been poisoned!
+Output: [ARG_1] has been poisoned!
 
 Input: に毒をかけた！
-Output: %1 poisoned %2!
+Output: [ARG_1] poisoned [ARG_2]!
 
 Input: は眠っている。
-Output: %1 is sleeping.
+Output: [ARG_1] is sleeping.
 
 Input: の毒が消えた！
-Output: %1's poison has been cured!
+Output: [ARG_1]'s poison has been cured!
 
 Input: は我に返った！
-Output: %1 has come to their senses!
+Output: [ARG_1] has come to their senses!
 
 Input: は目を覚ました！
-Output: %1 has woken up!
+Output: [ARG_1] has woken up!
 
-## For Developer Notes:
-1. **Technical Preservation**: Maintain important technical information
-2. **Developer Context**: Keep developer-specific information intact
-3. **Formatting**: Preserve any special formatting or structure
-4. **Reference Integrity**: Maintain important references and links
-5. **Clarity**: Ensure technical information remains clear
+## Examples: Categories
+- Positive: Buffs and beneficial states
+- Negative: Debuffs and impairments
+- Neutral: Behavioral changes without clear benefit/harm
+- Special: Unique states with complex mechanics
+- Permanent: Persist until specific conditions are met
 
-**Developer Note Examples:**
-Input: ステート１番はＨＰが０になったときに自動的に付加されます。
-Output: State 1 is automatically applied when HP reaches 0.
-
-Input: Debug: State testing
-Output: Debug: State testing
-
-## For All Status Effect Text:
-- Maintain RPG battle context and terminology
-- Preserve game mechanics and balance implications
-- Keep consistent with other status effects in the game
-- Ensure text works within battle UI constraints
-- Maintain the dramatic, action-oriented tone of RPG battles
-
-Status effect text to translate: {text}

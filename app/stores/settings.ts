@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { ProviderConfig, ModelInfo, Provider } from '~/types/provider';
+import type { OllamaConfig, ModelInfo } from '~/types/provider';
 import type { Language } from '~/types/language';
 import { Store } from '@tauri-apps/plugin-store';
 import { useProviderStore } from './provider';
@@ -26,8 +26,8 @@ export interface UserSettings {
 const defaultUserSettings: UserSettings = {
   provider: 'ollama',
   model: { model_name: 'mistral:latest', display_name: 'Mistral 7B' },
-  source_language: { id: 'en', label: 'English', native_name: 'English' },
-  target_language: { id: 'fr', label: 'French', native_name: 'Français' },
+  source_language: { id: 'en', label: 'English', native_name: 'English', dir: 'ltr', enabled: true },
+  target_language: { id: 'fr', label: 'French', native_name: 'Français', dir: 'ltr', enabled: true },
   base_url: 'http://localhost:11434',
   api_key: undefined,
   temperature: 0.7,
@@ -81,14 +81,11 @@ export const useSettingsStore = defineStore('settings', () => {
   /**
    * Provider configuration extracted from user settings
    */
-  const providerConfig = computed((): ProviderConfig => ({
-    provider: userSettings.value.provider as Provider,
+  const providerConfig = computed((): OllamaConfig => ({
     model: userSettings.value.model,
     base_url: userSettings.value.base_url,
-    api_key: userSettings.value.api_key,
     temperature: userSettings.value.temperature,
     max_tokens: userSettings.value.max_tokens,
-    extra_config: {},
   }));
 
   /**

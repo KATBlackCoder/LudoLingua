@@ -1,15 +1,12 @@
 # Equipment Translation Guidelines
 
-## For Equipment Names:
-1. **Function Clarity**: Maintain clear understanding of the equipment's purpose and function
-2. **Concise Names**: Keep equipment names short, memorable, and easy to read
-3. **Equipment Types**: Preserve specific terminology (sword, potion, ring, armor, etc.)
-4. **UI Constraints**: Ensure translations fit within game interface limitations
-5. **Category Consistency**: Maintain consistency within equipment categories
-6. **Lore Preservation**: Keep important lore and background information
-7. **Usage Context**: Consider combat, defensive, enhancement, or consumable properties
+## Guidelines
+- Keep names concise and clear; reflect function/type (sword, potion, ring, armor)
+- Preserve category consistency (Weapons/Armor/Accessories/Consumables)
+- Ensure descriptions are clear and useful; include stats/effects where present
+- Fit UI constraints and maintain lore/style consistency
 
-**Equipment Name Examples:**
+## Examples: Equipment Names
 Input: 鉄の剣
 Output: Iron Sword
 
@@ -19,71 +16,35 @@ Output: Magic Bow
 Input: 聖なる剣
 Output: Sacred Sword
 
-Input: 鉄の盾
-Output: Iron Shield
+Input: 子宮強化リング
+Output: Womb Enhancement Ring
 
-Input: 魔法の鎧
-Output: Magic Armor
+Input: 催眠の首輪
+Output: Hypnosis Collar
 
-Input: 聖なる兜
-Output: Sacred Helm
+Input: 貞操帯
+Output: Chastity Belt
 
-Input: 魔法の指輪
-Output: Magic Ring
+## Examples: Descriptions
+Input: A sturdy iron sword.[NEWLINE_1][Attack +5]
+Output: A sturdy iron sword.[NEWLINE_1][Attack +5]
 
-Input: 幸運のチャーム
-Output: Lucky Charm
+Input: 魔法の力が宿る鎧。[NEWLINE_1][Defense +10]
+Output: Armor imbued with magical power.[NEWLINE_1][Defense +10]
 
-Input: 回復薬
-Output: Healing Potion
+Input: 理性を奪う呪いの剣。[NEWLINE_1][Attack +15][Sanity -20]
+Output: A cursed sword that drains sanity.[NEWLINE_1][Attack +15][Sanity -20]
 
-Input: 媚薬
-Output: Aphrodisiac
+Input: 性欲を高める媚薬。[NEWLINE_1][Libido +50]
+Output: An aphrodisiac that increases libido.[NEWLINE_1][Libido +50]
 
-Input: 理性回復薬
-Output: Sanity Recovery Potion
+Input: 子宮の状態を改善する薬。[NEWLINE_1][Womb Status +30]
+Output: Medicine that improves womb condition.[NEWLINE_1][Womb Status +30]
 
-Input: 理性奪取の剣
-Output: Sanity Drain Sword
+## Examples: Categories
+- Weapons: Swords, bows, staffs, daggers
+- Armor: Helmets, chest pieces, gauntlets, boots
+- Accessories: Rings, necklaces, charms
+- Consumables: Potions, scrolls, food
+- Special: Quest items, key items
 
-Input: 性欲操作の杖
-Output: Libido Manipulation Staff
-
-## For Equipment Descriptions:
-1. **Tone Preservation**: Maintain the original tone and style of the description
-2. **Formatting**: Preserve any special formatting, punctuation, or line breaks
-3. **Formality Level**: Keep the same level of formality as the original
-4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
-5. **Consistency**: Maintain consistency with similar descriptions in the game
-6. **Clarity**: Ensure the description remains clear and informative
-7. **Property Details**: Preserve combat stats, defensive values, enhancement effects, or usage instructions
-8. **Lore Elements**: Keep story significance and background information
-
-**Equipment Description Examples:**
-Input: A sturdy iron sword.\n[Attack +5]
-Output: A sturdy iron sword.\n[Attack +5]
-
-Input: 魔法の力が宿る鎧。\n[Defense +10]
-Output: Armor imbued with magical power.\n[Defense +10]
-
-Input: A cute pink heart charm.\nA girly accessory that adds a feminine touch.
-Output: A cute pink heart charm.\nA girly accessory that adds a feminine touch.
-
-Input: Restores HP when consumed.\n[Recovery: 100 HP]
-Output: Restores HP when consumed.\n[Recovery: 100 HP]
-
-Input: 理性を奪う呪いの剣。\n[Attack +15][Sanity -20]
-Output: A cursed sword that drains sanity.\n[Attack +15][Sanity -20]
-
-Input: 性欲を高める媚薬。\n[Libido +50]
-Output: An aphrodisiac that increases libido.\n[Libido +50]
-
-## For All Equipment Text:
-- Maintain fantasy/medieval terminology
-- Ensure gameplay clarity and accuracy
-- Keep consistent terminology across the game
-- Preserve any special characters or codes
-- Maintain equipment category consistency
-- Consider combat, defensive, enhancement, and consumable contexts
-
-Equipment text to translate: {text}

@@ -98,7 +98,7 @@ This document tracks the completed milestones of the LudoLingua application, bas
 
 *   **Dependencies Installed:**
     *   **Backend (cargo):** `async-trait`, `reqwest`, `tauri-plugin-store`.
-    *   **Frontend:** Zod (included in Nuxt UI).
+    *   **Frontend:** (none specific; using Nuxt UI built-ins).
 *   **Tasks & Files Created/Modified:**
     *   **Backend LLM System:**
         *   [x] Created complete LLM abstraction layer with `src/llm/trait_def.rs` defining LLM provider traits.
@@ -133,15 +133,11 @@ This document tracks the completed milestones of the LudoLingua application, bas
 **Goal:** Modernize the LLM system using dedicated service crates for optimal performance and maintainability.
 
 *   **Backend LLM System Refactoring:**
-    *   [x] **Migrated to ollama-rs crate:** Replaced custom HTTP client with dedicated `ollama-rs` crate (857 stars, feature-rich).
-    *   [x] **Created service architecture:** Built `src/llm/services/` directory with `ollama.rs` service adapter.
-    *   [x] **Implemented LlmProvider trait:** Created object-safe async trait using `async_trait` for unified interface.
-    *   [x] **Updated configuration system:** Moved `LlmConfig` to `models/provider.rs` with proper `Default` implementation.
-    *   [x] **Enhanced translation requests:** Created `TranslationLanguages` struct for comprehensive translation data.
-    *   [x] **Added Language interface:** Implemented `Language` struct with code, name, and native_name fields.
-    *   [x] **Improved prompt system:** Enhanced prompt template loading from `prompts/` directory with fallback handling.
-    *   [x] **Updated factory pattern:** Maintained `LlmFactory` for provider instantiation with new architecture.
-    *   [x] **Fixed command handlers:** Updated all Tauri commands to use new interfaces and error handling.
+    *   [x] **Migrated to ollama-rs crate:** Replaced custom HTTP client with dedicated `ollama-rs` crate.
+    *   [x] **Created service architecture:** Built `src-tauri/src/llm/services/ollama.rs` service.
+    *   [x] **Ollama-only:** Removed `LlmProvider` trait and `LlmFactory`; simplified `LlmConfig`.
+    *   [x] **Commands rewired:** Direct calls to `OllamaService`; added `get_ollama_models`.
+    *   [x] **Improved prompt system:** Enhanced prompt template loading with dev FS reads and prod embedded resources; vocabulary filtered by prompt type.
 
 *   **Frontend System Updates:**
     *   [x] **Updated type definitions:** Enhanced `types/llm.ts` with new `Language` interface and updated `LlmConfig`.
@@ -172,11 +168,9 @@ This document tracks the completed milestones of the LudoLingua application, bas
     *   [x] **Command handler fixes:** Updated translation commands to work with new enum-based provider system.
 
 *   **Frontend Type Safety Updates:**
-    *   [x] **Provider type union:** Created `Provider` type union in `types/llm.ts` matching backend enum.
-    *   [x] **Enhanced forms:** Updated `LlmSettingsForm.vue` to use enum validation with `z.enum()`.
-    *   [x] **Fixed form components:** Updated `TranslationSettingsForm.vue` to use `USelectMenu` and `Language` objects.
-    *   [x] **Settings page enhancements:** Added status indicators and improved About section in `settings.vue`.
-    *   [x] **Type consistency:** Ensured all frontend types match backend enum variants exactly.
+    *   [x] **OllamaConfig:** Replaced `ProviderConfig` with `OllamaConfig` (`app/types/provider.ts`).
+    *   [x] **Settings/Provider stores:** Updated to Ollama-only; removed provider selector.
+    *   [x] **Invokes:** Switched to `get_ollama_models`.
 
 *   **Enhanced Prompt System:**
     *   [x] **Dedicated prompt templates:** Created specialized prompt templates for `item.txt`, `skill.txt`, and `other.txt`.
@@ -185,10 +179,9 @@ This document tracks the completed milestones of the LudoLingua application, bas
     *   [x] **Professional guidelines:** Added specific guidelines for items, skills, and general game text translation.
 
 *   **Model Management System:**
-    *   [x] **Type-safe model handling:** All model operations now use enums instead of strings.
-    *   [x] **Model discovery:** Added methods to get available models and validate model names.
-    *   [x] **Display name support:** Implemented user-friendly model names for UI while maintaining API compatibility.
-    *   [x] **Extensible architecture:** Easy to add new models by adding enum variants.
+    *   [x] **Model discovery:** Models loaded from `src-tauri/models/ollama.json` via backend service.
+    *   [x] **Display name support:** UI uses `display_name`, backend uses `model_name`.
+    *   [x] **Language Catalog:** Added `src-tauri/models/language.json` (id, label, native_name, dir, enabled); `get_languages` returns enabled languages; frontend store loads list and applies RTL via `dir`.
 
 ---
 
@@ -619,7 +612,7 @@ This document tracks the completed milestones of the LudoLingua application, bas
 **Goal:** Refine and optimize the prompt system for better translation quality and consistency.
 
 *   **✅ Completed: Prompt Architecture Refinement**
-    *   [x] **Created `erobasic.txt`** as streamlined base prompt (removed overwhelming examples)
+    *   [x] **Created `basic.txt`** as streamlined base prompt (removed overwhelming examples)
     *   [x] **Consolidated equipment prompts** (`weapon.txt` + `item.txt` → `equipment.txt`)
     *   [x] **Updated `PromptType` enum** to use `Equipment` instead of separate `Weapon` and `Item` types
     *   [x] **Added specific translation guides** to all prompt files for consistency
@@ -629,6 +622,7 @@ This document tracks the completed milestones of the LudoLingua application, bas
     *   [x] **Organized dialogue examples** by moving dialogue-specific examples from `basic.txt` to `dialogue.txt`
     *   [x] **Implemented flexible skill guidelines** replacing rigid mappings with pattern-based instructions
     *   [x] **Enhanced class translations** with proper RPG distinctions (勇者 → Hero, 戦士 → Warrior)
+    *   [x] **Placeholder standardization:** `%n` → `[ARG_n]`, literal newlines in examples → `[NEWLINE_1]`, and `[NEWLINE_n]` added to preserved token list in `basic.txt`
 
 *   **✅ Completed: LLM Integration Improvements**
     *   [x] **Updated `PromptBuilder`** to map `PromptType::Equipment` to `equipment.txt`

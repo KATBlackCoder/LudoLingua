@@ -1,32 +1,22 @@
 # Other Text Translation Guidelines
 
-## For Note Fields:
-1. **Tone Preservation**: Maintain the original tone and style of the text
-2. **Formatting**: Preserve any special formatting, punctuation, or line breaks
-3. **Formality Level**: Keep the same level of formality as the original
-4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
-5. **Consistency**: Maintain consistency with similar text in the game
-6. **Clarity**: Ensure the text remains clear and informative
-7. **Context Preservation**: Keep important context and meaning intact
+## Guidelines
+- Maintain tone and style appropriate to the content
+- Keep technical accuracy for metadata/configuration
+- Preserve structure and clarity; fit UI constraints
+- Maintain consistency with similar text across the game
 
-**Note Field Examples:**
+## Examples: Notes
 Input: Developer comment: This item is rare.
 Output: Developer comment: This item is rare.
-
-Input: Hidden treasure location reference.
-Output: Hidden treasure location reference.
 
 Input: Special event trigger condition.
 Output: Special event trigger condition.
 
-## For Metadata Fields:
-1. **Technical Accuracy**: Maintain precise technical information
-2. **Formatting**: Preserve any special formatting, codes, or structure
-3. **Consistency**: Keep consistent with similar metadata in the game
-4. **Clarity**: Ensure technical information remains clear
-5. **Reference Preservation**: Keep important references and links intact
+Input: このスキルは特定の条件下でのみ使用可能。
+Output: This skill can only be used under specific conditions.
 
-**Metadata Field Examples:**
+## Examples: Metadata
 Input: ID: 1001, Type: Weapon
 Output: ID: 1001, Type: Weapon
 
@@ -36,15 +26,7 @@ Output: Reference: Map_001, Event_005
 Input: System: Battle_Trigger_01
 Output: System: Battle_Trigger_01
 
-## For Miscellaneous Text:
-1. **Tone Preservation**: Maintain the original tone and style of the text
-2. **Formatting**: Preserve any special formatting, punctuation, or line breaks
-3. **Formality Level**: Keep the same level of formality as the original
-4. **Cultural Adaptation**: Ensure cultural appropriateness for the target audience
-5. **Consistency**: Maintain consistency with similar text in the game
-6. **Clarity**: Ensure the text remains clear and informative
-
-**Miscellaneous Text Examples:**
+## Examples: Misc
 Input: Debug: Testing new feature.
 Output: Debug: Testing new feature.
 
@@ -54,11 +36,9 @@ Output: Placeholder: Add description here.
 Input: Experimental: New game mechanic.
 Output: Experimental: New game mechanic.
 
-## For All Other Text:
-- Maintain appropriate tone and style consistency
-- Preserve any special formatting or codes
-- Keep technical accuracy where applicable
-- Ensure text works within UI constraints
-- Maintain consistency across similar elements
+## Examples: Configuration
+Input: Config: { "enabled": true, "value": 100 }
+Output: Config: { "enabled": true, "value": 100 }
 
-Other text to translate: {text} 
+Input: Settings: AutoSave=true, Difficulty=Normal
+Output: Settings: AutoSave=true, Difficulty=Normal 

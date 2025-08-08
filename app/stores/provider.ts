@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 import { load } from '@tauri-apps/plugin-store'
-import type { Provider, ModelInfo, ProviderConfig } from '~/types/provider'
+import type { ModelInfo, OllamaConfig } from '~/types/provider'
 import { useAppToast } from '~/composables/useAppToast'
 
 export const useProviderStore = defineStore('provider', () => {
@@ -10,13 +10,14 @@ export const useProviderStore = defineStore('provider', () => {
   
   // State
   const selectedProvider = ref<string>('ollama')
-  const availableProviders = ref<string[]>([])
+  const availableProviders = ref<string[]>(['ollama'])
   const availableModels = ref<ModelInfo[]>([])
   const selectedModel = ref<ModelInfo | null>(null)
   const connectionStatus = ref<'unknown' | 'connected' | 'disconnected'>('unknown')
   const lastConnectionTest = ref<Date | null>(null)
   const error = ref<string | null>(null)
   const isLoading = ref(false)
+  const STALE_MS = 60_000
   
   // Getters
   const getProvider = computed(() =>
@@ -32,6 +33,11 @@ export const useProviderStore = defineStore('provider', () => {
 
   const isConnected = computed(() => connectionStatus.value === 'connected')
   const isDisconnected = computed(() => connectionStatus.value === 'disconnected')
+  const shouldRetest = computed(() => {
+    if (!lastConnectionTest.value) return true
+    const age = Date.now() - lastConnectionTest.value.getTime()
+    return connectionStatus.value === 'unknown' || age > STALE_MS
+  })
   const connectionStatusText = computed(() => {
     switch (connectionStatus.value) {
       case 'connected':
@@ -43,20 +49,17 @@ export const useProviderStore = defineStore('provider', () => {
     }
   })
 
-  const currentProviderConfig = computed((): ProviderConfig => ({
-    provider: selectedProvider.value as Provider,
+  const currentProviderConfig = computed((): OllamaConfig => ({
     model: selectedModel.value || { model_name: 'mistral:latest', display_name: 'Mistral 7B' },
-    base_url: selectedProvider.value === 'ollama' ? 'http://localhost:11434' : undefined,
-    api_key: undefined,
+    base_url: 'http://localhost:11434',
     temperature: 0.7,
     max_tokens: 2048,
-    extra_config: {},
   }))
   
   // Action: Fetch models for the current provider from the backend
   async function fetchModels() {
     try {
-      const models = await invoke<ModelInfo[]>('get_available_models', { provider: selectedProvider.value })
+      const models = await invoke<ModelInfo[]>('get_ollama_models')
       availableModels.value = models
       selectedModel.value = models[0] ?? null
     } catch {
@@ -65,15 +68,8 @@ export const useProviderStore = defineStore('provider', () => {
     }
   }
 
-  // Action: Fetch providers from the backend
-  async function fetchProviders() {
-    try {
-      const providers = await invoke<Provider[]>('get_available_providers')
-      availableProviders.value = providers
-    } catch {
-      availableProviders.value = []
-    }
-  }
+  // Ollama-only: providers list is static
+  async function fetchProviders() { availableProviders.value = ['ollama'] }
 
   // Action: Set the provider and refresh models
   async function setProvider(provider: string) {
@@ -91,7 +87,7 @@ export const useProviderStore = defineStore('provider', () => {
   }
 
   // Action: Test connection with current or provided config
-  async function testConnection(config?: ProviderConfig) {
+  async function testConnection(config?: OllamaConfig) {
     try {
       isLoading.value = true
       error.value = null
@@ -105,7 +101,6 @@ export const useProviderStore = defineStore('provider', () => {
       const message = result ? 'Connection successful' : 'Connection failed'
       showToast('Connection Test', message, result ? 'success' : 'error', 700)
       
-      console.log('Provider connection test result:', result)
       return result
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Failed to test provider connection'
@@ -151,6 +146,12 @@ export const useProviderStore = defineStore('provider', () => {
     error.value = null
   }
 
+  async function ensureConnected(config?: OllamaConfig): Promise<boolean> {
+    if (isConnected.value && !shouldRetest.value) return true
+    const ok = await testConnection(config)
+    return !!ok
+  }
+
   return {
     // State
     selectedProvider,
@@ -168,6 +169,7 @@ export const useProviderStore = defineStore('provider', () => {
     isConnected,
     isDisconnected,
     connectionStatusText,
+    shouldRetest,
     currentProviderConfig,
 
     // Actions
@@ -176,6 +178,7 @@ export const useProviderStore = defineStore('provider', () => {
     setProvider,
     setModel,
     testConnection,
+    ensureConnected,
     clearError,
   }
 })
