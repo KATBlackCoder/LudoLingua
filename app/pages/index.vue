@@ -31,11 +31,7 @@
           <!-- Project Statistics Section -->
           <ProjectStats v-if="engineStore.hasProject" />
           
-          <!-- Translation Table Section -->
-          <div v-if="engineStore.hasProject">
-            
-            <TranslationTable />
-          </div>
+          <!-- Translation workspace moved to /translation -->
         </div>
         
         <template #footer>
@@ -45,9 +41,10 @@
           <p v-else-if="engineStore.totalTextUnits === 0" class="text-sm text-gray-500">
             No translatable text found in this project.
           </p>
-          <p v-else class="text-sm text-gray-500">
-            Review the translation units above and click "Translate All" to begin translation.
-          </p>
+          <div v-else class="text-sm text-gray-500 flex items-center gap-2">
+            <span>Use the Translation Workspace for bulk translate, inject, reset, and export.</span>
+            <UButton to="/translation" variant="soft" size="xs" icon="i-heroicons-language">Open Workspace</UButton>
+          </div>
         </template>
       </UCard>
     </UContainer>
@@ -59,7 +56,6 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { useEngineStore } from '../stores/engine';
 import ProjectLoader from '../components/editor/ProjectLoader.vue';
 import ProjectStats from '../components/editor/ProjectStats.vue';
-import TranslationTable from '../components/editor/TranslationTable.vue';
 
 const engineStore = useEngineStore();
 

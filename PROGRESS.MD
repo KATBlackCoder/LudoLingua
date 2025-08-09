@@ -155,6 +155,18 @@ This document tracks the completed milestones of the LudoLingua application, bas
     *   [x] **Native language support:** Added native language names for better UX in language selection.
 
 ### ✅ LLM Architecture Enhancement (Pure Data Structures & Type Safety) - Completed
+### ✅ Phase 7 Backend Polish (Shared State, Retry/Timeout) - Completed
+
+Goal: Stabilize and optimize per-unit translation calls with connection reuse.
+
+*   Completed:
+    *   Added `src-tauri/src/llm/state.rs` with `LlmState` (lazy `OllamaService` + `Semaphore`).
+    *   Registered managed state in `src-tauri/src/lib.rs`.
+    *   Updated `#[tauri::command] translate_text_unit` to accept `State<LlmState>` and forward it to command implementation.
+    *   Refactored command layer to build prompts and call a new `translate_with_retry` (90s timeout + simple backoff retries).
+    *   Simplified service with `generate(prompt)`; kept `translate` as a wrapper for compatibility.
+    *   Verified HTTP keep-alive reuse in logs (single connection start, continuous completions).
+
 
 **Goal:** Refactor LLM system to use pure data structures and enum-based type safety for better maintainability and reliability.
 
@@ -714,6 +726,8 @@ This document tracks the completed milestones of the LudoLingua application, bas
         *   [ ] Add comprehensive error handling and recovery
         *   [ ] Implement retry mechanisms for failed API calls
         *   [ ] Add performance monitoring and logging
+        *   Deferral: Frontend batch groundwork moved to Phase 8.3 (PromptType grouping, FE-only throttle)
+    *   Deferral: Backend rate limiting, translation cache, and auto-backup moved to Phase 8.0
 
 *   **Future Expansion: Additional File Types**
     *   [x] **MapXXX.json Support:** ✅ Implemented map event parsing and translation

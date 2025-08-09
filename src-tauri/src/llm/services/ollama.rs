@@ -110,9 +110,14 @@ impl OllamaService {
             .unwrap_or_else(|| self.config.model.display_name.clone())
     }
 
-    /// Build a translation prompt using the shared prompt builder
-    async fn build_translation_prompt(&self, text_unit: &TextUnit, engine_info: &EngineInfo) -> String {
-        PromptBuilder::build_translation_prompt(text_unit, engine_info).await
+    /// Low-level generate call: takes a fully-built prompt and returns the raw model string
+    pub async fn generate(&self, prompt: &str) -> AppResult<String> {
+        let request = GenerationRequest::new(self.config.model.model_name.clone(), prompt.to_string());
+
+        match self.client.generate(request).await {
+            Ok(response) => Ok(response.response.trim().to_string()),
+            Err(e) => Err(AppError::Llm(format!("Ollama generation failed: {}", e))),
+        }
     }
 
     pub async fn test_connection(&self) -> AppResult<bool> {
@@ -130,31 +135,17 @@ impl OllamaService {
         }
     }
 
+    /// Legacy helper kept temporarily for compatibility. Prefer building the prompt
+    /// in the caller and using `generate`.
     pub async fn translate(&self, text_unit: &TextUnit, engine_info: &EngineInfo) -> AppResult<String> {
-        // debug!(
-        //     "Translating text with Ollama: {} -> {}",
-        //     engine_info.source_language.id, engine_info.target_language.id
-        // );
+        let prompt = PromptBuilder::build_translation_prompt(text_unit, engine_info).await;
+        self.generate(&prompt).await
+    }
 
-        // Build the translation prompt using shared prompt builder
-        let prompt = self.build_translation_prompt(text_unit, engine_info).await;
-
-        //debug!("{}",prompt);
-
-        // Create the generation request
-        let request = GenerationRequest::new(self.config.model.model_name.clone(), prompt);
-
-        // Generate the translation
-        match self.client.generate(request).await {
-            Ok(response) => {
-                let translated_text = response.response.trim().to_string();
-                // info!("Successfully translated text using Ollama");
-                Ok(translated_text)
-            }
-            Err(e) => {
-                // error!("Failed to translate text with Ollama: {}", e);
-                Err(AppError::Llm(format!("Ollama translation failed: {}", e)))
-            }
-        }
+    /// Check if the internal config matches another config
+    pub fn config_matches(&self, other: &LlmConfig) -> bool {
+        self.config.model == other.model && self.config.base_url == other.base_url
+            && (self.config.temperature - other.temperature).abs() < f32::EPSILON
+            && self.config.max_tokens == other.max_tokens
     }
 }

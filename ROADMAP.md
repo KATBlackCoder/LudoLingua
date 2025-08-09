@@ -114,7 +114,8 @@
 - Execution order:
   - [x] Backend first: Ollama-only refactor (remove provider abstraction, rename command to `get_ollama_models`, robust prompt template packaging)
   - [x] Frontend: settings UI shows connection status and last-tested, auto-tests on mount
-  - [ ] Then: batch groundwork (group by `PromptType`, throttle)
+  - [ ] Then: batch groundwork — moved to Phase 8.3
+  - Deferral: Backend rate limiting, translation cache, and auto-backup moved to Phase 8.0; frontend batch groundwork moved to Phase 8.3
 
  #### **7.1: Backend Polish & Refinement**
   - [x] Simplify LLM to Ollama-only: remove provider abstraction in code (delete trait/factory) and call Ollama service directly
@@ -124,8 +125,9 @@
   - [ ] Integrate placeholder pre/post-processing via engines (`engines/.../files/common.rs`) using `text_processing.rs`; preserve bracket tokens end-to-end
   - [ ] Compact prompts (basic + per-type) and add hard delimiters in input to reduce leakage
   - [x] Add `models/language.json` (id, label, native_name, dir, enabled); expose `get_languages()` and use in FE store
- - [ ] **Performance Optimizations:**
-  - [ ] Use a single shared Ollama client instance (reuse underlying HTTP client)
+  - [x] **Performance Optimizations:**
+  - [x] Use a single shared Ollama client instance (reuse underlying HTTP client) via managed `LlmState`
+  - [x] Add timeout + retry policy in command layer (`translate_with_retry`)
   - [ ] Add caching layer for frequently accessed data
   - [ ] Optimize file parsing for large projects
   - [ ] Add comprehensive error handling and recovery
@@ -145,6 +147,7 @@
  - [ ] Remove provider selector UI; settings are Ollama-only (keep model selector + connection tester)
  - [ ] Auto-fetch models on settings mount; show connection status dot and last-tested time
  - [ ] Housekeeping: remove unused `@pinia/nuxt` dependency; rename frontend type `ProviderConfig` → `OllamaConfig`; update invokes to `get_ollama_models`
+  - [ ] Normalize FE→BE command argument naming to snake_case to match Rust (load_project, extract_text, extract_game_data_files, inject_text_units, translate_text_unit)
   - [ ] Improve prompts: adopt compact basic/per-type prompts; ensure vocabulary block injection; add input delimiters
 - [ ] **UI/UX Enhancements:**
   - [ ] Optimize existing Nuxt UI components for better performance
@@ -160,9 +163,21 @@
 ### 🎯 Phase 8: Translation Workflow Enhancement
 **Goal:** Implement advanced translation features and large-scale processing capabilities
 
+#### 8.0: Backend Stability Improvements (Deferred from Phase 7)
+- [ ] Backend LLM Rate Limiting
+  - [ ] Add backend rate limiter for LLM calls (target 1–3 rps) with small jitter
+  - [ ] Enforce regardless of UI to prevent overload
+- [ ] Backend Translation Cache
+  - [ ] In-memory LRU/TTL cache for MT results
+    - Key: `source_text|prompt_type|src_lang|tgt_lang|model|PROMPT_VERSION`
+    - Caps: entry cap + max bytes; TTL 24h; TTI 1h; skip huge entries
+- [ ] Auto-backup before Inject
+  - [ ] Timestamped backup per affected file prior to write (backend)
+
 #### **8.1: Translation Workflow Optimization**
 - [ ] **Enhanced Translation Features:**
   - [ ] Implement batch translation with progress tracking
+  - [ ] Add small FE concurrency (e.g., 2) with queueing to align with backend limiter
   - [ ] Add translation memory for consistent terminology
   - [ ] Implement undo/redo functionality
   - [ ] Add translation validation and quality checks
@@ -179,6 +194,7 @@
   - [ ] Progress bar component with current item/total
   - [ ] Translation status per file type
   - [ ] Pause/resume/cancel functionality
+  - [ ] Define Tauri event(s) for per-unit progress and errors; wire FE listener component (`TranslationProcess.vue`)
 - [ ] **Batch Processing Options:**
   - [ ] File-by-file translation (System.json only, Items.json only, etc.)
   - [ ] Selective translation by file type

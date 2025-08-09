@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 ### Changed
+- Roadmap/Planning: Deferred backend stability items (LLM rate limiting, translation cache, auto-backup) from Phase 7 to Phase 8.0; and frontend batch groundwork to Phase 8.3. Updated `TODO.md`, `ROADMAP.md`, and `PROGRESS.MD` accordingly.
+- Backend/LLM: Introduced managed shared state for Ollama client and lightweight rate limiting.
+  - Added `LlmState` (shared `OllamaService` + `Semaphore`) and registered it in `lib.rs`.
+  - Refactored `translate_text_unit` to use `State<LlmState>` and added `translate_with_retry` (timeout + retries).
+  - Simplified `OllamaService` with low-level `generate(prompt)`; `translate` kept temporarily as a wrapper.
+  - Observed stable keep-alive: single connection init then steady completions during batch.
 - **Prompt Loading Robustness & DRY Runtime:**
   - Embedded prompt templates in production builds to avoid filesystem path issues
   - Kept filesystem loading in dev for easy iteration

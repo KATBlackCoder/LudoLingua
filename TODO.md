@@ -10,7 +10,7 @@
 ### 🔴 HIGH PRIORITY (Critical for Phase 7 completion)
 **These tasks must be completed first to enable Phase 7 functionality**
 
-#### **Backend Core (Ollama-Only Refactor)**
+#### Backend Core (Ollama-Only Refactor)
 - [x] **LLM Architecture Simplification (Ollama-Only):**
   - [x] Remove provider abstraction layer (`src-tauri/src/core/provider.rs`, trait usage in factory)
   - [x] Simplify `src-tauri/src/llm/factory.rs` → delete/retire file and replace with direct Ollama helpers
@@ -19,7 +19,19 @@
   - [x] Update commands to call Ollama service directly (`test_llm_connection`, `get_ollama_models`, `translate_text_unit`)
   - [x] Remove `get_available_providers` command and any frontend usage
 
-#### **Prompt & Placeholder Pipeline**
+#### Backend Polish (Phase 7 - Completed)
+- [x] Shared LLM state:
+  - [x] Added `src-tauri/src/llm/state.rs` with `LlmState` (lazy `OllamaService` + `Semaphore` limiter)
+  - [x] Registered managed state in `src-tauri/src/lib.rs` via `.manage(LlmState::new(1))`
+  - [x] Updated `#[tauri::command] translate_text_unit` to accept and forward `State<LlmState>`
+- [x] Command-layer orchestration:
+  - [x] Build prompts in `commands/translation.rs` using `PromptBuilder`
+  - [x] Implement `translate_with_retry` with 90s timeout and backoff retries
+- [x] Service simplification:
+  - [x] Added low-level `OllamaService::generate(prompt)`; kept `translate` as legacy wrapper
+  - [x] Verified HTTP keep-alive reuse (single "starting new connection" then steady completions)
+
+#### Prompt & Placeholder Pipeline
 - [x] **Prompt & Placeholder Pipeline:**
   - [x] Apply `replace_formatting_codes_for_translation()` during extraction in engines (`src-tauri/src/engines/rpg_maker_mv/files/common.rs`) and `restore_formatting_codes_after_translation()` during injection
   - [x] Extend regex mappings in `text_processing.rs` (consumed by `common.rs`):
@@ -34,35 +46,32 @@
     - [x] Implement header-based filtering in `PromptBuilder::filter_vocabulary_sections`
     - [x] Document per-type header whitelist and customization in `README.md`
 
-#### **Frontend Core (Ollama-Only UI)**
+#### Frontend Core (Ollama-Only UI)
 - [x] **Frontend: remove provider selector (Ollama-only UI), adjust `OllamaConfig` type and `providerStore` accordingly (drop `provider`, `api_key`, `extra_config`)**
 - [x] **Keep `src-tauri/models/ollama.json` for model list; ensure model selector consumes backend list**
 - [x] **Settings page: show connection status dot and last test time; auto-test on mount**
 - [x] **Housekeeping: remove unused `@pinia/nuxt` dependency; rename frontend type `ProviderConfig` → `OllamaConfig`; update invokes to `get_ollama_models`**
 
-#### **Language Catalog**
+#### Language Catalog
 - [x] **Language Catalog:**
   - [x] Add `src-tauri/models/language.json` with `{ id, label, native_name, dir, enabled }`
   - [x] Backend: load via `include_str!`, expose `get_languages()` command (return only `enabled`)
   - [x] Frontend: language store loads from `get_languages`, apply `dir` (RTL/LTR) in UI when target is RTL
 
 ### 🟡 MEDIUM PRIORITY (Important for Phase 7 quality)
-**These tasks enhance functionality and user experience**
+Core stability tasks moved to Phase 8 (see 8.0)
 
-#### **Settings Validation & Error Handling (Frontend Display)**
-- [x] **Settings Validation & Error Handling (Frontend Display):**
-  - [x] Gate Translate when invalid; show brief inline error
-  - [x] Keep manual "Test Connection" with spinner; auto-test before translate if stale
+#### Settings Validation & Error Handling (Frontend Display)
+- [x] Gate Translate when invalid; show brief inline error
+- [x] Keep manual "Test Connection" with spinner; auto-test before translate if stale
 
 ### 🟢 LOW PRIORITY (Phase 7 polish and Phase 8 preparation)
-**These tasks improve quality of life and prepare for future phases**
+**Nice-to-haves; do if time permits**
 
-#### **Performance Optimizations**
-- [ ] **Caching Layer for Performance:**
-  - [ ] Add translation result caching to avoid re-translation
-  - [ ] Cache model information and project data
-  - [ ] Implement cache invalidation and cleanup strategies
-  - [ ] Add cache hit/miss metrics for performance monitoring
+#### Performance Optimizations
+- [ ] Cache model information and project data
+- [ ] Implement cache invalidation and cleanup strategies
+- [ ] Add cache hit/miss metrics for performance monitoring
 
 - [ ] **File Parsing Optimization:**
   - [ ] Optimize file parsing for large projects (based on current 2653+ text units)
@@ -70,20 +79,20 @@
   - [ ] Add streaming parsing for memory efficiency
   - [ ] Optimize JSON parsing for large RPG Maker files
 
-#### **Translation Workflow Architecture**
+#### Translation Workflow Architecture
   - [ ] **New Page Structure:**
-    - [ ] Create `app/pages/translation.vue` as dedicated translation workspace
-    - [ ] Move translation logic from `index.vue` to `translation.vue`
-    - [ ] Keep `index.vue` as project loading/overview page
-    - [ ] Add navigation between project overview and translation workspace
+    - [x] Create `app/pages/translation.vue` as dedicated translation workspace
+    - [x] Move translation logic from `index.vue` to `translation.vue`
+    - [x] Keep `index.vue` as project loading/overview page
+    - [x] Add navigation between project overview and translation workspace
 
   - [ ] **New Component Organization:**
-    - [ ] Create `app/components/translation/` folder for translation-specific components
-    - [ ] Move `TranslationTable.vue` to `app/components/translation/TranslationRaw.vue`
-    - [ ] Create `app/components/translation/TranslationProcess.vue`
-    - [ ] Create `app/components/translation/TranslationResult.vue`
-    - [ ] Create `app/components/translation/TranslationEditor.vue`
-    - [ ] Update all imports and references
+    - [x] Create `app/components/translation/` folder for translation-specific components
+    - [x] Move `TranslationTable.vue` to `app/components/translation/TranslationRaw.vue`
+    - [x] Create `app/components/translation/TranslationProcess.vue`
+    - [x] Create `app/components/translation/TranslationResult.vue`
+    - [x] Create `app/components/translation/TranslationEditor.vue`
+    - [x] Update all imports and references
 
   - [ ] **Composable Architecture:**
     - [ ] Create `useTranslation()` composable as single entry point for all translation functionality
@@ -91,66 +100,71 @@
     - [ ] Add convenience methods for common operations (startTranslation, saveAndContinue, etc.)
     - [ ] Ensure type safety and consistent API across all components
 
-#### **4-Component Translation Workflow**
+#### 4-Component Translation Workflow
     - [ ] **Component 1: TranslationRaw.vue (Raw Text Display)**
-      - [ ] Modify existing table to show only source text (remove translated text column)
-      - [ ] Add individual "Translate" buttons for each row
-      - [ ] Focus on raw text display and status management
-      - [ ] Remove bulk operations (moved to translation.vue page)
+      - [x] Modify existing table to show only source text (remove translated text column)
+      - [x] Add individual "Translate" buttons for each row
+      - [x] Focus on raw text display and status management
+      - [x] Remove bulk operations (moved to translation.vue page)
       - [ ] Integrate with `useTranslation()` composable
 
     - [ ] **Page: translation.vue (Workflow Management)**
-      - [ ] Move bulk operations (Translate All, Inject, Reset, Export) to page level
-      - [ ] Manage overall translation workflow and state
+      - [x] Move bulk operations (Translate All, Inject, Reset, Export) to page level
+      - [x] Manage overall translation workflow and state
       - [ ] Integrate with `useTranslation()` composable for workflow coordination
 
     - [ ] **Component 2: TranslationProcess.vue (New - Process Display)**
-      - [ ] Create new component for real-time translation progress
+      - [x] Create new component for real-time translation progress
       - [ ] Show AI model being used and processing status
       - [ ] Display progress bars and timing for each unit
       - [ ] Handle error states and retry options
       - [ ] Integrate with `useTranslation()` composable for progress tracking
 
     - [ ] **Component 3: TranslationResult.vue (New - Final Results Display)**
-      - [ ] Create new component to show final translation results
-      - [ ] Display side-by-side source text and translated text
+      - [x] Create new component to show final translation results
+      - [x] Display side-by-side source text and translated text
       - [ ] Add character count and word count indicators
       - [ ] Add RPG Maker code highlighting in source text
-      - [ ] Add "Edit" button for each row to open TranslationEditor
+      - [x] Add "Edit" button for each row to open TranslationEditor
       - [ ] Show translation status and confidence indicators
       - [ ] Integrate with `useTranslation()` composable for result management
 
     - [ ] **Component 4: TranslationEditor.vue (New - Human Editing)**
-      - [ ] Create new component for manual translation editing
-      - [ ] Implement side-by-side source and translated text display
+      - [x] Create new component for manual translation editing
+      - [x] Implement side-by-side source and translated text display
       - [ ] Add character count and word count indicators
       - [ ] Add RPG Maker code highlighting in source text
-      - [ ] Implement inline editing with textarea controls
-      - [ ] Add Save/Cancel/Remove options for translations
+      - [x] Implement inline editing with textarea controls
+      - [x] Add Save/Cancel options for translations
       - [ ] Integrate with `useTranslation()` composable for editor operations
 
-#### **Enhanced Settings Organization**
-  - [ ] **Enhanced Settings Organization:**
+#### Backend Commands (Phase 7 polish → Phase 8 groundwork)
+- [ ] Add `translate_game_data_file` backend command to translate units file-by-file using shared `LlmState` and retry/timeout logic, and emit per-unit progress (to be consumed by FE progress view)
+
+#### Enhanced Settings Organization
+    - [ ] Consolidate settings to a single source of truth
+      - [ ] Make `useSettingsStore` the only module that reads/writes Tauri Store (`user_settings` key)
+      - [ ] Remove `provider_settings` key and `useProviderStore.loadProviderSettings()`
+      - [ ] Consumers use `settingsStore.providerConfig` instead of `providerStore.currentProviderConfig`
+      - [ ] Keep `useLanguageStore` for options fetch; stop direct reads from Tauri Store
+      - [ ] Optional migration: if `provider_settings` exists, merge into `user_settings` on load
     - [ ] Categorize settings into AI Configuration, Translation Settings, Project Settings, UI Preferences
     - [ ] Implement auto-save for settings changes
     - [ ] Add settings backup/restore functionality
     - [ ] Create settings export/import for sharing configurations
 
-#### **Advanced Configuration Options**
-  - [ ] **Advanced Configuration Options:**
+#### Advanced Configuration Options
     - [ ] Add translation quality settings (style preferences, character limits, confidence thresholds)
     - [ ] Implement performance settings (timeouts, retry limits, cache settings)
   - [ ] Add batch processing preferences (Phase 8 feature; no background processing options in Phase 7)
 
-#### **User Experience Improvements**
-  - [ ] **User Experience Improvements:**
+#### User Experience Improvements
     - [ ] Implement progressive disclosure (basic/advanced settings)
     - [ ] Add contextual help with tooltips and explanations
     - [ ] Create expert mode toggle for power users
     - [ ] Add best practice recommendations and example configurations
 
-#### **UI/UX Foundation**
-- [ ] **UI/UX Foundation:**
+#### UI/UX Foundation
   - [ ] Optimize existing Nuxt UI components for better performance
   - [ ] Improve responsive design and mobile compatibility
   - [ ] Add loading states and skeleton screens
@@ -158,33 +172,26 @@
   - [ ] Add comprehensive toast notifications system
   - [ ] Optimize component rendering and state management
 
-#### **Project Management UX**
-- [ ] **Project Management UX:**
+#### Project Management UX
   - [ ] Add page-level progress indicators for bulk operations (in translation.vue)
   - [ ] Implement drag-and-drop for project loading using Nuxt UI FileUpload component in ProjectLoader.vue
 
-#### **Data Integrity**
-- [ ] **Data Integrity:**
+#### Data Integrity
   - [ ] Add checksums for project files to detect corruption
   - [ ] Implement auto-save functionality
-  - [ ] Create backup points before major operations
   - [ ] Add data migration tools for future updates
   - [ ] Implement proper async/await patterns throughout
 
-#### **Architecture Improvements**
-- [ ] **Architecture Improvements:**
+#### Architecture Improvements
   - [ ] Refactor command handlers for better error handling
   - [ ] Add input validation and sanitization
   - [ ] Add comprehensive logging and debugging tools
   - [ ] Implement proper resource cleanup
 
-#### **Batch Processing Groundwork (Phase 7)**
-- [ ] **Batch Processing with PromptType Groups (Groundwork in Phase 7):**
-  - [ ] Group text units by PromptType in FE store and translate sequentially per group
-  - [ ] Use appropriate prompt templates per batch type
-  - [ ] Throttle API calls (1–3 rps) to avoid overload
+#### Batch Processing Groundwork (Phase 7)
+Moved to Phase 8.3
 
-#### **Advanced Features (Phase 7.3)**
+#### Advanced Features (Phase 7.3)
 - [ ] **Translation Quality Assurance:**
   - [ ] Implement consistency checking across the entire project
   - [ ] Add terminology validation against the glossary
@@ -215,7 +222,8 @@
 
 **Backend first: Ollama-only refactor (remove provider abstraction, rename command to `get_ollama_models`, simplify `LlmConfig`, robust prompt packaging)**
 **Frontend next: settings UI to Ollama-only (remove provider selector, keep model selector + connection tester), update invokes**
-**Then: batch groundwork (group by `PromptType` in store, throttle 1–3 rps)**
+**Then: batch groundwork — moved to Phase 8.3**
+**Deferral:** Rate limiting, cache, and auto-backup moved to Phase 8.0; frontend batch groundwork moved to Phase 8.3
 
 ## Completed Phases
 
@@ -237,12 +245,27 @@
 
 ## Upcoming Phases
 
+#### 8.0: Backend Stability Improvements (Deferred from Phase 7)
+- [ ] Backend LLM Rate Limiting
+  - [ ] Add backend rate limiter for LLM calls (target 1–3 rps) with small jitter
+  - [ ] Enforce regardless of UI to prevent overload
+- [ ] Backend Translation Cache
+  - [ ] In-memory LRU/TTL cache for MT results
+    - Key: `source_text|prompt_type|src_lang|tgt_lang|model|PROMPT_VERSION`
+    - Caps: entry cap + max bytes; TTL 24h; TTI 1h; skip huge entries
+- [ ] Auto-backup before Inject
+  - [ ] Timestamped backup per affected file prior to write (backend)
+ - [ ] Frontend/Backend command contract normalization
+   - [ ] Normalize all Tauri command argument names to snake_case in FE invokes to match Rust params
+   - [ ] Add brief contract smoke test (load/extract/translate/inject)
+
 ### 🎯 Phase 8: Translation Workflow Enhancement
 **Goal:** Implement advanced translation features and large-scale processing capabilities
 
-#### **8.1: Translation Workflow Optimization**
+#### 8.1: Translation Workflow Optimization
 - [ ] **Enhanced Translation Features:**
   - [ ] Implement batch translation with progress tracking
+  - [ ] Add small client-side concurrency (e.g., 2) with queueing to align with backend `LlmState` limiter
   - [ ] Add translation memory for consistent terminology
   - [ ] Implement undo/redo functionality
   - [ ] Add translation validation and quality checks
@@ -253,12 +276,14 @@
   - [ ] Add file-level progress tracking and status display
   - [ ] Implement natural breakpoints for error recovery and user control
 
-#### **8.2: Large Scale Translation Support**
+#### 8.2: Large Scale Translation Support
 - [ ] **Progress Management System:**
   - [ ] Real-time progress tracking and display
   - [ ] Progress bar component with current item/total
   - [ ] Translation status per file type
   - [ ] Pause/resume/cancel functionality
+  - [ ] Define Tauri event channel and payload schema for per-unit progress (e.g., `translation:progress`)
+  - [ ] Throttle server-side emits and debounce FE consumption to reduce UI thrash
 - [ ] **Batch Processing Options:**
   - [ ] File-by-file translation (System.json only, Items.json only, etc.)
   - [ ] Selective translation by file type
@@ -275,6 +300,26 @@
   - [ ] Batch API calls to reduce network overhead
   - [ ] File-level connection management (one connection per file type)
   - [ ] Hybrid approach: file-level connections + batch API calls
+
+#### 8.3: Batch Processing Groundwork (Frontend UX)
+- [ ] Batch processing with `PromptType` groups in FE
+  - [ ] Group by `PromptType` for progress/UX
+  - [ ] Use appropriate prompt templates per batch type
+  - [ ] Optional UI-side throttle until backend rate limiting (8.0)
+
+#### 8.4: Model Catalog & Limits (Metadata-driven UX)
+- [ ] Expand `ModelInfo` to include metadata
+  - [ ] `description: string`
+  - [ ] `context_window_tokens: number` (model max context)
+  - [ ] `recommended_max_output_tokens: number`
+  - [ ] `params_billion: number` and `quantization: string`
+  - [ ] `tags: string[]`, `homepage?: string`
+- [ ] Update `src-tauri/models/ollama.json` to include the new fields
+- [ ] Backend: parse and return enriched `ModelInfo` in `get_ollama_models`
+- [ ] Backend: clamp `max_tokens` to `recommended_max_output_tokens` and warn when exceeded
+- [ ] Frontend: update `ModelSelector` to display description, context window, params/quant
+- [ ] Frontend: cap the output length control based on model metadata
+- [ ] Frontend: show estimated token usage (instructions + source + output budget)
 
 ## Completed Achievements (MVP)
 

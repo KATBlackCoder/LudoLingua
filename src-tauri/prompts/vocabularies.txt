@@ -64,6 +64,15 @@ Output: panties
 Input: お兄ちゃん
 Output: Onii-chan
 
+Input: ボバヤシ製薬（株）
+Output: Bobayashi Pharmaceutical Co., Ltd.
+
+Input: エネルゲンＧ
+Output: Energen G
+
+Input: ドチャシコＦ
+Output: Dochashiko F
+
 ### Mechanics
 Input: HP
 Output: HP

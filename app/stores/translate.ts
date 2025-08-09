@@ -40,6 +40,14 @@ export const useTranslateStore = defineStore('translate', () => {
         engineInfo: engineStore.projectInfo,
       });
 
+      // Debug log for inspection (raw output)
+      console.debug('[MT][raw]', {
+        id: translatedUnit.id,
+        prompt_type: translatedUnit.prompt_type,
+        source: translatedUnit.source_text,
+        target: translatedUnit.translated_text,
+      });
+
       // Update the engine store with the translated unit
       engineStore.updateTextUnit(translatedUnit);
 
@@ -75,6 +83,7 @@ export const useTranslateStore = defineStore('translate', () => {
       currentTranslatingUnit.value = null;
     }
   };
+
 
   const startBatchTranslation = async (
     textUnits: TextUnit[],

@@ -13,6 +13,16 @@
             </UButton>
 
             <UButton
+              to="/translation"
+              variant="ghost"
+              :active="$route.path === '/translation'"
+            >
+              <template #leading>
+                <UIcon name="i-heroicons-language" />
+              </template>
+              Translation
+            </UButton>
+            <UButton
               to="/settings"
               variant="ghost"
               :active="$route.path === '/settings'"

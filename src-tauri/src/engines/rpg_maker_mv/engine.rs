@@ -1,4 +1,4 @@
-use log::{debug, info};
+//use log::{debug, info};
 use serde_json::Value;
 use std::any::Any;
 use std::fs;
@@ -120,7 +120,7 @@ impl RpgMakerMvEngine {
         let mut game_data_files = Vec::new();
 
         // Extract text from Actors.json
-        /*let actors_paths = ["www/data/Actors.json"];
+        let actors_paths = ["www/data/Actors.json"];
         let actors_files = common::extract_file_type_text(
             project_info,
             &actors_paths,
@@ -207,7 +207,7 @@ impl RpgMakerMvEngine {
             enemies::extract_text,
             "Enemies.json",
         )?;
-        game_data_files.extend(enemies_files);*/
+        game_data_files.extend(enemies_files);
 
         // Extract text from CommonEvents.json
         let common_events_paths = ["www/data/CommonEvents.json"];
@@ -219,7 +219,7 @@ impl RpgMakerMvEngine {
         )?;
         game_data_files.extend(common_events_files);
 
-        /*// Extract text from Troops.json
+        // Extract text from Troops.json
         let troops_paths = ["www/data/Troops.json"];
         let troops_files = common::extract_file_type_text(
             project_info,
@@ -237,7 +237,7 @@ impl RpgMakerMvEngine {
             maps_infos::extract_text,
             "MapInfos.json",
         )?;
-        game_data_files.extend(map_infos_files);*/
+        game_data_files.extend(map_infos_files);
 
         // Extract text from MapXXX.json files (dynamic discovery)
         let map_files = maps::discover_map_files(&project_info.path)?;
@@ -282,7 +282,7 @@ impl RpgMakerMvEngine {
         // );
 
         // Inject actor translations
-        /*common::inject_file_type_translations(
+        common::inject_file_type_translations(
             project_info,
             text_units,
             "actor_",
@@ -369,7 +369,7 @@ impl RpgMakerMvEngine {
             &["www/data/Enemies.json"],
             enemies::inject_translations,
             "enemy",
-        )?;*/
+        )?;
 
         // Inject common events translations
         common::inject_file_type_translations(
@@ -381,7 +381,7 @@ impl RpgMakerMvEngine {
             "common_event",
         )?;
 
-        /*// Inject troops translations
+        // Inject troops translations
         common::inject_file_type_translations(
             project_info,
             text_units,
@@ -399,7 +399,7 @@ impl RpgMakerMvEngine {
             &["www/data/MapInfos.json"],
             maps_infos::inject_translations,
             "map_info",
-        )?;*/
+        )?;
 
         // Inject map event translations (dynamic discovery)
         let map_files = maps::discover_map_files(&project_info.path)?;
@@ -449,12 +449,11 @@ impl Engine for RpgMakerMvEngine {
         source_language: Language,
         target_language: Language,
     ) -> AppResult<EngineInfo> {
-        use log::info;
 
         // Try to read the package.json file to get project metadata
         let (name, version) = match self.read_package_json(path) {
             Ok(result) => result,
-            Err(e) => {
+            Err(_e) => {
                 // If package.json doesn't exist or can't be read, use the folder name as project name
                 // info!(
                 //     "Couldn't read package.json: {}. Using folder name instead.",

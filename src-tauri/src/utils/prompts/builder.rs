@@ -69,8 +69,14 @@ impl PromptBuilder {
         template.push_str("\n\n");
         template.push_str(&specific_content);
 
-        // Replace template variables
-        Self::replace_template_variables(&template, text_unit, engine_info)
+        // Replace variables first
+        let prompt_without_text = Self::replace_template_variables(&template, text_unit, engine_info);
+
+        // Append raw text at the very end to avoid any trailing sections overriding or splitting content
+        let mut final_prompt = prompt_without_text;
+        final_prompt.push_str("\n\n");
+        final_prompt.push_str(&text_unit.source_text);
+        final_prompt
     }
 
     /// Filter the shared vocabulary to only include sections relevant to the prompt type.
@@ -136,8 +142,6 @@ impl PromptBuilder {
                 &engine_info.target_language.native_name,
             )
             .replace("{context}", "RPG Maker game content")
-            // Delimiters are defined in basic.txt Input Block; insert raw text here.
-            .replace("{text}", &text_unit.source_text)
     }
 
     /// Load a prompt template from the filesystem.

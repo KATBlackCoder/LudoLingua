@@ -7,6 +7,8 @@ use crate::commands::engine;
 use crate::commands::provider;
 use crate::commands::languages;
 use crate::commands::translation;
+use crate::llm::state::LlmState;
+use tauri::State;
 use crate::models::engine::{EngineInfo, GameDataFile};
 use crate::models::language::Language;
 use crate::models::provider::{LlmConfig, ModelInfo};
@@ -54,12 +56,13 @@ pub async fn inject_text_units(
 /// Translate a single text unit
 #[tauri::command]
 pub async fn translate_text_unit(
+    state: State<'_, LlmState>,
     text_unit: TextUnit,
     config: LlmConfig,
     engine_info: EngineInfo,
 ) -> Result<TextUnit, String> {
     debug!("Command: translate_text_unit - {}", text_unit.id);
-    translation::translate_text_unit(text_unit, config, engine_info)
+    translation::translate_text_unit(state, text_unit, config, engine_info)
         .await
         .map_err(|e| e.to_string())
 }
