@@ -5,9 +5,16 @@ import type { EngineInfo, GameDataFile } from '../types/engine';
 import type { TextUnit } from '../types/translation';
 import { useLanguageStore } from './language';
 
+/**
+ * Engine store
+ *
+ * Manages the currently loaded project (`EngineInfo`), extracted `TextUnit`s,
+ * and structured `GameDataFile`s. Provides actions to load, refresh, and save
+ * a project by invoking Tauri commands, plus utilities to query and update
+ * text units.
+ */
 export const useEngineStore = defineStore('engine', () => {
-  // Toast
-  const toast = useToast();
+  // UI notifications are handled in components/composables, keep store UI-agnostic
   // State
   const projectInfo = ref<EngineInfo | null>(null);
   const textUnits = ref<TextUnit[]>([]);
@@ -85,12 +92,7 @@ export const useEngineStore = defineStore('engine', () => {
         textUnits: textUnits.value
       });
       
-      toast.add({
-        title: 'Project saved successfully',
-        description: 'All translations have been injected back into the project files',
-        color: 'success',
-        icon: 'i-heroicons-check-circle'
-      });
+      // success handled by caller (UI/composable)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save project';
       error.value = errorMessage;

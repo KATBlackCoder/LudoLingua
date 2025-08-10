@@ -54,8 +54,7 @@ Output: The protagonist's childhood friend. Has a bright and energetic personali
 ## Output Policy (Character Names)
 - Return only the translated name or nickname. No prefixes/suffixes like "Translated:" or quotes unless input had them
 - Keep names short; do not add commentary or extra words
-- Never include the delimiters (<<TEXT_START>> / <<TEXT_END>>) in the output
-- Output must contain only {target_language} glyphs (no CJK)
+- Output must contain only {target_language} glyphs
 - Format numeric variants as "Loli {number} …" (add a space after "Loli")
 - 先生: use "Sensei" when attached to a name (e.g., Kurone-sensei); use "Teacher" as a role label; never "Mr."
 - Do not add punctuation, placeholders, or symbols not present in input

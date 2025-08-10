@@ -1,5 +1,8 @@
-// This file contains all #[tauri::command] wrappers.
-// It's the only file that contains the tauri::command macro.
+//! Tauri command handlers.
+//!
+//! This file contains all `#[tauri::command]` wrappers and is the only
+//! place where the macro is used (by convention). Each function forwards
+//! to the corresponding pure logic in the sibling command modules.
 
 use log::debug;
 

@@ -1,15 +1,13 @@
 <template>
-  <UFormField
-    label="Model"
-    name="model"
-    description="Model name to use for translation"
-  >
-    <USelect
-      v-model="selectedModelName"
-      :items="modelOptions"
-      placeholder="Select a model"
-    />
-  </UFormField>
+  <div class="flex flex-col gap-3">
+    <UFormField label="Model" name="model" description="Model to use for translation">
+      <USelect v-model="selectedModelName" :items="modelOptions" placeholder="Select a model" class="w-64" />
+    </UFormField>
+
+    <div v-if="selectedDisplay" class="text-xs text-muted">
+      Selected: <UBadge color="neutral" variant="soft">{{ selectedDisplay }}</UBadge>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -26,6 +24,7 @@ const modelOptions = computed(() =>
 )
 
 const selectedModelName = ref<string | undefined>(providerStore.selectedModel?.model_name)
+const selectedDisplay = computed(() => providerStore.selectedModel?.display_name || '')
 
 // Keep selectedModelName in sync with store
 watch(

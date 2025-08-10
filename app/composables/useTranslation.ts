@@ -10,6 +10,40 @@ export type ProcessRow = { id: string; source_text: string; target_text: string;
 // Singleton reactive state shared across all component calls
 const mode = ref<Mode>('raw')
 const processRows = ref<ProcessRow[]>([])
+const startTimestampMs = ref<number | null>(null)
+const elapsedMs = ref<number>(0)
+let intervalId: number | null = null
+
+function formatDuration(ms: number): string {
+  if (!Number.isFinite(ms) || ms < 0) ms = 0
+  const totalSeconds = Math.floor(ms / 1000)
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  const hh = hours.toString().padStart(2, '0')
+  const mm = minutes.toString().padStart(2, '0')
+  const ss = seconds.toString().padStart(2, '0')
+  return hours > 0 ? `${hh}:${mm}:${ss}` : `${mm}:${ss}`
+}
+
+function startTimer(): void {
+  stopTimer()
+  startTimestampMs.value = Date.now()
+  elapsedMs.value = 0
+  intervalId = window.setInterval(() => {
+    if (startTimestampMs.value) {
+      elapsedMs.value = Date.now() - startTimestampMs.value
+    }
+  }, 1000)
+}
+
+function stopTimer(): void {
+  if (intervalId !== null) {
+    clearInterval(intervalId)
+    intervalId = null
+  }
+  startTimestampMs.value = null
+}
 
 export function useTranslation() {
   const engineStore = useEngineStore()
@@ -28,6 +62,17 @@ export function useTranslation() {
   const translationTotal = computed(() => translateStore.translationTotal)
   const failedCount = computed(() => translateStore.failedTranslations.length)
 
+  const elapsedText = computed(() => formatDuration(elapsedMs.value))
+  const remainingMs = computed(() => {
+    const progress = translationProgress.value
+    const total = translationTotal.value
+    if (!startTimestampMs.value || progress <= 0) return 0
+    const perUnit = elapsedMs.value / progress
+    const remainingUnits = Math.max(0, total - progress)
+    return Math.floor(perUnit * remainingUnits)
+  })
+  const remainingText = computed(() => formatDuration(remainingMs.value))
+
   // mode/processRows are module-level singletons
 
   const textUnits = computed(() => engineStore.textUnits)
@@ -44,6 +89,7 @@ export function useTranslation() {
     if (processRows.value.length) {
       processRows.value[0]!.status = 'processing'
     }
+    startTimer()
     await translateStore.startBatchTranslation(untranslated, (translatedUnit) => {
       const currentIndex = processRows.value.findIndex(r => r.status === 'processing')
       const rowIndex = processRows.value.findIndex(r => r.id === translatedUnit.id)
@@ -54,6 +100,7 @@ export function useTranslation() {
         if (processRows.value[nextIndex]) processRows.value[nextIndex]!.status = 'processing'
       }
     })
+    stopTimer()
     mode.value = 'result'
   }
 
@@ -64,11 +111,20 @@ export function useTranslation() {
     // Initialize process view with single row
     processRows.value = [{ id: unit.id, source_text: unit.source_text, target_text: '', status: 'processing' }]
     mode.value = 'process'
-
+    startTimer()
     const translated = await translateStore.translateTextUnit(unit)
+    stopTimer()
     processRows.value[0]!.status = 'done'
     processRows.value[0]!.target_text = translated.translated_text ?? ''
     mode.value = 'result'
+  }
+
+  // Re-translate a single unit and return updated result
+  const retranslate = async (id: string) => {
+    const unit = engineStore.getTextUnitById(id)
+    if (!unit) return
+    const updated = await translateStore.translateTextUnit(unit)
+    return updated
   }
 
   const inject = async () => {
@@ -131,10 +187,17 @@ export function useTranslation() {
     // actions
     startProcess,
     translateOne,
+    retranslate,
     inject,
     reset,
     exportData,
     saveEdit,
+
+    // timing
+    elapsedMs,
+    remainingMs,
+    elapsedText,
+    remainingText,
   }
 }
 

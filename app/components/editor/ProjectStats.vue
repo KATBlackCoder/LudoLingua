@@ -2,89 +2,83 @@
   <div v-if="engineStore.hasProject">
     <UCard>
       <template #header>
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold">Project Statistics</h3>
-          <UBadge :color="getEngineColor(engineStore.engineType)" size="sm">
-            {{ engineStore.engineType }}
-          </UBadge>
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 min-w-0">
+            <h3 class="text-lg font-semibold truncate">Project Statistics</h3>
+            <UBadge :color="getEngineColor(engineStore.engineType)" size="sm">{{ engineStore.engineType }}</UBadge>
+          </div>
+          <div class="flex items-center gap-2">
+            <UBadge size="sm" color="neutral" variant="soft">{{ engineStore.projectName }}</UBadge>
+            <UButton size="xs" color="neutral" icon="i-heroicons-arrow-path" @click="refresh" />
+          </div>
         </div>
       </template>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <!-- Translation Scope -->
-        <div class="space-y-2">
-          <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">Translation Scope</h4>
-          <div class="space-y-1">
-            <div class="flex justify-between">
-              <span class="text-sm">Text Units:</span>
-              <span class="text-sm font-medium">{{ engineStore.totalTextUnits }}</span>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <!-- Progress -->
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between">
+              <span class="font-medium">Progress</span>
+              <UBadge size="xs" color="primary" variant="soft">{{ progressPercent }}%</UBadge>
             </div>
-            <div class="flex justify-between">
-              <span class="text-sm">Files:</span>
-              <span class="text-sm font-medium">{{ engineStore.gameDataFiles.length }}</span>
+          </template>
+          <div class="space-y-2">
+            <UProgress :value="progressPercent" />
+            <div class="flex justify-between text-sm text-muted">
+              <span>{{ translatedCount }} / {{ engineStore.totalTextUnits }} translated</span>
+              <span>{{ remainingCount }} remaining</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div class="flex items-center justify-between"><span>Elapsed</span><span class="font-medium">{{ elapsedText }}</span></div>
+              <div class="flex items-center justify-between"><span>ETA</span><span class="font-medium">{{ remainingText }}</span></div>
             </div>
           </div>
-        </div>
+        </UCard>
+
+        <!-- Translation Scope -->
+        <UCard>
+          <template #header>
+            <span class="font-medium">Translation Scope</span>
+          </template>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center justify-between"><span>Text Units</span><span class="font-medium">{{ engineStore.totalTextUnits }}</span></div>
+            <div class="flex items-center justify-between"><span>Files</span><span class="font-medium">{{ engineStore.gameDataFiles.length }}</span></div>
+          </div>
+        </UCard>
 
         <!-- AI Configuration -->
-        <div class="space-y-2">
-          <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">AI Configuration</h4>
-          <div class="space-y-1">
-            <div class="flex justify-between">
-              <span class="text-sm">Provider:</span>
-              <span class="text-sm font-medium">{{ settingsStore.userSettings.provider }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-sm">Model:</span>
-              <span class="text-sm font-medium">{{ settingsStore.userSettings.model.display_name }}</span>
-            </div>
+        <UCard>
+          <template #header>
+            <span class="font-medium">AI Configuration</span>
+          </template>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center justify-between"><span>Provider</span><span class="font-medium">{{ settingsStore.userSettings.provider }}</span></div>
+            <div class="flex items-center justify-between"><span>Model</span><span class="font-medium">{{ settingsStore.userSettings.model.display_name }}</span></div>
           </div>
-        </div>
+        </UCard>
 
         <!-- Language Configuration -->
-        <div class="space-y-2">
-          <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">Language Configuration</h4>
-          <div class="space-y-1">
-            <div class="flex justify-between">
-              <span class="text-sm">Source:</span>
-              <span class="text-sm font-medium">{{ settingsStore.userSettings.source_language.label }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-sm">Target:</span>
-              <span class="text-sm font-medium">{{ settingsStore.userSettings.target_language.label }}</span>
-            </div>
+        <UCard>
+          <template #header>
+            <span class="font-medium">Language Configuration</span>
+          </template>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center justify-between"><span>Source</span><span class="font-medium">{{ settingsStore.userSettings.source_language.label }}</span></div>
+            <div class="flex items-center justify-between"><span>Target</span><span class="font-medium">{{ settingsStore.userSettings.target_language.label }}</span></div>
           </div>
-        </div>
+        </UCard>
 
         <!-- Cost Estimation -->
-        <div class="space-y-2">
-          <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">Cost Estimation</h4>
-          <div class="space-y-1">
-            <div class="flex justify-between">
-              <span class="text-sm">Est. Tokens:</span>
-              <span class="text-sm font-medium">{{ estimatedTokens }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-sm">Est. Cost:</span>
-              <span class="text-sm font-medium">{{ estimatedCost }}</span>
-            </div>
+        <UCard>
+          <template #header>
+            <span class="font-medium">Cost Estimation</span>
+          </template>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center justify-between"><span>Est. Tokens</span><span class="font-medium">{{ estimatedTokens }}</span></div>
+            <div class="flex items-center justify-between"><span>Est. Cost</span><span class="font-medium">{{ estimatedCost }}</span></div>
           </div>
-        </div>
-
-        <!-- Translation Progress -->
-        <div class="space-y-2">
-          <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">Progress</h4>
-          <div class="space-y-1">
-            <div class="flex justify-between">
-              <span class="text-sm">Translated:</span>
-              <span class="text-sm font-medium">{{ translatedCount }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-sm">Remaining:</span>
-              <span class="text-sm font-medium">{{ remainingCount }}</span>
-            </div>
-          </div>
-        </div>
+        </UCard>
       </div>
     </UCard>
   </div>
@@ -94,9 +88,11 @@
 import { computed, onMounted } from 'vue';
 import { useEngineStore } from '~/stores/engine';
 import { useSettingsStore } from '~/stores/settings';
+import { useTranslation } from '~/composables/useTranslation';
 
 const engineStore = useEngineStore();
 const settingsStore = useSettingsStore();
+const { elapsedText, remainingText } = useTranslation();
 
 // Initialize settings and log configuration for debugging
 onMounted(async () => {
@@ -145,6 +141,19 @@ const remainingCount = computed(() => {
     unit.status === 'NotTranslated'
   ).length;
 });
+
+const progressPercent = computed(() => {
+  const total = engineStore.totalTextUnits || 0
+  return total ? Math.round((translatedCount.value / total) * 100) : 0
+});
+
+const refresh = async () => {
+  try {
+    await engineStore.refreshProject()
+  } catch (e) {
+    console.error('Failed to refresh project:', e)
+  }
+}
 
 const getEngineColor = (engineType: string) => {
   switch (engineType.toLowerCase()) {

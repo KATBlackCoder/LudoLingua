@@ -5,6 +5,13 @@ import { load } from '@tauri-apps/plugin-store'
 import type { ModelInfo, OllamaConfig } from '~/types/provider'
 import { useAppToast } from '~/composables/useAppToast'
 
+/**
+ * Provider store (Ollama-only)
+ *
+ * Manages model lists, selected model, and connection status for the
+ * local Ollama service. Exposes a minimal config for translation calls
+ * and basic health checks. Model list is loaded from the backend.
+ */
 export const useProviderStore = defineStore('provider', () => {
   const { showToast } = useAppToast();
   

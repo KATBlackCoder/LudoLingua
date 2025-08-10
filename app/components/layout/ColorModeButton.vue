@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 const colorMode = useColorMode()
 
 const isDark = computed({
@@ -13,12 +13,16 @@ const isDark = computed({
 
 <template>
   <ClientOnly v-if="!colorMode?.forced">
-    <UButton
-      :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
-      color="neutral"
-      variant="ghost"
-      @click="isDark = !isDark"
-    />
+    <UTooltip :text="isDark ? 'Switch to Light' : 'Switch to Dark'">
+      <UButton
+        :aria-label="isDark ? 'Light mode' : 'Dark mode'"
+        :icon="isDark ? 'i-heroicons-moon' : 'i-heroicons-sun'"
+        color="neutral"
+        variant="ghost"
+        square
+        @click="isDark = !isDark"
+      />
+    </UTooltip>
 
     <template #fallback>
       <div class="size-8" />

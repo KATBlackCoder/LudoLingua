@@ -1,27 +1,34 @@
 <template>
-  <div>
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="text-base font-semibold">Raw Text</h3>
-      <UButton :disabled="isBusy" icon="i-heroicons-arrow-right" @click="startProcess">Translate All</UButton>
+  <div class="space-y-3">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold">Raw Text</h3>
     </div>
-    <UTable :data="rows">
+    <UTable :data="pagedRows" class="text-base">
       <template #source_text-data="{ row }">
         <span class="whitespace-pre-wrap">{{ row.original.source_text }}</span>
       </template>
-      <template #actions-data="{ row }">
-        <UButton size="xs" :disabled="isBusy" @click="translateOne(row.original.id)">Translate</UButton>
-      </template>
     </UTable>
+    <div class="flex items-center justify-between">
+      <span class="text-xs text-muted">Page {{ page }} / {{ pageCount }}</span>
+      <UPagination v-model:page="page" :total="rows.length" :items-per-page="pageSize" />
+    </div>
   </div>
   </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useTranslation } from '~/composables/useTranslation'
 
-const { textUnits, isBusy, startProcess, translateOne } = useTranslation()
+const { textUnits } = useTranslation()
 
 const rows = computed(() => textUnits.value.map(u => ({ id: u.id, source_text: u.source_text })))
+const page = ref(1)
+const pageSize = ref(25)
+const pageCount = computed(() => Math.max(1, Math.ceil(rows.value.length / pageSize.value)))
+const pagedRows = computed(() => {
+  const start = (page.value - 1) * pageSize.value
+  return rows.value.slice(start, start + pageSize.value)
+})
 </script>
 
 

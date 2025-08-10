@@ -1,3 +1,10 @@
+//! Tauri application entry point and builder configuration.
+//!
+//! Registers managed state, plugins, and exposes the Tauri command handler
+//! that bridges the Nuxt frontend and the Rust backend.
+//! The `LlmState` is provided here to share connections and apply lightweight
+//! rate limiting across translation requests.
+
 mod commands;
 mod core;
 mod engines;

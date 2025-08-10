@@ -1,4 +1,14 @@
-use regex::Regex;
+use regex::{Captures, Regex};
+
+/// Convert full-width digits to ASCII digits within a string
+fn to_ascii_digits(s: &str) -> String {
+    s.chars()
+        .map(|c| match c {
+            '０'..='９' => char::from_u32('0' as u32 + (c as u32 - '０' as u32)).unwrap(),
+            d => d,
+        })
+        .collect()
+}
 
 /// Replace RPG Maker formatting codes with placeholder names for translation
 /// 
@@ -9,6 +19,14 @@ use regex::Regex;
 /// * `String` - Text with formatting codes replaced by placeholders
 pub fn replace_formatting_codes_for_translation(text: &str) -> String {
     let mut result = text.to_string();
+
+    // Preserve numeric map/area prefixes like "100＿..." or "１００_..." by tokenizing them
+    // to a non-translatable placeholder. We'll restore them after translation.
+    if let Some(caps) = Regex::new(r"^([0-9０-９]{3})[＿_](.+)$").unwrap().captures(&result) {
+        let prefix_ascii = to_ascii_digits(&caps[1]);
+        let tail = caps[2].to_string();
+        result = format!("[NUM_PREFIX_{}]{}", prefix_ascii, tail);
+    }
     
     // Replace color codes: \C[n] -> [COLOR_n]
     let color_regex = Regex::new(r"\\C\[(\d+)\]").unwrap();
@@ -36,9 +54,12 @@ pub fn replace_formatting_codes_for_translation(text: &str) -> String {
     result = result.replace("\\G", "[GOLD]");
     result = result.replace("\\$", "[CURRENCY]");
 
-    // Map parameter placeholders: %n -> [ARG_n]
-    let arg_regex = Regex::new(r"%(\d+)").unwrap();
-    result = arg_regex.replace_all(&result, "[ARG_$1]").to_string();
+    // Map parameter placeholders: handle ASCII and full-width forms
+    // "%1" or "％１" -> "[ARG_1]"
+    let arg_any = Regex::new(r"[%％]([0-9０-９]+)").unwrap();
+    result = arg_any
+        .replace_all(&result, |caps: &Captures| format!("[ARG_{}]", to_ascii_digits(&caps[1])))
+        .to_string();
 
     // Normalize control codes
     result = result.replace("\\.", "[CTRL_DOT]");
@@ -89,6 +110,12 @@ pub fn restore_formatting_codes_after_translation(text: &str) -> String {
     // Restore parameter placeholders: [ARG_n] -> %n
     let arg_regex = Regex::new(r"\[ARG_(\d+)\]").unwrap();
     result = arg_regex.replace_all(&result, "%$1").to_string();
+
+    // Restore numeric prefix placeholders back to their original form: [NUM_PREFIX_200]Tail -> 200＿Tail
+    let num_prefix = Regex::new(r"\[NUM_PREFIX_(\d{3})\]").unwrap();
+    result = num_prefix
+        .replace_all(&result, |caps: &Captures| format!("{}＿", &caps[1]))
+        .to_string();
 
     // Restore control codes
     result = result.replace("[CTRL_DOT]", "\\.");

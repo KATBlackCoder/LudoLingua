@@ -1,28 +1,7 @@
 <template>
-  <div class="space-y-2">
-    <div class="flex items-center gap-3">
-      <span :class="['inline-block h-2.5 w-2.5 rounded-full', dotClass]" />
-      <span class="text-sm">{{ providerStore.connectionStatusText }}</span>
-      <span class="text-xs text-gray-500 dark:text-gray-400">
-        <template v-if="providerStore.lastConnectionTest">
-          Last test: {{ formattedLastTest }}
-        </template>
-        <template v-else>
-          Not tested yet
-        </template>
-      </span>
-    </div>
-
-    <div class="flex items-center">
-      <UButton
-        :loading="providerStore.isLoading"
-        variant="outline"
-        size="sm"
-        @click="testConnection"
-      >
-        Test Connection
-      </UButton>
-    </div>
+  <div class="flex items-center gap-2">
+    <UBadge :color="badgeColor" variant="soft">{{ providerStore.connectionStatusText }}</UBadge>
+    <UButton :loading="providerStore.isLoading" variant="outline" size="sm" icon="i-heroicons-wifi" @click="testConnection">Test</UButton>
   </div>
  </template>
 
@@ -38,23 +17,19 @@ const testConnection = async () => {
   await providerStore.testConnection()
 }
 
-// Status dot color
-const dotClass = computed(() => {
+// Status badge color
+const badgeColor = computed(() => {
   switch (providerStore.connectionStatus) {
     case 'connected':
-      return 'bg-green-500'
+      return 'success'
     case 'disconnected':
-      return 'bg-red-500'
+      return 'error'
     default:
-      return 'bg-gray-400'
+      return 'neutral'
   }
 })
 
-// Last test formatted
-const formattedLastTest = computed(() => {
-  const d = providerStore.lastConnectionTest
-  return d ? new Date(d).toLocaleString() : ''
-})
+// Keep minimal UI; last test can be shown in settings page
 
 // Auto-test on mount
 onMounted(async () => {

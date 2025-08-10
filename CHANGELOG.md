@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Developer documentation: Added concise Rustdoc to core backend modules and TSDoc to main frontend stores
+  to clarify responsibilities and data flow without changing behavior.
 ### Changed
 - Roadmap/Planning: Deferred backend stability items (LLM rate limiting, translation cache, auto-backup) from Phase 7 to Phase 8.0; and frontend batch groundwork to Phase 8.3. Updated `TODO.md`, `ROADMAP.md`, and `PROGRESS.MD` accordingly.
 - Backend/LLM: Introduced managed shared state for Ollama client and lightweight rate limiting.

@@ -1,19 +1,14 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-    <!-- Use the AppHeader component -->
+  <div class="min-h-dvh flex flex-col bg-gray-50 dark:bg-gray-900">
     <AppHeader />
-    
-    <main class="flex-grow py-6">
-      <UContainer>
-        <!-- Use slot to render the page content -->
-        <slot />
-      </UContainer>
+
+    <main class="flex-1 py-6">
+      <slot />
     </main>
-    
-    <!-- Use the AppFooter component -->
+
     <AppFooter />
   </div>
-</template>
+ </template>
 
 <script setup lang="ts">
 import AppHeader from '~/components/layout/AppHeader.vue';

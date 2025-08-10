@@ -1,34 +1,18 @@
 <template>
   <div class="space-y-4">
     <div class="flex flex-wrap items-start gap-4">
-      <UFormField
-        label="Source Language"
-        name="source_language"
-        description="Language of the original text"
-        required
-      >
-        <USelectMenu
-          v-model="sourceLanguage"
-          :items="languageOptions"
-          value-key="id"
-          placeholder="Select source language"
-          class="w-48"
-        />
+      <UFormField label="Source Language" name="source_language" description="Language of the original text" required>
+        <USelectMenu v-model="sourceLanguage" :items="languageOptions" value-key="id" placeholder="Select source language" class="w-56" />
       </UFormField>
 
-      <UFormField
-        label="Target Language"
-        name="target_language"
-        description="Language to translate to"
-        required
-      >
-        <USelectMenu
-          v-model="targetLanguage"
-          :items="languageOptions"
-          value-key="id"
-          placeholder="Select target language"
-          class="w-48"
-        />
+      <UFormField label="Target Language" name="target_language" description="Language to translate to" required>
+        <USelectMenu v-model="targetLanguage" :items="languageOptions" value-key="id" placeholder="Select target language" class="w-56" />
+      </UFormField>
+
+      <UFormField label="Direction" name="direction" description="Swap source and target">
+        <UButtonGroup>
+          <UButton size="xs" icon="i-heroicons-arrows-right-left" variant="soft" @click="swap">Swap</UButton>
+        </UButtonGroup>
       </UFormField>
     </div>
   </div>
@@ -72,6 +56,14 @@ watch(targetLanguage, (newTarget) => {
     languageStore.setLanguage(sourceLanguage.value, newTarget);
   }
 });
+
+function swap() {
+  const src = sourceLanguage.value
+  const tgt = targetLanguage.value
+  sourceLanguage.value = tgt
+  targetLanguage.value = src
+  languageStore.setLanguage(sourceLanguage.value, targetLanguage.value)
+}
 </script>
 
 <style></style>

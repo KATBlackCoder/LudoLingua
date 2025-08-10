@@ -26,9 +26,11 @@ pub fn extract_text_units_for_object(
     for (field, value, prompt_type) in fields {
         // Skip empty values and technical content
         if !value.is_empty() && !is_technical_content(value) {
+            // Normalize/placeholder-encode RPG Maker tokens (e.g., %1 -> [ARG_1]) before MT
+            let clean_text = replace_formatting_codes_for_translation(value);
             units.push(TextUnit {
                 id: format!("{}_{}_{}", object_type, object_id, field),
-                source_text: value.to_string(),
+                source_text: clean_text,
                 translated_text: String::new(),
                 field_type: format!("{}:{}:{}", field, file_path, index),
                 status: TranslationStatus::NotTranslated,
@@ -218,8 +220,10 @@ pub fn inject_text_units_for_object(
         if let Some(unit) = text_units.get(&unit_id) {
             log::debug!("Found text unit: {} -> '{}'", unit_id, unit.translated_text);
             if !unit.translated_text.is_empty() {
-                log::info!("Injecting translation: '{}' -> '{}'", field_ref, unit.translated_text);
-                *field_ref = unit.translated_text.clone();
+                // Restore RPG Maker formatting codes before writing back
+                let restored_text = restore_formatting_codes_after_translation(&unit.translated_text);
+                log::info!("Injecting translation: '{}' -> '{}'", field_ref, restored_text);
+                *field_ref = restored_text;
             } else {
                 log::debug!("Text unit has empty translation, skipping");
             }

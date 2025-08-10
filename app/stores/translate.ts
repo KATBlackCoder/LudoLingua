@@ -5,8 +5,16 @@ import type { TextUnit } from '../types/translation';
 import { useProviderStore } from './provider';
 import { useEngineStore } from './engine';
 
+/**
+ * Translate store
+ *
+ * Orchestrates single-unit and batch translation flows. Tracks progress,
+ * current unit, and failures. Uses the provider and engine stores for
+ * configuration and source data, and calls the `translate_text_unit`
+ * Tauri command to perform translations.
+ */
 export const useTranslateStore = defineStore('translate', () => {
-  const toast = useToast();
+  const { showToast } = useAppToast();
   const providerStore = useProviderStore();
   const engineStore = useEngineStore();
   
@@ -71,11 +79,7 @@ export const useTranslateStore = defineStore('translate', () => {
         failedTranslations.value.push({ unit: textUnit, error: errorMessage });
       }
 
-      toast.add({
-        title: 'Translation Failed',
-        description: `Failed to translate "${textUnit.source_text.substring(0, 50)}...": ${errorMessage}`,
-        color: 'error',
-      });
+      showToast('Translation Failed', `Failed to translate "${textUnit.source_text.substring(0, 50)}...": ${errorMessage}`, 'error', 1500)
 
       throw error;
     } finally {
@@ -99,11 +103,7 @@ export const useTranslateStore = defineStore('translate', () => {
       translationProgress.value = 0;
       failedTranslations.value = [];
 
-      toast.add({
-        title: 'Batch Translation Started',
-        description: `Translating ${textUnits.length} text units`,
-        color: 'info',
-      });
+      showToast('Batch Translation Started', `Translating ${textUnits.length} text units`, 'info', 1200)
 
       for (const textUnit of textUnits) {
         try {
@@ -123,19 +123,11 @@ export const useTranslateStore = defineStore('translate', () => {
       const successCount = translationProgress.value;
       const failedCount = failedTranslations.value.length;
 
-      toast.add({
-        title: 'Batch Translation Completed',
-        description: `Successfully translated ${successCount} units${failedCount > 0 ? `, ${failedCount} failed` : ''}`,
-        color: failedCount > 0 ? 'warning' : 'success',
-      });
+      showToast('Batch Translation Completed', `Successfully translated ${successCount} units${failedCount > 0 ? `, ${failedCount} failed` : ''}`, failedCount > 0 ? 'warning' : 'success', 1500)
 
     } catch (error) {
       console.error('Batch translation error:', error);
-      toast.add({
-        title: 'Batch Translation Failed',
-        description: error instanceof Error ? error.message : 'Batch translation failed',
-        color: 'error',
-      });
+      showToast('Batch Translation Failed', error instanceof Error ? error.message : 'Batch translation failed', 'error', 1500)
       throw error;
     } finally {
       isTranslating.value = false;
@@ -148,11 +140,7 @@ export const useTranslateStore = defineStore('translate', () => {
       isTranslating.value = false;
       currentTranslatingUnit.value = null;
       
-      toast.add({
-        title: 'Translation Cancelled',
-        description: 'Batch translation has been cancelled',
-        color: 'warning',
-      });
+      showToast('Translation Cancelled', 'Batch translation has been cancelled', 'warning', 1200)
     }
   };
 

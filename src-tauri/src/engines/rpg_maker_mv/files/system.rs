@@ -6,7 +6,11 @@ use std::fs;
 use crate::core::error::{AppError, AppResult};
 use crate::models::engine::GameDataFile;
 use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
-use crate::utils::text_processing::is_technical_content;
+use crate::utils::text_processing::{
+    is_technical_content,
+    replace_formatting_codes_for_translation,
+    restore_formatting_codes_after_translation,
+};
 
 /// Represents the RPG Maker MV System.json file structure.
 /// This struct only includes translatable fields from the System.json file.
@@ -118,9 +122,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
 
     // Extract game title
     if !system.game_title.is_empty() {
+        let clean = replace_formatting_codes_for_translation(&system.game_title);
         text_units.push(TextUnit {
             id: "system_game_title".to_string(),
-            source_text: system.game_title.clone(),
+            source_text: clean,
             translated_text: String::new(),
             field_type: "gameTitle:data/System.json:0".to_string(),
             status: TranslationStatus::NotTranslated,
@@ -130,9 +135,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
 
     // Extract currency unit
     if !system.currency_unit.is_empty() {
+        let clean = replace_formatting_codes_for_translation(&system.currency_unit);
         text_units.push(TextUnit {
             id: "system_currency_unit".to_string(),
-            source_text: system.currency_unit.clone(),
+            source_text: clean,
             translated_text: String::new(),
             field_type: "currencyUnit:data/System.json:0".to_string(),
             status: TranslationStatus::NotTranslated,
@@ -143,9 +149,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     // Extract armor types
     for (index, armor_type) in system.armor_types.iter().enumerate() {
         if !armor_type.is_empty() {
+            let clean = replace_formatting_codes_for_translation(armor_type);
             text_units.push(TextUnit {
                 id: format!("system_armor_type_{}", index),
-                source_text: armor_type.clone(),
+                source_text: clean,
                 translated_text: String::new(),
                 field_type: format!("armorTypes[{}]:data/System.json:0", index),
                 status: TranslationStatus::NotTranslated,
@@ -157,9 +164,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     // Extract elements
     for (index, element) in system.elements.iter().enumerate() {
         if !element.is_empty() {
+            let clean = replace_formatting_codes_for_translation(element);
             text_units.push(TextUnit {
                 id: format!("system_element_{}", index),
-                source_text: element.clone(),
+                source_text: clean,
                 translated_text: String::new(),
                 field_type: format!("elements[{}]:data/System.json:0", index),
                 status: TranslationStatus::NotTranslated,
@@ -171,9 +179,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     // Extract equipment types
     for (index, equip_type) in system.equip_types.iter().enumerate() {
         if !equip_type.is_empty() {
+            let clean = replace_formatting_codes_for_translation(equip_type);
             text_units.push(TextUnit {
                 id: format!("system_equip_type_{}", index),
-                source_text: equip_type.clone(),
+                source_text: clean,
                 translated_text: String::new(),
                 field_type: format!("equipTypes[{}]:data/System.json:0", index),
                 status: TranslationStatus::NotTranslated,
@@ -185,9 +194,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     // Extract skill types
     for (index, skill_type) in system.skill_types.iter().enumerate() {
         if !skill_type.is_empty() {
+            let clean = replace_formatting_codes_for_translation(skill_type);
             text_units.push(TextUnit {
                 id: format!("system_skill_type_{}", index),
-                source_text: skill_type.clone(),
+                source_text: clean,
                 translated_text: String::new(),
                 field_type: format!("skillTypes[{}]:data/System.json:0", index),
                 status: TranslationStatus::NotTranslated,
@@ -199,9 +209,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     // Extract weapon types
     for (index, weapon_type) in system.weapon_types.iter().enumerate() {
         if !weapon_type.is_empty() {
+            let clean = replace_formatting_codes_for_translation(weapon_type);
             text_units.push(TextUnit {
                 id: format!("system_weapon_type_{}", index),
-                source_text: weapon_type.clone(),
+                source_text: clean,
                 translated_text: String::new(),
                 field_type: format!("weaponTypes[{}]:data/System.json:0", index),
                 status: TranslationStatus::NotTranslated,
@@ -213,9 +224,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     // Extract switches
     for (index, switch_name) in system.switches.iter().enumerate() {
         if !switch_name.is_empty() && !is_technical_content(switch_name) {
+            let clean = replace_formatting_codes_for_translation(switch_name);
             text_units.push(TextUnit {
                 id: format!("system_switch_{}", index),
-                source_text: switch_name.clone(),
+                source_text: clean,
                 translated_text: String::new(),
                 field_type: format!("switches[{}]:data/System.json:0", index),
                 status: TranslationStatus::NotTranslated,
@@ -227,9 +239,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     // Extract variables
     for (index, variable_name) in system.variables.iter().enumerate() {
         if !variable_name.is_empty() && !is_technical_content(variable_name) {
+            let clean = replace_formatting_codes_for_translation(variable_name);
             text_units.push(TextUnit {
                 id: format!("system_variable_{}", index),
-                source_text: variable_name.clone(),
+                source_text: clean,
                 translated_text: String::new(),
                 field_type: format!("variables[{}]:data/System.json:0", index),
                 status: TranslationStatus::NotTranslated,
@@ -242,9 +255,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     for (index, basic_term) in system.terms.basic.iter().enumerate() {
         if let Some(term) = basic_term {
             if !term.is_empty() && !is_technical_content(term) {
+                let clean = replace_formatting_codes_for_translation(term);
                 text_units.push(TextUnit {
                     id: format!("system_basic_term_{}", index),
-                    source_text: term.clone(),
+                    source_text: clean,
                     translated_text: String::new(),
                     field_type: format!("terms.basic[{}]:data/System.json:0", index),
                     status: TranslationStatus::NotTranslated,
@@ -258,9 +272,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     for (index, command_term) in system.terms.commands.iter().enumerate() {
         if let Some(term) = command_term {
             if !term.is_empty() && !is_technical_content(term) {
+                let clean = replace_formatting_codes_for_translation(term);
                 text_units.push(TextUnit {
                     id: format!("system_command_term_{}", index),
-                    source_text: term.clone(),
+                    source_text: clean,
                     translated_text: String::new(),
                     field_type: format!("terms.commands[{}]:data/System.json:0", index),
                     status: TranslationStatus::NotTranslated,
@@ -274,9 +289,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     for (index, param_term) in system.terms.params.iter().enumerate() {
         if let Some(term) = param_term {
             if !term.is_empty() {
+                let clean = replace_formatting_codes_for_translation(term);
                 text_units.push(TextUnit {
                     id: format!("system_param_term_{}", index),
-                    source_text: term.clone(),
+                    source_text: clean,
                     translated_text: String::new(),
                     field_type: format!("terms.params[{}]:data/System.json:0", index),
                     status: TranslationStatus::NotTranslated,
@@ -289,9 +305,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     // Extract message terms
     for (key, message) in system.terms.messages.iter() {
         if !message.is_empty() {
+            let clean = replace_formatting_codes_for_translation(message);
             text_units.push(TextUnit {
                 id: format!("system_message_{}", key),
-                source_text: message.clone(),
+                source_text: clean,
                 translated_text: String::new(),
                 field_type: format!("terms.messages.{}:data/System.json:0", key),
                 status: TranslationStatus::NotTranslated,
@@ -355,14 +372,16 @@ pub fn inject_translations(
     // Update game title
     if let Some(unit) = text_units_map.get("system_game_title") {
         if !unit.translated_text.is_empty() {
-            system.game_title = unit.translated_text.clone();
+            let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+            system.game_title = restored;
         }
     }
 
     // Update currency unit
     if let Some(unit) = text_units_map.get("system_currency_unit") {
         if !unit.translated_text.is_empty() {
-            system.currency_unit = unit.translated_text.clone();
+            let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+            system.currency_unit = restored;
         }
     }
 
@@ -370,7 +389,8 @@ pub fn inject_translations(
     for (index, armor_type) in system.armor_types.iter_mut().enumerate() {
         if let Some(unit) = text_units_map.get(&format!("system_armor_type_{}", index)) {
             if !unit.translated_text.is_empty() {
-                *armor_type = unit.translated_text.clone();
+                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+                *armor_type = restored;
             }
         }
     }
@@ -379,7 +399,8 @@ pub fn inject_translations(
     for (index, element) in system.elements.iter_mut().enumerate() {
         if let Some(unit) = text_units_map.get(&format!("system_element_{}", index)) {
             if !unit.translated_text.is_empty() {
-                *element = unit.translated_text.clone();
+                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+                *element = restored;
             }
         }
     }
@@ -388,7 +409,8 @@ pub fn inject_translations(
     for (index, equip_type) in system.equip_types.iter_mut().enumerate() {
         if let Some(unit) = text_units_map.get(&format!("system_equip_type_{}", index)) {
             if !unit.translated_text.is_empty() {
-                *equip_type = unit.translated_text.clone();
+                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+                *equip_type = restored;
             }
         }
     }
@@ -397,7 +419,8 @@ pub fn inject_translations(
     for (index, skill_type) in system.skill_types.iter_mut().enumerate() {
         if let Some(unit) = text_units_map.get(&format!("system_skill_type_{}", index)) {
             if !unit.translated_text.is_empty() {
-                *skill_type = unit.translated_text.clone();
+                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+                *skill_type = restored;
             }
         }
     }
@@ -406,7 +429,8 @@ pub fn inject_translations(
     for (index, weapon_type) in system.weapon_types.iter_mut().enumerate() {
         if let Some(unit) = text_units_map.get(&format!("system_weapon_type_{}", index)) {
             if !unit.translated_text.is_empty() {
-                *weapon_type = unit.translated_text.clone();
+                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+                *weapon_type = restored;
             }
         }
     }
@@ -415,7 +439,8 @@ pub fn inject_translations(
     for (index, switch_name) in system.switches.iter_mut().enumerate() {
         if let Some(unit) = text_units_map.get(&format!("system_switch_{}", index)) {
             if !unit.translated_text.is_empty() {
-                *switch_name = unit.translated_text.clone();
+                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+                *switch_name = restored;
             }
         }
     }
@@ -424,7 +449,8 @@ pub fn inject_translations(
     for (index, variable_name) in system.variables.iter_mut().enumerate() {
         if let Some(unit) = text_units_map.get(&format!("system_variable_{}", index)) {
             if !unit.translated_text.is_empty() {
-                *variable_name = unit.translated_text.clone();
+                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+                *variable_name = restored;
             }
         }
     }
@@ -433,7 +459,8 @@ pub fn inject_translations(
     for (index, basic_term) in system.terms.basic.iter_mut().enumerate() {
         if let Some(unit) = text_units_map.get(&format!("system_basic_term_{}", index)) {
             if !unit.translated_text.is_empty() {
-                *basic_term = Some(unit.translated_text.clone());
+                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+                *basic_term = Some(restored);
             }
         }
     }
@@ -442,7 +469,8 @@ pub fn inject_translations(
     for (index, command_term) in system.terms.commands.iter_mut().enumerate() {
         if let Some(unit) = text_units_map.get(&format!("system_command_term_{}", index)) {
             if !unit.translated_text.is_empty() {
-                *command_term = Some(unit.translated_text.clone());
+                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+                *command_term = Some(restored);
             }
         }
     }
@@ -451,7 +479,8 @@ pub fn inject_translations(
     for (index, param_term) in system.terms.params.iter_mut().enumerate() {
         if let Some(unit) = text_units_map.get(&format!("system_param_term_{}", index)) {
             if !unit.translated_text.is_empty() {
-                *param_term = Some(unit.translated_text.clone());
+                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+                *param_term = Some(restored);
             }
         }
     }
@@ -460,7 +489,8 @@ pub fn inject_translations(
     for (key, message) in system.terms.messages.iter_mut() {
         if let Some(unit) = text_units_map.get(&format!("system_message_{}", key)) {
             if !unit.translated_text.is_empty() {
-                *message = unit.translated_text.clone();
+                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+                *message = restored;
             }
         }
     }

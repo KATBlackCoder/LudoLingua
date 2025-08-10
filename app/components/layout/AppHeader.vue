@@ -1,47 +1,17 @@
 <template>
-  <header class="border-b border-gray-200 dark:border-gray-800">
-    <UContainer class="py-4">
-      <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold">LudoLingua</h1>
+  <header class="border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur">
+    <UContainer class="py-3">
+      <div class="flex justify-between items-center gap-3">
+        <div class="flex items-center gap-2">
+          <UIcon name="i-heroicons-language" class="w-6 h-6" />
+          <h1 class="text-xl font-semibold">LudoLingua</h1>
+        </div>
         <nav>
           <UButtonGroup>
-            <UButton to="/" variant="ghost" :active="$route.path === '/'">
-              <template #leading>
-                <UIcon name="i-heroicons-home" />
-              </template>
-              Home
-            </UButton>
-
-            <UButton
-              to="/translation"
-              variant="ghost"
-              :active="$route.path === '/translation'"
-            >
-              <template #leading>
-                <UIcon name="i-heroicons-language" />
-              </template>
-              Translation
-            </UButton>
-            <UButton
-              to="/settings"
-              variant="ghost"
-              :active="$route.path === '/settings'"
-            >
-              <template #leading>
-                <UIcon name="i-heroicons-cog-6-tooth" />
-              </template>
-              Settings
-            </UButton>
-            <UButton
-              to="/about"
-              variant="ghost"
-              :active="$route.path === '/about'"
-            >
-              <template #leading>
-                <UIcon name="i-heroicons-information-circle" />
-              </template>
-              About
-            </UButton>
+            <UButton to="/" variant="ghost" :active="$route.path === '/'" icon="i-heroicons-home">Home</UButton>
+            <UButton to="/translation" variant="ghost" :active="$route.path === '/translation'" icon="i-heroicons-language">Translation</UButton>
+            <UButton to="/settings" variant="ghost" :active="$route.path === '/settings'" icon="i-heroicons-cog-6-tooth">Settings</UButton>
+            <UButton to="/about" variant="ghost" :active="$route.path === '/about'" icon="i-heroicons-information-circle">About</UButton>
           </UButtonGroup>
         </nav>
       </div>

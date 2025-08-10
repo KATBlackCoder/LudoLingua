@@ -26,7 +26,7 @@ Input: シコる
 Output: masturbate
 
 Input: H
-Output: sex
+Output: H
 
 Input: 物陰
 Output: hiding spot
@@ -72,6 +72,9 @@ Output: Energen G
 
 Input: ドチャシコＦ
 Output: Dochashiko F
+
+Input: 勇者
+Output: Hero
 
 ### Mechanics
 Input: HP

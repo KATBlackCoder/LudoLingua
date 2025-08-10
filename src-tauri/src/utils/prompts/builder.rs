@@ -1,6 +1,6 @@
 use log::error;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::core::error::{AppError, AppResult};
 use crate::models::engine::EngineInfo;
@@ -72,10 +72,11 @@ impl PromptBuilder {
         // Replace variables first
         let prompt_without_text = Self::replace_template_variables(&template, text_unit, engine_info);
 
-        // Append raw text at the very end to avoid any trailing sections overriding or splitting content
+        // Append raw text with explicit delimiters to prevent bleed
         let mut final_prompt = prompt_without_text;
-        final_prompt.push_str("\n\n");
+        final_prompt.push_str("\n\n<<<INPUT_START>>>\n");
         final_prompt.push_str(&text_unit.source_text);
+        final_prompt.push_str("\n<<<INPUT_END>>>\n");
         final_prompt
     }
 
@@ -141,7 +142,6 @@ impl PromptBuilder {
                 "{target_language}",
                 &engine_info.target_language.native_name,
             )
-            .replace("{context}", "RPG Maker game content")
     }
 
     /// Load a prompt template from the filesystem.
@@ -155,11 +155,14 @@ impl PromptBuilder {
     /// * `AppResult<String>` - The template content or an error
     #[cfg(debug_assertions)]
     fn load_prompt_template(template_path: &str) -> AppResult<String> {
-        let path = Path::new(template_path);
-        fs::read_to_string(path).map_err(|e| {
+        // Resolve relative template paths (e.g., "prompts/basic.txt") from the
+        // crate root to avoid dependency on the current working directory.
+        let base = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let full_path = base.join(template_path);
+        fs::read_to_string(&full_path).map_err(|e| {
             AppError::FileSystem(format!(
                 "Failed to read prompt template {}: {}",
-                template_path, e
+                full_path.display(), e
             ))
         })
     }
@@ -211,11 +214,10 @@ impl PromptBuilder {
             engine_info.source_language.native_name, engine_info.target_language.native_name
         ));
 
-        // Keep delimiters in fallback for safety
-        prompt.push_str(&format!(
-            "<<TEXT_START>>\n{}\n<<TEXT_END>>\n\n",
-            text_unit.source_text
-        ));
+        // Use explicit delimiters in fallback as well
+        prompt.push_str("<<<INPUT_START>>>\n");
+        prompt.push_str(&text_unit.source_text);
+        prompt.push_str("\n<<<INPUT_END>>>\n");
         prompt
     }
 }

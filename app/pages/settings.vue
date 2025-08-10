@@ -1,118 +1,69 @@
 <template>
   <div>
     <UContainer>
-      <div class="space-y-8">
-        <!-- Header -->
-        <div>
-          <h1 class="text-2xl font-bold">Settings</h1>
-          <p class="text-gray-600 dark:text-gray-400 mt-2">
-            Configure your translation preferences and provider settings
-          </p>
+      <div class="space-y-6 max-w-6xl mx-auto">
+        <!-- Page header -->
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold">Settings</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">Configure model, and language preferences.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <ConnectionTester />
+            <UButton variant="outline" size="sm" color="error" :loading="settingsStore.isLoading" @click="resetSettings">Reset</UButton>
+            <UButton size="sm" :loading="settingsStore.isLoading" @click="saveSettings">Save</UButton>
+          </div>
         </div>
 
-        <!-- Settings Form -->
-        <UCard>
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold">Translation Settings</h2>
-              <div class="flex gap-2">
-                <ConnectionTester />
-                <UButton
-                  variant="outline"
-                  size="sm"
-                  :loading="settingsStore.isLoading"
-                  @click="resetSettings"
-                >
-                  Reset to Defaults
-                </UButton>
-                <UButton
-                  :loading="settingsStore.isLoading"
-                  @click="saveSettings"
-                >
-                  Save Settings
-                </UButton>
-              </div>
+        <UAlert v-if="showSuccessMessage" color="success" variant="soft" icon="i-heroicons-check-circle" title="Settings saved" />
+
+        <!-- Content grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Model -->
+          <UCard>
+            <template #header>
+              <span class="font-medium">Model</span>
+            </template>
+            <div class="space-y-4">
+              <ModelSelector />
             </div>
-          </template>
+          </UCard>
 
-          <div class="space-y-6">
-            <!-- Model Settings Section (Ollama-only) -->
-            <div>
-              <h3 class="text-md font-medium mb-4">Model Configuration</h3>
-              <div class="space-y-4">
-                <div class="flex flex-wrap items-start gap-4">
-                  <ModelSelector />
-                </div>
-              </div>
+          <!-- Languages -->
+          <UCard>
+            <template #header>
+              <span class="font-medium">Languages</span>
+            </template>
+            <LanguageSelector />
+          </UCard>
+
+          <!-- Advanced (spans full on lg via col-span-2) -->
+          <UCard class="lg:col-span-2">
+            <template #header>
+              <span class="font-medium">Advanced</span>
+            </template>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <UFormField label="Base URL" name="base_url" description="Provider API endpoint">
+                <UInput v-model="advancedSettings.base_url" placeholder="http://localhost:11434" />
+              </UFormField>
+
+              <UFormField label="Temperature" name="temperature" description="0.0 – 1.0 (randomness)">
+                <UInput v-model.number="advancedSettings.temperature" type="number" min="0" max="1" step="0.1" />
+              </UFormField>
+
+              <UFormField label="Max Tokens" name="max_tokens" description="Response token cap">
+                <UInput v-model.number="advancedSettings.max_tokens" type="number" min="1" max="8192" />
+              </UFormField>
             </div>
-
-            <!-- Language Settings Section -->
-            <div>
-              <h3 class="text-md font-medium mb-4">Language Configuration</h3>
-              <LanguageSelector />
-            </div>
-
-            <!-- Advanced Settings Section -->
-            <div>
-              <h3 class="text-md font-medium mb-4">Advanced Settings</h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <UFormField
-                  label="Base URL"
-                  name="base_url"
-                  description="Provider API endpoint"
-                >
-                  <UInput
-                    v-model="advancedSettings.base_url"
-                    placeholder="http://localhost:11434"
-                  />
-                </UFormField>
-
-                <UFormField
-                  label="API Key"
-                  name="api_key"
-                  description="API key for the provider (optional for Ollama)"
-                >
-                  <UInput
-                    v-model="advancedSettings.api_key"
-                    type="password"
-                    placeholder="Enter API key"
-                  />
-                </UFormField>
-
-                <UFormField
-                  label="Temperature"
-                  name="temperature"
-                  description="Controls randomness in responses (0.0 to 1.0)"
-                >
-                  <UInput
-                    v-model.number="advancedSettings.temperature"
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                  />
-                </UFormField>
-
-                <UFormField
-                  label="Max Tokens"
-                  name="max_tokens"
-                  description="Maximum tokens in response"
-                >
-                  <UInput
-                    v-model.number="advancedSettings.max_tokens"
-                    type="number"
-                    min="1"
-                    max="8192"
-                  />
-                </UFormField>
-              </div>
-            </div>
-          </div>
-        </UCard>
+            <template #footer>
+              <div class="text-xs text-muted">Changes are saved locally using Tauri Store.</div>
+            </template>
+          </UCard>
+        </div>
       </div>
     </UContainer>
   </div>
-</template>
+ </template>
 
 <script setup lang="ts">
 import ConnectionTester from '~/components/settings/ConnectionTester.vue'

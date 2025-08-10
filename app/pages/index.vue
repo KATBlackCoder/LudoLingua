@@ -3,48 +3,49 @@
     <UContainer>
       <UCard class="max-w-4xl mx-auto">
         <template #header>
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between gap-2">
             <h2 class="text-xl font-semibold">Welcome to LudoLingua</h2>
-            <UButton
-              v-if="engineStore.hasProject"
-              label="Load New Project"
-              icon="i-heroicons-folder-open"
-              color="secondary"
-              size="sm"
-              :loading="engineStore.isLoading"
-              @click="loadNewProject"
-            />
           </div>
         </template>
-        
+
         <div class="space-y-6">
-          <p class="text-gray-600 dark:text-gray-400">
-            LudoLingua is a desktop application for translating RPG Maker game files.
-            It helps you manage and translate game text using AI assistance.
-          </p>
-          
-          <!-- Project Loading Section -->
+          <UAlert
+            v-if="!engineStore.hasProject"
+            title="No project loaded"
+            description="Select an RPG Maker project folder to begin."
+            icon="i-heroicons-information-circle"
+            color="neutral"
+            variant="soft"
+          />
+
           <div v-if="!engineStore.hasProject">
             <ProjectLoader />
           </div>
-          
-          <!-- Project Statistics Section -->
-          <ProjectStats v-if="engineStore.hasProject" />
-          
-          <!-- Translation workspace moved to /translation -->
-        </div>
-        
-        <template #footer>
-          <p v-if="!engineStore.hasProject" class="text-sm text-gray-500">
-            To get started, click the "Load Project" button to open an RPG Maker project.
-          </p>
-          <p v-else-if="engineStore.totalTextUnits === 0" class="text-sm text-gray-500">
-            No translatable text found in this project.
-          </p>
-          <div v-else class="text-sm text-gray-500 flex items-center gap-2">
-            <span>Use the Translation Workspace for bulk translate, inject, reset, and export.</span>
-            <UButton to="/translation" variant="soft" size="xs" icon="i-heroicons-language">Open Workspace</UButton>
+
+          <div v-else class="space-y-4">
+            <div class="flex flex-wrap items-center gap-2">
+              <UButton to="/translation" icon="i-heroicons-language">Open Workspace</UButton>
+              <UButton to="/settings" variant="outline" icon="i-heroicons-cog-6-tooth">Settings</UButton>
+              <UBadge color="neutral" variant="soft">{{ engineStore.totalTextUnits }} units • {{ engineStore.gameDataFiles.length }} files</UBadge>
+            </div>
+
+            <UCard>
+              <template #header>
+                <span class="font-medium">Getting Started</span>
+              </template>
+              <ol class="list-decimal pl-5 space-y-1 text-sm">
+                <li>Load your RPG Maker MV/MZ project</li>
+                <li>Configure model and languages in Settings</li>
+                <li>Use the Translation Workspace to translate and inject</li>
+              </ol>
+            </UCard>
           </div>
+        </div>
+
+        <template #footer>
+          <p class="text-sm text-gray-500">
+            Tip: You can change provider and languages anytime in Settings.
+          </p>
         </template>
       </UCard>
     </UContainer>
@@ -52,28 +53,8 @@
 </template>
 
 <script setup lang="ts">
-import { open } from '@tauri-apps/plugin-dialog';
 import { useEngineStore } from '../stores/engine';
 import ProjectLoader from '../components/editor/ProjectLoader.vue';
-import ProjectStats from '../components/editor/ProjectStats.vue';
 
 const engineStore = useEngineStore();
-
-async function loadNewProject() {
-  try {
-    // Open a folder selection dialog
-    const selected = await open({
-      directory: true,
-      multiple: false,
-      title: 'Select RPG Maker Project Folder'
-    });
-    
-    if (selected) {
-      // If the user selected a folder, load the new project
-      await engineStore.loadProject(selected as string);
-    }
-  } catch (error) {
-    console.error('Error opening project:', error);
-  }
-}
 </script> 

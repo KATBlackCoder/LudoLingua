@@ -1,11 +1,10 @@
 <template>
-  <div class="space-y-3">
-    <div class="flex items-center justify-between">
-      <h3 class="text-base font-semibold">Translation Progress</h3>
-      <span class="text-sm text-gray-600 dark:text-gray-400">{{ translationProgress }} / {{ translationTotal }}</span>
+  <div class="space-y-4">
+    <div class="flex items-center justify-between gap-3">
+      <h3 class="text-lg font-semibold">Translation Progress</h3>
     </div>
-    <UProgress :value="percentage" :max="100" />
-    <UTable :data="viewRows">
+    <UProgress :value="percentage" :max="100" class="h-2.5" />
+    <UTable :data="pagedRows" class="text-base">
       <template #status-data="{ row }">
         <UBadge :color="statusColor(row.original.status)">{{ row.original.status }}</UBadge>
       </template>
@@ -19,11 +18,15 @@
     <div v-if="errors?.length" class="text-sm text-red-600 dark:text-red-400">
       {{ errors.length }} error(s). Check console for details.
     </div>
+    <div class="flex items-center justify-between">
+      <span class="text-xs text-muted">Page {{ page }} / {{ pageCount }}</span>
+      <UPagination v-model:page="page" :total="viewRows.length" :items-per-page="pageSize" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useTranslation } from '~/composables/useTranslation'
 type ProcessRow = { id: string; source_text: string; target_text: string; status: 'pending' | 'processing' | 'done' | 'error' }
 
@@ -41,6 +44,14 @@ const viewRows = computed(() => props.rows.map(r => ({
   source_text: r.source_text,
   target_text: r.target_text
 })))
+
+const page = ref(1)
+const pageSize = ref(25)
+const pageCount = computed(() => Math.max(1, Math.ceil(viewRows.value.length / pageSize.value)))
+const pagedRows = computed(() => {
+  const start = (page.value - 1) * pageSize.value
+  return viewRows.value.slice(start, start + pageSize.value)
+})
 
 function statusColor(status: ProcessRow['status']) {
   switch (status) {
