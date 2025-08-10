@@ -3,7 +3,7 @@
     v-model:open="open_"
     :title="heading"
     :dismissible="false"
-    :ui="{ content: 'max-w-xl' }"
+    :ui="{ content: 'max-w-5xl' }"
   >
     <template #header>
       <div class="flex items-center justify-between gap-3 w-full">
@@ -11,21 +11,30 @@
           <h3 class="text-base font-semibold truncate">{{ heading }}</h3>
           <p class="text-xs text-muted truncate">Add or edit a glossary mapping</p>
         </div>
-        <UBadge variant="soft">{{ local.category }}</UBadge>
+        <div class="flex items-center gap-2">
+          <UBadge variant="soft">{{ local.category }}</UBadge>
+          <UBadge variant="soft">{{ local.source_lang }} → {{ local.target_lang }}</UBadge>
+        </div>
       </div>
     </template>
 
     <template #body>
       <div class="space-y-4">
         <div class="grid gap-4 sm:grid-cols-2">
-          <UCard>
+          <UCard class="overflow-hidden">
             <template #header>
               <div class="flex items-center justify-between">
                 <span class="font-medium">Source</span>
+                <div class="text-xs text-muted">{{ inputCharCount }} chars</div>
               </div>
             </template>
             <UFormField label="Input term">
-              <UInput v-model="local.input" placeholder="源語 / Input term" />
+              <UInput
+                v-model="local.input"
+                placeholder="源語 / Input term"
+                @keydown.ctrl.enter.prevent="onSave"
+                @keydown.meta.enter.prevent="onSave"
+              />
             </UFormField>
           </UCard>
 
@@ -33,11 +42,23 @@
             <template #header>
               <div class="flex items-center justify-between">
                 <span class="font-medium">Target</span>
+                <div class="text-xs text-muted">{{ outputCharCount }} chars</div>
               </div>
             </template>
             <UFormField label="Translated term">
-              <UInput v-model="local.output" placeholder="Translated term" />
+              <UInput
+                v-model="local.output"
+                placeholder="Translated term"
+                @keydown.ctrl.enter.prevent="onSave"
+                @keydown.meta.enter.prevent="onSave"
+              />
             </UFormField>
+            <template #footer>
+              <div class="flex items-center gap-2">
+                <UButton size="xs" color="neutral" variant="subtle" icon="i-heroicons-document-duplicate" @click="copyFromInput">Copy input</UButton>
+                <UButton size="xs" color="neutral" variant="subtle" icon="i-heroicons-backspace" @click="clearOutput">Clear</UButton>
+              </div>
+            </template>
           </UCard>
         </div>
 
@@ -58,12 +79,20 @@
             <USelect v-model="local.target_lang" :items="languageItems" placeholder="Select target language" />
           </UFormField>
         </div>
+
+        <div class="flex justify-end">
+          <UFormField label="Direction">
+            <UButtonGroup>
+              <UButton size="xs" icon="i-heroicons-arrows-right-left" variant="soft" @click="swapLangs">Swap</UButton>
+            </UButtonGroup>
+          </UFormField>
+        </div>
       </div>
     </template>
 
     <template #footer>
       <div class="flex items-center justify-between w-full gap-3">
-        <div class="text-xs text-muted">Only Input and Output are required</div>
+        <div class="text-xs text-muted">Ctrl/Cmd + Enter to save — Only Input and Output are required</div>
         <div class="flex gap-2">
           <UButton color="neutral" variant="soft" @click="emit('update:open', false)">Cancel</UButton>
           <UButton color="primary" :disabled="!canSave" @click="onSave">Save</UButton>
@@ -107,9 +136,27 @@ watchEffect(() => {
 
 const canSave = computed(() => local.input.trim().length > 0 && local.output.trim().length > 0)
 
+const inputCharCount = computed(() => local.input.length)
+const outputCharCount = computed(() => local.output.length)
+
 function onSave() {
   emit('save', { ...local })
   emit('update:open', false)
+}
+
+function copyFromInput() {
+  local.output = local.input
+}
+
+function clearOutput() {
+  local.output = ''
+}
+
+function swapLangs() {
+  const src = local.source_lang
+  const tgt = local.target_lang
+  local.source_lang = tgt
+  local.target_lang = src
 }
 
 // Select items
