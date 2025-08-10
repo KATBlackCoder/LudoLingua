@@ -1,6 +1,6 @@
 use log::{debug, error};
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use crate::core::error::{AppError, AppResult};
 use crate::models::engine::EngineInfo;
@@ -205,7 +205,7 @@ impl PromptBuilder {
     /// * `String` - The template with all variables replaced
     fn replace_template_variables(
         template: &str,
-        text_unit: &TextUnit,
+        _text_unit: &TextUnit,
         engine_info: &EngineInfo,
     ) -> String {
         template

@@ -11,6 +11,7 @@
           <h3 class="text-base font-semibold truncate">{{ heading }}</h3>
           <p class="text-xs text-muted truncate">Add or edit a glossary mapping</p>
         </div>
+        <UBadge variant="soft">{{ local.category }}</UBadge>
       </div>
     </template>
 
@@ -23,7 +24,7 @@
                 <span class="font-medium">Source</span>
               </div>
             </template>
-            <UFormField>
+            <UFormField label="Input term">
               <UInput v-model="local.input" placeholder="源語 / Input term" />
             </UFormField>
           </UCard>
@@ -34,7 +35,7 @@
                 <span class="font-medium">Target</span>
               </div>
             </template>
-            <UFormField>
+            <UFormField label="Translated term">
               <UInput v-model="local.output" placeholder="Translated term" />
             </UFormField>
           </UCard>
