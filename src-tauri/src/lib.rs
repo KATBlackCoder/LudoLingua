@@ -8,6 +8,7 @@
 mod commands;
 mod core;
 mod engines;
+mod glossaries;
 mod llm;
 mod models;
 mod utils;
@@ -16,6 +17,7 @@ mod utils;
 pub fn run() {
     tauri::Builder::default()
         .manage(crate::llm::state::LlmState::new(1))
+        .manage(crate::glossaries::GlossaryState::new())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::new().build())
@@ -29,7 +31,10 @@ pub fn run() {
             commands::handler::translate_text_unit,
             commands::handler::test_llm_connection,
             commands::handler::get_ollama_models,
-            commands::handler::get_languages
+            commands::handler::get_languages,
+            commands::handler::glossary_list_terms,
+            commands::handler::glossary_upsert_term,
+            commands::handler::glossary_delete_term
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

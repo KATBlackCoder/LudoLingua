@@ -10,6 +10,9 @@ use crate::commands::engine;
 use crate::commands::provider;
 use crate::commands::languages;
 use crate::commands::translation;
+use crate::commands::glossary as glossary_cmd;
+use crate::glossaries::{GlossaryQuery, GlossaryState};
+use crate::glossaries::model::GlossaryTerm;
 use crate::llm::state::LlmState;
 use tauri::State;
 use crate::models::engine::{EngineInfo, GameDataFile};
@@ -60,12 +63,13 @@ pub async fn inject_text_units(
 #[tauri::command]
 pub async fn translate_text_unit(
     state: State<'_, LlmState>,
+    glossary: State<'_, GlossaryState>,
     text_unit: TextUnit,
     config: LlmConfig,
     engine_info: EngineInfo,
 ) -> Result<TextUnit, String> {
     debug!("Command: translate_text_unit - {}", text_unit.id);
-    translation::translate_text_unit(state, text_unit, config, engine_info)
+    translation::translate_text_unit(state, glossary, text_unit, config, engine_info)
         .await
         .map_err(|e| e.to_string())
 }
@@ -88,4 +92,34 @@ pub async fn get_ollama_models() -> Result<Vec<ModelInfo>, String> {
 pub fn get_languages() -> Result<Vec<Language>, String> {
     debug!("Command: get_languages");
     languages::get_languages()
+}
+
+/// Glossary: list terms
+#[tauri::command]
+pub async fn glossary_list_terms(
+    glossary: State<'_, GlossaryState>,
+    q: GlossaryQuery,
+) -> Result<Vec<GlossaryTerm>, String> {
+    debug!("Command: glossary_list_terms");
+    glossary_cmd::list_terms(&glossary, q).await.map_err(|e| e.to_string())
+}
+
+/// Glossary: upsert term
+#[tauri::command]
+pub async fn glossary_upsert_term(
+    glossary: State<'_, GlossaryState>,
+    term: GlossaryTerm,
+) -> Result<i64, String> {
+    debug!("Command: glossary_upsert_term");
+    glossary_cmd::upsert_term(&glossary, term).await.map_err(|e| e.to_string())
+}
+
+/// Glossary: delete term
+#[tauri::command]
+pub async fn glossary_delete_term(
+    glossary: State<'_, GlossaryState>,
+    id: i64,
+) -> Result<(), String> {
+    debug!("Command: glossary_delete_term");
+    glossary_cmd::delete_term(&glossary, id).await.map_err(|e| e.to_string())
 }

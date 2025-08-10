@@ -129,7 +129,7 @@ impl RpgMakerMvEngine {
         )?;
         game_data_files.extend(actors_files);
 
-        // Extract text from Items.json
+        /*// Extract text from Items.json
         let items_paths = ["www/data/Items.json"];
         let items_files = common::extract_file_type_text(
             project_info,
@@ -251,7 +251,7 @@ impl RpgMakerMvEngine {
                     // Continue with other map files
                 }
             }
-        }
+        }*/
 
         // info!(
         //     "Extracted {} game data files from RPG Maker MV project",

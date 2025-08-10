@@ -1,4 +1,4 @@
-use log::error;
+use log::{debug, error};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -13,6 +13,69 @@ use crate::models::translation::{PromptType, TextUnit};
 pub struct PromptBuilder;
 
 impl PromptBuilder {
+    /// Render glossary terms (DB) as a block compatible with `vocabularies.txt` sections.
+    pub fn render_glossary_terms(terms: &[crate::glossaries::model::GlossaryTerm]) -> String {
+        use std::collections::BTreeMap;
+        if terms.is_empty() { return String::new(); }
+        let mut by_cat: BTreeMap<&str, Vec<&crate::glossaries::model::GlossaryTerm>> = BTreeMap::new();
+        for t in terms {
+            by_cat.entry(&t.category).or_default().push(t);
+        }
+        let mut s = String::new();
+        for (cat, group) in by_cat {
+            s.push_str(&format!("### {}\n", cat));
+            for t in group {
+                s.push_str("Input: "); s.push_str(&t.input); s.push('\n');
+                s.push_str("Output: "); s.push_str(&t.output); s.push('\n');
+                s.push('\n');
+            }
+        }
+        s
+    }
+
+    /// Build a translation prompt using a provided set of glossary terms.
+    pub async fn build_translation_prompt_with_terms(
+        text_unit: &TextUnit,
+        engine_info: &EngineInfo,
+        terms: &[crate::glossaries::model::GlossaryTerm],
+    ) -> String {
+        debug!(
+            "PromptBuilder: using DB glossary terms ({} terms) for prompt_type {:?}",
+            terms.len(),
+            text_unit.prompt_type
+        );
+        let basic_template = match Self::load_prompt_template("prompts/basic.txt") {
+            Ok(template) => template,
+            Err(_e) => return Self::build_fallback_prompt(text_unit, engine_info),
+        };
+
+        // DB-only mode: use DB-rendered terms only (skip file vocabulary)
+        let db_vocab_src = Self::render_glossary_terms(terms);
+        let db_len = db_vocab_src.len();
+        let vocabulary_template = Self::filter_vocabulary_sections(&db_vocab_src, text_unit.prompt_type);
+        debug!(
+            "PromptBuilder: DB-only vocabulary length: db={} bytes, filtered={} bytes",
+            db_len,
+            vocabulary_template.len()
+        );
+
+        // Specific template
+        let specific_template = text_unit.prompt_type.template_path();
+        let specific_content = Self::load_prompt_template(specific_template).unwrap_or_default();
+
+        // Compose
+        let mut template = basic_template;
+        template.push_str("\n\n");
+        template.push_str(&vocabulary_template);
+        template.push_str("\n\n");
+        template.push_str(&specific_content);
+
+        let mut final_prompt = Self::replace_template_variables(&template, text_unit, engine_info);
+        final_prompt.push_str("\n\n<<<INPUT_START>>>\n");
+        final_prompt.push_str(&text_unit.source_text);
+        final_prompt.push_str("\n<<<INPUT_END>>>\n");
+        final_prompt
+    }
     /// Build a translation prompt based on the text unit and engine info.
     ///
     /// This function creates a comprehensive prompt by combining basic, vocabulary, and specific templates,
@@ -30,6 +93,10 @@ impl PromptBuilder {
         text_unit: &TextUnit,
         engine_info: &EngineInfo,
     ) -> String {
+        debug!(
+            "PromptBuilder: no DB glossary provided; using file vocabulary only for prompt_type {:?}",
+            text_unit.prompt_type
+        );
         // Load basic template
         let basic_template = match Self::load_prompt_template("prompts/basic.txt") {
             Ok(template) => template,
@@ -83,7 +150,15 @@ impl PromptBuilder {
     /// Filter the shared vocabulary to only include sections relevant to the prompt type.
     fn filter_vocabulary_sections(vocab: &str, prompt_type: PromptType) -> String {
         let wanted_sections: &[&str] = match prompt_type {
-            PromptType::Dialogue | PromptType::Character => &[
+            PromptType::Dialogue => &[
+                "### Characters",
+                "### Essential Terms",
+                "### Translation Rules",
+                "### Locations",
+                "### Time & Weather",
+                "### Mechanics",
+            ],
+            PromptType::Character => &[
                 "### Characters",
                 "### Essential Terms",
             ],
