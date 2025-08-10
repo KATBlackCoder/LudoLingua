@@ -1,37 +1,30 @@
-# TODO — Critical issues to fix first
+# TODO — Concurrency & Throughput
 
-1) Translate store: fix invoke payloads
-   - File: `app/stores/translate.ts`
-   - Change:
-     - `config: providerStore.currentProviderConfig.value`
-     - `engineInfo: engineStore.projectInfo.value`
-     - Guard `engineStore.projectInfo?.value` before invoking
-
-2) Add text processing to translation command
-   - File: `src-tauri/src/commands/translation.rs`
-   - Import from `crate::utils::text_processing`:
-     - `replace_formatting_codes_for_translation`
-     - `restore_formatting_codes_after_translation`
-     - `is_technical_content`
-   - Flow:
-     - If `is_technical_content(source)` → return original unit (or mark Skipped)
-     - Else pre-process → build prompt → LLM → post-process → set `translated_text`
-
-3) Configurable LLM concurrency
+1) Backend: make concurrency configurable
    - File: `src-tauri/src/lib.rs`
-   - Read `LLM_CONCURRENCY` env var, default 1, pass to `LlmState::new(...)`
+   - Change: read `LLM_CONCURRENCY` (usize) from env and pass to `LlmState::new(...)`, default 1.
 
-4) Dynamic model discovery
-   - Files:
-     - `src-tauri/src/llm/services/ollama.rs` → add `list_local_models()`
-     - `src-tauri/src/commands/provider.rs` → try dynamic, fallback to JSON
+2) Backend: do not hold mutex across await
+   - Files: `src-tauri/src/llm/state.rs`, `src-tauri/src/commands/translation.rs`
+   - Change: store `Arc<OllamaService>` (e.g., inside `Mutex<Option<Arc<_>>>`). In `translate_with_retry`, clone the `Arc` while locked, drop the lock, then `await svc.generate(...)` so multiple requests can progress concurrently.
 
-5) Pre-flight provider connectivity in UI
+3) Backend: honor generation options
+   - File: `src-tauri/src/llm/services/ollama.rs`
+   - Change: apply `temperature` and `max_tokens` from `LlmConfig` to `GenerationRequest` options (adapt to the exact API of `ollama-rs`).
+
+4) Frontend: parallelize batch with small pool
    - File: `app/stores/translate.ts`
-   - Call `await providerStore.ensureConnected()` before translation
+   - Change: replace sequential for-loop with a worker-pool (e.g., concurrency = 2 or from settings). Ensure progress, error capture, and cancel still work.
 
-6) Optional: unifying language/provider settings
-   - Files: `app/stores/language.ts`, `app/stores/settings.ts`
-   - Make `settings.ts` source-of-truth; `language.ts` derives/reflects
+5) Frontend: pre-flight connectivity
+   - File: `app/stores/translate.ts`
+   - Change: call `await providerStore.ensureConnected()` before starting/each unit and surface a clear error/toast.
+
+6) Optional: dynamic model discovery
+   - Files: `src-tauri/src/llm/services/ollama.rs`, `src-tauri/src/commands/provider.rs`
+   - Change: query `list_local_models()` first; fallback to JSON. Map to `ModelInfo`.
+
+7) Benchmarks & defaults
+   - Decide defaults: `LLM_CONCURRENCY`=2 or 3; UI batch concurrency=2. Document in README.
 
 

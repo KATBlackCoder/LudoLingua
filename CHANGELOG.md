@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Backend/Text Processing: Preserve significant whitespace via placeholders in translation flow
+  - Encode full-width spaces into `[FWSPC_n]`, ASCII space runs (leading/trailing or len≥2) into `[SPC_n]`, and tabs into `[TAB_n]`
+  - Decode placeholders on injection to restore exact spacing
+  - Integrated into `replace_formatting_codes_for_translation` and `restore_formatting_codes_after_translation`
 - Developer documentation: Added concise Rustdoc to core backend modules and TSDoc to main frontend stores
   to clarify responsibilities and data flow without changing behavior.
 ### Changed

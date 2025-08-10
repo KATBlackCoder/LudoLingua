@@ -71,6 +71,9 @@ pub fn replace_formatting_codes_for_translation(text: &str) -> String {
     let conditional_regex = Regex::new(r"en\(v\[(\d+)\]>(\d+)\)").unwrap();
     result = conditional_regex.replace_all(&result, "[CONDITIONAL_v$1>$2]").to_string();
     
+    // Encode significant whitespace so the LLM cannot collapse or trim it
+    result = encode_whitespace_placeholders(&result);
+
     result
 }
 
@@ -127,6 +130,9 @@ pub fn restore_formatting_codes_after_translation(text: &str) -> String {
     let conditional_regex = Regex::new(r"\[CONDITIONAL_v(\d+)>(\d+)\]").unwrap();
     result = conditional_regex.replace_all(&result, "en(v[$1]>$2)").to_string();
     
+    // Decode previously encoded whitespace placeholders back to actual spaces
+    result = decode_whitespace_placeholders(&result);
+
     result
 }
 
@@ -244,3 +250,96 @@ pub fn is_technical_content(content: &str) -> bool {
     
     false
 } 
+
+/// Encode significant whitespace (leading/trailing, runs of ASCII spaces, full-width spaces, tabs)
+/// into bracketed placeholders to preserve them through translation.
+///
+/// Rules:
+/// - Full-width spaces (U+3000 '　') are always encoded as [FWSPC_n]
+/// - Leading/trailing ASCII spaces are encoded as [SPC_n]
+/// - Interior runs of ASCII spaces of length >= 2 are encoded as [SPC_n]
+/// - Tabs runs are encoded as [TAB_n]
+fn encode_whitespace_placeholders(input: &str) -> String {
+    let mut result = input.to_string();
+
+    // Encode any run of full-width spaces anywhere
+    let fw_space_regex = Regex::new(r"(　+)").unwrap();
+    result = fw_space_regex
+        .replace_all(&result, |caps: &Captures| {
+            let count = caps[1].chars().count();
+            format!("[FWSPC_{}]", count)
+        })
+        .to_string();
+
+    // Encode leading ASCII spaces (one or more)
+    let leading_spaces = Regex::new(r"^( +)").unwrap();
+    result = leading_spaces
+        .replace(&result, |caps: &Captures| {
+            let count = caps[1].len();
+            format!("[SPC_{}]", count)
+        })
+        .to_string();
+
+    // Encode trailing ASCII spaces (one or more)
+    let trailing_spaces = Regex::new(r"( +)$").unwrap();
+    result = trailing_spaces
+        .replace(&result, |caps: &Captures| {
+            let count = caps[1].len();
+            format!("[SPC_{}]", count)
+        })
+        .to_string();
+
+    // Encode interior runs of ASCII spaces (length >= 2)
+    let multi_spaces = Regex::new(r"( {2,})").unwrap();
+    result = multi_spaces
+        .replace_all(&result, |caps: &Captures| {
+            let count = caps[1].len();
+            format!("[SPC_{}]", count)
+        })
+        .to_string();
+
+    // Encode tabs
+    let tabs = Regex::new(r"(\t+)").unwrap();
+    result = tabs
+        .replace_all(&result, |caps: &Captures| {
+            let count = caps[1].len();
+            format!("[TAB_{}]", count)
+        })
+        .to_string();
+
+    result
+}
+
+/// Decode whitespace placeholders back to their original characters
+fn decode_whitespace_placeholders(input: &str) -> String {
+    let mut result = input.to_string();
+
+    // Decode full-width spaces
+    let fw_space_regex = Regex::new(r"\[FWSPC_(\d+)\]").unwrap();
+    result = fw_space_regex
+        .replace_all(&result, |caps: &Captures| {
+            let count: usize = caps[1].parse().unwrap_or(0);
+            "　".repeat(count)
+        })
+        .to_string();
+
+    // Decode ASCII spaces
+    let spc_regex = Regex::new(r"\[SPC_(\d+)\]").unwrap();
+    result = spc_regex
+        .replace_all(&result, |caps: &Captures| {
+            let count: usize = caps[1].parse().unwrap_or(0);
+            " ".repeat(count)
+        })
+        .to_string();
+
+    // Decode tabs
+    let tab_regex = Regex::new(r"\[TAB_(\d+)\]").unwrap();
+    result = tab_regex
+        .replace_all(&result, |caps: &Captures| {
+            let count: usize = caps[1].parse().unwrap_or(0);
+            "\t".repeat(count)
+        })
+        .to_string();
+
+    result
+}

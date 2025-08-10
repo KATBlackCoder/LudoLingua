@@ -4,6 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 import type { TextUnit } from '../types/translation';
 import { useProviderStore } from './provider';
 import { useEngineStore } from './engine';
+import { useAppToast } from '~/composables/useAppToast';
 
 /**
  * Translate store
