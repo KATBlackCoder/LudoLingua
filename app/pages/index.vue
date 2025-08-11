@@ -24,6 +24,7 @@
 
           <div v-else class="space-y-4">
             <div class="flex flex-wrap items-center gap-2">
+              <UButton v-if="engineStore.hasProject" variant="outline" color="neutral" icon="i-heroicons-folder-open" @click="pickProject">Change Project</UButton>
               <UButton to="/translation" icon="i-heroicons-language">Open Workspace</UButton>
               <UButton to="/settings" variant="outline" icon="i-heroicons-cog-6-tooth">Settings</UButton>
               <UBadge color="neutral" variant="soft">{{ engineStore.totalTextUnits }} units • {{ engineStore.gameDataFiles.length }} files</UBadge>
@@ -55,6 +56,14 @@
 <script setup lang="ts">
 import { useEngineStore } from '../stores/engine';
 import ProjectLoader from '../components/editor/ProjectLoader.vue';
+import { open } from '@tauri-apps/plugin-dialog'
 
 const engineStore = useEngineStore();
+
+async function pickProject() {
+  const selected = await open({ directory: true, multiple: false, title: 'Select RPG Maker Project Folder' })
+  if (selected) {
+    await engineStore.loadProject(selected as string)
+  }
+}
 </script> 

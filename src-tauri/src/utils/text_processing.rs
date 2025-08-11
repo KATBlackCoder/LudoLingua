@@ -162,6 +162,13 @@ fn contains_japanese_punctuation(content: &str) -> bool {
 /// * `bool` - True if the content is technical and should be skipped
 pub fn is_technical_content(content: &str) -> bool {
     let content = content.trim();
+    // Detect if the content visually looks like CJK (Han, Kana, Hangul) or uses JP punctuation
+    let looks_cjk = content.chars().any(|c|
+        (c >= '\u{4E00}' && c <= '\u{9FFF}') || // CJK Unified Ideographs
+        (c >= '\u{3040}' && c <= '\u{309F}') || // Hiragana
+        (c >= '\u{30A0}' && c <= '\u{30FF}') || // Katakana
+        (c >= '\u{AC00}' && c <= '\u{D7AF}')    // Hangul Syllables
+    ) || contains_japanese_punctuation(content);
     
     // Skip empty or whitespace-only content
     if content.is_empty() {
@@ -205,13 +212,13 @@ pub fn is_technical_content(content: &str) -> bool {
         return true;
     }
     
-    // Skip sound effect names (usually English words)
-    if content.chars().all(|c| c.is_ascii_alphabetic()) && content.len() <= 20 {
+    // Skip sound effect-like short ASCII words only when embedded in CJK-looking content
+    if looks_cjk && content.chars().all(|c| c.is_ascii_alphabetic()) && content.len() <= 20 {
         return true;
     }
     
-    // Skip pure ASCII/Latin text (including full-width)
-    if content.chars().all(is_ascii_or_fullwidth_latin) {
+    // Skip pure ASCII/Latin text only when content overall looks CJK
+    if looks_cjk && content.chars().all(is_ascii_or_fullwidth_latin) {
         return true;
     }
     
@@ -227,9 +234,9 @@ pub fn is_technical_content(content: &str) -> bool {
         return true;
     }
     
-    // Skip very short content that's likely technical
+    // Skip very short content only in CJK-looking context
     // But allow Japanese/Chinese characters even if short
-    if content.len() <= 3 {
+    if looks_cjk && content.len() <= 3 {
         // If it contains non-ASCII characters or Japanese punctuation, it might be translatable
         if content.chars().any(|c| c.is_alphabetic() && !c.is_ascii()) ||
            contains_japanese_punctuation(content) {

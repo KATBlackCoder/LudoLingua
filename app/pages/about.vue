@@ -41,6 +41,68 @@
               <UBadge color="primary">Tailwind CSS</UBadge>
             </div>
           </section>
+
+          <USeparator />
+
+          <section>
+            <h3 class="text-lg font-medium mb-2">Glossary and Prompt Types</h3>
+            <p class="text-sm text-muted mb-3">
+              Glossary terms are stored in the database and injected into the LLM prompt based on the text unit's PromptType. If DB terms exist, they are used (DB-only) for the vocabulary block; otherwise we fall back to the file <code>prompts/vocabularies.txt</code>. For <strong>Character</strong> names, an exact source match in the glossary bypasses the LLM.
+            </p>
+
+            <div class="space-y-2 text-sm">
+              <div>
+                <span class="font-medium">Dialogue</span>
+                <span class="mx-2">→</span>
+                <UBadge variant="soft" class="mr-1">Characters</UBadge>
+                <UBadge variant="soft" class="mr-1">Essential Terms</UBadge>
+                <UBadge variant="soft" class="mr-1">Translation Rules</UBadge>
+                <UBadge variant="soft" class="mr-1">Locations</UBadge>
+                <UBadge variant="soft" class="mr-1">Time & Weather</UBadge>
+                <UBadge variant="soft" class="mr-1">Mechanics</UBadge>
+              </div>
+              <div>
+                <span class="font-medium">Character</span>
+                <span class="mx-2">→</span>
+                <UBadge variant="soft" class="mr-1">Characters</UBadge>
+                <UBadge variant="soft" class="mr-1">Essential Terms</UBadge>
+              </div>
+              <div>
+                <span class="font-medium">State / Skill</span>
+                <span class="mx-2">→</span>
+                <UBadge variant="soft" class="mr-1">Status Effects</UBadge>
+                <UBadge variant="soft" class="mr-1">Mechanics</UBadge>
+                <UBadge variant="soft" class="mr-1">Essential Terms</UBadge>
+              </div>
+              <div>
+                <span class="font-medium">Equipment</span>
+                <span class="mx-2">→</span>
+                <UBadge variant="soft" class="mr-1">Mechanics</UBadge>
+                <UBadge variant="soft" class="mr-1">Essential Terms</UBadge>
+              </div>
+              <div>
+                <span class="font-medium">System / Class / Other</span>
+                <span class="mx-2">→</span>
+                <UBadge variant="soft" class="mr-1">Mechanics</UBadge>
+                <UBadge variant="soft" class="mr-1">Essential Terms</UBadge>
+              </div>
+            </div>
+
+            <div class="mt-3 text-sm space-y-2">
+              <p>
+                Add terms under the right <em>Category</em> in the Glossary. Each item renders into the prompt as:
+              </p>
+              <pre class="bg-gray-100 dark:bg-gray-800 p-3 rounded text-xs overflow-auto"><code>### Category
+Input: 源語 / Source term
+Output: 翻訳 / Target term
+</code></pre>
+              <ul class="list-disc pl-5 space-y-1">
+                <li><strong>Languages</strong>: Terms apply only when <code>source_lang</code> and <code>target_lang</code> match the current project.</li>
+                <li><strong>Enabled</strong>: Toggle to include/exclude individual terms quickly.</li>
+                <li><strong>Exact match (Character)</strong>: Exact source equals glossary input → we use the glossary output directly.</li>
+              </ul>
+            </div>
+          </section>
         </div>
 
         <template #footer>

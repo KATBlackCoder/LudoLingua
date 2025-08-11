@@ -26,6 +26,7 @@ const { isBusy } = useTranslation()
 type Row = { id: string; source_text: string; translated_text: string }
 const rows = computed<Row[]>(() => props.items.map(u => ({
   id: u.id,
+  prompt_type: u.prompt_type,
   source_text: u.source_text,
   translated_text: u.translated_text ?? ''
 })))
@@ -39,6 +40,7 @@ const pagedRows = computed(() => {
 })
 
 const columns: TableColumn<Row>[] = [
+  { accessorKey: 'prompt_type', header: 'Type', enableSorting: true },
   { accessorKey: 'source_text', header: 'Source', enableSorting: false },
   { accessorKey: 'translated_text', header: 'Translated', enableSorting: false },
   {
