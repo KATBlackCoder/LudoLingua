@@ -21,9 +21,9 @@ import type { TableColumn } from '#ui/types'
 
 const props = defineProps<{ items: TextUnit[] }>()
 const emit = defineEmits<{ (e: 'save', payload: { id: string; translated_text: string }): void }>()
-const { isBusy } = useTranslation()
+const { isBusy, retranslate } = useTranslation()
 
-type Row = { id: string; source_text: string; translated_text: string }
+type Row = { id: string; source_text: string; translated_text: string; prompt_type: string }
 const rows = computed<Row[]>(() => props.items.map(u => ({
   id: u.id,
   prompt_type: u.prompt_type,
@@ -49,13 +49,23 @@ const columns: TableColumn<Row>[] = [
     enableSorting: false,
     cell: ({ row }) => {
       const UButton = resolveComponent('UButton') as Component
-      return h(UButton, {
-        size: 'xs',
-        color: 'neutral',
-        icon: 'i-heroicons-pencil',
-        disabled: isBusy.value || editorOpen.value,
-        onClick: () => openEditor(row.original.id)
-      }, { default: () => 'Edit' })
+      return h('div', { class: 'flex gap-2' }, [
+        h(UButton, {
+          size: 'xs',
+          color: 'primary',
+          variant: 'soft',
+          icon: 'i-heroicons-arrow-path',
+          disabled: isBusy.value,
+          onClick: async () => { await onRetranslate(row.original.id) }
+        }, { default: () => 'Re-translate' }),
+        h(UButton, {
+          size: 'xs',
+          color: 'neutral',
+          icon: 'i-heroicons-pencil',
+          disabled: isBusy.value || editorOpen.value,
+          onClick: () => openEditor(row.original.id)
+        }, { default: () => 'Edit' })
+      ])
     }
   }
 ]
@@ -72,6 +82,10 @@ const openEditor = (id: string) => {
 function onSave(payload: { id: string; translated_text: string }) {
   emit('save', payload)
   editorOpen.value = false
+}
+
+async function onRetranslate(id: string) {
+  await retranslate(id)
 }
 </script>
 

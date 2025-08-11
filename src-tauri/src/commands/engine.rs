@@ -1,11 +1,13 @@
 use log::{error, info};
 use std::path::Path;
 
-use crate::engines::factory::get_engine;
+use crate::engines::factory::{export_translated_subset_via_factory, get_engine};
 use crate::engines::rpg_maker_mv::engine::RpgMakerMvEngine;
 use crate::models::engine::{EngineInfo, GameDataFile};
 use crate::models::language::Language;
 use crate::models::translation::TextUnit;
+// removed unused: PathBuf, SystemTime, UNIX_EPOCH
+use serde::Deserialize;
 
 /// Loads a project from the specified path.
 ///
@@ -191,3 +193,99 @@ pub async fn inject_text_units(
         }
     }
 }
+
+/// If a ludolingua.json manifest exists at project root, load and merge translated units
+/// Returns Some(units) when manifest is found and parsed; otherwise None
+pub async fn load_subset_with_manifest(
+    project_info: EngineInfo,
+) -> Result<Option<Vec<TextUnit>>, String> {
+    #[derive(Deserialize)]
+    struct ManifestUnit {
+        id: String,
+        #[allow(dead_code)]
+        prompt_type: Option<String>,
+        #[allow(dead_code)]
+        source_text: Option<String>,
+        translated_text: String,
+    }
+    #[derive(Deserialize)]
+    struct ManifestFile {
+        files: Vec<String>,
+        #[allow(dead_code)]
+        engine: serde_json::Value,
+        #[allow(dead_code)]
+        project: serde_json::Value,
+        units: Vec<ManifestUnit>,
+    }
+
+    let manifest_path = project_info.path.join("ludolingua.json");
+    if !manifest_path.exists() {
+        return Ok(None);
+    }
+
+    let raw = std::fs::read_to_string(&manifest_path)
+        .map_err(|e| format!("Failed to read {}: {}", manifest_path.display(), e))?;
+    let manifest: ManifestFile = serde_json::from_str(&raw)
+        .map_err(|e| format!("Failed to parse {}: {}", manifest_path.display(), e))?;
+
+    // Build id -> translated_text map
+    use std::collections::HashMap;
+    let mut id_to_text: HashMap<String, String> = HashMap::with_capacity(manifest.units.len());
+    for u in manifest.units {
+        id_to_text.insert(u.id, u.translated_text);
+    }
+
+    // Prefer structured file extraction when available
+    let filtered_units: Vec<TextUnit> = match extract_game_data_files(project_info.clone()).await {
+        Ok(files) => {
+            // Normalize manifest file paths to use forward slashes to match our relative paths
+            let file_set: std::collections::HashSet<String> = manifest
+                .files
+                .into_iter()
+                .map(|mut s| { if cfg!(windows) { s = s.replace('\\', "/"); } s })
+                .collect();
+            let mut keep: Vec<TextUnit> = Vec::new();
+            for f in files.into_iter() {
+                    let rel = f.path.replace('\\', "/");
+                if file_set.contains(&rel) {
+                    for unit in f.text_units.into_iter() {
+                        keep.push(unit);
+                    }
+                }
+            }
+            keep
+        }
+        Err(_) => extract_text(project_info.clone()).await.unwrap_or_default(),
+    };
+
+    // Merge translated_text from manifest
+    let mut merged: Vec<TextUnit> = Vec::with_capacity(filtered_units.len());
+    for mut u in filtered_units.into_iter() {
+        if let Some(t) = id_to_text.get(&u.id) {
+            u.translated_text = t.clone();
+            u.status = crate::models::translation::TranslationStatus::MachineTranslated;
+        }
+        merged.push(u);
+    }
+
+    Ok(Some(merged))
+}
+
+/// Export only the translatable data subtree and detection artifacts, then inject into that copy.
+pub async fn export_translated_subset(
+    project_info: EngineInfo,
+    text_units: Vec<TextUnit>,
+    destination_root: String,
+) -> Result<String, String> {
+    // Fully delegate to the factory to keep this engine-agnostic
+    let dest_root = Path::new(&destination_root);
+    let exported = export_translated_subset_via_factory(
+        &project_info,
+        &text_units,
+        dest_root,
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(exported.display().to_string())
+}
+
+// removed copy_file_create_parent; logic centralized in factory

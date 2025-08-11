@@ -25,6 +25,7 @@
         <UButtonGroup>
           <UButton icon="i-heroicons-play" :loading="isBusy" @click="startProcess">Translate All</UButton>
           <UButton icon="i-heroicons-document-arrow-down" color="success" :disabled="!canInject || isBusy" @click="inject">Inject</UButton>
+          <UButton icon="i-heroicons-folder" color="success" variant="soft" :disabled="!hasTranslated || isBusy" @click="exportSubset">Export Minimal (data + detection)</UButton>
           <UButton icon="i-heroicons-arrow-path" color="neutral" :disabled="isBusy || !hasTranslated" @click="reset">Reset</UButton>
           <UButton icon="i-heroicons-document-arrow-up" color="warning" :disabled="!hasTranslated" @click="exportData">Export</UButton>
         </UButtonGroup>
@@ -57,6 +58,9 @@ import TranslationRaw from '~/components/translation/TranslationRaw.vue'
 import TranslationResult from '~/components/translation/TranslationResult.vue'
 import { useTranslation } from '~/composables/useTranslation'
 import ProjectStats from '~/components/editor/ProjectStats.vue'
+import { useEngineStore } from '~/stores/engine'
+import { open } from '@tauri-apps/plugin-dialog'
+import { useAppToast } from '~/composables/useAppToast'
 
 const {
   mode,
@@ -78,6 +82,28 @@ const {
 const progressPercent = computed(() => {
   return translationTotal.value ? Math.round((translationProgress.value / translationTotal.value) * 100) : 0
 })
+
+const engineStore = useEngineStore()
+const { showToast } = useAppToast()
+
+// removed exportTranslated()
+
+async function exportSubset() {
+  try {
+    const dest = await open({
+      directory: true,
+      multiple: false,
+      title: 'Select destination folder for minimal export'
+    })
+    if (!dest) return
+    const targetRoot = Array.isArray(dest) ? (dest[0] as string) : (dest as string)
+    const exportedPath = await engineStore.exportTranslatedSubset(targetRoot)
+    showToast('Export Completed', `Minimal export to: ${exportedPath}`, 'success', 2000, 'i-heroicons-check-circle')
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Export failed'
+    showToast('Export Failed', msg, 'error', 2000, 'i-heroicons-exclamation-triangle')
+  }
+}
 </script>
 
 

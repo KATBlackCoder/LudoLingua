@@ -59,6 +59,31 @@ pub async fn inject_text_units(
     engine::inject_text_units(project_info, text_units).await
 }
 
+/// Load subset via manifest if present
+#[tauri::command]
+pub async fn load_subset_with_manifest(
+    project_info: crate::models::engine::EngineInfo,
+) -> Result<Option<Vec<TextUnit>>, String> {
+    debug!("Command: load_subset_with_manifest - {}", project_info.name);
+    crate::commands::engine::load_subset_with_manifest(project_info).await
+}
+
+// removed export_translated_copy
+
+/// Export only the data subtree and detection artifacts, then inject into that copy
+#[tauri::command]
+pub async fn export_translated_subset(
+    project_info: crate::models::engine::EngineInfo,
+    text_units: Vec<TextUnit>,
+    destination_root: String,
+) -> Result<String, String> {
+    debug!(
+        "Command: export_translated_subset - {} units to {}",
+        text_units.len(), destination_root
+    );
+    engine::export_translated_subset(project_info, text_units, destination_root).await
+}
+
 /// Translate a single text unit
 #[tauri::command]
 pub async fn translate_text_unit(

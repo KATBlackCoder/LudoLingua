@@ -77,6 +77,12 @@ export function useTranslation() {
 
   const textUnits = computed(() => engineStore.textUnits)
 
+  // If project has pre-translated units (e.g., loaded from manifest), jump to result view
+  // Switch to Result mode when there are prefilled translations (e.g., loaded via manifest)
+  if (engineStore.textUnits.some(u => u.translated_text && u.translated_text.trim() !== '')) {
+    mode.value = 'result'
+  }
+
   const startProcess = async () => {
     const untranslated = engineStore.textUnits.filter(u => u.status === 'NotTranslated')
     if (!untranslated.length) {

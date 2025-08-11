@@ -28,6 +28,8 @@ pub fn run() {
             commands::handler::extract_text,
             commands::handler::extract_game_data_files,
             commands::handler::inject_text_units,
+            commands::handler::export_translated_subset,
+            commands::handler::load_subset_with_manifest,
             commands::handler::translate_text_unit,
             commands::handler::test_llm_connection,
             commands::handler::get_ollama_models,

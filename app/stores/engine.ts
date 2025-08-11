@@ -54,6 +54,12 @@ export const useEngineStore = defineStore('engine', () => {
       // Extract text units from the loaded project
       const extractedUnits = await invoke<TextUnit[]>('extract_text', { projectInfo: result });
       setTextUnits(extractedUnits);
+
+      // If this is an exported subset with a manifest, merge pre-translated units
+      const merged = await invoke<TextUnit[] | null>('load_subset_with_manifest', { projectInfo: result });
+      if (merged && Array.isArray(merged) && merged.length > 0) {
+        setTextUnits(merged);
+      }
       
       // Get game data files directly from the backend
       const files = await invoke<GameDataFile[]>('extract_game_data_files', { projectInfo: result });
@@ -97,6 +103,35 @@ export const useEngineStore = defineStore('engine', () => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save project';
       error.value = errorMessage;
       console.error('Failed to save project:', err);
+      throw err;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // removed exportTranslatedCopy
+
+  // Export only the minimal subtree (e.g., www/data + detection artifacts) and inject into that copy
+  async function exportTranslatedSubset(destinationRoot: string) {
+    if (!projectInfo.value) {
+      throw new Error('No project loaded');
+    }
+
+    try {
+      isLoading.value = true;
+      error.value = null;
+
+      const exportedPath = await invoke<string>('export_translated_subset', {
+        projectInfo: projectInfo.value,
+        textUnits: textUnits.value,
+        destinationRoot
+      });
+
+      return exportedPath;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to export translated subset';
+      error.value = errorMessage;
+      console.error('Failed to export translated subset:', err);
       throw err;
     } finally {
       isLoading.value = false;
@@ -170,6 +205,7 @@ export const useEngineStore = defineStore('engine', () => {
     loadProject,
     refreshProject,
     saveProject,
+    exportTranslatedSubset,
     setGameDataFiles,
     setTextUnits,
     updateTextUnit,

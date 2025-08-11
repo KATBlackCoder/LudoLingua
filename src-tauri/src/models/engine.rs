@@ -35,11 +35,15 @@ pub struct EngineCriteria {
     /// Example: ["data", "img"]
     pub required_folders: Vec<String>,
 
-    /// Optional files that may exist and help identify the engine
-    /// If None, no optional files are checked
+    /// Extra files that may exist and help identify or run the engine.
+    /// Also copied during minimal export if present.
     ///
-    /// Example: Some(["js/rpg_core.js", "js/rpg_managers.js"])
-    pub optional_files: Option<Vec<String>>,
+    /// Example: ["js/rpg_core.js", "js/rpg_managers.js"]
+    pub extra_files: Vec<String>,
+
+    /// Engine-declared data roots to export for minimal translated copies
+    /// Example: ["www/data"] for RPG Maker MV/MZ
+    pub export_data_roots: Vec<String>,
 }
 
 /// Information about the detected game engine and the game project itself.

@@ -46,9 +46,10 @@ impl RpgMakerMvEngine {
             required_folders: vec![
                 "www".to_string(), // Most common structure
             ],
-            optional_files: Some(vec![
+            extra_files: vec![
                 "js/rpg_core.js".to_string(), // Alternative structure
-            ]),
+            ],
+            export_data_roots: vec!["www/data".to_string()],
         }
     }
 
