@@ -19,9 +19,17 @@
 
             <USelect v-model="categoryFilter" :items="categoryItems" placeholder="All categories" />
 
-            <USelect v-model="sourceFilter" :items="languageItems" placeholder="Source language" />
+            <USelect
+              v-model="sourceFilter"
+              :items="[{ label: 'All languages', value: '__ALL__' }, ...languageItems]"
+              placeholder="Source language"
+            />
 
-            <USelect v-model="targetFilter" :items="languageItems" placeholder="Target language" />
+            <USelect
+              v-model="targetFilter"
+              :items="[{ label: 'All languages', value: '__ALL__' }, ...languageItems]"
+              placeholder="Target language"
+            />
 
             <div class="flex items-center gap-2">
               <USwitch v-model="onlyEnabled" />

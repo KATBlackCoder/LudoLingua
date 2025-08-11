@@ -31,6 +31,7 @@ logs
 game
 
 # Database files (exclude from git but allow in development)
-/ludolingua.db*
+src-tauri/ludolingua.db*
+*.db
 *.db-wal
 *.db-shm

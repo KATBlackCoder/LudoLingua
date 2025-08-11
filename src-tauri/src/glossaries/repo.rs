@@ -17,10 +17,16 @@ pub async fn find_terms(state: &GlossaryState, q: &GlossaryQuery) -> AppResult<V
     if q.only_enabled {
         sql.push_str(" AND enabled = 1");
     }
-    sql.push_str(" AND source_lang = ?");
-    let _ = args.add(q.source_lang.as_str());
-    sql.push_str(" AND target_lang = ?");
-    let _ = args.add(q.target_lang.as_str());
+    // Allow "all languages" by skipping filters when source/target are empty or special marker
+    let is_all = |s: &str| s.is_empty() || s == "*" || s == "__ALL__";
+    if !is_all(&q.source_lang) {
+        sql.push_str(" AND source_lang = ?");
+        let _ = args.add(q.source_lang.as_str());
+    }
+    if !is_all(&q.target_lang) {
+        sql.push_str(" AND target_lang = ?");
+        let _ = args.add(q.target_lang.as_str());
+    }
 
     if !q.categories.is_empty() {
         sql.push_str(" AND category IN (");
@@ -77,7 +83,12 @@ pub async fn upsert_term(state: &GlossaryState, term: GlossaryTerm) -> AppResult
     } else {
         let res = sqlx::query(
             r#"INSERT INTO glossary_terms (category, source_lang, target_lang, input, output, enabled)
-               VALUES (?, ?, ?, ?, ?, ?)"#,
+               VALUES (?, ?, ?, ?, ?, ?)
+               ON CONFLICT(source_lang, target_lang, category, input)
+               DO UPDATE SET
+                 output = excluded.output,
+                 enabled = excluded.enabled
+            "#,
         )
         .bind(&term.category)
         .bind(&term.source_lang)

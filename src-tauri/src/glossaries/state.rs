@@ -41,40 +41,12 @@ impl GlossaryState {
                 .await
                 .map_err(|e| AppError::Database(e.to_string()))?;
 
-            // Schema (idempotent)
-            sqlx::query(
-                r#"
-                CREATE TABLE IF NOT EXISTS glossary_terms (
-                  id INTEGER PRIMARY KEY,
-                  category TEXT NOT NULL,
-                  source_lang TEXT NOT NULL,
-                  target_lang TEXT NOT NULL,
-                  input TEXT NOT NULL,
-                  output TEXT NOT NULL,
-                  enabled INTEGER NOT NULL DEFAULT 1,
-                  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-                );
-                CREATE INDEX IF NOT EXISTS idx_gls_main
-                  ON glossary_terms (enabled, source_lang, target_lang, category);
-                "#,
-            )
-            .execute(&pool)
-            .await
-            .map_err(|e| AppError::Database(e.to_string()))?;
-
-            // Backfill only `enabled` if missing
-            let colnames: Vec<String> = sqlx::query_scalar(
-                "SELECT name FROM pragma_table_info('glossary_terms')",
-            )
-            .fetch_all(&pool)
-            .await
-            .map_err(|e| AppError::Database(e.to_string()))?;
-            if !colnames.into_iter().any(|n| n == "enabled") {
-                sqlx::query("ALTER TABLE glossary_terms ADD COLUMN enabled INTEGER NOT NULL DEFAULT 1;")
-                    .execute(&pool)
-                    .await
-                    .map_err(|e| AppError::Database(e.to_string()))?;
-            }
+            // Run SQL migrations instead of ad-hoc CREATE/ALTER
+            // NOTE: path is relative to this crate (src-tauri). Keep migrations in src-tauri/migrations
+            sqlx::migrate!("./migrations")
+                .run(&pool)
+                .await
+                .map_err(|e| AppError::Database(e.to_string()))?;
 
             *self.pool.lock().await = Some(pool);
         }
