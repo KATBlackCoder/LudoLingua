@@ -13,11 +13,25 @@ mod llm;
 mod models;
 mod utils;
 
+use tauri::Manager;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .manage(crate::llm::state::LlmState::new(1))
-        .manage(crate::glossaries::GlossaryState::new())
+        .setup(|app| {
+            // Resolve per-OS app data directory and create the DB there
+            let app_data_dir = app
+                .handle()
+                .path()
+                .app_data_dir()
+                .map_err(|e| anyhow::anyhow!(e.to_string()))?;
+            std::fs::create_dir_all(&app_data_dir)?;
+            let db_path = app_data_dir.join("ludolingua.db");
+
+            app.handle().manage(crate::glossaries::GlossaryState::new(db_path));
+            Ok(())
+        })
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::new().build())

@@ -1,18 +1,22 @@
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 use tokio::sync::Mutex;
 
 use crate::core::error::{AppError, AppResult};
 
 pub struct GlossaryState {
+    /// Absolute path to the SQLite database file
+    db_path: PathBuf,
     pub(crate) pool: Mutex<Option<sqlx::SqlitePool>>,
     // naive in-memory cache keyed by a composed string
     pub(crate) cache: Mutex<HashMap<String, std::sync::Arc<Vec<crate::glossaries::model::GlossaryTerm>>>>,
 }
 
 impl GlossaryState {
-    pub fn new() -> Self {
+    pub fn new(db_path: PathBuf) -> Self {
         Self {
+            db_path,
             pool: Mutex::new(None),
             cache: Mutex::new(HashMap::new()),
         }
@@ -23,8 +27,13 @@ impl GlossaryState {
             use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqliteSynchronous};
             use sqlx::sqlite::SqlitePoolOptions;
 
+            // Ensure parent directory exists (first run on a new machine)
+            if let Some(parent) = self.db_path.parent() {
+                let _ = std::fs::create_dir_all(parent);
+            }
+
             let opts = SqliteConnectOptions::new()
-                .filename("ludolingua.db")
+                .filename(self.db_path.clone())
                 .create_if_missing(true)
                 .journal_mode(SqliteJournalMode::Wal)
                 .synchronous(SqliteSynchronous::Normal);

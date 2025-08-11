@@ -726,6 +726,7 @@ Goal: Stabilize and optimize per-unit translation calls with connection reuse.
         *   [ ] Add comprehensive error handling and recovery
         *   [ ] Implement retry mechanisms for failed API calls
         *   [ ] Add performance monitoring and logging
+        *   [x] Store SQLite glossary DB under OS app data directory using Tauri path resolver
         *   Deferral: Frontend batch groundwork moved to Phase 8.3 (PromptType grouping, FE-only throttle)
     *   Deferral: Backend rate limiting, translation cache, and auto-backup moved to Phase 8.0
 
