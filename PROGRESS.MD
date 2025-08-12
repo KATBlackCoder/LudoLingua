@@ -146,12 +146,14 @@ This document tracks the completed milestones of the LudoLingua application, bas
     *   [x] **Fixed form components:** Updated `TranslationSettingsForm.vue` to use `UFormField` and handle `Language` objects.
     *   [x] **Enhanced UI components:** Updated `TranslationTable.vue` with correct status handling and removed batch translation.
     *   [x] **Fixed form validation:** Updated `LlmSettingsForm.vue` schema to match new backend interface.
+    *   [x] **Settings presets:** Added Temperature/Max Tokens presets and ensured Connection Tester uses current provider config.
 
 *   **Translation Workflow Improvements:**
     *   [x] **One-by-one processing:** Removed batch translation in favor of individual text unit processing.
     *   [x] **Context-aware prompts:** Maintained automatic prompt template selection based on `PromptType`.
     *   [x] **Enhanced status tracking:** Updated status enum handling for `MachineTranslated`, `HumanReviewed`, etc.
     *   [x] **Improved error handling:** Added proper error propagation and user-friendly error messages.
+    *   [x] **Accessibility polish:** Modals in Translation Editor and Glossary Form now provide DialogTitle/Description per Nuxt UI guidance.
     *   [x] **Native language support:** Added native language names for better UX in language selection.
 
 ### ✅ LLM Architecture Enhancement (Pure Data Structures & Type Safety) - Completed
@@ -167,6 +169,7 @@ Goal: Stabilize and optimize per-unit translation calls with connection reuse.
     *   Simplified service with `generate(prompt)`; kept `translate` as a wrapper for compatibility.
     *   Verified HTTP keep-alive reuse in logs (single connection start, continuous completions).
     *   Applied Ollama ModelOptions: Temperature and max_tokens (num_predict) are now passed from settings to generation requests.
+    *   Added invoke arg backward-compat (snake_case + camelCase) to avoid breakage across backend builds.
 
 
 **Goal:** Refactor LLM system to use pure data structures and enum-based type safety for better maintainability and reliability.
@@ -666,6 +669,8 @@ Goal: Stabilize and optimize per-unit translation calls with connection reuse.
     *   [x] **Enhanced error handling** with user-friendly error messages and recovery options
     *   [x] **Improved accessibility** with proper button states and loading indicators
     *   [x] **Better visual feedback** with progress indicators and status updates
+    *   [x] **Project Statistics Enhancement:** Added language configuration display to `ProjectStats.vue` and simplified Token Settings to show only active config (temperature/max tokens).
+    *   [x] **About Page:** Switched to `UTabs`-based navigation; added LLM parameter guidance and hardware tiers.
 
 ### ✅ Phase 6: Framework Migration - COMPLETED
 
