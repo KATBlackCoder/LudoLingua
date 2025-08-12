@@ -1,5 +1,6 @@
 //use log::debug;
 use ollama_rs::generation::completion::request::GenerationRequest;
+use ollama_rs::models::ModelOptions;
 use ollama_rs::Ollama;
 use serde::{Deserialize, Serialize};
 
@@ -112,13 +113,22 @@ impl OllamaService {
 
     /// Low-level generate call: takes a fully-built prompt and returns the raw model string
     pub async fn generate(&self, prompt: &str) -> AppResult<String> {
-        let request = GenerationRequest::new(self.config.model.model_name.clone(), prompt.to_string());
+        // Attach model options from config (temperature, max tokens)
+        let options = ModelOptions::default()
+            .temperature(self.config.temperature)
+            .num_predict(self.config.max_tokens as i32);
 
+        let request = GenerationRequest::new(
+            self.config.model.model_name.clone(),
+            prompt.to_string(),
+        )
+        .options(options);
         match self.client.generate(request).await {
             Ok(response) => Ok(response.response.trim().to_string()),
             Err(e) => Err(AppError::Llm(format!("Ollama generation failed: {}", e))),
         }
     }
+
 
     pub async fn test_connection(&self) -> AppResult<bool> {
         // debug!("Testing connection to Ollama");

@@ -14,13 +14,13 @@
         </div>
       </template>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
         <!-- Progress -->
         <UCard>
           <template #header>
             <div class="flex items-center justify-between">
               <span class="font-medium">Progress</span>
-              <UBadge size="xs" color="primary" variant="soft">{{ progressPercent }}%</UBadge>
+              <UBadge size="xs" :color="progressPercent >= 100 ? 'success' : 'primary'" variant="soft">{{ progressPercent }}%</UBadge>
             </div>
           </template>
           <div class="space-y-2">
@@ -69,14 +69,25 @@
           </div>
         </UCard>
 
-        <!-- Cost Estimation -->
+        <!-- Token Settings -->
         <UCard>
           <template #header>
-            <span class="font-medium">Cost Estimation</span>
+            <span class="font-medium">Token Settings</span>
           </template>
           <div class="space-y-2 text-sm">
-            <div class="flex items-center justify-between"><span>Est. Tokens</span><span class="font-medium">{{ estimatedTokens }}</span></div>
-            <div class="flex items-center justify-between"><span>Est. Cost</span><span class="font-medium">{{ estimatedCost }}</span></div>
+            <div class="flex items-center justify-between">
+              <span>Temperature</span>
+              <span class="font-medium">{{ settingsStore.userSettings.temperature }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>Max Tokens (per unit)</span>
+              <span class="font-medium flex items-center gap-2">
+                {{ settingsStore.userSettings.max_tokens }}
+                <UBadge size="xs" :color="settingsStore.userSettings.max_tokens > 512 ? 'warning' : 'neutral'" variant="soft">
+                  {{ settingsStore.userSettings.max_tokens > 512 ? 'High' : 'Normal' }}
+                </UBadge>
+              </span>
+            </div>
           </div>
         </UCard>
       </div>
@@ -115,20 +126,7 @@ onMounted(async () => {
   }
 })
 
-// Computed properties for statistics
-const estimatedTokens = computed(() => {
-  // Rough estimation: 1 token per 4 characters for source text
-  const totalChars = engineStore.textUnits.reduce((sum, unit) => sum + unit.source_text.length, 0);
-  return Math.ceil(totalChars / 4);
-});
-
-const estimatedCost = computed(() => {
-  // Very rough estimation - would need actual pricing data
-  const tokens = estimatedTokens.value;
-  // Assuming ~$0.002 per 1K tokens (typical LLM pricing)
-  const cost = (tokens / 1000) * 0.002;
-  return cost > 0.01 ? `$${cost.toFixed(2)}` : '< $0.01';
-});
+// Simplified: remove noisy token estimates
 
 const translatedCount = computed(() => {
   return engineStore.textUnits.filter(unit => 

@@ -94,7 +94,7 @@ export const useProviderStore = defineStore('provider', () => {
   }
 
   // Action: Test connection with current or provided config
-  async function testConnection(config?: OllamaConfig) {
+  async function testConnection(config?: OllamaConfig, opts?: { silent?: boolean }) {
     try {
       isLoading.value = true
       error.value = null
@@ -106,7 +106,9 @@ export const useProviderStore = defineStore('provider', () => {
       lastConnectionTest.value = new Date()
       
       const message = result ? 'Connection successful' : 'Connection failed'
-      showToast('Connection Test', message, result ? 'success' : 'error', 700)
+      if (!opts?.silent) {
+        showToast('Connection Test', message, result ? 'success' : 'error', 700)
+      }
       
       return result
     } catch (e) {
@@ -115,7 +117,9 @@ export const useProviderStore = defineStore('provider', () => {
       connectionStatus.value = 'disconnected'
       lastConnectionTest.value = new Date()
       
-      showToast('Connection Test Failed', error.value, 'error', 700)
+      if (!opts?.silent) {
+        showToast('Connection Test Failed', error.value, 'error', 700)
+      }
       
       return false
     } finally {

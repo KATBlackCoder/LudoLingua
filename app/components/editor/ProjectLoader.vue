@@ -9,6 +9,10 @@
 
     <div class="space-y-4">
       <p class="text-sm text-muted">Select an RPG Maker MV/MZ project folder to start translating.</p>
+      <div v-if="engineStore.isLoading" class="flex items-center gap-2 text-sm text-muted">
+        <UIcon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+        <span>Extracting project data… This may take a while.</span>
+      </div>
       <div class="flex flex-wrap items-center gap-2">
         <UButton
           label="Select Folder"
@@ -17,13 +21,7 @@
           :loading="engineStore.isLoading"
           @click="openProjectDialog"
         />
-        <UButton
-          v-if="engineStore.hasProject"
-          variant="outline"
-          color="neutral"
-          icon="i-heroicons-language"
-          @click="goWorkspace"
-        >Open Workspace</UButton>
+        
       </div>
     </div>
 
@@ -36,10 +34,10 @@
 <script setup lang="ts">
 import { open } from '@tauri-apps/plugin-dialog';
 import { useEngineStore } from '~/stores/engine';
-import { useRouter } from 'vue-router'
+import { useAppToast } from '~/composables/useAppToast'
 
 const engineStore = useEngineStore();
-const router = useRouter()
+const { showToast } = useAppToast()
 async function openProjectDialog() {
   try {
     // Open a folder selection dialog
@@ -52,13 +50,24 @@ async function openProjectDialog() {
     if (selected) {
       // If the user selected a folder, load the project
       await engineStore.loadProject(selected as string);
+      showToast(
+        'Project Loaded',
+        `${engineStore.totalTextUnits} units across ${engineStore.gameDataFiles.length} files`,
+        'success',
+        1600,
+        'i-heroicons-check-circle'
+      )
     }
   } catch (error) {
     console.error('Error opening project:', error);
+    showToast(
+      'Failed to Load Project',
+      error instanceof Error ? error.message : 'Unexpected error',
+      'error',
+      1800,
+      'i-heroicons-exclamation-triangle'
+    )
   }
 }
 
-function goWorkspace() {
-  router.push('/translation')
-}
 </script> 

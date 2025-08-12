@@ -114,4 +114,25 @@ pub async fn delete_term(state: &GlossaryState, id: i64) -> AppResult<()> {
     Ok(())
 }
 
+/// Export all (or filtered) terms to JSON string
+pub async fn export_terms_json(state: &GlossaryState, q: &GlossaryQuery) -> AppResult<String> {
+    let terms = find_terms(state, q).await?;
+    serde_json::to_string_pretty(&terms).map_err(|e| crate::core::error::AppError::Other(e.to_string()))
+}
+
+/// Import terms from JSON string, upserting each term
+pub async fn import_terms_json(state: &GlossaryState, json: &str) -> AppResult<usize> {
+    let terms: Vec<crate::glossaries::model::GlossaryTerm> = serde_json::from_str(json)
+        .map_err(|e| crate::core::error::AppError::Other(e.to_string()))?;
+    let mut count = 0usize;
+    for t in terms {
+        // Force conflict-based upsert on (source_lang, target_lang, category, input)
+        // by resetting id to 0 so we don't rely on foreign DB ids.
+        let term = crate::glossaries::model::GlossaryTerm { id: 0, ..t };
+        let _ = upsert_term(state, term).await?;
+        count += 1;
+    }
+    Ok(count)
+}
+
 

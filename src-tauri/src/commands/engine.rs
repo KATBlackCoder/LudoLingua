@@ -147,52 +147,7 @@ pub async fn extract_game_data_files(
     }
 }
 
-/// Injects translated text units into a project's files.
-///
-/// This command is called from the frontend to inject translations back into the project files.
-/// It uses the appropriate engine to inject all translated text into the project files.
-///
-/// # Arguments
-///
-/// * `project_info` - The project information object
-/// * `text_units` - Vector of text units (including translations) to inject
-///
-/// # Returns
-///
-/// * `Result<(), String>` - Success or error message
-pub async fn inject_text_units(
-    project_info: EngineInfo,
-    text_units: Vec<TextUnit>,
-) -> Result<(), String> {
-    info!(
-        "Injecting {} text units into project: {}",
-        text_units.len(),
-        project_info.name
-    );
-
-    // Get the appropriate engine for this project
-    let engine_result = get_engine(&project_info.path);
-
-    match engine_result {
-        Ok(engine) => {
-            // Use the engine to inject text units
-            match engine.inject_text_units(&project_info, &text_units) {
-                Ok(()) => {
-                    info!("Successfully injected text units into project files");
-                    Ok(())
-                }
-                Err(e) => {
-                    error!("Failed to inject text units: {}", e);
-                    Err(format!("Failed to inject text units: {}", e))
-                }
-            }
-        }
-        Err(e) => {
-            error!("Failed to get engine: {}", e);
-            Err(format!("Failed to get engine: {}", e))
-        }
-    }
-}
+// in-place inject removed; prefer minimal export flow via export_translated_subset
 
 /// If a ludolingua.json manifest exists at project root, load and merge translated units
 /// Returns Some(units) when manifest is found and parsed; otherwise None

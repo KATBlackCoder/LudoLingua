@@ -18,16 +18,18 @@
             <UProgress :value="progressPercent" />
             <span class="text-xs text-muted">{{ translationProgress }}/{{ translationTotal }}</span>
           </div>
+          <div v-else-if="isExportingSubset" class="flex items-center gap-2 ml-auto text-muted">
+            <UIcon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+            <span class="text-xs">Exporting minimal copy…</span>
+          </div>
         </div>
       </template>
 
       <div class="flex flex-wrap items-center gap-3 mb-3">
         <UButtonGroup>
-          <UButton icon="i-heroicons-play" :loading="isBusy" @click="startProcess">Translate All</UButton>
-          <UButton icon="i-heroicons-document-arrow-down" color="success" :disabled="!canInject || isBusy" @click="inject">Inject</UButton>
-          <UButton icon="i-heroicons-folder" color="success" variant="soft" :disabled="!hasTranslated || isBusy" @click="exportSubset">Export Minimal (data + detection)</UButton>
-          <UButton icon="i-heroicons-arrow-path" color="neutral" :disabled="isBusy || !hasTranslated" @click="reset">Reset</UButton>
-          <UButton icon="i-heroicons-document-arrow-up" color="warning" :disabled="!hasTranslated" @click="exportData">Export</UButton>
+          <UButton icon="i-heroicons-play" :loading="isBusy" :disabled="isExportingSubset" @click="startProcess">Translate All</UButton>
+          <UButton icon="i-heroicons-folder" color="success" variant="soft" :loading="isExportingSubset" :disabled="!hasTranslated || isBusy" @click="exportSubset">Export data</UButton>
+          <UButton icon="i-heroicons-arrow-path" color="neutral" :disabled="isBusy || isExportingSubset || !hasTranslated" @click="reset">Reset</UButton>
         </UButtonGroup>
 
         <UButtonGroup class="ml-auto">
@@ -67,15 +69,12 @@ const {
   processRows,
   translatedItems,
   hasTranslated,
-  canInject,
   isBusy,
   translationProgress,
   translationTotal,
   failedCount,
   startProcess,
-  inject,
   reset,
-  exportData,
   saveEdit,
 } = useTranslation()
 
@@ -88,6 +87,7 @@ const { showToast } = useAppToast()
 
 // removed exportTranslated()
 
+const isExportingSubset = ref(false)
 async function exportSubset() {
   try {
     const dest = await open({
@@ -97,13 +97,17 @@ async function exportSubset() {
     })
     if (!dest) return
     const targetRoot = Array.isArray(dest) ? (dest[0] as string) : (dest as string)
+    isExportingSubset.value = true
     const exportedPath = await engineStore.exportTranslatedSubset(targetRoot)
     showToast('Export Completed', `Minimal export to: ${exportedPath}`, 'success', 2000, 'i-heroicons-check-circle')
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Export failed'
     showToast('Export Failed', msg, 'error', 2000, 'i-heroicons-exclamation-triangle')
+  } finally {
+    isExportingSubset.value = false
   }
 }
+
 </script>
 
 

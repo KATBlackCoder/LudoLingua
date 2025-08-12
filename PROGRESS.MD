@@ -166,6 +166,7 @@ Goal: Stabilize and optimize per-unit translation calls with connection reuse.
     *   Refactored command layer to build prompts and call a new `translate_with_retry` (90s timeout + simple backoff retries).
     *   Simplified service with `generate(prompt)`; kept `translate` as a wrapper for compatibility.
     *   Verified HTTP keep-alive reuse in logs (single connection start, continuous completions).
+    *   Applied Ollama ModelOptions: Temperature and max_tokens (num_predict) are now passed from settings to generation requests.
 
 
 **Goal:** Refactor LLM system to use pure data structures and enum-based type safety for better maintainability and reliability.

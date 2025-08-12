@@ -83,31 +83,7 @@ export const useEngineStore = defineStore('engine', () => {
     await loadProject(projectInfo.value.path);
   }
 
-  async function saveProject() {
-    if (!projectInfo.value) {
-      throw new Error('No project loaded');
-    }
-
-    try {
-      isLoading.value = true;
-      error.value = null;
-          
-      // Call the backend command to inject all text units back into project files
-      await invoke('inject_text_units', {
-        projectInfo: projectInfo.value,
-        textUnits: textUnits.value
-      });
-      
-      // success handled by caller (UI/composable)
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to save project';
-      error.value = errorMessage;
-      console.error('Failed to save project:', err);
-      throw err;
-    } finally {
-      isLoading.value = false;
-    }
-  }
+  // Removed saveProject/inject_text_units flow in favor of minimal export subset
 
   // removed exportTranslatedCopy
 
@@ -204,7 +180,6 @@ export const useEngineStore = defineStore('engine', () => {
     // Actions
     loadProject,
     refreshProject,
-    saveProject,
     exportTranslatedSubset,
     setGameDataFiles,
     setTextUnits,

@@ -41,7 +41,6 @@ pub fn run() {
             commands::handler::load_project,
             commands::handler::extract_text,
             commands::handler::extract_game_data_files,
-            commands::handler::inject_text_units,
             commands::handler::export_translated_subset,
             commands::handler::load_subset_with_manifest,
             commands::handler::translate_text_unit,
@@ -50,7 +49,9 @@ pub fn run() {
             commands::handler::get_languages,
             commands::handler::glossary_list_terms,
             commands::handler::glossary_upsert_term,
-            commands::handler::glossary_delete_term
+            commands::handler::glossary_delete_term,
+            commands::handler::glossary_export_terms,
+            commands::handler::glossary_import_terms
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,20 +1,17 @@
 <template>
   <UModal
     v-model:open="open"
-    :title="modalTitle"
     :dismissible="false"
     :ui="{ content: 'max-w-5xl' }"
   >
-    <template #header>
-      <div class="flex items-center justify-between gap-3 w-full">
-        <div class="min-w-0">
-          <h3 class="text-base font-semibold truncate">{{ modalTitle }}</h3>
-          <p v-if="item?.field_type" class="text-xs text-muted truncate">{{ item?.field_type }}</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <UBadge :color="statusColor" variant="soft">{{ statusLabel }}</UBadge>
-        </div>
-      </div>
+    <template #title>
+      {{ modalTitle }}
+    </template>
+    <template #description>
+      <span v-if="item?.field_type">{{ item?.field_type }}</span>
+    </template>
+    <template #actions>
+      <UBadge :color="statusColor" variant="soft">{{ statusLabel }}</UBadge>
     </template>
 
     <template #body>

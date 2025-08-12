@@ -1,20 +1,19 @@
 <template>
   <UModal
     v-model:open="open_"
-    :title="heading"
     :dismissible="false"
     :ui="{ content: 'max-w-5xl' }"
   >
-    <template #header>
-      <div class="flex items-center justify-between gap-3 w-full">
-        <div class="min-w-0">
-          <h3 class="text-base font-semibold truncate">{{ heading }}</h3>
-          <p class="text-xs text-muted truncate">Add or edit a glossary mapping</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <UBadge variant="soft">{{ local.category }}</UBadge>
-          <UBadge variant="soft">{{ local.source_lang }} → {{ local.target_lang }}</UBadge>
-        </div>
+    <template #title>
+      {{ heading }}
+    </template>
+    <template #description>
+      Add or edit a glossary mapping
+    </template>
+    <template #actions>
+      <div class="flex items-center gap-2">
+        <UBadge variant="soft">{{ local.category }}</UBadge>
+        <UBadge variant="soft">{{ local.source_lang }} → {{ local.target_lang }}</UBadge>
       </div>
     </template>
 
@@ -106,6 +105,7 @@
 import { computed, reactive, watchEffect } from 'vue'
 import type { GlossaryTerm } from '~/types/glossary'
 import { useLanguageStore } from '~/stores/language'
+import { useGlossary } from '~/composables/useGlossary'
 
 const props = defineProps<{ term: GlossaryTerm | null; heading?: string; open?: boolean }>()
 const emit = defineEmits<{ (e: 'save', term: GlossaryTerm): void; (e: 'update:open', v: boolean): void }>()
@@ -160,7 +160,7 @@ function swapLangs() {
 }
 
 // Select items
-const categoryItems = ['Characters', 'Essential Terms', 'Status Effects', 'Mechanics', 'Translation Rules', 'Locations', 'Time & Weather']
+const { categoryItems } = useGlossary()
 const language = useLanguageStore()
 const languageItems = computed(() =>
   language.languageOptions.map(l => ({ label: l.label, value: l.id }))

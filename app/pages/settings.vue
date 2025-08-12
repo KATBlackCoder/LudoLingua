@@ -43,6 +43,9 @@
               <span class="font-medium">Advanced</span>
             </template>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <UFormField label="Preset" name="preset" description="Quick apply recommended values">
+                <USelect v-model="selectedPreset" :items="presetItems" @update:model-value="applyPreset" />
+              </UFormField>
               <UFormField label="Base URL" name="base_url" description="Provider API endpoint">
                 <UInput v-model="advancedSettings.base_url" placeholder="http://localhost:11434" />
               </UFormField>
@@ -86,9 +89,25 @@ const showSuccessMessage = ref(false)
 const advancedSettings = ref({
   base_url: settingsStore.userSettings.base_url || 'http://localhost:11434',
   api_key: settingsStore.userSettings.api_key || '',
-  temperature: settingsStore.userSettings.temperature || 0.7,
-  max_tokens: settingsStore.userSettings.max_tokens || 2048,
+  temperature: settingsStore.userSettings.temperature || 0.3,
+  max_tokens: settingsStore.userSettings.max_tokens || 256,
 })
+
+// Presets for temperature/max_tokens
+const presets = [
+  { id: 'recommended', label: 'Recommended (0.3 · 256)', temperature: 0.3, max_tokens: 256 },
+  { id: 'high', label: 'High (long lines) (0.3 · 512)', temperature: 0.3, max_tokens: 512 },
+  { id: 'creative', label: 'Creative (0.7 · 256)', temperature: 0.7, max_tokens: 256 },
+]
+const presetItems = computed(() => presets.map(p => ({ label: p.label, value: p.id })))
+const selectedPreset = ref('recommended')
+
+function applyPreset(presetId: string) {
+  const p = presets.find(x => x.id === presetId)
+  if (!p) return
+  advancedSettings.value.temperature = p.temperature
+  advancedSettings.value.max_tokens = p.max_tokens
+}
 
 // Watch for settings changes and update form
 watch(
@@ -97,8 +116,8 @@ watch(
     advancedSettings.value = {
       base_url: newSettings.base_url || 'http://localhost:11434',
       api_key: newSettings.api_key || '',
-      temperature: newSettings.temperature || 0.7,
-      max_tokens: newSettings.max_tokens || 2048,
+      temperature: newSettings.temperature || 0.3,
+      max_tokens: newSettings.max_tokens || 256,
     }
   },
   { immediate: true, deep: true }

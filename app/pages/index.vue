@@ -25,7 +25,7 @@
           <div v-else class="space-y-4">
             <div class="flex flex-wrap items-center gap-2">
               <UButton v-if="engineStore.hasProject" variant="outline" color="neutral" icon="i-heroicons-folder-open" @click="pickProject">Change Project</UButton>
-              <UButton to="/translation" icon="i-heroicons-language">Open Workspace</UButton>
+              <UButton :disabled="engineStore.isLoading || !engineStore.hasProject" :loading="engineStore.isLoading" icon="i-heroicons-language" @click="goWorkspace">Open Workspace</UButton>
               <UButton to="/settings" variant="outline" icon="i-heroicons-cog-6-tooth">Settings</UButton>
               <UBadge color="neutral" variant="soft">{{ engineStore.totalTextUnits }} units • {{ engineStore.gameDataFiles.length }} files</UBadge>
             </div>
@@ -65,5 +65,10 @@ async function pickProject() {
   if (selected) {
     await engineStore.loadProject(selected as string)
   }
+}
+
+function goWorkspace() {
+  if (engineStore.isLoading || !engineStore.hasProject) return
+  navigateTo('/translation')
 }
 </script> 

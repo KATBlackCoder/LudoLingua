@@ -49,14 +49,13 @@ export function useTranslation() {
   const engineStore = useEngineStore()
   const translateStore = useTranslateStore()
 
-  const translatedItems = computed(() => engineStore.textUnits.filter(u =>
+  const translatedItems = computed(() => engineStore.textUnits.filter((u) =>
     u.status === 'MachineTranslated' ||
     u.status === 'HumanReviewed' ||
     (!!u.translated_text && u.translated_text.trim() !== '')
   ))
 
   const hasTranslated = computed(() => translatedItems.value.length > 0)
-  const canInject = computed(() => hasTranslated.value && !engineStore.textUnits.some(u => u.status === 'NotTranslated'))
   const isBusy = computed(() => translateStore.isTranslationInProgress)
   const translationProgress = computed(() => translateStore.translationProgress)
   const translationTotal = computed(() => translateStore.translationTotal)
@@ -84,7 +83,7 @@ export function useTranslation() {
   }
 
   const startProcess = async () => {
-    const untranslated = engineStore.textUnits.filter(u => u.status === 'NotTranslated')
+    const untranslated = engineStore.textUnits.filter((u) => u.status === 'NotTranslated')
     if (!untranslated.length) {
       // If nothing to translate, jump directly to result if there are any translations
       mode.value = translatedItems.value.length ? 'result' : 'raw'
@@ -133,41 +132,8 @@ export function useTranslation() {
     return updated
   }
 
-  const inject = async () => {
-    await engineStore.saveProject()
-  }
-
   const reset = async () => {
-    engineStore.textUnits.forEach(u => { u.translated_text = ''; u.status = TranslationStatus.NotTranslated })
-  }
-
-  const exportData = () => {
-    const items = translatedItems.value
-    if (!items.length) return
-    const payload = {
-      project_name: engineStore.projectInfo?.name || 'Unknown Project',
-      export_date: new Date().toISOString(),
-      total_units: engineStore.textUnits.length,
-      translated_units: items.length,
-      translations: items.map(u => ({
-        id: u.id,
-        source_text: u.source_text,
-        translated_text: u.translated_text,
-        prompt_type: u.prompt_type,
-        status: u.status,
-        field_type: u.field_type
-      }))
-    }
-    const jsonString = JSON.stringify(payload, null, 2)
-    const blob = new Blob([jsonString], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `translations_${engineStore.projectInfo?.name || 'project'}_${new Date().toISOString().split('T')[0]}.json`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    engineStore.textUnits.forEach((u) => { u.translated_text = ''; u.status = TranslationStatus.NotTranslated })
   }
 
   const saveEdit = (payload: { id: string; translated_text: string }) => {
@@ -184,7 +150,6 @@ export function useTranslation() {
     textUnits,
     translatedItems,
     hasTranslated,
-    canInject,
     isBusy,
     translationProgress,
     translationTotal,
@@ -194,9 +159,7 @@ export function useTranslation() {
     startProcess,
     translateOne,
     retranslate,
-    inject,
     reset,
-    exportData,
     saveEdit,
 
     // timing

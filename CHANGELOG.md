@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Backend/LLM: Apply Ollama `ModelOptions` for generation (`temperature`, `num_predict` aka max_tokens) so settings affect outputs.
 - Backend/Glossary: Introduced SQLite-backed glossary module using `sqlx` with managed `GlossaryState`, models, and repository APIs. Added Tauri commands for glossary CRUD (`glossary_list_terms`, `glossary_upsert_term`, `glossary_delete_term`). Integrated prompt builder to render DB terms and fall back to `prompts/vocabularies.txt` when empty. Translation command now injects glossary terms filtered by `PromptType` categories. JS invoke signature remains unchanged; state is injected by Tauri.
 - Backend/Text Processing: Preserve significant whitespace via placeholders in translation flow
   - Encode full-width spaces into `[FWSPC_n]`, ASCII space runs (leading/trailing or len≥2) into `[SPC_n]`, and tabs into `[TAB_n]`
@@ -16,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Developer documentation: Added concise Rustdoc to core backend modules and TSDoc to main frontend stores
   to clarify responsibilities and data flow without changing behavior.
 ### Changed
+- Frontend/Translation: `translate_text_unit` invoke now passes snake_case keys (`text_unit`, `engine_info`) and uses `settingsStore.providerConfig` (temperature/max_tokens) instead of provider defaults.
+- Defaults: Adjusted Ollama defaults to conservative translation values (temperature 0.3, max_tokens 256).
 - Backend/Storage: SQLite glossary database is now stored under the OS app data directory via Tauri path resolver instead of the process working directory.
   - Prevents write failures in packaged apps (read-only bundles, Program Files on Windows).
   - Path examples: Windows `%AppData%/LudoLingua/ludolingua.db`, macOS `~/Library/Application Support/LudoLingua/ludolingua.db`, Linux `~/.local/share/LudoLingua/ludolingua.db`.

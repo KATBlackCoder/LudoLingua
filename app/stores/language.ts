@@ -59,21 +59,22 @@ export const useLanguageStore = defineStore("language", () => {
     })
     .catch(() => {})
 
-  function setLanguage(sourceLanguage: string, targetLanguage: string) {
+  function setLanguage(sourceLanguage: string, targetLanguage: string, opts?: { silent?: boolean }) {
     currentSourceLanguage.value = sourceLanguage;
     currentTargetLanguage.value = targetLanguage;
     const tgt = languageOptions.value.find(l => l.id === targetLanguage)
     if (tgt?.dir) document.documentElement.setAttribute('dir', tgt.dir)
-    showToast(
-      "Language set to " +
-        getLanguage.value.source_language?.label +
-        " to " +
-        getLanguage.value.target_language?.label,
-      "You can change this in the settings",
-      "primary",
-      1000,
-      "i-heroicons-check-circle"
-    );
+    if (!opts?.silent) {
+      showToast("Language set to " +
+          getLanguage.value.source_language?.label +
+          " to " +
+          getLanguage.value.target_language?.label,
+        "You can change this in the settings",
+        "primary",
+        1000,
+        "i-heroicons-check-circle"
+      );
+    }
   }
 
   const resetToDefaults = () => {

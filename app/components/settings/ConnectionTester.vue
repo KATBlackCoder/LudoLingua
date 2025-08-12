@@ -8,13 +8,15 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useProviderStore } from '~/stores/provider'
+import { useSettingsStore } from '~/stores/settings'
 
 // Use provider store for connection testing
 const providerStore = useProviderStore()
+const settingsStore = useSettingsStore()
 
 // Methods
 const testConnection = async () => {
-  await providerStore.testConnection()
+  await providerStore.testConnection(settingsStore.providerConfig, { silent: false })
 }
 
 // Status badge color
@@ -34,7 +36,7 @@ const badgeColor = computed(() => {
 // Auto-test on mount
 onMounted(async () => {
   if (providerStore.connectionStatus === 'unknown') {
-    await providerStore.testConnection()
+    await providerStore.testConnection(settingsStore.providerConfig, { silent: true })
   }
 })
 </script> 

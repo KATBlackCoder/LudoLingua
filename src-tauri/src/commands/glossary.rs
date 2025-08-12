@@ -14,4 +14,14 @@ pub async fn delete_term(state: &GlossaryState, id: i64) -> AppResult<()> {
     crate::glossaries::repo::delete_term(state, id).await
 }
 
+/// Export terms as JSON (filtered by query)
+pub async fn export_terms(state: &GlossaryState, q: GlossaryQuery) -> AppResult<String> {
+    crate::glossaries::repo::export_terms_json(state, &q).await
+}
+
+/// Import terms from JSON string (upsert)
+pub async fn import_terms(state: &GlossaryState, json: String) -> AppResult<usize> {
+    crate::glossaries::repo::import_terms_json(state, &json).await
+}
+
 

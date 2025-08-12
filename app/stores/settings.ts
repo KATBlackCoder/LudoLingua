@@ -30,8 +30,8 @@ const defaultUserSettings: UserSettings = {
   target_language: { id: 'fr', label: 'French', native_name: 'Français', dir: 'ltr', enabled: true },
   base_url: 'http://localhost:11434',
   api_key: undefined,
-  temperature: 0.7,
-  max_tokens: 2048,
+  temperature: 0.3,
+  max_tokens: 256,
 };
 
 /**
@@ -125,7 +125,7 @@ export const useSettingsStore = defineStore('settings', () => {
       }
       
       // Sync with language store to update UI components
-      languageStore.setLanguage(settings.source_language.id, settings.target_language.id);
+      languageStore.setLanguage(settings.source_language.id, settings.target_language.id, { silent: true });
       
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Failed to load user settings';
@@ -158,7 +158,7 @@ export const useSettingsStore = defineStore('settings', () => {
       }
       
       // Sync with language store to update UI components
-      languageStore.setLanguage(settings.source_language.id, settings.target_language.id);
+      languageStore.setLanguage(settings.source_language.id, settings.target_language.id, { silent: true });
       
       console.log('User settings saved:', settings);
     } catch (e) {

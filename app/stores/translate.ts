@@ -2,9 +2,10 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
 import type { TextUnit } from '../types/translation';
-import { useProviderStore } from './provider';
+// import { useProviderStore } from './provider';
 import { useEngineStore } from './engine';
 import { useAppToast } from '~/composables/useAppToast';
+import { useSettingsStore } from './settings';
 
 /**
  * Translate store
@@ -16,7 +17,8 @@ import { useAppToast } from '~/composables/useAppToast';
  */
 export const useTranslateStore = defineStore('translate', () => {
   const { showToast } = useAppToast();
-  const providerStore = useProviderStore();
+  // const providerStore = useProviderStore();
+  const settingsStore = useSettingsStore();
   const engineStore = useEngineStore();
   
   // State
@@ -43,10 +45,17 @@ export const useTranslateStore = defineStore('translate', () => {
       currentTranslatingUnit.value = textUnit;
 
       //console.log('Translating text unit:', textUnit.id);
+      const unitPayload = engineStore.getTextUnitById(textUnit.id)
+      const enginePayload = engineStore.projectInfo
       const translatedUnit = await invoke<TextUnit>('translate_text_unit', {
-        textUnit: engineStore.getTextUnitById(textUnit.id),
-        config: providerStore.currentProviderConfig,
-        engineInfo: engineStore.projectInfo,
+        // snake_case (current backend)
+        text_unit: unitPayload,
+        engine_info: enginePayload,
+        // camelCase (compat with older backend builds)
+        textUnit: unitPayload,
+        engineInfo: enginePayload,
+        // common
+        config: settingsStore.providerConfig,
       });
 
       // Debug log for inspection (raw output)

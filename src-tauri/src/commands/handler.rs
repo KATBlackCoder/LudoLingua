@@ -49,15 +49,6 @@ pub async fn extract_game_data_files(
     engine::extract_game_data_files(project_info).await
 }
 
-/// Inject text units back into project files
-#[tauri::command]
-pub async fn inject_text_units(
-    project_info: crate::models::engine::EngineInfo,
-    text_units: Vec<TextUnit>,
-) -> Result<(), String> {
-    debug!("Command: inject_text_units - {} units", text_units.len());
-    engine::inject_text_units(project_info, text_units).await
-}
 
 /// Load subset via manifest if present
 #[tauri::command]
@@ -147,4 +138,24 @@ pub async fn glossary_delete_term(
 ) -> Result<(), String> {
     debug!("Command: glossary_delete_term");
     glossary_cmd::delete_term(&glossary, id).await.map_err(|e| e.to_string())
+}
+
+/// Glossary: export terms (JSON)
+#[tauri::command]
+pub async fn glossary_export_terms(
+    glossary: State<'_, GlossaryState>,
+    q: GlossaryQuery,
+) -> Result<String, String> {
+    debug!("Command: glossary_export_terms");
+    glossary_cmd::export_terms(&glossary, q).await.map_err(|e| e.to_string())
+}
+
+/// Glossary: import terms from JSON
+#[tauri::command]
+pub async fn glossary_import_terms(
+    glossary: State<'_, GlossaryState>,
+    json: String,
+) -> Result<usize, String> {
+    debug!("Command: glossary_import_terms");
+    glossary_cmd::import_terms(&glossary, json).await.map_err(|e| e.to_string())
 }
