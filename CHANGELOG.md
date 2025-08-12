@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Developer documentation: Added concise Rustdoc to core backend modules and TSDoc to main frontend stores
   to clarify responsibilities and data flow without changing behavior.
 ### Changed
+### Fixed
+- Frontend/Translation UX: Fixed double-wrapped refs in `app/composables/useTranslation.ts` causing incorrect busy/progress rendering.
+- Frontend/Batch Cancel: Batch translation now respects cancellation by checking `isTranslating` inside the loop in `app/stores/translate.ts`.
 - Frontend/Translation: `translate_text_unit` invoke now passes snake_case keys (`text_unit`, `engine_info`) and uses `settingsStore.providerConfig` (temperature/max_tokens) instead of provider defaults.
 - Defaults: Adjusted Ollama defaults to conservative translation values (temperature 0.3, max_tokens 256).
 - Frontend/Translation: Add backward-compat invoke payload keys (`textUnit`, `engineInfo`) to tolerate older backend builds.

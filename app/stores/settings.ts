@@ -256,6 +256,20 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   };
 
+  /**
+   * Check whether a persisted settings file with `user_settings` exists.
+   * Used to redirect first-time users to Settings and gate certain actions.
+   */
+  const hasPersistedUserSettings = async (): Promise<boolean> => {
+    try {
+      const store = await Store.load('ludollingua-settings.json', { autoSave: false });
+      const existing = await store.get<UserSettings>('user_settings');
+      return !!existing;
+    } catch {
+      return false;
+    }
+  };
+
   // ========================================
   // STORE INTERFACE
   // ========================================
@@ -285,5 +299,6 @@ export const useSettingsStore = defineStore('settings', () => {
     // Utilities
     clearError,
     initializeStores,
+    hasPersistedUserSettings,
   };
 }); 

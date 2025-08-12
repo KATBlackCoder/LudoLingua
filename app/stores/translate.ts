@@ -116,6 +116,7 @@ export const useTranslateStore = defineStore('translate', () => {
       showToast('Batch Translation Started', `Translating ${textUnits.length} text units`, 'info', 1200)
 
       for (const textUnit of textUnits) {
+        //if (!isTranslating.value) break
         try {
           const translatedUnit = await translateTextUnit(textUnit);
 

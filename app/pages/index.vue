@@ -17,7 +17,6 @@
             color="neutral"
             variant="soft"
           />
-
           <div v-if="!engineStore.hasProject">
             <ProjectLoader />
           </div>
@@ -57,8 +56,10 @@
 import { useEngineStore } from '../stores/engine';
 import ProjectLoader from '../components/editor/ProjectLoader.vue';
 import { open } from '@tauri-apps/plugin-dialog'
+import { useSettingsStore } from '~/stores/settings'
 
 const engineStore = useEngineStore();
+const settingsStore = useSettingsStore();
 
 async function pickProject() {
   const selected = await open({ directory: true, multiple: false, title: 'Select RPG Maker Project Folder' })
@@ -71,4 +72,15 @@ function goWorkspace() {
   if (engineStore.isLoading || !engineStore.hasProject) return
   navigateTo('/translation')
 }
+
+onMounted(async () => {
+  try {
+    const exists = await settingsStore.hasPersistedUserSettings()
+    if (!exists) {
+      navigateTo('/settings')
+    }
+  } catch (e) {
+    console.error('Failed to check settings existence', e)
+  }
+})
 </script> 

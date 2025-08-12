@@ -29,6 +29,28 @@
         <div class="font-medium">LLM Parameters (Ollama)</div>
       </template>
       <div class="space-y-3 text-sm">
+        <UAlert
+          color="error"
+          variant="soft"
+          icon="i-heroicons-exclamation-triangle"
+          class="mt-2"
+          title="Model requirement"
+        >
+          <template #description>
+            <div class="text-sm">
+              You need an Ollama endpoint to translate. Either install Ollama locally and use
+              <code>http://localhost:11434</code> (<a class="underline" href="https://ollama.com/" target="_blank" rel="noreferrer">ollama.com</a>),
+              or point to a remote Ollama-compatible URL (e.g., a hosted instance).
+              Configure it under <strong>Settings</strong>.
+            </div>
+          </template>
+        </UAlert>
+        <UAlert color="warning" variant="soft" icon="i-heroicons-cog-6-tooth">
+          <template #title>Connection tests require saved settings</template>
+          <template #description>
+            Tests only run once your settings file exists. Open <strong>Settings</strong> and click <strong>Save</strong> at least once to create <code>ludollingua-settings.json</code>.
+          </template>
+        </UAlert>
         <div>
           <div class="font-medium">Temperature</div>
           <div class="text-muted">Controls randomness/creativity. Lower = more literal and consistent; higher = more diverse but riskier.</div>

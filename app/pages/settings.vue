@@ -17,6 +17,21 @@
 
         <UAlert v-if="showSuccessMessage" color="success" variant="soft" icon="i-heroicons-check-circle" title="Settings saved" />
 
+        <UAlert
+          v-if="!hasSettings"
+          color="warning"
+          variant="soft"
+          icon="i-heroicons-cog-6-tooth"
+          title="Finish initial setup"
+          class="mt-2"
+        >
+          <template #description>
+            <div class="text-sm">
+              No settings found yet. Click <strong>Save</strong> at least once to create your configuration before continuing.
+            </div>
+          </template>
+        </UAlert>
+
         <!-- Content grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <!-- Model -->
@@ -84,6 +99,7 @@ const languageStore = useLanguageStore()
 
 // Reactive state
 const showSuccessMessage = ref(false)
+const hasSettings = ref(true)
 
 // Advanced settings form
 const advancedSettings = ref({
@@ -143,6 +159,7 @@ const saveSettings = async () => {
     
     // Show success message
     showSuccessMessage.value = true
+    hasSettings.value = true
     setTimeout(() => {
       showSuccessMessage.value = false
     }, 3000)
@@ -154,6 +171,7 @@ const saveSettings = async () => {
 const resetSettings = async () => {
   try {
     await settingsStore.resetUserSettings()
+    hasSettings.value = true
     
     // Show success message
     showSuccessMessage.value = true
@@ -169,6 +187,8 @@ const resetSettings = async () => {
 onMounted(async () => {
   try {
     await settingsStore.initializeStores()
+    // Check persisted settings existence for first-run alert
+    hasSettings.value = await settingsStore.hasPersistedUserSettings()
   } catch (error) {
     console.error('Failed to initialize settings:', error)
   }

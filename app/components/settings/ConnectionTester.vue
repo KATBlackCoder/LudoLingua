@@ -1,21 +1,32 @@
 <template>
   <div class="flex items-center gap-2">
     <UBadge :color="badgeColor" variant="soft">{{ providerStore.connectionStatusText }}</UBadge>
-    <UButton :loading="providerStore.isLoading" variant="outline" size="sm" icon="i-heroicons-wifi" @click="testConnection">Test</UButton>
+    <UButton
+      :loading="providerStore.isLoading"
+      variant="outline"
+      size="sm"
+      icon="i-heroicons-wifi"
+      :disabled="!ready"
+      @click="testConnection"
+    >
+      Test
+    </UButton>
   </div>
  </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useProviderStore } from '~/stores/provider'
 import { useSettingsStore } from '~/stores/settings'
 
 // Use provider store for connection testing
 const providerStore = useProviderStore()
 const settingsStore = useSettingsStore()
+const ready = ref(true)
 
 // Methods
 const testConnection = async () => {
+  if (!ready.value) return
   await providerStore.testConnection(settingsStore.providerConfig, { silent: false })
 }
 
@@ -35,7 +46,12 @@ const badgeColor = computed(() => {
 
 // Auto-test on mount
 onMounted(async () => {
-  if (providerStore.connectionStatus === 'unknown') {
+  try {
+    ready.value = await settingsStore.hasPersistedUserSettings()
+  } catch {
+    ready.value = false
+  }
+  if (ready.value && providerStore.connectionStatus === 'unknown') {
     await providerStore.testConnection(settingsStore.providerConfig, { silent: true })
   }
 })

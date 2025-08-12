@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useEngineStore } from '~/stores/engine'
 import { useTranslateStore } from '~/stores/translate'
 import { TranslationStatus } from '~/types/translation'
@@ -56,10 +57,15 @@ export function useTranslation() {
   ))
 
   const hasTranslated = computed(() => translatedItems.value.length > 0)
-  const isBusy = computed(() => translateStore.isTranslationInProgress)
-  const translationProgress = computed(() => translateStore.translationProgress)
-  const translationTotal = computed(() => translateStore.translationTotal)
-  const failedCount = computed(() => translateStore.failedTranslations.length)
+  // Use storeToRefs to get reactive refs from the store (state + getters)
+  const {
+    isTranslationInProgress,
+    translationProgress,
+    translationTotal,
+    failedTranslations,
+  } = storeToRefs(translateStore)
+  const isBusy = isTranslationInProgress
+  const failedCount = computed(() => failedTranslations.value.length)
 
   const elapsedText = computed(() => formatDuration(elapsedMs.value))
   const remainingMs = computed(() => {
