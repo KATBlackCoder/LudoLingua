@@ -10,7 +10,8 @@ pub struct GlossaryState {
     db_path: PathBuf,
     pub(crate) pool: Mutex<Option<sqlx::SqlitePool>>,
     // naive in-memory cache keyed by a composed string
-    pub(crate) cache: Mutex<HashMap<String, std::sync::Arc<Vec<crate::glossaries::model::GlossaryTerm>>>>,
+    pub(crate) cache:
+        Mutex<HashMap<String, std::sync::Arc<Vec<crate::glossaries::model::GlossaryTerm>>>>,
 }
 
 impl GlossaryState {
@@ -24,8 +25,8 @@ impl GlossaryState {
 
     pub async fn ensure_pool(&self) -> AppResult<()> {
         if self.pool.lock().await.is_none() {
-            use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqliteSynchronous};
             use sqlx::sqlite::SqlitePoolOptions;
+            use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqliteSynchronous};
 
             // Ensure parent directory exists (first run on a new machine)
             if let Some(parent) = self.db_path.parent() {
@@ -67,5 +68,3 @@ impl GlossaryState {
         self.pool.lock().await.as_ref().unwrap().clone()
     }
 }
-
-

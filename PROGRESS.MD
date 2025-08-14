@@ -736,9 +736,25 @@ Goal: Stabilize and optimize per-unit translation calls with connection reuse.
         *   Deferral: Frontend batch groundwork moved to Phase 8.3 (PromptType grouping, FE-only throttle)
     *   Deferral: Backend rate limiting, translation cache, and auto-backup moved to Phase 8.0
 
-*   **Future Expansion: Additional File Types**
-    *   [x] **MapXXX.json Support:** ✅ Implemented map event parsing and translation
-    *   [x] **CommonEvents.json Support:** ✅ Implemented common events parsing and translation
+---
+
+### ✅ Phase 8: RPG Maker MZ (Expanded Core Files) - Completed
+
+Goal: Detect MZ projects and support extraction/injection for core files using MV modules with `data/*` paths.
+
+*   Completed:
+    *   `rpg_maker_mz/engine.rs` with detection (`data/` + `js/rmmz_core.js`) and factory wiring
+    *   Reused MV modules for MZ paths: Actors, Classes, Items, Skills, Weapons, Armors, System, States, Enemies, CommonEvents, Troops, MapInfos
+    *   Dynamic discovery and processing for `data/MapXXX.json` (event text)
+    *   Command layer dispatch updated for MZ engine
+    *   Frontend unchanged; `EngineType.RpgMakerMz` renders and stats update
+    *   Finalized: MZ support complete (core files parity achieved). Proceeding to next engine.
+
+*   Notes:
+    *   `extra_files` left empty for MZ; minimal export focuses on `data/`
+
+*   UI enhancement:
+    *   Translation results: added “Add to glossary” action mapping PromptType → Category
 
 *   **Frontend Enhancements:**
     *   [ ] Implement responsive design for different screen sizes.

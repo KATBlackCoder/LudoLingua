@@ -18,6 +18,7 @@ use tauri::Manager;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+
         .manage(crate::llm::state::LlmState::new(1))
         .setup(|app| {
             // Resolve per-OS app data directory and create the DB there
@@ -29,7 +30,8 @@ pub fn run() {
             std::fs::create_dir_all(&app_data_dir)?;
             let db_path = app_data_dir.join("ludolingua.db");
 
-            app.handle().manage(crate::glossaries::GlossaryState::new(db_path));
+            app.handle()
+                .manage(crate::glossaries::GlossaryState::new(db_path));
             Ok(())
         })
         .plugin(tauri_plugin_fs::init())

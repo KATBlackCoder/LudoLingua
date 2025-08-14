@@ -16,4 +16,3 @@ pub async fn get_ollama_models() -> Result<Vec<ModelInfo>, String> {
     info!("Loading available models for Ollama");
     Ok(OllamaService::get_available_models())
 }
-

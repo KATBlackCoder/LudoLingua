@@ -16,8 +16,11 @@ impl PromptBuilder {
     /// Render glossary terms (DB) as a block compatible with `vocabularies.txt` sections.
     pub fn render_glossary_terms(terms: &[crate::glossaries::model::GlossaryTerm]) -> String {
         use std::collections::BTreeMap;
-        if terms.is_empty() { return String::new(); }
-        let mut by_cat: BTreeMap<&str, Vec<&crate::glossaries::model::GlossaryTerm>> = BTreeMap::new();
+        if terms.is_empty() {
+            return String::new();
+        }
+        let mut by_cat: BTreeMap<&str, Vec<&crate::glossaries::model::GlossaryTerm>> =
+            BTreeMap::new();
         for t in terms {
             by_cat.entry(&t.category).or_default().push(t);
         }
@@ -25,8 +28,12 @@ impl PromptBuilder {
         for (cat, group) in by_cat {
             s.push_str(&format!("### {}\n", cat));
             for t in group {
-                s.push_str("Input: "); s.push_str(&t.input); s.push('\n');
-                s.push_str("Output: "); s.push_str(&t.output); s.push('\n');
+                s.push_str("Input: ");
+                s.push_str(&t.input);
+                s.push('\n');
+                s.push_str("Output: ");
+                s.push_str(&t.output);
+                s.push('\n');
                 s.push('\n');
             }
         }
@@ -52,7 +59,8 @@ impl PromptBuilder {
         // DB-only mode: use DB-rendered terms only (skip file vocabulary)
         let db_vocab_src = Self::render_glossary_terms(terms);
         let db_len = db_vocab_src.len();
-        let vocabulary_template = Self::filter_vocabulary_sections(&db_vocab_src, text_unit.prompt_type);
+        let vocabulary_template =
+            Self::filter_vocabulary_sections(&db_vocab_src, text_unit.prompt_type);
         debug!(
             "PromptBuilder: DB-only vocabulary length: db={} bytes, filtered={} bytes",
             db_len,
@@ -137,7 +145,8 @@ impl PromptBuilder {
         template.push_str(&specific_content);
 
         // Replace variables first
-        let prompt_without_text = Self::replace_template_variables(&template, text_unit, engine_info);
+        let prompt_without_text =
+            Self::replace_template_variables(&template, text_unit, engine_info);
 
         // Append raw text with explicit delimiters to prevent bleed
         let mut final_prompt = prompt_without_text;
@@ -158,23 +167,14 @@ impl PromptBuilder {
                 "### Time & Weather",
                 "### Mechanics",
             ],
-            PromptType::Character => &[
-                "### Characters",
-                "### Essential Terms",
-            ],
-            PromptType::State | PromptType::Skill => &[
-                "### Status Effects",
-                "### Mechanics",
-                "### Essential Terms",
-            ],
-            PromptType::Equipment => &[
-                "### Mechanics",
-                "### Essential Terms",
-            ],
-            PromptType::System | PromptType::Class | PromptType::Other => &[
-                "### Mechanics",
-                "### Essential Terms",
-            ],
+            PromptType::Character => &["### Characters", "### Essential Terms"],
+            PromptType::State | PromptType::Skill => {
+                &["### Status Effects", "### Mechanics", "### Essential Terms"]
+            }
+            PromptType::Equipment => &["### Mechanics", "### Essential Terms"],
+            PromptType::System | PromptType::Class | PromptType::Other => {
+                &["### Mechanics", "### Essential Terms"]
+            }
         };
 
         let mut output = String::new();
@@ -237,7 +237,8 @@ impl PromptBuilder {
         fs::read_to_string(&full_path).map_err(|e| {
             AppError::FileSystem(format!(
                 "Failed to read prompt template {}: {}",
-                full_path.display(), e
+                full_path.display(),
+                e
             ))
         })
     }

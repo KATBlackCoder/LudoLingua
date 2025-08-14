@@ -7,6 +7,7 @@ import type { TextUnit } from './translation';
 export enum EngineType {
   RpgMakerMv = 'RpgMakerMv',
   RpgMakerMz = 'RpgMakerMz',
+  WolfRpg = 'WolfRpg',
   Unknown = 'Unknown',
 }
 
@@ -16,7 +17,8 @@ export enum EngineType {
 export interface EngineCriteria {
   required_files: string[];
   required_folders: string[];
-  optional_files?: string[];
+  extra_files: string[];
+  export_data_roots: string[];
 }
 
 /**

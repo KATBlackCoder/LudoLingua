@@ -1,8 +1,8 @@
-use sqlx::{self, Row, Arguments};
+use sqlx::{self, Arguments, Row};
 
 use crate::core::error::AppResult;
-use crate::glossaries::{GlossaryQuery, GlossaryState};
 use crate::glossaries::model::GlossaryTerm;
+use crate::glossaries::{GlossaryQuery, GlossaryState};
 
 pub async fn find_terms(state: &GlossaryState, q: &GlossaryQuery) -> AppResult<Vec<GlossaryTerm>> {
     let pool = state.pool().await;
@@ -44,7 +44,9 @@ pub async fn find_terms(state: &GlossaryState, q: &GlossaryQuery) -> AppResult<V
         sql.push_str(&format!(" LIMIT {}", limit));
     }
 
-    let rows = sqlx::query_with(&sql, args).fetch_all(&pool).await
+    let rows = sqlx::query_with(&sql, args)
+        .fetch_all(&pool)
+        .await
         .map_err(|e| crate::core::error::AppError::Database(e.to_string()))?;
     let terms = rows
         .into_iter()
@@ -117,7 +119,8 @@ pub async fn delete_term(state: &GlossaryState, id: i64) -> AppResult<()> {
 /// Export all (or filtered) terms to JSON string
 pub async fn export_terms_json(state: &GlossaryState, q: &GlossaryQuery) -> AppResult<String> {
     let terms = find_terms(state, q).await?;
-    serde_json::to_string_pretty(&terms).map_err(|e| crate::core::error::AppError::Other(e.to_string()))
+    serde_json::to_string_pretty(&terms)
+        .map_err(|e| crate::core::error::AppError::Other(e.to_string()))
 }
 
 /// Import terms from JSON string, upserting each term
@@ -134,5 +137,3 @@ pub async fn import_terms_json(state: &GlossaryState, json: &str) -> AppResult<u
     }
     Ok(count)
 }
-
-

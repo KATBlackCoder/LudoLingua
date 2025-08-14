@@ -1,6 +1,6 @@
 pub mod model;
-pub mod state;
 pub mod repo;
+pub mod state;
 
 pub use state::GlossaryState;
 
@@ -14,5 +14,3 @@ pub struct GlossaryQuery {
     pub limit: Option<usize>,
     pub only_enabled: bool,
 }
-
-

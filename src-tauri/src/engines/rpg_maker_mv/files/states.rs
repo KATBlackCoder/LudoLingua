@@ -1,13 +1,13 @@
 use crate::core::error::{AppError, AppResult};
 use crate::models::engine::GameDataFile;
-use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
+use crate::models::translation::{PromptType, TextUnit};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 
 use super::common::{
-    extract_text_from_file_with_objects, extract_text_units_for_object, 
-    inject_text_units_for_object, inject_translations_into_file_with_objects
+    extract_text_from_file_with_objects, extract_text_units_for_object,
+    inject_text_units_for_object, inject_translations_into_file_with_objects,
 };
 
 /// Represents a single status effect from RPG Maker MV States.json
@@ -54,11 +54,11 @@ pub struct State {
 }
 
 /// Extracts translatable text from States.json
-/// 
+///
 /// # Arguments
 /// * `project_path` - Path to the project directory
 /// * `file_path` - Relative path to the States.json file
-/// 
+///
 /// # Returns
 /// * `AppResult<GameDataFile>` - Game data file with extracted text units
 pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataFile> {
@@ -102,15 +102,19 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
 }
 
 /// Injects translated text back into States.json
-/// 
+///
 /// # Arguments
 /// * `project_path` - Path to the project directory
 /// * `file_path` - Relative path to the States.json file
 /// * `text_units` - Vector of translated text units
-/// 
+///
 /// # Returns
 /// * `AppResult<()>` - Success or error
-pub fn inject_translations(project_path: &Path, file_path: &str, text_units: &[&TextUnit]) -> AppResult<()> {
+pub fn inject_translations(
+    project_path: &Path,
+    file_path: &str,
+    text_units: &[&TextUnit],
+) -> AppResult<()> {
     // Parse function for States.json
     let parse_states = |content: &str| -> AppResult<Vec<Option<State>>> {
         serde_json::from_str(content)

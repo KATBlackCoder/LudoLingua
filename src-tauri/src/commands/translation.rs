@@ -1,14 +1,14 @@
 use log::{debug, info};
 
 use crate::core::error::AppResult;
-use crate::llm::state::LlmState;
 use crate::glossaries::{GlossaryQuery, GlossaryState};
+use crate::llm::state::LlmState;
 use crate::models::engine::EngineInfo;
 use crate::models::provider::LlmConfig;
-use crate::models::translation::{TextUnit, TranslationStatus, PromptType};
+use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
 use crate::utils::prompts::builder::PromptBuilder;
 use tauri::State;
-use tokio::time::{timeout, sleep, Duration};
+use tokio::time::{sleep, timeout, Duration};
 
 /// Translate a single text unit using the configured LLM
 pub async fn translate_text_unit(
@@ -26,23 +26,18 @@ pub async fn translate_text_unit(
     // Build prompt at the command layer to keep service focused on generation
     // Try to fetch glossary terms filtered by prompt type
     let categories: Vec<String> = match text_unit.prompt_type {
-        PromptType::Dialogue | PromptType::Character => vec![
-            "Characters".into(),
-            "Essential Terms".into(),
-        ],
+        PromptType::Dialogue | PromptType::Character => {
+            vec!["Characters".into(), "Essential Terms".into()]
+        }
         PromptType::State | PromptType::Skill => vec![
             "Status Effects".into(),
             "Mechanics".into(),
             "Essential Terms".into(),
         ],
-        PromptType::Equipment => vec![
-            "Mechanics".into(),
-            "Essential Terms".into(),
-        ],
-        PromptType::System | PromptType::Class | PromptType::Other => vec![
-            "Mechanics".into(),
-            "Essential Terms".into(),
-        ],
+        PromptType::Equipment => vec!["Mechanics".into(), "Essential Terms".into()],
+        PromptType::System | PromptType::Class | PromptType::Other => {
+            vec!["Mechanics".into(), "Essential Terms".into()]
+        }
     };
 
     let q = GlossaryQuery {

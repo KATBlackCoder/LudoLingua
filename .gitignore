@@ -28,8 +28,9 @@ logs
 #.cursorrules
 
 # other
-game
-
+WolfRPG
+dump
+dump2
 # Database files (exclude from git but allow in development)
 src-tauri/ludolingua.db*
 *.db

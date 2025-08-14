@@ -6,10 +6,10 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use super::common::{
-    extract_text_from_file_with_objects, extract_text_units_for_object, 
+    extract_text_from_file_with_objects, extract_text_units_for_object,
     extract_text_units_from_event_commands, inject_text_units_for_object,
     inject_text_units_into_event_commands, inject_translations_into_file_with_objects,
-    EventCommand as CommonEventCommand
+    EventCommand as CommonEventCommand,
 };
 
 /// Represents a single event command in RPG Maker MV Troops.json
@@ -93,11 +93,11 @@ pub struct Troop {
 }
 
 /// Extracts translatable text from Troops.json
-/// 
+///
 /// # Arguments
 /// * `project_path` - Path to the project directory
 /// * `file_path` - Relative path to the Troops.json file
-/// 
+///
 /// # Returns
 /// * `AppResult<GameDataFile>` - Game data file with extracted text units
 pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataFile> {
@@ -129,9 +129,8 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
 
         // Extract text from all pages' event commands
         for (page_index, page) in troop.pages.iter().enumerate() {
-            let common_commands: Vec<CommonEventCommand> = page.list.iter()
-                .map(|cmd| cmd.clone().into())
-                .collect();
+            let common_commands: Vec<CommonEventCommand> =
+                page.list.iter().map(|cmd| cmd.clone().into()).collect();
             text_units.extend(extract_text_units_from_event_commands(
                 &format!("troop_{}_page_{}", troop.id, page_index),
                 troop.id,
@@ -154,15 +153,19 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
 }
 
 /// Injects translated text back into Troops.json
-/// 
+///
 /// # Arguments
 /// * `project_path` - Path to the project directory
 /// * `file_path` - Relative path to the Troops.json file
 /// * `text_units` - Vector of translated text units
-/// 
+///
 /// # Returns
 /// * `AppResult<()>` - Success or error
-pub fn inject_translations(project_path: &Path, file_path: &str, text_units: &[&TextUnit]) -> AppResult<()> {
+pub fn inject_translations(
+    project_path: &Path,
+    file_path: &str,
+    text_units: &[&TextUnit],
+) -> AppResult<()> {
     // Parse function for Troops.json
     let parse_troops = |content: &str| -> AppResult<Vec<Option<Troop>>> {
         serde_json::from_str(content)
@@ -181,9 +184,8 @@ pub fn inject_translations(project_path: &Path, file_path: &str, text_units: &[&
 
         // Update text in all pages' event commands
         for (page_index, page) in troop.pages.iter_mut().enumerate() {
-            let mut common_commands: Vec<CommonEventCommand> = page.list.iter()
-                .map(|cmd| cmd.clone().into())
-                .collect();
+            let mut common_commands: Vec<CommonEventCommand> =
+                page.list.iter().map(|cmd| cmd.clone().into()).collect();
             inject_text_units_into_event_commands(
                 &format!("troop_{}_page_{}", troop.id, page_index),
                 troop.id,
@@ -191,9 +193,7 @@ pub fn inject_translations(project_path: &Path, file_path: &str, text_units: &[&
                 text_unit_map,
             );
             // Convert back to EventCommand
-            page.list = common_commands.into_iter()
-                .map(|cmd| cmd.into())
-                .collect();
+            page.list = common_commands.into_iter().map(|cmd| cmd.into()).collect();
         }
     };
 
@@ -206,4 +206,4 @@ pub fn inject_translations(project_path: &Path, file_path: &str, text_units: &[&
         parse_troops,
         update_troop,
     )
-} 
+}

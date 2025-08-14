@@ -1,17 +1,21 @@
+use super::common::{
+    extract_text_from_file_with_objects, extract_text_units_for_object,
+    extract_text_units_from_event_commands, inject_text_units_for_object,
+    inject_text_units_into_event_commands, EventCommand,
+};
+use crate::core::error::{AppError, AppResult};
+use crate::models::engine::GameDataFile;
+use crate::models::translation::{PromptType, TextUnit};
 use serde::{Deserialize, Serialize};
-use std::path::Path;
 use std::collections::HashMap;
 use std::fs;
-use crate::core::error::{AppError, AppResult};
-use crate::models::translation::{TextUnit, PromptType};
-use crate::models::engine::GameDataFile;
-use super::common::{extract_text_from_file_with_objects, extract_text_units_for_object, inject_text_units_for_object, extract_text_units_from_event_commands, inject_text_units_into_event_commands, EventCommand};
+use std::path::Path;
 
 /// Extract map ID from file path (e.g., "Map004.json" -> "004")
-/// 
+///
 /// # Arguments
 /// * `file_path` - Relative path to the MapXXX.json file
-/// 
+///
 /// # Returns
 /// * `&str` - The map ID as a string slice
 pub fn extract_map_id(file_path: &str) -> &str {
@@ -185,22 +189,22 @@ pub struct Map {
 }
 
 /// Discover all MapXXX.json files in the project
-/// 
+///
 /// # Arguments
 /// * `project_path` - Path to the project directory
-/// 
+///
 /// # Returns
 /// * `AppResult<Vec<String>>` - Vector of discovered map file paths
 pub fn discover_map_files(project_path: &Path) -> AppResult<Vec<String>> {
     use std::fs;
-    
+
     let data_path = project_path.join("www/data");
     if !data_path.exists() {
         return Ok(Vec::new());
     }
 
     let mut map_files = Vec::new();
-    
+
     match fs::read_dir(&data_path) {
         Ok(entries) => {
             for entry in entries {
@@ -216,7 +220,10 @@ pub fn discover_map_files(project_path: &Path) -> AppResult<Vec<String>> {
             }
         }
         Err(e) => {
-            return Err(AppError::FileSystem(format!("Failed to read data directory: {}", e)));
+            return Err(AppError::FileSystem(format!(
+                "Failed to read data directory: {}",
+                e
+            )));
         }
     }
 
@@ -226,11 +233,11 @@ pub fn discover_map_files(project_path: &Path) -> AppResult<Vec<String>> {
 }
 
 /// Extract text units from a single MapXXX.json file
-/// 
+///
 /// # Arguments
 /// * `project_path` - Path to the project directory
 /// * `file_path` - Relative path to the MapXXX.json file
-/// 
+///
 /// # Returns
 /// * `AppResult<GameDataFile>` - Game data file with extracted text units
 pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataFile> {
@@ -247,7 +254,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     // Extract function for the map
     let extract_map_units = |map: &Map, _index: usize, file_path: &str| -> Vec<TextUnit> {
         let mut text_units = Vec::new();
-        
+
         // Extract text from events
         for event_option in &map.events {
             if let Some(event) = event_option {
@@ -257,9 +264,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
                     event.id,
                     file_path,
                     event.id as usize,
-                    vec![
-                        ("name", &event.name, PromptType::Character),
-                    ],
+                    vec![("name", &event.name, PromptType::Character)],
                 ));
 
                 // Extract text from event pages using common function
@@ -273,7 +278,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
                 }
             }
         }
-        
+
         text_units
     };
 
@@ -288,12 +293,12 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
 }
 
 /// Inject translations back into a MapXXX.json file
-/// 
+///
 /// # Arguments
 /// * `project_path` - Path to the project directory
 /// * `file_path` - Relative path to the MapXXX.json file
 /// * `text_units` - Vector of translated text units to inject
-/// 
+///
 /// # Returns
 /// * `AppResult<()>` - Success or error
 pub fn inject_translations(
@@ -301,20 +306,29 @@ pub fn inject_translations(
     file_path: &str,
     text_units: &[&TextUnit],
 ) -> AppResult<()> {
-    log::info!("Starting injection for {} with {} text units", file_path, text_units.len());
-    
+    log::info!(
+        "Starting injection for {} with {} text units",
+        file_path,
+        text_units.len()
+    );
+
     // Extract map ID from file path
     let map_id = extract_map_id(file_path);
     log::info!("Extracted map_id: {}", map_id);
 
     let full_path = project_path.join(file_path);
-    log::debug!("Injecting translations into {} at: {}", file_path, full_path.display());
+    log::debug!(
+        "Injecting translations into {} at: {}",
+        file_path,
+        full_path.display()
+    );
 
     // Check if the file exists
     if !full_path.exists() {
         return Err(AppError::FileSystem(format!(
             "{} not found at {}",
-            file_path, full_path.display()
+            file_path,
+            full_path.display()
         )));
     }
 
@@ -334,25 +348,27 @@ pub fn inject_translations(
 
     // Update the map with translated text
     log::info!("Updating map with {} events", map.events.len());
-    
+
     // Update events
     for event_option in &mut map.events {
         if let Some(event) = event_option {
             log::info!("Processing event {} with name: '{}'", event.id, event.name);
-            
+
             // Update event name
             inject_text_units_for_object(
                 &format!("map_{}_event", map_id),
                 event.id,
                 &text_unit_map,
-                vec![
-                    ("name", &mut event.name),
-                ],
+                vec![("name", &mut event.name)],
             );
 
             // Update event pages using common function
             for (page_index, page) in event.pages.iter_mut().enumerate() {
-                log::info!("Processing page {} with {} commands", page_index, page.list.len());
+                log::info!(
+                    "Processing page {} with {} commands",
+                    page_index,
+                    page.list.len()
+                );
                 inject_text_units_into_event_commands(
                     &format!("map_{}_event", map_id),
                     event.id,

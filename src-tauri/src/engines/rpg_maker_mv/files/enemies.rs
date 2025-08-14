@@ -1,13 +1,13 @@
 use crate::core::error::{AppError, AppResult};
 use crate::models::engine::GameDataFile;
-use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
+use crate::models::translation::{PromptType, TextUnit};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 
 use super::common::{
-    extract_text_from_file_with_objects, extract_text_units_for_object, 
-    inject_text_units_for_object, inject_translations_into_file_with_objects
+    extract_text_from_file_with_objects, extract_text_units_for_object,
+    inject_text_units_for_object, inject_translations_into_file_with_objects,
 };
 
 /// Represents a single enemy from RPG Maker MV Enemies.json
@@ -34,11 +34,11 @@ pub struct Enemy {
 }
 
 /// Extracts translatable text from Enemies.json
-/// 
+///
 /// # Arguments
 /// * `project_path` - Path to the project directory
 /// * `file_path` - Relative path to the Enemies.json file
-/// 
+///
 /// # Returns
 /// * `AppResult<GameDataFile>` - Game data file with extracted text units
 pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataFile> {
@@ -60,9 +60,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
             enemy.id,
             file_path,
             index,
-            vec![
-                ("name", &enemy.name, PromptType::Character),
-            ],
+            vec![("name", &enemy.name, PromptType::Character)],
         )
     };
 
@@ -77,15 +75,19 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
 }
 
 /// Injects translated text back into Enemies.json
-/// 
+///
 /// # Arguments
 /// * `project_path` - Path to the project directory
 /// * `file_path` - Relative path to the Enemies.json file
 /// * `text_units` - Vector of translated text units
-/// 
+///
 /// # Returns
 /// * `AppResult<()>` - Success or error
-pub fn inject_translations(project_path: &Path, file_path: &str, text_units: &[&TextUnit]) -> AppResult<()> {
+pub fn inject_translations(
+    project_path: &Path,
+    file_path: &str,
+    text_units: &[&TextUnit],
+) -> AppResult<()> {
     // Parse function for Enemies.json
     let parse_enemies = |content: &str| -> AppResult<Vec<Option<Enemy>>> {
         serde_json::from_str(content)
@@ -98,9 +100,7 @@ pub fn inject_translations(project_path: &Path, file_path: &str, text_units: &[&
             "enemy",
             enemy.id,
             text_unit_map,
-            vec![
-                ("name", &mut enemy.name),
-            ],
+            vec![("name", &mut enemy.name)],
         );
     };
 
@@ -113,4 +113,4 @@ pub fn inject_translations(project_path: &Path, file_path: &str, text_units: &[&
         parse_enemies,
         update_enemy,
     )
-} 
+}

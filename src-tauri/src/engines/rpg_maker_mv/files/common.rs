@@ -1,7 +1,10 @@
 use crate::core::error::{AppError, AppResult};
 use crate::models::engine::GameDataFile;
 use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
-use crate::utils::text_processing::{is_technical_content, replace_formatting_codes_for_translation, restore_formatting_codes_after_translation};
+use crate::utils::text_processing::{
+    is_technical_content, replace_formatting_codes_for_translation,
+    restore_formatting_codes_after_translation,
+};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -41,8 +44,6 @@ pub fn extract_text_units_for_object(
     units
 }
 
-
-
 /// Common function to extract text from RPG Maker JSON files with object iteration.
 ///
 /// This function handles the common pattern of:
@@ -73,13 +74,18 @@ where
     E: Fn(&T, usize, &str) -> Vec<TextUnit>,
 {
     let full_path = project_path.join(file_path);
-    log::debug!("Extracting text from {} at: {}", file_name, full_path.display());
+    log::debug!(
+        "Extracting text from {} at: {}",
+        file_name,
+        full_path.display()
+    );
 
     // Check if the file exists
     if !full_path.exists() {
         return Err(AppError::FileSystem(format!(
             "{} not found at {}",
-            file_name, full_path.display()
+            file_name,
+            full_path.display()
         )));
     }
 
@@ -101,7 +107,11 @@ where
     }
 
     let text_unit_count = text_units.len() as u32;
-    log::info!("Extracted {} text units from {}", text_unit_count, file_name);
+    log::info!(
+        "Extracted {} text units from {}",
+        text_unit_count,
+        file_name
+    );
 
     let file_stem = Path::new(file_path)
         .file_stem()
@@ -116,8 +126,6 @@ where
         text_unit_count,
     })
 }
-
-
 
 /// Common function to inject translations into RPG Maker JSON files with object iteration.
 ///
@@ -153,13 +161,18 @@ where
     T: serde::Serialize,
 {
     let full_path = project_path.join(file_path);
-    log::debug!("Injecting translations into {} at: {}", file_name, full_path.display());
+    log::debug!(
+        "Injecting translations into {} at: {}",
+        file_name,
+        full_path.display()
+    );
 
     // Check if the file exists
     if !full_path.exists() {
         return Err(AppError::FileSystem(format!(
             "{} not found at {}",
-            file_name, full_path.display()
+            file_name,
+            full_path.display()
         )));
     }
 
@@ -216,13 +229,18 @@ pub fn inject_text_units_for_object(
     for (field_name, field_ref) in fields {
         let unit_id = format!("{}_{}_{}", object_type, object_id, field_name);
         log::debug!("Looking for text unit with ID: {}", unit_id);
-        
+
         if let Some(unit) = text_units.get(&unit_id) {
             log::debug!("Found text unit: {} -> '{}'", unit_id, unit.translated_text);
             if !unit.translated_text.is_empty() {
                 // Restore RPG Maker formatting codes before writing back
-                let restored_text = restore_formatting_codes_after_translation(&unit.translated_text);
-                log::info!("Injecting translation: '{}' -> '{}'", field_ref, restored_text);
+                let restored_text =
+                    restore_formatting_codes_after_translation(&unit.translated_text);
+                log::info!(
+                    "Injecting translation: '{}' -> '{}'",
+                    field_ref,
+                    restored_text
+                );
                 *field_ref = restored_text;
             } else {
                 log::debug!("Text unit has empty translation, skipping");
@@ -277,7 +295,10 @@ pub fn extract_text_units_from_event_commands(
                             // Replace formatting codes with placeholders for cleaner translation
                             let clean_text = replace_formatting_codes_for_translation(text);
                             text_units.push(TextUnit {
-                                id: format!("{}_{}_message_{}", object_type, object_id, command_index),
+                                id: format!(
+                                    "{}_{}_message_{}",
+                                    object_type, object_id, command_index
+                                ),
                                 source_text: clean_text,
                                 translated_text: String::new(),
                                 field_type: "message".to_string(),
@@ -297,9 +318,13 @@ pub fn extract_text_units_from_event_commands(
                             if let Some(choice_text) = choice_param.as_str() {
                                 if !choice_text.is_empty() && !is_technical_content(choice_text) {
                                     // Replace formatting codes with placeholders for cleaner translation
-                                    let clean_text = replace_formatting_codes_for_translation(choice_text);
+                                    let clean_text =
+                                        replace_formatting_codes_for_translation(choice_text);
                                     text_units.push(TextUnit {
-                                        id: format!("{}_{}_choice_{}_{}", object_type, object_id, command_index, choice_index),
+                                        id: format!(
+                                            "{}_{}_choice_{}_{}",
+                                            object_type, object_id, command_index, choice_index
+                                        ),
                                         source_text: clean_text,
                                         translated_text: String::new(),
                                         field_type: "choice".to_string(),
@@ -338,9 +363,6 @@ pub fn extract_text_units_from_event_commands(
 /// # Returns
 /// * `bool` - True if the content is technical and should be skipped
 
-
-
-
 /// Injects translated text back into event commands
 ///
 /// # Arguments
@@ -362,19 +384,32 @@ pub fn inject_text_units_into_event_commands(
                 // Show Text - Message content
                 if let Some(text_param) = command.parameters.get_mut(0) {
                     if text_param.as_str().is_some() {
-                        let unit_id = format!("{}_{}_message_{}", object_type, object_id, command_index);
+                        let unit_id =
+                            format!("{}_{}_message_{}", object_type, object_id, command_index);
                         log::debug!("Looking for event command text unit with ID: {}", unit_id);
-                        
+
                         if let Some(text_unit) = text_unit_map.get(&unit_id) {
-                            log::debug!("Found event command text unit: {} -> '{}'", unit_id, text_unit.translated_text);
+                            log::debug!(
+                                "Found event command text unit: {} -> '{}'",
+                                unit_id,
+                                text_unit.translated_text
+                            );
                             // Only update if translated text is not empty
                             if !text_unit.translated_text.is_empty() {
                                 // Restore formatting codes from placeholders
-                                let restored_text = restore_formatting_codes_after_translation(&text_unit.translated_text);
-                                log::info!("Injecting event command translation: '{}' -> '{}'", text_param.as_str().unwrap(), restored_text);
+                                let restored_text = restore_formatting_codes_after_translation(
+                                    &text_unit.translated_text,
+                                );
+                                log::info!(
+                                    "Injecting event command translation: '{}' -> '{}'",
+                                    text_param.as_str().unwrap(),
+                                    restored_text
+                                );
                                 *text_param = serde_json::Value::String(restored_text);
                             } else {
-                                log::debug!("Event command text unit has empty translation, skipping");
+                                log::debug!(
+                                    "Event command text unit has empty translation, skipping"
+                                );
                             }
                         } else {
                             log::debug!("No event command text unit found for ID: {}", unit_id);
@@ -390,17 +425,32 @@ pub fn inject_text_units_into_event_commands(
                         let mut updated_choices = Vec::new();
                         for (choice_index, choice_param) in choices_array.iter().enumerate() {
                             if let Some(choice_text) = choice_param.as_str() {
-                                let unit_id = format!("{}_{}_choice_{}_{}", object_type, object_id, command_index, choice_index);
+                                let unit_id = format!(
+                                    "{}_{}_choice_{}_{}",
+                                    object_type, object_id, command_index, choice_index
+                                );
                                 log::debug!("Looking for choice text unit with ID: {}", unit_id);
-                                
+
                                 if let Some(text_unit) = text_unit_map.get(&unit_id) {
-                                    log::debug!("Found choice text unit: {} -> '{}'", unit_id, text_unit.translated_text);
+                                    log::debug!(
+                                        "Found choice text unit: {} -> '{}'",
+                                        unit_id,
+                                        text_unit.translated_text
+                                    );
                                     // Only update if translated text is not empty
                                     if !text_unit.translated_text.is_empty() {
                                         // Restore formatting codes from placeholders
-                                        let restored_text = restore_formatting_codes_after_translation(&text_unit.translated_text);
-                                        log::info!("Injecting choice translation: '{}' -> '{}'", choice_text, restored_text);
-                                        updated_choices.push(serde_json::Value::String(restored_text));
+                                        let restored_text =
+                                            restore_formatting_codes_after_translation(
+                                                &text_unit.translated_text,
+                                            );
+                                        log::info!(
+                                            "Injecting choice translation: '{}' -> '{}'",
+                                            choice_text,
+                                            restored_text
+                                        );
+                                        updated_choices
+                                            .push(serde_json::Value::String(restored_text));
                                     } else {
                                         log::debug!("Choice text unit has empty translation, keeping original");
                                         updated_choices.push(choice_param.clone());

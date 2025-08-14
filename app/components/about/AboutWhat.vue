@@ -7,6 +7,7 @@
       <UBadge color="primary" variant="soft" icon="i-heroicons-cpu-chip">Offline-first</UBadge>
       <UBadge color="primary" variant="soft" icon="i-heroicons-shield-check">Local files</UBadge>
       <UBadge color="primary" variant="soft" icon="i-heroicons-language">RPG Maker MV</UBadge>
+      <UBadge color="primary" variant="soft" icon="i-heroicons-language">RPG Maker MZ</UBadge>
       <UBadge color="primary" variant="soft" icon="i-heroicons-swatch">Nuxt UI</UBadge>
     </div>
   </section>

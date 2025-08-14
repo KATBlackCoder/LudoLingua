@@ -2,13 +2,13 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 
+use super::common::{
+    extract_text_from_file_with_objects, extract_text_units_for_object,
+    inject_text_units_for_object, inject_translations_into_file_with_objects,
+};
 use crate::core::error::{AppError, AppResult};
 use crate::models::engine::GameDataFile;
 use crate::models::translation::{PromptType, TextUnit};
-use super::common::{
-    extract_text_from_file_with_objects, extract_text_units_for_object, 
-    inject_text_units_for_object, inject_translations_into_file_with_objects
-};
 
 /// Represents a character class in RPG Maker MV.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -38,9 +38,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
             class.id,
             file_path,
             index,
-            vec![
-                ("name", &class.name, PromptType::Class),
-            ],
+            vec![("name", &class.name, PromptType::Class)],
         )
     };
 
@@ -82,10 +80,7 @@ pub fn inject_translations(
             "class",
             class.id,
             text_unit_map,
-            vec![
-                ("name", &mut class.name),
-                ("note", &mut class.note),
-            ],
+            vec![("name", &mut class.name), ("note", &mut class.note)],
         );
     };
 
@@ -98,4 +93,4 @@ pub fn inject_translations(
         parse_classes,
         update_class,
     )
-} 
+}

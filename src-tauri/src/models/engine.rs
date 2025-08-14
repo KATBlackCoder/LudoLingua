@@ -1,7 +1,7 @@
 use crate::models::language::Language;
 use crate::models::translation::TextUnit;
 use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 /// Represents the type of game engine detected in a project.
 ///
@@ -14,6 +14,9 @@ pub enum EngineType {
 
     /// RPG Maker MZ engine (newer JavaScript-based version)
     RpgMakerMz,
+
+    /// Wolf RPG Editor engine (Windows-only, orchestrated via external tools)
+    WolfRpg,
 
     /// Engine could not be determined or is not supported
     Unknown,

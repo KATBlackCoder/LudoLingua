@@ -1,9 +1,7 @@
 use tokio::sync::{Mutex, Semaphore};
 
 use crate::{
-    core::error::AppResult,
-    llm::services::ollama::OllamaService,
-    models::provider::LlmConfig,
+    core::error::AppResult, llm::services::ollama::OllamaService, models::provider::LlmConfig,
 };
 
 /// Shared LLM state managed by Tauri
@@ -33,7 +31,4 @@ impl LlmState {
             }
         }
     }
-
 }
-
-

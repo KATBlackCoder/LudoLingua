@@ -54,16 +54,20 @@ export const useEngineStore = defineStore('engine', () => {
       // Extract text units from the loaded project
       const extractedUnits = await invoke<TextUnit[]>('extract_text', { projectInfo: result });
       setTextUnits(extractedUnits);
+      
+      // Get game data files directly from the backend
+      const files = await invoke<GameDataFile[]>('extract_game_data_files', { 
+        projectInfo: result 
+      });
+      setGameDataFiles(files);
 
       // If this is an exported subset with a manifest, merge pre-translated units
-      const merged = await invoke<TextUnit[] | null>('load_subset_with_manifest', { projectInfo: result });
+      const merged = await invoke<TextUnit[] | null>('load_subset_with_manifest', { 
+        projectInfo: result 
+      });
       if (merged && Array.isArray(merged) && merged.length > 0) {
         setTextUnits(merged);
       }
-      
-      // Get game data files directly from the backend
-      const files = await invoke<GameDataFile[]>('extract_game_data_files', { projectInfo: result });
-      setGameDataFiles(files);
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load project';

@@ -18,10 +18,28 @@ import type { TextUnit } from '~/types/translation'
 import TranslationEditor from '~/components/translation/TranslationEditor.vue'
 import { useTranslation } from '~/composables/useTranslation'
 import type { TableColumn } from '#ui/types'
+import { useGlossary } from '~/composables/useGlossary'
+import type { GlossaryTerm } from '~/types/glossary'
+import { useLanguageStore } from '~/stores/language'
+import { useAppToast } from '~/composables/useAppToast'
 
 const props = defineProps<{ items: TextUnit[] }>()
 const emit = defineEmits<{ (e: 'save', payload: { id: string; translated_text: string }): void }>()
 const { isBusy, retranslate } = useTranslation()
+const glossary = useGlossary()
+const languageStore = useLanguageStore()
+const { showToast } = useAppToast()
+
+const promptTypeToCategory: Record<string, string> = {
+  Character: 'Characters',
+  Class: 'Mechanics',
+  Skill: 'Mechanics',
+  Equipment: 'Mechanics',
+  State: 'Status Effects',
+  System: 'Essential Terms',
+  Dialogue: 'Essential Terms',
+  Other: 'Essential Terms',
+}
 
 type Row = { id: string; source_text: string; translated_text: string; prompt_type: string }
 const rows = computed<Row[]>(() => props.items.map(u => ({
@@ -60,6 +78,14 @@ const columns: TableColumn<Row>[] = [
         }, { default: () => 'Re-translate' }),
         h(UButton, {
           size: 'xs',
+          color: 'warning',
+          variant: 'soft',
+          icon: 'i-heroicons-plus',
+          disabled: isBusy.value,
+          onClick: async () => { await onAddToGlossary(row.original.id) }
+        }, { default: () => 'Add to glossary' }),
+        h(UButton, {
+          size: 'xs',
           color: 'neutral',
           icon: 'i-heroicons-pencil',
           disabled: isBusy.value || editorOpen.value,
@@ -86,6 +112,25 @@ function onSave(payload: { id: string; translated_text: string }) {
 
 async function onRetranslate(id: string) {
   await retranslate(id)
+}
+
+async function onAddToGlossary(id: string) {
+  const unit = props.items.find(u => u.id === id)
+  if (!unit) return
+  const src = languageStore.getLanguage.source_language?.id || 'en'
+  const tgt = languageStore.getLanguage.target_language?.id || 'en'
+  const category = promptTypeToCategory[unit.prompt_type] || 'Essential Terms'
+  const term: GlossaryTerm = {
+    id: 0,
+    category,
+    source_lang: src,
+    target_lang: tgt,
+    input: unit.source_text,
+    output: unit.translated_text || '',
+    enabled: true,
+  }
+  await glossary.save(term)
+  showToast('Added to glossary', `${category}: “${term.input}” → “${term.output || '…'}”`, 'success', 2500, 'i-heroicons-check-circle')
 }
 </script>
 

@@ -7,18 +7,18 @@
 use log::debug;
 
 use crate::commands::engine;
-use crate::commands::provider;
-use crate::commands::languages;
-use crate::commands::translation;
 use crate::commands::glossary as glossary_cmd;
-use crate::glossaries::{GlossaryQuery, GlossaryState};
+use crate::commands::languages;
+use crate::commands::provider;
+use crate::commands::translation;
 use crate::glossaries::model::GlossaryTerm;
+use crate::glossaries::{GlossaryQuery, GlossaryState};
 use crate::llm::state::LlmState;
-use tauri::State;
 use crate::models::engine::{EngineInfo, GameDataFile};
 use crate::models::language::Language;
 use crate::models::provider::{LlmConfig, ModelInfo};
 use crate::models::translation::TextUnit;
+use tauri::State;
 
 /// Load a project from a selected directory
 #[tauri::command]
@@ -49,7 +49,6 @@ pub async fn extract_game_data_files(
     engine::extract_game_data_files(project_info).await
 }
 
-
 /// Load subset via manifest if present
 #[tauri::command]
 pub async fn load_subset_with_manifest(
@@ -61,6 +60,8 @@ pub async fn load_subset_with_manifest(
 
 // removed export_translated_copy
 
+
+
 /// Export only the data subtree and detection artifacts, then inject into that copy
 #[tauri::command]
 pub async fn export_translated_subset(
@@ -70,7 +71,8 @@ pub async fn export_translated_subset(
 ) -> Result<String, String> {
     debug!(
         "Command: export_translated_subset - {} units to {}",
-        text_units.len(), destination_root
+        text_units.len(),
+        destination_root
     );
     engine::export_translated_subset(project_info, text_units, destination_root).await
 }
@@ -117,7 +119,9 @@ pub async fn glossary_list_terms(
     q: GlossaryQuery,
 ) -> Result<Vec<GlossaryTerm>, String> {
     debug!("Command: glossary_list_terms");
-    glossary_cmd::list_terms(&glossary, q).await.map_err(|e| e.to_string())
+    glossary_cmd::list_terms(&glossary, q)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Glossary: upsert term
@@ -127,7 +131,9 @@ pub async fn glossary_upsert_term(
     term: GlossaryTerm,
 ) -> Result<i64, String> {
     debug!("Command: glossary_upsert_term");
-    glossary_cmd::upsert_term(&glossary, term).await.map_err(|e| e.to_string())
+    glossary_cmd::upsert_term(&glossary, term)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Glossary: delete term
@@ -137,7 +143,9 @@ pub async fn glossary_delete_term(
     id: i64,
 ) -> Result<(), String> {
     debug!("Command: glossary_delete_term");
-    glossary_cmd::delete_term(&glossary, id).await.map_err(|e| e.to_string())
+    glossary_cmd::delete_term(&glossary, id)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Glossary: export terms (JSON)
@@ -147,7 +155,9 @@ pub async fn glossary_export_terms(
     q: GlossaryQuery,
 ) -> Result<String, String> {
     debug!("Command: glossary_export_terms");
-    glossary_cmd::export_terms(&glossary, q).await.map_err(|e| e.to_string())
+    glossary_cmd::export_terms(&glossary, q)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Glossary: import terms from JSON
@@ -157,5 +167,7 @@ pub async fn glossary_import_terms(
     json: String,
 ) -> Result<usize, String> {
     debug!("Command: glossary_import_terms");
-    glossary_cmd::import_terms(&glossary, json).await.map_err(|e| e.to_string())
+    glossary_cmd::import_terms(&glossary, json)
+        .await
+        .map_err(|e| e.to_string())
 }

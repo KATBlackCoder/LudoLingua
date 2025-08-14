@@ -1,11 +1,12 @@
-use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::core::engine::Engine;
 use crate::core::error::{AppError, AppResult};
 use crate::engines::rpg_maker_mv::engine::RpgMakerMvEngine;
-use crate::models::engine::{EngineCriteria, EngineType};
+use crate::engines::rpg_maker_mz::engine::RpgMakerMzEngine;
+use crate::engines::wolf_rpg::engine::WolfRpgEngine;
 use crate::models::engine::EngineInfo;
+use crate::models::engine::{EngineCriteria, EngineType};
 use crate::models::translation::TextUnit;
 use serde::Serialize;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -51,11 +52,8 @@ pub fn get_engine(project_path: &Path) -> AppResult<Box<dyn Engine>> {
     // Return the appropriate engine implementation based on the detected type
     match engine_type {
         EngineType::RpgMakerMv => Ok(Box::new(RpgMakerMvEngine::new()) as Box<dyn Engine>),
-        EngineType::RpgMakerMz => {
-            // For now, use the MV engine for MZ projects too
-            // In the future, we'll implement a dedicated MZ engine
-            Ok(Box::new(RpgMakerMvEngine::new()) as Box<dyn Engine>)
-        }
+        EngineType::RpgMakerMz => Ok(Box::new(RpgMakerMzEngine::new()) as Box<dyn Engine>),
+        EngineType::WolfRpg => Ok(Box::new(WolfRpgEngine::new()) as Box<dyn Engine>),
         EngineType::Unknown => Err(AppError::Other(format!(
             "Could not determine engine type for project at: {}",
             project_path.display()
@@ -81,11 +79,15 @@ fn detect_engine_type(project_path: &Path) -> AppResult<EngineType> {
         return Ok(EngineType::RpgMakerMv);
     }
 
-    // Future: Add checks for other engine types here
-    // Example:
-    // if matches_criteria(project_path, &RpgMakerMzEngine::get_detection_criteria())? {
-    //     return Ok(EngineType::RpgMakerMz);
-    // }
+    // Check for RPG Maker MZ
+    if matches_criteria(project_path, &RpgMakerMzEngine::get_detection_criteria())? {
+        return Ok(EngineType::RpgMakerMz);
+    }
+
+    // Check for Wolf RPG - looks for dump folder
+    if WolfRpgEngine::is_wolf_rpg_project(project_path) {
+        return Ok(EngineType::WolfRpg);
+    }
 
     // If no engine type was detected, return Unknown
     Ok(EngineType::Unknown)
@@ -209,7 +211,12 @@ pub fn export_translated_subset_via_factory(
         let src_data = src_root.join(data_rel);
         if src_data.exists() {
             let dst_data = dest_project_dir.join(data_rel);
-            copy_dir_recursive_collect(&src_data, &dst_data, &mut exported_files, &dest_project_dir)?;
+            copy_dir_recursive_collect(
+                &src_data,
+                &dst_data,
+                &mut exported_files,
+                &dest_project_dir,
+            )?;
             copied_any_data = true;
         }
     }
@@ -224,7 +231,8 @@ pub fn export_translated_subset_via_factory(
             fs::create_dir_all(&dst_folder).map_err(|e| {
                 AppError::FileSystem(format!(
                     "Failed to create required folder {}: {}",
-                    dst_folder.display(), e
+                    dst_folder.display(),
+                    e
                 ))
             })?;
         }
@@ -259,13 +267,29 @@ pub fn export_translated_subset_via_factory(
 
     // 4) Write manifest file
     #[derive(Serialize)]
-    struct AppMeta<'a> { name: &'a str, version: &'a str }
+    struct AppMeta<'a> {
+        name: &'a str,
+        version: &'a str,
+    }
     #[derive(Serialize)]
-    struct EngineMeta<'a> { #[serde(rename = "type")] r#type: &'a str, export_data_roots: &'a [String] }
+    struct EngineMeta<'a> {
+        #[serde(rename = "type")]
+        r#type: &'a str,
+        export_data_roots: &'a [String],
+    }
     #[derive(Serialize)]
-    struct ProjectMeta<'a> { name: &'a str, source_lang: &'a str, target_lang: &'a str }
+    struct ProjectMeta<'a> {
+        name: &'a str,
+        source_lang: &'a str,
+        target_lang: &'a str,
+    }
     #[derive(Serialize)]
-    struct UnitEntry<'a> { id: &'a str, prompt_type: &'a str, source_text: &'a str, translated_text: &'a str }
+    struct UnitEntry<'a> {
+        id: &'a str,
+        prompt_type: &'a str,
+        source_text: &'a str,
+        translated_text: &'a str,
+    }
     #[derive(Serialize)]
     struct Manifest<'a> {
         schema: u32,
@@ -277,9 +301,17 @@ pub fn export_translated_subset_via_factory(
         units: Vec<UnitEntry<'a>>,
     }
 
-    let app = AppMeta { name: "LudoLingua", version: env!("CARGO_PKG_VERSION") };
+    let app = AppMeta {
+        name: "LudoLingua",
+        version: env!("CARGO_PKG_VERSION"),
+    };
     let engine_meta = EngineMeta {
-        r#type: match project_info.engine_type { EngineType::RpgMakerMv => "RpgMakerMv", EngineType::RpgMakerMz => "RpgMakerMz", EngineType::Unknown => "Unknown" },
+        r#type: match project_info.engine_type {
+            EngineType::RpgMakerMv => "RpgMakerMv",
+            EngineType::RpgMakerMz => "RpgMakerMz",
+            EngineType::WolfRpg => "WolfRpg",
+            EngineType::Unknown => "Unknown",
+        },
         export_data_roots: &project_info.detection_criteria.export_data_roots,
     };
     let project_meta = ProjectMeta {
@@ -287,13 +319,28 @@ pub fn export_translated_subset_via_factory(
         source_lang: &project_info.source_language.id,
         target_lang: &project_info.target_language.id,
     };
-    let exported_at_unix = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_secs();
-    let units_vec: Vec<UnitEntry> = text_units.iter().map(|u| UnitEntry {
-        id: &u.id,
-        prompt_type: match u.prompt_type { crate::models::translation::PromptType::Character => "Character", crate::models::translation::PromptType::State => "State", crate::models::translation::PromptType::System => "System", crate::models::translation::PromptType::Dialogue => "Dialogue", crate::models::translation::PromptType::Equipment => "Equipment", crate::models::translation::PromptType::Skill => "Skill", crate::models::translation::PromptType::Class => "Class", crate::models::translation::PromptType::Other => "Other" },
-        source_text: &u.source_text,
-        translated_text: &u.translated_text,
-    }).collect();
+    let exported_at_unix = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs();
+    let units_vec: Vec<UnitEntry> = text_units
+        .iter()
+        .map(|u| UnitEntry {
+            id: &u.id,
+            prompt_type: match u.prompt_type {
+                crate::models::translation::PromptType::Character => "Character",
+                crate::models::translation::PromptType::State => "State",
+                crate::models::translation::PromptType::System => "System",
+                crate::models::translation::PromptType::Dialogue => "Dialogue",
+                crate::models::translation::PromptType::Equipment => "Equipment",
+                crate::models::translation::PromptType::Skill => "Skill",
+                crate::models::translation::PromptType::Class => "Class",
+                crate::models::translation::PromptType::Other => "Other",
+            },
+            source_text: &u.source_text,
+            translated_text: &u.translated_text,
+        })
+        .collect();
     let manifest = Manifest {
         schema: 1,
         app,
@@ -304,62 +351,20 @@ pub fn export_translated_subset_via_factory(
         units: units_vec,
     };
     let manifest_path = dest_project_dir.join("ludolingua.json");
-    let json = serde_json::to_string_pretty(&manifest).map_err(|e| AppError::Other(e.to_string()))?;
-    fs::write(&manifest_path, json).map_err(|e| AppError::FileSystem(format!("Failed to write {}: {}", manifest_path.display(), e)))?;
+    let json =
+        serde_json::to_string_pretty(&manifest).map_err(|e| AppError::Other(e.to_string()))?;
+    fs::write(&manifest_path, json).map_err(|e| {
+        AppError::FileSystem(format!(
+            "Failed to write {}: {}",
+            manifest_path.display(),
+            e
+        ))
+    })?;
 
     Ok(dest_project_dir)
 }
 
-fn copy_dir_recursive(src: &Path, dst: &Path) -> AppResult<()> {
-    use std::fs;
-    if !dst.exists() {
-        fs::create_dir_all(dst).map_err(|e| {
-            AppError::FileSystem(format!(
-                "Failed to create destination directory {}: {}",
-                dst.display(), e
-            ))
-        })?;
-    }
 
-    for entry in fs::read_dir(src).map_err(|e| {
-        AppError::FileSystem(format!(
-            "Failed to read directory {}: {}",
-            src.display(), e
-        ))
-    })? {
-        let entry = entry.map_err(|e| {
-            AppError::FileSystem(format!("Failed to read entry in {}: {}", src.display(), e))
-        })?;
-        let file_type = entry.file_type().map_err(|e| {
-            AppError::FileSystem(format!(
-                "Failed to get file type for {}: {}",
-                entry.path().display(), e
-            ))
-        })?;
-        let src_path = entry.path();
-        let dst_path = dst.join(entry.file_name());
-
-        if file_type.is_dir() {
-            copy_dir_recursive(&src_path, &dst_path)?;
-        } else if file_type.is_file() {
-            if let Some(parent) = dst_path.parent() {
-                fs::create_dir_all(parent).map_err(|e| {
-                    AppError::FileSystem(format!(
-                        "Failed to create parent for {}: {}",
-                        dst_path.display(), e
-                    ))
-                })?;
-            }
-            fs::copy(&src_path, &dst_path).map_err(|e| {
-                AppError::FileSystem(format!(
-                    "Failed to copy {} to {}: {}",
-                    src_path.display(), dst_path.display(), e
-                ))
-            })?;
-        }
-    }
-    Ok(())
-}
 
 fn copy_file_create_parent(src: &Path, dst: &Path) -> AppResult<()> {
     use std::fs;
@@ -367,26 +372,35 @@ fn copy_file_create_parent(src: &Path, dst: &Path) -> AppResult<()> {
         fs::create_dir_all(parent).map_err(|e| {
             AppError::FileSystem(format!(
                 "Failed to create parent dir {}: {}",
-                parent.display(), e
+                parent.display(),
+                e
             ))
         })?;
     }
     fs::copy(src, dst).map_err(|e| {
         AppError::FileSystem(format!(
             "Failed to copy {} to {}: {}",
-            src.display(), dst.display(), e
+            src.display(),
+            dst.display(),
+            e
         ))
     })?;
     Ok(())
 }
 
-fn copy_dir_recursive_collect(src: &Path, dst: &Path, exported_files: &mut Vec<String>, dest_root: &Path) -> AppResult<()> {
+fn copy_dir_recursive_collect(
+    src: &Path,
+    dst: &Path,
+    exported_files: &mut Vec<String>,
+    dest_root: &Path,
+) -> AppResult<()> {
     use std::fs;
     if !dst.exists() {
         fs::create_dir_all(dst).map_err(|e| {
             AppError::FileSystem(format!(
                 "Failed to create destination directory {}: {}",
-                dst.display(), e
+                dst.display(),
+                e
             ))
         })?;
     }
@@ -394,20 +408,45 @@ fn copy_dir_recursive_collect(src: &Path, dst: &Path, exported_files: &mut Vec<S
     for entry in fs::read_dir(src).map_err(|e| {
         AppError::FileSystem(format!("Failed to read directory {}: {}", src.display(), e))
     })? {
-        let entry = entry.map_err(|e| AppError::FileSystem(format!("Failed to read entry in {}: {}", src.display(), e)))?;
-        let file_type = entry.file_type().map_err(|e| AppError::FileSystem(format!("Failed to get file type for {}: {}", entry.path().display(), e)))?;
+        let entry = entry.map_err(|e| {
+            AppError::FileSystem(format!("Failed to read entry in {}: {}", src.display(), e))
+        })?;
+        let file_type = entry.file_type().map_err(|e| {
+            AppError::FileSystem(format!(
+                "Failed to get file type for {}: {}",
+                entry.path().display(),
+                e
+            ))
+        })?;
         let src_path = entry.path();
         let dst_path = dst.join(entry.file_name());
 
         if file_type.is_dir() {
             copy_dir_recursive_collect(&src_path, &dst_path, exported_files, dest_root)?;
         } else if file_type.is_file() {
-            if let Some(parent) = dst_path.parent() { fs::create_dir_all(parent).map_err(|e| AppError::FileSystem(format!("Failed to create parent for {}: {}", dst_path.display(), e)))?; }
-            fs::copy(&src_path, &dst_path).map_err(|e| AppError::FileSystem(format!("Failed to copy {} to {}: {}", src_path.display(), dst_path.display(), e)))?;
+            if let Some(parent) = dst_path.parent() {
+                fs::create_dir_all(parent).map_err(|e| {
+                    AppError::FileSystem(format!(
+                        "Failed to create parent for {}: {}",
+                        dst_path.display(),
+                        e
+                    ))
+                })?;
+            }
+            fs::copy(&src_path, &dst_path).map_err(|e| {
+                AppError::FileSystem(format!(
+                    "Failed to copy {} to {}: {}",
+                    src_path.display(),
+                    dst_path.display(),
+                    e
+                ))
+            })?;
             // record relative path from dest_root, normalize to forward slashes for cross-platform matching
             if let Ok(rel) = dst_path.strip_prefix(dest_root) {
                 let mut s = rel.to_string_lossy().to_string();
-                if cfg!(windows) { s = s.replace('\\', "/"); }
+                if cfg!(windows) {
+                    s = s.replace('\\', "/");
+                }
                 exported_files.push(s);
             }
         }

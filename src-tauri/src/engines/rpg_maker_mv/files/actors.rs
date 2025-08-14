@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 
 use super::common::{
-    extract_text_from_file_with_objects, extract_text_units_for_object, 
-    inject_text_units_for_object, inject_translations_into_file_with_objects
+    extract_text_from_file_with_objects, extract_text_units_for_object,
+    inject_text_units_for_object, inject_translations_into_file_with_objects,
 };
 use crate::core::error::{AppError, AppResult};
 use crate::models::engine::GameDataFile;

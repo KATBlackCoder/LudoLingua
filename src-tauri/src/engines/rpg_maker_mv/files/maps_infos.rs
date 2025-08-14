@@ -1,10 +1,13 @@
-use serde::{Deserialize, Serialize};
-use std::path::Path;
-use std::collections::HashMap;
+use super::common::{
+    extract_text_from_file_with_objects, extract_text_units_for_object,
+    inject_text_units_for_object, inject_translations_into_file_with_objects,
+};
 use crate::core::error::{AppError, AppResult};
-use crate::models::translation::{TextUnit, PromptType};
 use crate::models::engine::GameDataFile;
-use super::common::{extract_text_from_file_with_objects, inject_translations_into_file_with_objects, extract_text_units_for_object, inject_text_units_for_object};
+use crate::models::translation::{PromptType, TextUnit};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::path::Path;
 
 /// Represents a map information entry from MapInfos.json
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -43,17 +46,16 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     };
 
     // Extract function for each map info
-    let extract_map_info_units = |map_info: &MapInfo, index: usize, file_path: &str| -> Vec<TextUnit> {
-        extract_text_units_for_object(
-            "map_info",
-            map_info.id.unwrap(),
-            file_path,
-            index,
-            vec![
-                ("name", &map_info.name, PromptType::Character),
-            ],
-        )
-    };
+    let extract_map_info_units =
+        |map_info: &MapInfo, index: usize, file_path: &str| -> Vec<TextUnit> {
+            extract_text_units_for_object(
+                "map_info",
+                map_info.id.unwrap(),
+                file_path,
+                index,
+                vec![("name", &map_info.name, PromptType::Character)],
+            )
+        };
 
     // Use the common function
     extract_text_from_file_with_objects(
@@ -93,9 +95,7 @@ pub fn inject_translations(
             "map_info",
             map_info.id.unwrap(),
             text_unit_map,
-            vec![
-                ("name", &mut map_info.name),
-            ],
+            vec![("name", &mut map_info.name)],
         );
     };
 
@@ -109,5 +109,3 @@ pub fn inject_translations(
         update_map_info,
     )
 }
-
-

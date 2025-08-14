@@ -1,14 +1,13 @@
 use serde::{Deserialize, Serialize};
-use std::path::Path;
 use std::collections::HashMap;
 use std::fs;
+use std::path::Path;
 
 use crate::core::error::{AppError, AppResult};
 use crate::models::engine::GameDataFile;
 use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
 use crate::utils::text_processing::{
-    is_technical_content,
-    replace_formatting_codes_for_translation,
+    is_technical_content, replace_formatting_codes_for_translation,
     restore_formatting_codes_after_translation,
 };
 
@@ -100,7 +99,10 @@ pub struct Terms {
 /// * `AppResult<GameDataFile>` - Game data file with extracted text units
 pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataFile> {
     let full_path = project_path.join(file_path);
-    log::debug!("Extracting text from System.json at: {}", full_path.display());
+    log::debug!(
+        "Extracting text from System.json at: {}",
+        full_path.display()
+    );
 
     // Check if the file exists
     if !full_path.exists() {
@@ -345,7 +347,10 @@ pub fn inject_translations(
     text_units: &[&TextUnit],
 ) -> AppResult<()> {
     let full_path = project_path.join(file_path);
-    log::debug!("Injecting translations into System.json at: {}", full_path.display());
+    log::debug!(
+        "Injecting translations into System.json at: {}",
+        full_path.display()
+    );
 
     // Check if the file exists
     if !full_path.exists() {

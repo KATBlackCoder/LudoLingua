@@ -3,6 +3,8 @@ use std::path::Path;
 
 use crate::engines::factory::{export_translated_subset_via_factory, get_engine};
 use crate::engines::rpg_maker_mv::engine::RpgMakerMvEngine;
+use crate::engines::rpg_maker_mz::engine::RpgMakerMzEngine;
+use crate::engines::wolf_rpg::engine::WolfRpgEngine;
 use crate::models::engine::{EngineInfo, GameDataFile};
 use crate::models::language::Language;
 use crate::models::translation::TextUnit;
@@ -120,7 +122,7 @@ pub async fn extract_game_data_files(
 
     match engine_result {
         Ok(engine) => {
-            // Check if the engine is RPG Maker MV
+            // Dispatch to the specific engine implementation (MV or MZ)
             if let Some(mv_engine) = engine.as_any().downcast_ref::<RpgMakerMvEngine>() {
                 match mv_engine.extract_game_data_files(&project_info) {
                     Ok(game_data_files) => {
@@ -133,6 +135,42 @@ pub async fn extract_game_data_files(
                     Err(e) => {
                         error!("Failed to extract game data files: {}", e);
                         Err(format!("Failed to extract game data files: {}", e))
+                    }
+                }
+            } else if let Some(mz_engine) = engine.as_any().downcast_ref::<RpgMakerMzEngine>() {
+                match mz_engine.extract_game_data_files(&project_info) {
+                    Ok(game_data_files) => {
+                        info!(
+                            "Successfully extracted {} game data files",
+                            game_data_files.len()
+                        );
+                        Ok(game_data_files)
+                    }
+                    Err(e) => {
+                        error!("Failed to extract game data files: {}", e);
+                        Err(format!("Failed to extract game data files: {}", e))
+                    }
+                }
+            } else if let Some(_wolf) = engine.as_any().downcast_ref::<WolfRpgEngine>() {
+                // Wolf RPG: extract from existing dump folder (user created with WolfTL externally)
+                match engine.extract_text_units(&project_info) {
+                    Ok(text_units) => {
+                        info!(
+                            "Successfully extracted {} text units (WolfRpg)",
+                            text_units.len()
+                        );
+                        // Wrap as a single pseudo-file for UI grouping
+                        let file = GameDataFile {
+                            name: "WolfRPG Dump".into(),
+                            path: "dump".into(),
+                            text_units,
+                            text_unit_count: 0,
+                        };
+                        Ok(vec![file])
+                    }
+                    Err(e) => {
+                        error!("Failed to extract text units: {}", e);
+                        Err(format!("Failed to extract text units: {}", e))
                     }
                 }
             } else {
@@ -197,11 +235,16 @@ pub async fn load_subset_with_manifest(
             let file_set: std::collections::HashSet<String> = manifest
                 .files
                 .into_iter()
-                .map(|mut s| { if cfg!(windows) { s = s.replace('\\', "/"); } s })
+                .map(|mut s| {
+                    if cfg!(windows) {
+                        s = s.replace('\\', "/");
+                    }
+                    s
+                })
                 .collect();
             let mut keep: Vec<TextUnit> = Vec::new();
             for f in files.into_iter() {
-                    let rel = f.path.replace('\\', "/");
+                let rel = f.path.replace('\\', "/");
                 if file_set.contains(&rel) {
                     for unit in f.text_units.into_iter() {
                         keep.push(unit);
@@ -226,6 +269,8 @@ pub async fn load_subset_with_manifest(
     Ok(Some(merged))
 }
 
+
+
 /// Export only the translatable data subtree and detection artifacts, then inject into that copy.
 pub async fn export_translated_subset(
     project_info: EngineInfo,
@@ -234,12 +279,8 @@ pub async fn export_translated_subset(
 ) -> Result<String, String> {
     // Fully delegate to the factory to keep this engine-agnostic
     let dest_root = Path::new(&destination_root);
-    let exported = export_translated_subset_via_factory(
-        &project_info,
-        &text_units,
-        dest_root,
-    )
-    .map_err(|e| e.to_string())?;
+    let exported = export_translated_subset_via_factory(&project_info, &text_units, dest_root)
+        .map_err(|e| e.to_string())?;
     Ok(exported.display().to_string())
 }
 

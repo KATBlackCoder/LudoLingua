@@ -6,8 +6,11 @@ use std::path::Path;
 
 use crate::core::engine::Engine;
 use crate::core::error::{AppError, AppResult};
-use crate::engines::rpg_maker_mv::files::{actors, armors, classes, common_events, enemies, items, maps, maps_infos, skills, states, system, troops, weapons};
 use crate::engines::common;
+use crate::engines::rpg_maker_mv::files::{
+    actors, armors, classes, common_events, enemies, items, maps, maps_infos, skills, states,
+    system, troops, weapons,
+};
 use crate::models::engine::{EngineCriteria, EngineInfo, EngineType, GameDataFile};
 use crate::models::language::Language;
 use crate::models::translation::TextUnit;
@@ -98,8 +101,6 @@ impl RpgMakerMvEngine {
 
         Ok((name, version))
     }
-
-
 
     /// Extracts text units from all supported game data files.
     ///
@@ -247,7 +248,7 @@ impl RpgMakerMvEngine {
                 Ok(map_file) => {
                     game_data_files.push(map_file);
                 }
-                Err(e) => {
+                Err(_e) => {
                     // log::warn!("Failed to extract text from {}: {}", map_file_path, e);
                     // Continue with other map files
                 }
@@ -405,11 +406,15 @@ impl RpgMakerMvEngine {
         // Inject map event translations (dynamic discovery)
         let map_files = maps::discover_map_files(&project_info.path)?;
         log::info!("Found {} map files to process", map_files.len());
-        
+
         for map_file_path in &map_files {
             // Extract map ID from file path
             let map_id = maps::extract_map_id(map_file_path);
-            log::info!("Processing map file: {} with map_id: {}", map_file_path, map_id);
+            log::info!(
+                "Processing map file: {} with map_id: {}",
+                map_file_path,
+                map_id
+            );
 
             // Filter text units for this specific map file
             let map_event_units: Vec<&TextUnit> = text_units
@@ -417,19 +422,25 @@ impl RpgMakerMvEngine {
                 .filter(|unit| unit.id.starts_with(&format!("map_{}_event_", map_id)))
                 .collect();
 
-            log::info!("Found {} text units for map {}: {:?}", 
-                map_event_units.len(), 
-                map_id, 
+            log::info!(
+                "Found {} text units for map {}: {:?}",
+                map_event_units.len(),
+                map_id,
                 map_event_units.iter().map(|u| &u.id).collect::<Vec<_>>()
             );
 
             if !map_event_units.is_empty() {
-                match maps::inject_translations(&project_info.path, map_file_path, &map_event_units) {
+                match maps::inject_translations(&project_info.path, map_file_path, &map_event_units)
+                {
                     Ok(_) => {
                         log::info!("Successfully injected translations into {}", map_file_path);
                     }
                     Err(e) => {
-                        log::warn!("Failed to inject translations into {}: {}", map_file_path, e);
+                        log::warn!(
+                            "Failed to inject translations into {}: {}",
+                            map_file_path,
+                            e
+                        );
                         // Continue with other map files
                     }
                 }
@@ -450,7 +461,6 @@ impl Engine for RpgMakerMvEngine {
         source_language: Language,
         target_language: Language,
     ) -> AppResult<EngineInfo> {
-
         // Try to read the package.json file to get project metadata
         let (name, version) = match self.read_package_json(path) {
             Ok(result) => result,

@@ -8,19 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Backend/LLM: Apply Ollama `ModelOptions` for generation (`temperature`, `num_predict` aka max_tokens) so settings affect outputs.
-- Settings: Presets for Temperature/Max Tokens (Recommended, High, Creative) in `app/pages/settings.vue`.
-- About: LLM Parameters card and Performance & Hardware guidance in `AboutTechnology.vue`.
-- About: Tabbed navigation in `app/pages/about.vue` (What/Features/Technology/Glossary).
-- Backend/Glossary: Introduced SQLite-backed glossary module using `sqlx` with managed `GlossaryState`, models, and repository APIs. Added Tauri commands for glossary CRUD (`glossary_list_terms`, `glossary_upsert_term`, `glossary_delete_term`). Integrated prompt builder to render DB terms and fall back to `prompts/vocabularies.txt` when empty. Translation command now injects glossary terms filtered by `PromptType` categories. JS invoke signature remains unchanged; state is injected by Tauri.
-- Backend/Text Processing: Preserve significant whitespace via placeholders in translation flow
-  - Encode full-width spaces into `[FWSPC_n]`, ASCII space runs (leading/trailing or len≥2) into `[SPC_n]`, and tabs into `[TAB_n]`
-  - Decode placeholders on injection to restore exact spacing
-  - Integrated into `replace_formatting_codes_for_translation` and `restore_formatting_codes_after_translation`
-- Developer documentation: Added concise Rustdoc to core backend modules and TSDoc to main frontend stores
+ - Backend/Engines: Experimental Wolf RPG support (Windows-only)
+   - New `EngineType::WolfRpg`, factory detection via presence of `Data/`
+   - Orchestrates external tools: UberWolfCli (optional decrypt) + WolfTL (create dump / patch)
+   - Extracts strings from `dump/*.json` with stable JSON-pointer IDs and injects back before patching
+   - Tools are expected in `src-tauri/src/engines/wolf_rpg/exe/` during dev; can be overridden via `LUDOLINGUA_WOLF_TOOLS`
+ - Backend/Common: JSON walker helpers to collect/apply text units (`wolf_json:<dump_rel>#<pointer>`)
+ - Frontend/Translation: Add “Add to glossary” action in results, mapping PromptType → Category
+ - Backend/LLM: Apply Ollama `ModelOptions` for generation (`temperature`, `num_predict` aka max_tokens) so settings affect outputs.
+ - Settings: Presets for Temperature/Max Tokens (Recommended, High, Creative) in `app/pages/settings.vue`.
+ - About: LLM Parameters card and Performance & Hardware guidance in `AboutTechnology.vue`.
+ - About: Tabbed navigation in `app/pages/about.vue` (What/Features/Technology/Glossary).
+ - Backend/Text Processing: Preserve significant whitespace via placeholders in translation flow
+   - Encode full-width spaces into `[FWSPC_n]`, ASCII space runs (leading/trailing or len≥2) into `[SPC_n]`, and tabs into `[TAB_n]`
+   - Decode placeholders on injection to restore exact spacing
+   - Integrated into `replace_formatting_codes_for_translation` and `restore_formatting_codes_after_translation`
+ - Developer documentation: Added concise Rustdoc to core backend modules and TSDoc to main frontend stores
   to clarify responsibilities and data flow without changing behavior.
 ### Changed
 ### Fixed
+ - Backend/Engines: Fixed “Engine does not support extracting game data files” when loading MZ projects by adding MZ-specific dispatch in `commands/engine.rs`.
 - Frontend/Translation UX: Fixed double-wrapped refs in `app/composables/useTranslation.ts` causing incorrect busy/progress rendering.
 - Frontend/Batch Cancel: Batch translation now respects cancellation by checking `isTranslating` inside the loop in `app/stores/translate.ts`.
 - Frontend/Translation: `translate_text_unit` invoke now passes snake_case keys (`text_unit`, `engine_info`) and uses `settingsStore.providerConfig` (temperature/max_tokens) instead of provider defaults.
@@ -235,6 +242,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **User Experience:** Enhanced workflow with better button states, progress tracking, and project management
 - **Cross-Game Compatibility:** Flexible skill guidelines allow for different game styles and translation preferences
 - **Prompt Organization:** Better separation of concerns with dialogue examples properly organized in dedicated files
+
+## [0.2.0] - 2025-08-13
+
+### Added
+- Backend/Engines: RPG Maker MZ support (core files parity with MV)
+  - `rpg_maker_mz/engine.rs` detects MZ and reuses MV modules with `data/*` paths
+  - Implemented extraction/injection for: Actors, Classes, Items, Skills, Weapons, Armors, System, States, Enemies, CommonEvents, Troops, MapInfos, and MapXXX (event text)
+  - Factory returns MZ engine; command layer dispatch updated
+
+### Changed
+
+### Fixed
+- Backend/Engines: Fixed “Engine does not support extracting game data files” when loading MZ projects by adding MZ-specific dispatch in `commands/engine.rs`.
 
 ## [0.1.0] - 2024-01-XX
 

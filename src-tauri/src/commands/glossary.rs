@@ -1,6 +1,6 @@
 use crate::core::error::AppResult;
-use crate::glossaries::{GlossaryQuery, GlossaryState};
 use crate::glossaries::model::GlossaryTerm;
+use crate::glossaries::{GlossaryQuery, GlossaryState};
 
 pub async fn list_terms(state: &GlossaryState, q: GlossaryQuery) -> AppResult<Vec<GlossaryTerm>> {
     crate::glossaries::repo::find_terms(state, &q).await
@@ -23,5 +23,3 @@ pub async fn export_terms(state: &GlossaryState, q: GlossaryQuery) -> AppResult<
 pub async fn import_terms(state: &GlossaryState, json: String) -> AppResult<usize> {
     crate::glossaries::repo::import_terms_json(state, &json).await
 }
-
-

@@ -6,10 +6,10 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use super::common::{
-    extract_text_from_file_with_objects, extract_text_units_for_object, 
+    extract_text_from_file_with_objects, extract_text_units_for_object,
     extract_text_units_from_event_commands, inject_text_units_for_object,
     inject_text_units_into_event_commands, inject_translations_into_file_with_objects,
-    EventCommand as CommonEventCommand
+    EventCommand as CommonEventCommand,
 };
 
 /// Represents a single event command in RPG Maker MV CommonEvents.json
@@ -77,11 +77,11 @@ pub struct CommonEvent {
 }
 
 /// Extracts translatable text from CommonEvents.json
-/// 
+///
 /// # Arguments
 /// * `project_path` - Path to the project directory
 /// * `file_path` - Relative path to the CommonEvents.json file
-/// 
+///
 /// # Returns
 /// * `AppResult<GameDataFile>` - Game data file with extracted text units
 pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataFile> {
@@ -92,38 +92,41 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     };
 
     // Extract function for each common event
-    let extract_common_event_units = |common_event: &CommonEvent, index: usize, file_path: &str| -> Vec<TextUnit> {
-        // Skip empty events (id 0 or empty name)
-        if common_event.id == 0 || common_event.name.is_empty() {
-            return Vec::new();
-        }
+    let extract_common_event_units =
+        |common_event: &CommonEvent, index: usize, file_path: &str| -> Vec<TextUnit> {
+            // Skip empty events (id 0 or empty name)
+            if common_event.id == 0 || common_event.name.is_empty() {
+                return Vec::new();
+            }
 
-        let mut text_units = Vec::new();
+            let mut text_units = Vec::new();
 
-        // Extract event name
-        if !common_event.name.is_empty() {
-            text_units.extend(extract_text_units_for_object(
+            // Extract event name
+            if !common_event.name.is_empty() {
+                text_units.extend(extract_text_units_for_object(
+                    "common_event",
+                    common_event.id,
+                    file_path,
+                    index,
+                    vec![("name", &common_event.name, PromptType::Character)],
+                ));
+            }
+
+            // Extract text from event commands using common helper
+            let common_commands: Vec<CommonEventCommand> = common_event
+                .list
+                .iter()
+                .map(|cmd| cmd.clone().into())
+                .collect();
+            text_units.extend(extract_text_units_from_event_commands(
                 "common_event",
                 common_event.id,
+                &common_commands,
                 file_path,
-                index,
-                vec![("name", &common_event.name, PromptType::Character)],
             ));
-        }
 
-        // Extract text from event commands using common helper
-        let common_commands: Vec<CommonEventCommand> = common_event.list.iter()
-            .map(|cmd| cmd.clone().into())
-            .collect();
-        text_units.extend(extract_text_units_from_event_commands(
-            "common_event",
-            common_event.id,
-            &common_commands,
-            file_path,
-        ));
-
-        text_units
-    };
+            text_units
+        };
 
     // Use the common function
     extract_text_from_file_with_objects(
@@ -136,15 +139,19 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
 }
 
 /// Injects translated text back into CommonEvents.json
-/// 
+///
 /// # Arguments
 /// * `project_path` - Path to the project directory
 /// * `file_path` - Relative path to the CommonEvents.json file
 /// * `text_units` - Vector of translated text units
-/// 
+///
 /// # Returns
 /// * `AppResult<()>` - Success or error
-pub fn inject_translations(project_path: &Path, file_path: &str, text_units: &[&TextUnit]) -> AppResult<()> {
+pub fn inject_translations(
+    project_path: &Path,
+    file_path: &str,
+    text_units: &[&TextUnit],
+) -> AppResult<()> {
     // Parse function for CommonEvents.json
     let parse_common_events = |content: &str| -> AppResult<Vec<Option<CommonEvent>>> {
         serde_json::from_str(content)
@@ -152,30 +159,31 @@ pub fn inject_translations(project_path: &Path, file_path: &str, text_units: &[&
     };
 
     // Update function for each common event
-    let update_common_event = |common_event: &mut CommonEvent, text_unit_map: &HashMap<String, &TextUnit>| {
-        // Update event name
-        inject_text_units_for_object(
-            "common_event",
-            common_event.id,
-            text_unit_map,
-            vec![("name", &mut common_event.name)],
-        );
+    let update_common_event =
+        |common_event: &mut CommonEvent, text_unit_map: &HashMap<String, &TextUnit>| {
+            // Update event name
+            inject_text_units_for_object(
+                "common_event",
+                common_event.id,
+                text_unit_map,
+                vec![("name", &mut common_event.name)],
+            );
 
-                // Update text in event commands using common helper
-        let mut common_commands: Vec<CommonEventCommand> = common_event.list.iter()
-            .map(|cmd| cmd.clone().into())
-            .collect();
-        inject_text_units_into_event_commands(
-            "common_event",
-            common_event.id,
-            &mut common_commands,
-            text_unit_map,
-        );
-        // Convert back to EventCommand
-        common_event.list = common_commands.into_iter()
-            .map(|cmd| cmd.into())
-            .collect();
-    };
+            // Update text in event commands using common helper
+            let mut common_commands: Vec<CommonEventCommand> = common_event
+                .list
+                .iter()
+                .map(|cmd| cmd.clone().into())
+                .collect();
+            inject_text_units_into_event_commands(
+                "common_event",
+                common_event.id,
+                &mut common_commands,
+                text_unit_map,
+            );
+            // Convert back to EventCommand
+            common_event.list = common_commands.into_iter().map(|cmd| cmd.into()).collect();
+        };
 
     // Use the common function
     inject_translations_into_file_with_objects(

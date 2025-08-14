@@ -8,5 +8,3 @@ pub struct GlossaryTerm {
     pub output: String,
     pub enabled: bool,
 }
-
-

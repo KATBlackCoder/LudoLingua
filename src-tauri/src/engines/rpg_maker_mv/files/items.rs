@@ -2,13 +2,13 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 
+use super::common::{
+    extract_text_from_file_with_objects, extract_text_units_for_object,
+    inject_text_units_for_object, inject_translations_into_file_with_objects,
+};
 use crate::core::error::{AppError, AppResult};
 use crate::models::engine::GameDataFile;
 use crate::models::translation::{PromptType, TextUnit};
-use super::common::{
-    extract_text_from_file_with_objects, extract_text_units_for_object, 
-    inject_text_units_for_object, inject_translations_into_file_with_objects
-};
 
 /// Represents an item in RPG Maker MV.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -101,4 +101,4 @@ pub fn inject_translations(
         parse_items,
         update_item,
     )
-} 
+}

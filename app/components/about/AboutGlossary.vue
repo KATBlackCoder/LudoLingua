@@ -65,6 +65,15 @@
       </div>
     </div>
 
+    <UAlert color="warning" variant="soft" icon="i-heroicons-exclamation-triangle" class="mt-3">
+      <template #title>Keep glossary entries short</template>
+      <template #description>
+        <div class="text-sm">
+          Add only short terms/phrases (names, UI words, concise rules). Do not paste long paragraphs; those belong in translations, not the glossary. Long entries bloat prompts and hurt quality.
+        </div>
+      </template>
+    </UAlert>
+
     <div class="mt-3 text-sm space-y-2">
       <p>
         Add terms under the right <em>Category</em> in the Glossary. Each item renders into the prompt as:
@@ -127,6 +136,7 @@ Output: 翻訳 / Target term
       <template #footer>
         <div class="text-xs text-muted">
           Tip: Terms are applied only when source/target languages match the current project and the term is enabled.
+          You can add terms directly from the Translation results using the “Add to glossary” button; it auto-picks a Category based on the text unit’s PromptType.
         </div>
       </template>
     </UCard>

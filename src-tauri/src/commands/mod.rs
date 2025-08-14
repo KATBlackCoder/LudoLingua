@@ -6,8 +6,8 @@
 //! the sibling modules.
 
 pub mod engine;
+pub mod glossary;
 pub mod handler;
+pub mod languages;
 pub mod provider;
 pub mod translation;
-pub mod languages;
-pub mod glossary;

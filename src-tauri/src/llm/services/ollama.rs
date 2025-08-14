@@ -118,17 +118,14 @@ impl OllamaService {
             .temperature(self.config.temperature)
             .num_predict(self.config.max_tokens as i32);
 
-        let request = GenerationRequest::new(
-            self.config.model.model_name.clone(),
-            prompt.to_string(),
-        )
-        .options(options);
+        let request =
+            GenerationRequest::new(self.config.model.model_name.clone(), prompt.to_string())
+                .options(options);
         match self.client.generate(request).await {
             Ok(response) => Ok(response.response.trim().to_string()),
             Err(e) => Err(AppError::Llm(format!("Ollama generation failed: {}", e))),
         }
     }
-
 
     pub async fn test_connection(&self) -> AppResult<bool> {
         // debug!("Testing connection to Ollama");
@@ -147,14 +144,19 @@ impl OllamaService {
 
     /// Legacy helper kept temporarily for compatibility. Prefer building the prompt
     /// in the caller and using `generate`.
-    pub async fn translate(&self, text_unit: &TextUnit, engine_info: &EngineInfo) -> AppResult<String> {
+    pub async fn translate(
+        &self,
+        text_unit: &TextUnit,
+        engine_info: &EngineInfo,
+    ) -> AppResult<String> {
         let prompt = PromptBuilder::build_translation_prompt(text_unit, engine_info).await;
         self.generate(&prompt).await
     }
 
     /// Check if the internal config matches another config
     pub fn config_matches(&self, other: &LlmConfig) -> bool {
-        self.config.model == other.model && self.config.base_url == other.base_url
+        self.config.model == other.model
+            && self.config.base_url == other.base_url
             && (self.config.temperature - other.temperature).abs() < f32::EPSILON
             && self.config.max_tokens == other.max_tokens
     }
