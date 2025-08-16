@@ -136,10 +136,11 @@ fn extract_command_strings(
                 }
                 
                 let processed_text = wolf_replace_placeholders_for_translation(arg_text);
+                let normalized_path = file_path.replace('\\', "/");
                 text_units.push(TextUnit {
                     id: format!(
                         "wolf_json:{}#events[{}].pages[{}].list[{}].stringArgs[{}]",
-                        file_path, event_idx, page_idx, cmd_idx, arg_idx
+                        normalized_path, event_idx, page_idx, cmd_idx, arg_idx
                     ),
                     source_text: processed_text,
                     translated_text: String::new(),
@@ -234,9 +235,10 @@ fn inject_into_wolf_command(
         // Inject into stringArgs if present
         if let Some(string_args) = cmd_obj.get_mut("stringArgs").and_then(|v| v.as_array_mut()) {
             for (arg_idx, arg) in string_args.iter_mut().enumerate() {
+                let normalized_path = file_path.replace('\\', "/");
                 let unit_id = format!(
                     "wolf_json:{}#events[{}].pages[{}].list[{}].stringArgs[{}]",
-                    file_path, event_idx, page_idx, cmd_idx, arg_idx
+                    normalized_path, event_idx, page_idx, cmd_idx, arg_idx
                 );
                 if let Some(text_unit) = text_units.get(&unit_id) {
                     if !text_unit.translated_text.is_empty() {

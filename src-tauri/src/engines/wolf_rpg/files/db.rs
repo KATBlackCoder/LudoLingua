@@ -40,8 +40,9 @@ fn extract_from_db_data_entry(
         if let Some(name) = data_obj.get("name").and_then(|v| v.as_str()) {
             if is_translatable_sys_db_name(name, data_obj) {
                 let processed_text = wolf_replace_placeholders_for_translation(name);
+                let normalized_path = file_path.replace('\\', "/");
                 let text_unit = TextUnit {
-                    id: format!("{}:types[{}]:data[{}]:name", file_path, type_idx, data_idx),
+                    id: format!("{}:types[{}]:data[{}]:name", normalized_path, type_idx, data_idx),
                     source_text: processed_text,
                     translated_text: String::new(),
                     field_type: format!("Database entry name ({})", file_name),
@@ -60,8 +61,9 @@ fn extract_from_db_data_entry(
                 if let Some(value) = data_data_obj.get("value").and_then(|v| v.as_str()) {
                     if is_translatable_db_value(value) {
                         let processed_text = wolf_replace_placeholders_for_translation(value);
+                        let normalized_path = file_path.replace('\\', "/");
                         let text_unit = TextUnit {
-                            id: format!("{}:types[{}]:data[{}]:data[{}]:value", file_path, type_idx, data_idx, data_data_idx),
+                            id: format!("{}:types[{}]:data[{}]:data[{}]:value", normalized_path, type_idx, data_idx, data_data_idx),
                             source_text: processed_text,
                             translated_text: String::new(),
                             field_type: format!("Database value ({})", file_name),
@@ -159,7 +161,8 @@ fn inject_into_db_data_entry(
     
     // For SysDatabase.json: inject into types=>data=>name
     if file_name == "SysDatabase.json" {
-        let name_id = format!("{}:types[{}]:data[{}]:name", file_path, type_idx, data_idx);
+        let normalized_path = file_path.replace('\\', "/");
+        let name_id = format!("{}:types[{}]:data[{}]:name", normalized_path, type_idx, data_idx);
         if let Some(text_unit) = text_units.get(&name_id) {
             if !text_unit.translated_text.is_empty() {
                 let restored_text = wolf_restore_placeholders_after_translation(&text_unit.translated_text);
@@ -172,7 +175,8 @@ fn inject_into_db_data_entry(
     if file_name == "CDataBase.json" || file_name == "DataBase.json" {
         if let Some(data_data_array) = data_obj.get_mut("data").and_then(|v| v.as_array_mut()) {
             for (data_data_idx, data_data_obj) in data_data_array.iter_mut().enumerate() {
-                let value_id = format!("{}:types[{}]:data[{}]:data[{}]:value", file_path, type_idx, data_idx, data_data_idx);
+                let normalized_path = file_path.replace('\\', "/");
+                let value_id = format!("{}:types[{}]:data[{}]:data[{}]:value", normalized_path, type_idx, data_idx, data_data_idx);
                 if let Some(text_unit) = text_units.get(&value_id) {
                     if !text_unit.translated_text.is_empty() {
                         let restored_text = wolf_restore_placeholders_after_translation(&text_unit.translated_text);

@@ -65,6 +65,8 @@
       </div>
     </div>
 
+    <!-- Placeholder guide moved to AboutPlaceholders.vue -->
+
     <UAlert color="warning" variant="soft" icon="i-heroicons-exclamation-triangle" class="mt-3">
       <template #title>Keep glossary entries short</template>
       <template #description>

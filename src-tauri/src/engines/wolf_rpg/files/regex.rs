@@ -103,6 +103,18 @@ pub fn wolf_replace_placeholders_for_translation(text: &str) -> String {
     let font_codes = Regex::new(r"\\f\[(\d+)\]").unwrap();
     result = font_codes.replace_all(&result, "[FONT_$1]").to_string();
     
+    // @n - Event/command markers (found in Wolf RPG text)
+    let at_codes = Regex::new(r"@(\d+)").unwrap();
+    result = at_codes.replace_all(&result, "[AT_$1]").to_string();
+    
+    // \\s[n] - Character/slot references (preserves exact formatting including leading zeros)
+    let slot_codes = Regex::new(r"\\s\[(\d+)\]").unwrap();
+    result = slot_codes.replace_all(&result, "[SLOT_$1]").to_string();
+    
+    // \\cself[n] - Self-referencing color codes
+    let cself_codes = Regex::new(r"\\cself\[(\d+)\]").unwrap();
+    result = cself_codes.replace_all(&result, "[CSELF_$1]").to_string();
+    
     // \\r - Ruby text marker (the [kanji,reading] part is translatable text, not placeholder)
     // This just marks where ruby text starts, content inside [] should be translated
     result = result.replace("\\\\r", "[RUBY_START]");
@@ -113,11 +125,9 @@ pub fn wolf_replace_placeholders_for_translation(text: &str) -> String {
     // Literal \r strings (different from \\r ruby marker)
     result = result.replace("\\r", "[CARRIAGE_RETURN]");
     
-    // Handle both actual newline characters (\n) and literal \n strings
-    // Actual newlines (from parsed JSON) - MUST be before whitespace encoding
+    // Handle actual newline characters (from parsed JSON)
+    // Wolf RPG only has actual newlines, not literal "\n" strings
     result = result.replace('\n', "[NEWLINE]");
-    // Literal \n strings
-    result = result.replace("\\n", "[NEWLINE]");
 
     // Arg placeholders like %1 / ％１ → [ARG_1]
     let arg_any = Regex::new(r"[%％]([0-9０-９]+)").unwrap();
@@ -150,7 +160,7 @@ pub fn wolf_restore_placeholders_after_translation(text: &str) -> String {
     
     // Restore color codes (use double backslash format for Wolf RPG)
     let color_restore = Regex::new(r"\[COLOR_(\d+)\]").unwrap();
-    result = color_restore.replace_all(&result, "\\\\c[$1]").to_string();
+    result = color_restore.replace_all(&result, "\\c[$1]").to_string();
     
     // Restore icon codes
     let icon_restore = Regex::new(r"\[ICON_(\d+)\]").unwrap();
@@ -160,14 +170,26 @@ pub fn wolf_restore_placeholders_after_translation(text: &str) -> String {
     let font_restore = Regex::new(r"\[FONT_(\d+)\]").unwrap();
     result = font_restore.replace_all(&result, "\\\\f[$1]").to_string();
     
+    // Restore @ codes
+    let at_restore = Regex::new(r"\[AT_(\d+)\]").unwrap();
+    result = at_restore.replace_all(&result, "@$1").to_string();
+    
+    // Restore slot codes
+    let slot_restore = Regex::new(r"\[SLOT_(\d+)\]").unwrap();
+    result = slot_restore.replace_all(&result, "\\\\s[$1]").to_string();
+    
+    // Restore cself codes
+    let cself_restore = Regex::new(r"\[CSELF_(\d+)\]").unwrap();
+    result = cself_restore.replace_all(&result, "\\\\cself[$1]").to_string();
+    
     // Restore ruby text marker
     result = result.replace("[RUBY_START]", "\\\\r");
     
     // Restore carriage return
     result = result.replace("[CARRIAGE_RETURN]", "\\r");
     
-    // Restore plain newlines
-    result = result.replace("[NEWLINE]", "\\n");
+    // Restore actual newlines (not literal strings)
+    result = result.replace("[NEWLINE]", "\n");
 
     // Restore arg placeholders
     let arg = Regex::new(r"\[ARG_(\d+)\]").unwrap();

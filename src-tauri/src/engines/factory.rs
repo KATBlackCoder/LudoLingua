@@ -284,6 +284,12 @@ pub fn export_translated_subset_via_factory(
         target_lang: &'a str,
     }
     #[derive(Serialize)]
+    struct TranslationStats {
+        total_units: usize,
+        translated_units: usize,
+        completion_rate: f32,
+    }
+    #[derive(Serialize)]
     struct UnitEntry<'a> {
         id: &'a str,
         prompt_type: &'a str,
@@ -297,6 +303,7 @@ pub fn export_translated_subset_via_factory(
         exported_at_unix: u64,
         engine: EngineMeta<'a>,
         project: ProjectMeta<'a>,
+        translation_stats: TranslationStats,
         files: &'a [String],
         units: Vec<UnitEntry<'a>>,
     }
@@ -323,6 +330,22 @@ pub fn export_translated_subset_via_factory(
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
         .as_secs();
+    
+    // Calculate translation statistics
+    let total_units = text_units.len();
+    let translated_units = text_units.iter().filter(|u| !u.translated_text.trim().is_empty()).count();
+    let completion_rate = if total_units > 0 { 
+        (translated_units as f32 / total_units as f32) * 100.0 
+    } else { 
+        0.0 
+    };
+    
+    let translation_stats = TranslationStats {
+        total_units,
+        translated_units,
+        completion_rate,
+    };
+    
     let units_vec: Vec<UnitEntry> = text_units
         .iter()
         .map(|u| UnitEntry {
@@ -347,6 +370,7 @@ pub fn export_translated_subset_via_factory(
         exported_at_unix,
         engine: engine_meta,
         project: project_meta,
+        translation_stats,
         files: &exported_files,
         units: units_vec,
     };

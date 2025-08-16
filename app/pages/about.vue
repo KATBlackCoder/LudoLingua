@@ -18,7 +18,8 @@
             <AboutWhat v-if="activeTab === 'what'" />
             <AboutFeatures v-else-if="activeTab === 'features'" />
             <AboutTechnology v-else-if="activeTab === 'technology'" />
-            <AboutGlossary v-else />
+            <AboutGlossary v-else-if="activeTab === 'glossary'" />
+            <AboutPlaceholders v-else-if="activeTab === 'placeholders'" />
           </div>
         </div>
 
@@ -35,12 +36,14 @@ import AboutWhat from '~/components/about/AboutWhat.vue'
 import AboutFeatures from '~/components/about/AboutFeatures.vue'
 import AboutTechnology from '~/components/about/AboutTechnology.vue'
 import AboutGlossary from '~/components/about/AboutGlossary.vue'
+import AboutPlaceholders from '~/components/about/AboutPlaceholders.vue'
 
 const tabs = [
   { label: 'What', icon: 'i-heroicons-information-circle', value: 'what' },
   { label: 'Features', icon: 'i-heroicons-sparkles', value: 'features' },
   { label: 'Technology', icon: 'i-heroicons-cpu-chip', value: 'technology' },
   { label: 'Glossary', icon: 'i-heroicons-book-open', value: 'glossary' },
+  { label: 'Placeholders', icon: 'i-heroicons-code-bracket', value: 'placeholders' },
 ]
-const activeTab = ref<'what' | 'features' | 'technology' | 'glossary'>('what')
+const activeTab = ref<'what' | 'features' | 'technology' | 'glossary' | 'placeholders'>('what')
 </script>

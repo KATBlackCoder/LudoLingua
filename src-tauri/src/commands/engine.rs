@@ -152,27 +152,10 @@ pub async fn extract_game_data_files(
                     }
                 }
             } else if let Some(_wolf) = engine.as_any().downcast_ref::<WolfRpgEngine>() {
-                // Wolf RPG: extract from existing dump folder (user created with WolfTL externally)
-                match engine.extract_text_units(&project_info) {
-                    Ok(text_units) => {
-                        info!(
-                            "Successfully extracted {} text units (WolfRpg)",
-                            text_units.len()
-                        );
-                        // Wrap as a single pseudo-file for UI grouping
-                        let file = GameDataFile {
-                            name: "WolfRPG Dump".into(),
-                            path: "dump".into(),
-                            text_units,
-                            text_unit_count: 0,
-                        };
-                        Ok(vec![file])
-                    }
-                    Err(e) => {
-                        error!("Failed to extract text units: {}", e);
-                        Err(format!("Failed to extract text units: {}", e))
-                    }
-                }
+                // Wolf RPG doesn't support structured game data files like RPG Maker
+                // Force fallback to extract_text during manifest merging
+                error!("Wolf RPG does not support structured game data file extraction");
+                Err("Wolf RPG does not support structured game data file extraction".to_string())
             } else {
                 error!("Engine does not support extracting game data files");
                 Err("Engine does not support extracting game data files".to_string())
@@ -189,6 +172,7 @@ pub async fn extract_game_data_files(
 
 /// If a ludolingua.json manifest exists at project root, load and merge translated units
 /// Returns Some(units) when manifest is found and parsed; otherwise None
+/// When manifest exists, bypasses regex filtering to avoid losing previously translated text
 pub async fn load_subset_with_manifest(
     project_info: EngineInfo,
 ) -> Result<Option<Vec<TextUnit>>, String> {
@@ -197,12 +181,12 @@ pub async fn load_subset_with_manifest(
         id: String,
         #[allow(dead_code)]
         prompt_type: Option<String>,
-        #[allow(dead_code)]
         source_text: Option<String>,
         translated_text: String,
     }
     #[derive(Deserialize)]
     struct ManifestFile {
+        #[allow(dead_code)]
         files: Vec<String>,
         #[allow(dead_code)]
         engine: serde_json::Value,
@@ -221,52 +205,57 @@ pub async fn load_subset_with_manifest(
     let manifest: ManifestFile = serde_json::from_str(&raw)
         .map_err(|e| format!("Failed to parse {}: {}", manifest_path.display(), e))?;
 
-    // Build id -> translated_text map
+    // Build id -> (source_text, translated_text) map
     use std::collections::HashMap;
-    let mut id_to_text: HashMap<String, String> = HashMap::with_capacity(manifest.units.len());
+    let mut id_to_manifest: HashMap<String, (Option<String>, String)> = HashMap::with_capacity(manifest.units.len());
     for u in manifest.units {
-        id_to_text.insert(u.id, u.translated_text);
+        id_to_manifest.insert(u.id, (u.source_text, u.translated_text));
     }
 
-    // Prefer structured file extraction when available
-    let filtered_units: Vec<TextUnit> = match extract_game_data_files(project_info.clone()).await {
-        Ok(files) => {
-            // Normalize manifest file paths to use forward slashes to match our relative paths
-            let file_set: std::collections::HashSet<String> = manifest
-                .files
-                .into_iter()
-                .map(|mut s| {
-                    if cfg!(windows) {
-                        s = s.replace('\\', "/");
-                    }
-                    s
-                })
-                .collect();
-            let mut keep: Vec<TextUnit> = Vec::new();
-            for f in files.into_iter() {
-                let rel = f.path.replace('\\', "/");
-                if file_set.contains(&rel) {
-                    for unit in f.text_units.into_iter() {
-                        keep.push(unit);
-                    }
-                }
-            }
-            keep
+    // Manifest-first approach: Create units directly from manifest, then fill gaps with extraction
+    log::info!("Creating TextUnits directly from manifest to preserve all translated content");
+    
+    // Create base units from manifest 
+    let mut manifest_units: Vec<TextUnit> = id_to_manifest.iter().map(|(id, (source_opt, translated))| {
+        use crate::models::translation::{PromptType, TranslationStatus};
+        TextUnit {
+            id: id.clone(),
+            source_text: source_opt.clone().unwrap_or_else(|| translated.clone()),
+            translated_text: translated.clone(),
+            field_type: "Manifest entry".to_string(),
+            status: TranslationStatus::MachineTranslated,
+            prompt_type: PromptType::Other,
         }
-        Err(_) => extract_text(project_info.clone()).await.unwrap_or_default(),
+    }).collect();
+    
+    log::info!("Created {} units from manifest", manifest_units.len());
+    
+    // Extract current units to find any new ones not in manifest
+    let current_units = match extract_text(project_info.clone()).await {
+        Ok(units) => {
+            log::info!("Extracted {} current units to check for new content", units.len());
+            units
+        }
+        Err(_) => {
+            log::warn!("Failed to extract current units, using manifest only");
+            vec![]
+        }
     };
-
-    // Merge translated_text from manifest
-    let mut merged: Vec<TextUnit> = Vec::with_capacity(filtered_units.len());
-    for mut u in filtered_units.into_iter() {
-        if let Some(t) = id_to_text.get(&u.id) {
-            u.translated_text = t.clone();
-            u.status = crate::models::translation::TranslationStatus::MachineTranslated;
+    
+    // Add any new units that aren't in the manifest
+    let mut new_units_count = 0;
+    for unit in current_units {
+        if !id_to_manifest.contains_key(&unit.id) {
+            manifest_units.push(unit);
+            new_units_count += 1;
         }
-        merged.push(u);
     }
-
-    Ok(Some(merged))
+    
+    if new_units_count > 0 {
+        log::info!("Added {} new units not found in manifest", new_units_count);
+    }
+    
+    Ok(Some(manifest_units))
 }
 
 

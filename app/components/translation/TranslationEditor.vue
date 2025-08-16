@@ -45,6 +45,11 @@
                 </div>
               </div>
             </template>
+            <div class="grid gap-3 sm:grid-cols-2 mb-2">
+              <UFormField label="Prompt Type">
+                <USelect v-model="promptTypeDraft" :items="promptTypeItems" />
+              </UFormField>
+            </div>
             <UFormField>
               <UTextarea
                 v-model="draft"
@@ -87,13 +92,17 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import type { TextUnit } from '~/types/translation'
+import type { PromptType, TextUnit } from '~/types/translation'
 import { useTranslation } from '~/composables/useTranslation'
+import type { SelectItem } from '#ui/types'
+import { useEngineStore } from '~/stores/engine'
 
 const props = defineProps<{ open: boolean; item: TextUnit | null }>()
-const emit = defineEmits<{ (e: 'update:open', v: boolean): void; (e: 'save', payload: { id: string; translated_text: string }): void }>()
+const emit = defineEmits<{ (e: 'update:open', v: boolean): void; (e: 'save', payload: { id: string; translated_text: string; prompt_type?: string }): void }>()
 
 const draft = ref('')
+const promptTypeDraft = ref<string>('Other')
+const engineStore = useEngineStore()
 const isRetranslating = ref(false)
 const { retranslate: retranslateOne } = useTranslation()
 const open = computed({
@@ -103,6 +112,7 @@ const open = computed({
 
 watch(() => props.item, (val) => {
   draft.value = val?.translated_text ?? ''
+  promptTypeDraft.value = String(val?.prompt_type || 'Other')
 }, { immediate: true })
 
 const modalTitle = computed(() => props.item ? `Edit Translation – ${props.item.id}` : 'Edit Translation')
@@ -127,7 +137,12 @@ const statusColor = computed(() => {
 const cancel = () => emit('update:open', false)
 const save = () => {
   if (!props.item) return
-  emit('save', { id: props.item.id, translated_text: draft.value })
+  // update prompt type locally as well
+  const unit = engineStore.getTextUnitById(props.item.id)
+  if (unit) {
+    unit.prompt_type = promptTypeDraft.value as PromptType
+  }
+  emit('save', { id: props.item.id, translated_text: draft.value, prompt_type: promptTypeDraft.value })
   emit('update:open', false)
 }
 
@@ -144,6 +159,13 @@ async function retranslate() {
   if (!props.item || isRetranslating.value) return
   try {
     isRetranslating.value = true
+    
+    // Update prompt type before retranslating
+    const unit = engineStore.getTextUnitById(props.item.id)
+    if (unit) {
+      unit.prompt_type = promptTypeDraft.value as PromptType
+    }
+    
     const updated = await retranslateOne(props.item.id)
     if (updated) {
       draft.value = updated.translated_text || ''
@@ -154,6 +176,17 @@ async function retranslate() {
     isRetranslating.value = false
   }
 }
+
+const promptTypeItems = [
+  { label: 'Character', value: 'Character' },
+  { label: 'Class', value: 'Class' },
+  { label: 'Skill', value: 'Skill' },
+  { label: 'Equipment', value: 'Equipment' },
+  { label: 'State', value: 'State' },
+  { label: 'System', value: 'System' },
+  { label: 'Dialogue', value: 'Dialogue' },
+  { label: 'Other', value: 'Other' },
+] as SelectItem[]
 </script>
 
 

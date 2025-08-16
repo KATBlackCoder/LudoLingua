@@ -1,6 +1,9 @@
 <template>
   <div class="space-y-4">
-    <h3 class="text-lg font-semibold">Results</h3>
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold">Results</h3>
+      <UInput v-model="search" icon="i-heroicons-magnifying-glass" placeholder="Search source/translated/type…" />
+    </div>
     <UTable :data="pagedRows" :columns="columns" class="text-base" />
     <div class="flex items-center justify-between">
       <span class="text-xs text-muted">Page {{ page }} / {{ pageCount }}</span>
@@ -22,10 +25,15 @@ import { useGlossary } from '~/composables/useGlossary'
 import type { GlossaryTerm } from '~/types/glossary'
 import { useLanguageStore } from '~/stores/language'
 import { useAppToast } from '~/composables/useAppToast'
+import { useEngineStore } from '~/stores/engine'
 
 const props = defineProps<{ items: TextUnit[] }>()
-const emit = defineEmits<{ (e: 'save', payload: { id: string; translated_text: string }): void }>()
-const { isBusy, retranslate } = useTranslation()
+const emit = defineEmits<{
+  (e: 'save', payload: { id: string; translated_text: string; prompt_type?: string }): void
+  (e: 'remove', id: string): void
+}>()
+const { isBusy, retranslate, saveEdit } = useTranslation()
+const engineStore = useEngineStore()
 const glossary = useGlossary()
 const languageStore = useLanguageStore()
 const { showToast } = useAppToast()
@@ -51,10 +59,20 @@ const rows = computed<Row[]>(() => props.items.map(u => ({
 
 const page = ref(1)
 const pageSize = ref(25)
-const pageCount = computed(() => Math.max(1, Math.ceil(rows.value.length / pageSize.value)))
+const search = ref('')
+const filteredRows = computed(() => {
+  const q = search.value.trim().toLowerCase()
+  if (!q) return rows.value
+  return rows.value.filter(r =>
+    r.source_text.toLowerCase().includes(q) ||
+    r.translated_text.toLowerCase().includes(q) ||
+    String(r.prompt_type || '').toLowerCase().includes(q)
+  )
+})
+const pageCount = computed(() => Math.max(1, Math.ceil(filteredRows.value.length / pageSize.value)))
 const pagedRows = computed(() => {
   const start = (page.value - 1) * pageSize.value
-  return rows.value.slice(start, start + pageSize.value)
+  return filteredRows.value.slice(start, start + pageSize.value)
 })
 
 const columns: TableColumn<Row>[] = [
@@ -86,6 +104,14 @@ const columns: TableColumn<Row>[] = [
         }, { default: () => 'Add to glossary' }),
         h(UButton, {
           size: 'xs',
+          color: 'error',
+          variant: 'soft',
+          icon: 'i-heroicons-trash',
+          disabled: isBusy.value,
+          onClick: () => { onRemove(row.original.id) }
+        }, { default: () => 'Remove' }),
+        h(UButton, {
+          size: 'xs',
           color: 'neutral',
           icon: 'i-heroicons-pencil',
           disabled: isBusy.value || editorOpen.value,
@@ -106,6 +132,8 @@ const openEditor = (id: string) => {
 }
 
 function onSave(payload: { id: string; translated_text: string }) {
+  // Forward to store immediately and also emit for parent listeners
+  saveEdit({ id: payload.id, translated_text: payload.translated_text })
   emit('save', payload)
   editorOpen.value = false
 }
@@ -131,6 +159,13 @@ async function onAddToGlossary(id: string) {
   }
   await glossary.save(term)
   showToast('Added to glossary', `${category}: “${term.input}” → “${term.output || '…'}”`, 'success', 2500, 'i-heroicons-check-circle')
+}
+
+function onRemove(id: string) {
+  // Optimistically remove from store; also notify parent
+  const idx = engineStore.textUnits.findIndex(u => u.id === id)
+  if (idx !== -1) engineStore.textUnits.splice(idx, 1)
+  emit('remove', id)
 }
 </script>
 

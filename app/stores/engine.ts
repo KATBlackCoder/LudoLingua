@@ -55,20 +55,30 @@ export const useEngineStore = defineStore('engine', () => {
       const extractedUnits = await invoke<TextUnit[]>('extract_text', { projectInfo: result });
       setTextUnits(extractedUnits);
       
-      // Get game data files directly from the backend
-      const files = await invoke<GameDataFile[]>('extract_game_data_files', { 
-        projectInfo: result 
-      });
-      setGameDataFiles(files);
+      // Get game data files directly from the backend (RPG Maker only)
+      try {
+        const files = await invoke<GameDataFile[]>('extract_game_data_files', { 
+          projectInfo: result 
+        });
+        setGameDataFiles(files);
+      } catch (err) {
+        // Wolf RPG and other engines don't support structured game data files
+        console.log('Engine does not support game data files:', result.engine_type, err);
+        setGameDataFiles([]);
+      }
 
       // If this is an exported subset with a manifest, merge pre-translated units
       const merged = await invoke<TextUnit[] | null>('load_subset_with_manifest', { 
         projectInfo: result 
       });
       if (merged && Array.isArray(merged) && merged.length > 0) {
+        console.log('Merged units count:', merged.length);
+        console.log('Merged engine type:', result.engine_type);
         setTextUnits(merged);
       }
-
+      if (merged && Array.isArray(merged) && merged.length === 0) {
+        console.log('No merged units', result.engine_type);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load project';
       error.value = errorMessage;
