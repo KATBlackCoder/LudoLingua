@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { OllamaConfig, ModelInfo } from '~/types/provider';
+import type { LlmConfig, Provider } from '~/types/provider';
+import type { ModelInfo } from '~/types/tokens';
 import type { Language } from '~/types/language';
 import { Store } from '@tauri-apps/plugin-store';
 import { useProviderStore } from './provider';
@@ -10,7 +11,7 @@ import { useLanguageStore } from './language';
  * Unified user settings structure
  */
 export interface UserSettings {
-  provider: string;
+  provider: Provider;
   model: ModelInfo;
   source_language: Language;
   target_language: Language;
@@ -24,8 +25,20 @@ export interface UserSettings {
  * Default user settings
  */
 const defaultUserSettings: UserSettings = {
-  provider: 'ollama',
-  model: { model_name: 'mistral:latest', display_name: 'Mistral 7B' },
+  provider: 'Ollama',
+  model: { 
+    display_name: 'Mistral 7B',
+    model_name: 'mistral:latest',
+    provider: 'Ollama',
+    description: 'A 7B parameter model trained by Mistral AI, good for general-purpose text generation and translation',
+    pricing: {
+      input_price_per_1k: 0.0,
+      output_price_per_1k: 0.0,
+      currency: 'USD'
+    },
+    context_window: 32768,
+    enabled: true
+  },
   source_language: { id: 'en', label: 'English', native_name: 'English', dir: 'ltr', enabled: true },
   target_language: { id: 'fr', label: 'French', native_name: 'Français', dir: 'ltr', enabled: true },
   base_url: 'http://localhost:11434',
@@ -81,9 +94,10 @@ export const useSettingsStore = defineStore('settings', () => {
   /**
    * Provider configuration extracted from user settings
    */
-  const providerConfig = computed((): OllamaConfig => ({
+  const providerConfig = computed((): LlmConfig => ({
     model: userSettings.value.model,
     base_url: userSettings.value.base_url,
+    api_key: userSettings.value.api_key,
     temperature: userSettings.value.temperature,
     max_tokens: userSettings.value.max_tokens,
   }));
@@ -115,11 +129,38 @@ export const useSettingsStore = defineStore('settings', () => {
       const settingsValue = await store.get<UserSettings>('user_settings');
       
       // Use loaded settings or fall back to defaults
-      const settings = settingsValue || defaultUserSettings;
+      let settings = settingsValue || defaultUserSettings;
+      
+      // Migration: Handle old ModelInfo structure without pricing
+      if (settings.model && !settings.model.pricing) {
+        console.log('Migrating old model settings to new structure with pricing...')
+        settings.model = {
+          ...settings.model,
+          provider: settings.model.provider || 'Ollama',
+          description: settings.model.description || 'Local Ollama model',
+          pricing: {
+            input_price_per_1k: 0.0,
+            output_price_per_1k: 0.0,
+            currency: 'USD'
+          },
+          context_window: settings.model.context_window || 32768,
+          enabled: settings.model.enabled !== undefined ? settings.model.enabled : true
+        }
+        // Save the migrated settings
+        await saveUserSettings(settings)
+      }
+      
+      // Normalize provider casing (persisted older builds might store lowercase)
+      const providerStr = String(settings.provider || 'Ollama');
+      const normalizedProvider = (providerStr.toLowerCase() === 'ollama' ? 'Ollama' : providerStr) as Provider;
+      if (settings.provider !== normalizedProvider) {
+        settings = { ...settings, provider: normalizedProvider };
+      }
+
       userSettings.value = settings;
       
       // Sync with provider store to update UI components
-      await providerStore.setProvider(settings.provider);
+      await providerStore.setProvider(settings.provider as Provider);
       if (settings.model) {
         providerStore.setModel(settings.model);
       }
@@ -152,7 +193,7 @@ export const useSettingsStore = defineStore('settings', () => {
       userSettings.value = settings;
       
       // Sync with provider store to update UI components
-      await providerStore.setProvider(settings.provider);
+      await providerStore.setProvider(settings.provider as Provider);
       if (settings.model) {
         providerStore.setModel(settings.model);
       }
@@ -160,7 +201,9 @@ export const useSettingsStore = defineStore('settings', () => {
       // Sync with language store to update UI components
       languageStore.setLanguage(settings.source_language.id, settings.target_language.id, { silent: true });
       
-      console.log('User settings saved:', settings);
+      // Avoid logging raw API keys in console
+      const maskedKey = settings.api_key ? settings.api_key.slice(0, 6) + '…' : undefined
+      console.log('User settings saved:', { ...settings, api_key: maskedKey });
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Failed to save user settings';
       console.error('Failed to save user settings:', e);
@@ -183,7 +226,7 @@ export const useSettingsStore = defineStore('settings', () => {
       const settings = { ...defaultUserSettings };
       await saveUserSettings(settings);
       
-      console.log('User settings reset to defaults:', settings);
+      console.log('User settings reset to defaults');
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Failed to reset user settings';
       console.error('Failed to reset user settings:', e);

@@ -52,10 +52,10 @@ Output: Medicine that improves womb condition.[NEWLINE_1][Womb Status +30]
 - Names: concise, proper case (e.g., Lv1 Hypnosis App). Do not add slang or commentary
 - Descriptions: clear and literal; do not add moralizing or invented mechanics
 - Do not invent levels or categories; preserve "LvN" only if present in input
-- If name is slang/brand and unclear, transliterate to English phonetics (katakana → romaji-style)
+- If name is slang/brand and unclear, transliterate to English phonetics (katakana -> romaji-style)
 - Descriptions: prefer neutral capability phrasing ("Enables …", "Allows … when possessed"); avoid imperatives
 - Never introduce placeholder tokens (e.g., [NEWLINE_1]) unless present in input
 
 ## Normalization
-- Lv1 / Lv2 / Lv3 → preserve exact casing and spacing ("Lv1", not "LV1" or "lv 1")
-- H → sex (only in descriptive contexts; keep single letter H if input is exactly "H")
+- Lv1 / Lv2 / Lv3 -> preserve exact casing and spacing ("Lv1", not "LV1" or "lv 1")
+- H -> sex (only in descriptive contexts; keep single letter H if input is exactly "H")

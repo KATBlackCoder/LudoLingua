@@ -11,3 +11,4 @@
 
 pub mod services;
 pub mod state;
+pub mod factory;

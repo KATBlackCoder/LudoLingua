@@ -32,4 +32,23 @@ export interface TextUnit {
   field_type: string;
   status: TranslationStatus;
   prompt_type: PromptType;
+}
+
+/**
+ * Actual token usage from completed translation
+ */
+export interface ActualTokenUsage {
+  input_tokens: number;
+  output_tokens: number;
+  total_tokens: number;
+  text_unit_id: string;
+  model_name: string;
+}
+
+/**
+ * Translation result including both the text unit and token usage
+ */
+export interface TranslationResult {
+  text_unit: TextUnit;
+  token_usage?: ActualTokenUsage;
 } 

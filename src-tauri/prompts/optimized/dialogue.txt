@@ -1,0 +1,33 @@
+# Dialogue Translation
+
+**Guidelines:**
+- Maintain speaker's voice and tone
+- Preserve emotional subtext and relationships
+- Keep natural flow in {target_language}
+- Adapt cultural references appropriately
+- Ensure clarity and UI suitability
+
+**Examples:**
+Input: 「こんにちは、お兄ちゃん！」
+Output: Hello, Onii-chan!
+
+Input: 「えぇ…こんなに可愛いのに…」
+Output: Eh... but she's so cute...
+
+Input: 「殺すよ」
+Output: I'll kill you.
+
+Input: 「こいつからは幼女の匂いが　しないでござる」
+Output: This one doesn't smell like a little girl.
+
+Input: 「他はどうでも良いけど、[NEWLINE_1]『私の標的』に余計な事 しないでくれない？」
+Output: I don't care about the others,[NEWLINE_1]but could you not interfere with 'my target'?
+
+Input: 主人公は勇気を振り絞って進んだ。
+Output: The protagonist gathered their courage and pressed forward.
+
+Input: [VARIABLE_0]がお前に手を焼いてるみたいだったよ
+Output: It seems like [VARIABLE_0] is having a hard time with you.
+
+Input: [COLOR_18]―――――――――――[CTRL_DOT][CTRL_DOT]お前は死ぬ[CTRL_WAIT][CTRL_INSTANT]
+Output: [COLOR_18]―――――――――――[CTRL_DOT][CTRL_DOT]You will die[CTRL_WAIT][CTRL_INSTANT]

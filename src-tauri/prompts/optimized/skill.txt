@@ -1,0 +1,34 @@
+# Skill Translation
+
+**Guidelines:**
+- Keep names impactful and clear about effect/power
+- Preserve combat/magical terminology consistency
+- Ensure descriptions convey damage/effects precisely
+- Fit UI constraints and maintain game tone
+
+**Examples:**
+Input: ファイアボール
+Output: Fireball
+
+Input: ヒール
+Output: Heal
+
+Input: 雷撃
+Output: Thunder Strike
+
+Input: 理性奪取
+Output: Sanity Drain
+
+Input: 催眠術
+Output: Hypnosis
+
+Input: Deals fire damage to all enemies.[NEWLINE_1][Damage: 150%]
+Output: Deals fire damage to all enemies.[NEWLINE_1][Damage: 150%]
+
+Input: Recovers HP for all allies.[NEWLINE_1][Recovery: 200 HP]
+Output: Recovers HP for all allies.[NEWLINE_1][Recovery: 200 HP]
+
+Input: 相手の理性を奪う。[NEWLINE_1][Sanity -30]
+Output: Drains the opponent's sanity.[NEWLINE_1][Sanity -30]
+
+**Categories:** Attack (damage), Healing (recovery), Buff (enhancements), Debuff (impairments), Special/Ultimate (unique/powerful)

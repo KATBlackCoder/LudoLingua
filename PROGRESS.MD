@@ -712,6 +712,75 @@ Goal: Stabilize and optimize per-unit translation calls with connection reuse.
     *   [x] **Tauri Compatible:** All Tauri integration still works perfectly
     *   [x] **Enhanced Development:** Better TypeScript support and development experience
 
+### ✅ LLM Crate Migration (Ollama-Only) - COMPLETED
+
+**Goal:** Migrate from `ollama-rs` to the unified `llm` crate for better extensibility and future multi-provider support.
+
+*   **Dependencies Migration:**
+    *   [x] **Updated Cargo.toml:** Replaced `ollama-rs = "0.3.2"` with `llm = { version = "1.2.4", features = ["ollama"] }`
+    *   [x] **Dependency cleanup:** Removed ollama-rs crate and transitioned to llm crate's unified API
+
+*   **Backend Service Migration:**
+    *   [x] **Migrated OllamaService:** Updated `src/llm/services/ollama.rs` to use llm crate's `LLMBuilder` pattern
+    *   [x] **API Integration:** Implemented `LLMBackend::Ollama` with proper configuration (model, temperature, max_tokens, base_url)
+    *   [x] **Response Handling:** Fixed ChatResponse text extraction using Display trait implementation
+    *   [x] **Maintained Compatibility:** Preserved all existing methods and functionality (generate, test_connection, config_matches)
+
+*   **Architecture Improvements:**
+    *   [x] **Modern Builder Pattern:** Leveraged llm crate's fluent configuration API for cleaner service initialization
+    *   [x] **Future-Ready Design:** Prepared foundation for easy addition of multiple LLM providers (OpenAI, Anthropic, etc.)
+    *   [x] **Type Safety:** Enhanced with Box<dyn LLMProvider> for unified provider interface
+    *   [x] **Error Handling:** Maintained robust error handling with AppResult<T> pattern
+
+*   **Benefits Achieved:**
+    *   [x] **Unified API:** Ready for multi-provider support without breaking existing functionality
+    *   [x] **Modern Architecture:** Using industry-standard llm crate with active development and community support
+    *   [x] **Extensibility:** Easy path to add OpenAI, Anthropic, DeepSeek, and other providers when needed
+    *   [x] **Backward Compatibility:** All existing translation workflows continue to work unchanged
+    *   [x] **Performance:** Maintained connection reuse and rate limiting capabilities
+
+### ✅ Multi-Provider LLM (OpenAI) - COMPLETED
+
+Goal: Generalize the LLM layer to support multiple providers using the `graniet/llm` crate and add OpenAI as the first cloud provider.
+
+*   Backend
+    *   [x] Added `ProviderKind` enum and `LlmService` trait in `src-tauri/src/core/provider.rs`
+    *   [x] Implemented `create_service(config)` factory in `src-tauri/src/llm/factory.rs` to instantiate provider-specific services
+    *   [x] Implemented `OpenAiService` in `src-tauri/src/llm/services/openai.rs` using `LLMBuilder` (api_key, model, temperature, max_tokens); optional `base_url` normalization (no trailing `/v1`)
+    *   [x] Generalized `LlmState` to store `Box<dyn LlmService>` and rebuild on config changes (`src-tauri/src/llm/state.rs`)
+    *   [x] Updated translation command to use provider-agnostic service and improved retry semantics; fatal `insufficient_quota` stops immediately (`src-tauri/src/commands/translation.rs`)
+    *   [x] Added `get_provider_models` command to serve `models/{provider}.json` (`src-tauri/src/commands/provider.rs`)
+    *   [x] Added `src-tauri/models/openai.json` with pricing, descriptions, and context windows
+    *   [x] Adjusted OpenAI connection test: treat HTTP 429 as reachable; `insufficient_quota` reported as not connected
+
+*   Frontend
+    *   [x] Provider selection UI: renamed `ModelSelector` → `ProviderSelector` with provider + model dropdowns (`app/components/settings/ProviderSelector.vue`)
+    *   [x] Provider store loads providers and per-provider models; passes `LlmConfig` to backend (`app/stores/provider.ts`)
+    *   [x] Settings: show `api_key`; save `base_url` only for Ollama; clear `base_url` for OpenAI (`app/pages/settings.vue`, `app/stores/settings.ts`)
+    *   [x] Connection tester now reflects current provider in UI (`app/components/settings/ConnectionTester.vue`)
+
+*   Behavior
+    *   [x] OpenAI requests send a single composite prompt built by the shared `PromptBuilder`
+    *   [x] Base URL rules: Ollama requires base URL (defaults to `http://localhost:11434`); OpenAI leaves empty unless using a custom gateway
+
+### ✅ Token Estimation (Pre-Run Budgeting) - COMPLETED
+
+Goal: Preview token usage and cost per project before translation.
+
+*   Backend: `src-tauri/src/utils/token_estimation.rs` with `estimate_project_tokens` exposed via Tauri; `ModelInfo.pricing` used for cost
+*   Frontend: `useTranslation.estimateTokens()` + `ProjectStats.vue` “Token Usage Estimate” card with total/input/output and cost
+*   Model pricing embedded in `ModelInfo` (backend and JSON catalogs); removed separate pricing logic
+
+### ✅ Provider-Aware Settings UX - COMPLETED
+
+*   Base URL saved only for Ollama; cleared for OpenAI (auto-normalized on backend if provided)
+*   Watcher updates base URL defaults when switching providers; `api_key` field surfaced for cloud providers
+
+### ✅ Reliability & Error Semantics - COMPLETED
+
+*   Translation retry with timeout/backoff; abort early on fatal OpenAI `insufficient_quota`
+*   Connection test treats OpenAI 429 as reachable; still reports `insufficient_quota` as not connected
+
 ### Next Steps
 
 *   **Phase 7: Frontend & Backend Polish**
@@ -756,6 +825,39 @@ Goal: Detect MZ projects and support extraction/injection for core files using M
 *   UI enhancement:
     *   Translation results: added “Add to glossary” action mapping PromptType → Category
 
+### ✅ OpenRouter Implementation (Native API) - COMPLETED
+
+**Goal:** Implement dedicated OpenRouter support using direct API calls instead of graniet/llm crate.
+
+*   **Dependencies & Architecture:**
+    *   [x] **Created dedicated OpenRouter service:** Implemented `src-tauri/src/llm/services/openrouter.rs` with direct HTTP calls using `reqwest`
+    *   [x] **Native API implementation:** Follows [OpenRouter API specification](https://openrouter.ai/docs/api-reference/overview) without dependency on `graniet/llm` crate
+    *   [x] **Proper HTTP headers:** Implemented required headers (`HTTP-Referer`, `X-Title`) per [OpenRouter quickstart guide](https://openrouter.ai/docs/quickstart)
+    *   [x] **Enhanced error handling:** OpenRouter-specific error parsing and response handling
+
+*   **Backend Integration:**
+    *   [x] **Provider system updates:** Added `ProviderKind::Openrouter` to enum and factory (`src-tauri/src/core/provider.rs`, `src-tauri/src/llm/factory.rs`)
+    *   [x] **Model catalog:** Created `src-tauri/models/openrouter.json` with free and paid models (GPT-4o, Claude, Llama, Gemini)
+    *   [x] **Command layer:** Updated `src-tauri/src/commands/provider.rs` to load OpenRouter models
+    *   [x] **Service registration:** Added OpenRouterService to services module and factory instantiation
+
+*   **Frontend Support:**
+    *   [x] **Provider selection:** Added OpenRouter to available providers in `app/stores/provider.ts`
+    *   [x] **Type definitions:** Added OpenRouter to `Provider` union type in `app/types/provider.ts`
+    *   [x] **UI integration:** OpenRouter appears as selectable provider in settings with model dropdown
+
+*   **Connection & Translation:**
+    *   [x] **Connection testing:** OpenRouter connection test shows "Connected" status in ConnectionTester component
+    *   [x] **Translation functionality:** Successfully translates text units using OpenRouter API (verified in console logs)
+    *   [x] **Model support:** Supports free models like `openai/gpt-oss-20b:free` and `meta-llama/llama-3.1-8b-instruct:free`
+
+*   **Benefits Achieved:**
+    *   [x] **No external dependencies:** Direct HTTP implementation avoids graniet/llm crate complications
+    *   [x] **OpenRouter compliance:** Follows official API specification and best practices
+    *   [x] **Free model access:** Provides access to free models for cost-effective translation
+    *   [x] **Unified interface:** Integrates seamlessly with existing multi-provider architecture
+    *   [x] **Production ready:** Robust error handling and proper timeout/retry mechanisms
+
 *   **Frontend Enhancements:**
     *   [ ] Implement responsive design for different screen sizes.
     *   [ ] Add proper loading states and transitions.
@@ -764,3 +866,41 @@ Goal: Detect MZ projects and support extraction/injection for core files using M
         *   [ ] Implement sorting functionality.
         *   [ ] Add pagination for better performance with large datasets.
         *   [ ] Add a search/filter feature.
+
+### ✅ Groq Implementation (Lightning Fast LLM) - COMPLETED
+
+**Goal:** Add Groq as a high-performance LLM provider using the `graniet/llm` crate for ultra-fast translation processing.
+
+*   **Dependencies & Architecture:**
+    *   [x] **Added Groq feature:** Updated `src-tauri/Cargo.toml` to include `groq` feature in `llm` crate
+    *   [x] **Created Groq service:** Implemented `src-tauri/src/llm/services/groq.rs` using `LLMBuilder` with `LLMBackend::Groq`
+    *   [x] **Provider integration:** Added `ProviderKind::Groq` to enum and factory instantiation
+
+*   **Backend Integration:**
+    *   [x] **Model catalog:** Created `src-tauri/models/groq.json` with popular Groq models including:
+        *   `llama3-70b-8192` - Meta's Llama 3.1 70B model for powerful reasoning
+        *   `llama3-8b-8192` - Fast and efficient 8B model for most tasks
+        *   `mixtral-8x7b-32768` - Mistral's Mixtral 8x7B MoE model for translation
+        *   `gemma2-9b-it` - Google's Gemma 2 9B instruction-tuned model
+        *   `llama3.1-8b-instant` - Optimized for speed and efficiency
+        *   `llama3.1-70b-versatile` - Best for complex reasoning and analysis
+        *   `llama3.1-405b-reasoning` - State-of-the-art reasoning capabilities
+    *   [x] **Command layer:** Updated `src-tauri/src/commands/provider.rs` to load Groq models
+    *   [x] **Service registration:** Added GroqService to services module and factory instantiation
+
+*   **Frontend Support:**
+    *   [x] **Provider selection:** Added Groq to available providers in `app/stores/provider.ts`
+    *   [x] **Settings integration:** Updated settings page to handle Groq's fixed API endpoint (clears base_url)
+    *   [x] **UI integration:** Groq appears as selectable provider in settings with model dropdown
+
+*   **Performance Benefits:**
+    *   [x] **Ultra-fast processing:** Groq's optimized infrastructure provides 500+ tokens/second
+    *   [x] **Free tier available:** 14,400 requests/day free tier for cost-effective translation
+    *   [x] **High-quality models:** Access to state-of-the-art models like Llama 3.1 70B and 405B
+    *   [x] **Large context windows:** Support for up to 32K context windows for complex translations
+
+*   **Integration Features:**
+    *   [x] **Unified interface:** Seamlessly integrates with existing multi-provider architecture
+    *   [x] **Error handling:** Robust error handling with proper timeout and retry mechanisms
+    *   [x] **Connection testing:** Full connection test support with appropriate error semantics
+    *   [x] **Token estimation:** Supports token estimation and cost calculation using embedded pricing data

@@ -19,7 +19,7 @@ use tauri::Manager;
 pub fn run() {
     tauri::Builder::default()
 
-        .manage(crate::llm::state::LlmState::new(1))
+        .manage(crate::llm::state::LlmState::new(1)) // Single request at a time to prevent rate limits
         .setup(|app| {
             // Resolve per-OS app data directory and create the DB there
             let app_data_dir = app
@@ -48,7 +48,9 @@ pub fn run() {
             commands::handler::translate_text_unit,
             commands::handler::test_llm_connection,
             commands::handler::get_ollama_models,
+            commands::handler::get_provider_models,
             commands::handler::get_languages,
+            commands::handler::estimate_project_tokens,
             commands::handler::glossary_list_terms,
             commands::handler::glossary_upsert_term,
             commands::handler::glossary_delete_term,

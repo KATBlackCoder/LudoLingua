@@ -18,6 +18,7 @@ use crate::models::engine::{EngineInfo, GameDataFile};
 use crate::models::language::Language;
 use crate::models::provider::{LlmConfig, ModelInfo};
 use crate::models::translation::TextUnit;
+use crate::utils::token_estimation::ProjectTokenEstimate;
 use tauri::State;
 
 /// Load a project from a selected directory
@@ -85,7 +86,7 @@ pub async fn translate_text_unit(
     text_unit: TextUnit,
     config: LlmConfig,
     engine_info: EngineInfo,
-) -> Result<TextUnit, String> {
+) -> Result<translation::TranslationResult, String> {
     debug!("Command: translate_text_unit - {}", text_unit.id);
     translation::translate_text_unit(state, glossary, text_unit, config, engine_info)
         .await
@@ -105,11 +106,31 @@ pub async fn get_ollama_models() -> Result<Vec<ModelInfo>, String> {
     provider::get_ollama_models().await
 }
 
+/// General models loader by provider name (e.g., "ollama", "openai")
+#[tauri::command]
+pub fn get_provider_models(provider: String) -> Result<Vec<ModelInfo>, String> {
+    debug!("Command: get_provider_models - {}", provider);
+    provider::get_models(provider)
+}
+
 /// Get enabled languages from the bundled language catalog
 #[tauri::command]
 pub fn get_languages() -> Result<Vec<Language>, String> {
     debug!("Command: get_languages");
     languages::get_languages()
+}
+
+/// Estimate token usage for project translation
+#[tauri::command]
+pub async fn estimate_project_tokens(
+    text_units: Vec<TextUnit>,
+    engine_info: EngineInfo,
+    config: LlmConfig,
+) -> Result<ProjectTokenEstimate, String> {
+    debug!("Command: estimate_project_tokens - {} units", text_units.len());
+    crate::utils::token_estimation::estimate_project_tokens(&text_units, &engine_info, &config)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Glossary: list terms

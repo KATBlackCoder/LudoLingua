@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
-import type { TextUnit } from '../types/translation';
+import type { TextUnit, TranslationResult, ActualTokenUsage } from '../types/translation';
 // import { useProviderStore } from './provider';
 import { useEngineStore } from './engine';
 import { useAppToast } from '~/composables/useAppToast';
@@ -27,6 +27,7 @@ export const useTranslateStore = defineStore('translate', () => {
   const translationTotal = ref(0);
   const currentTranslatingUnit = ref<TextUnit | null>(null);
   const failedTranslations = ref<Array<{ unit: TextUnit; error: string }>>([]);
+  const actualTokenUsage = ref<ActualTokenUsage[]>([]);
   
   // Computed
   const isTranslationInProgress = computed(() => isTranslating.value);
@@ -35,6 +36,13 @@ export const useTranslateStore = defineStore('translate', () => {
     return Math.round((translationProgress.value / translationTotal.value) * 100);
   });
   const hasFailedTranslations = computed(() => failedTranslations.value.length > 0);
+  const totalActualTokenUsage = computed(() => {
+    return actualTokenUsage.value.reduce((total, usage) => ({
+      input_tokens: total.input_tokens + usage.input_tokens,
+      output_tokens: total.output_tokens + usage.output_tokens,
+      total_tokens: total.total_tokens + usage.total_tokens,
+    }), { input_tokens: 0, output_tokens: 0, total_tokens: 0 });
+  });
 
   // Actions
   const translateTextUnit = async (
@@ -47,7 +55,7 @@ export const useTranslateStore = defineStore('translate', () => {
       //console.log('Translating text unit:', textUnit.id);
       const unitPayload = engineStore.getTextUnitById(textUnit.id)
       const enginePayload = engineStore.projectInfo
-      const translatedUnit = await invoke<TextUnit>('translate_text_unit', {
+      const translationResult = await invoke<TranslationResult>('translate_text_unit', {
         // snake_case (current backend)
         text_unit: unitPayload,
         engine_info: enginePayload,
@@ -60,14 +68,20 @@ export const useTranslateStore = defineStore('translate', () => {
 
       // Debug log for inspection (raw output)
       console.debug('[MT][raw]', {
-        id: translatedUnit.id,
-        prompt_type: translatedUnit.prompt_type,
-        source: translatedUnit.source_text,
-        target: translatedUnit.translated_text,
+        id: translationResult.text_unit.id,
+        prompt_type: translationResult.text_unit.prompt_type,
+        source: translationResult.text_unit.source_text,
+        target: translationResult.text_unit.translated_text,
       });
 
+      // Log token usage if available
+      if (translationResult.token_usage) {
+        console.debug('[MT][tokens]', translationResult.token_usage);
+        actualTokenUsage.value.push(translationResult.token_usage);
+      }
+
       // Update the engine store with the translated unit
-      engineStore.updateTextUnit(translatedUnit);
+      engineStore.updateTextUnit(translationResult.text_unit);
 
       // Remove from failed translations if it was there
       const failedIndex = failedTranslations.value.findIndex(f => f.unit.id === textUnit.id);
@@ -76,7 +90,7 @@ export const useTranslateStore = defineStore('translate', () => {
       }
 
       //console.log('Translation completed for:', textUnit.id);
-      return translatedUnit;
+      return translationResult.text_unit;
     } catch (error) {
       console.error('Translation error:', error);
       
@@ -112,6 +126,7 @@ export const useTranslateStore = defineStore('translate', () => {
       translationTotal.value = textUnits.length;
       translationProgress.value = 0;
       failedTranslations.value = [];
+      actualTokenUsage.value = [];
 
       showToast('Batch Translation Started', `Translating ${textUnits.length} text units`, 'info', 1200)
 
@@ -127,7 +142,15 @@ export const useTranslateStore = defineStore('translate', () => {
           await new Promise(resolve => setTimeout(resolve, 100));
         } catch (error) {
           console.error(`Failed to translate unit ${textUnit.id}:`, error);
-          // Error is already handled in translateTextUnit
+          // Abort batch on fatal provider quota errors for clarity
+          const message = error instanceof Error ? error.message : String(error)
+          const msgLower = message.toLowerCase()
+          const isFatalQuota = msgLower.includes('insufficient_quota') || msgLower.includes('exceeded your current quota')
+          if (isFatalQuota) {
+            showToast('Provider Quota Exceeded', 'OpenAI reports insufficient quota. Check your plan/billing.', 'error', 2500)
+            break
+          }
+          // Otherwise continue to next unit
         }
       }
 
@@ -161,6 +184,7 @@ export const useTranslateStore = defineStore('translate', () => {
     translationTotal.value = 0;
     currentTranslatingUnit.value = null;
     failedTranslations.value = [];
+    actualTokenUsage.value = [];
   };
 
   return {
@@ -175,6 +199,8 @@ export const useTranslateStore = defineStore('translate', () => {
     isTranslationInProgress,
     translationProgressPercentage,
     hasFailedTranslations,
+    totalActualTokenUsage,
+    actualTokenUsage,
 
     // Actions
     translateTextUnit,

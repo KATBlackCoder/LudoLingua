@@ -8,13 +8,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+ - Backend/LLM: Groq integration for ultra-fast translation processing
+   - Added `groq` feature to `llm` crate in `src-tauri/Cargo.toml`
+   - Created `src-tauri/src/llm/services/groq.rs` using `LLMBuilder` with `LLMBackend::Groq`
+   - Added `ProviderKind::Groq` to enum and factory instantiation
+   - Created `src-tauri/models/groq.json` with popular models including Llama 3.1 70B, Mixtral 8x7B, and Gemma 2 9B
+   - Updated provider commands to load Groq models from JSON catalog
+   - Added Groq to available providers in frontend provider store
+   - Updated settings page to handle Groq's fixed API endpoint (clears base_url automatically)
+   - Provides 500+ tokens/second processing speed with 14,400 requests/day free tier
+ - Backend/LLM: OpenRouter native API implementation
+   - Created dedicated `src-tauri/src/llm/services/openrouter.rs` with direct HTTP calls using `reqwest`
+   - Follows [OpenRouter API specification](https://openrouter.ai/docs/api-reference/overview) without `graniet/llm` dependency
+   - Implements proper HTTP headers (`HTTP-Referer`, `X-Title`) per OpenRouter quickstart guide
+   - Enhanced error handling with OpenRouter-specific error response parsing
+   - Added `ProviderKind::Openrouter` to enum and factory support
+   - Created `src-tauri/models/openrouter.json` with free and paid models (GPT-4o, Claude, Llama, Gemini)
+   - Updated provider commands to load OpenRouter models from JSON catalog
+ - Frontend/Settings: OpenRouter provider support
+   - Added OpenRouter to available providers in provider store
+   - OpenRouter appears as selectable provider in settings with model dropdown
+   - Supports free models like `openai/gpt-oss-20b:free` and `meta-llama/llama-3.1-8b-instruct:free`
  - Backend/Engines: Experimental Wolf RPG support (Windows-only)
    - New `EngineType::WolfRpg`, factory detection via presence of `Data/`
    - Orchestrates external tools: UberWolfCli (optional decrypt) + WolfTL (create dump / patch)
    - Extracts strings from `dump/*.json` with stable JSON-pointer IDs and injects back before patching
    - Tools are expected in `src-tauri/src/engines/wolf_rpg/exe/` during dev; can be overridden via `LUDOLINGUA_WOLF_TOOLS`
  - Backend/Common: JSON walker helpers to collect/apply text units (`wolf_json:<dump_rel>#<pointer>`)
- - Frontend/Translation: Add “Add to glossary” action in results, mapping PromptType → Category
+ - Frontend/Translation: Add "Add to glossary" action in results, mapping PromptType → Category
  - Backend/LLM: Apply Ollama `ModelOptions` for generation (`temperature`, `num_predict` aka max_tokens) so settings affect outputs.
  - Settings: Presets for Temperature/Max Tokens (Recommended, High, Creative) in `app/pages/settings.vue`.
  - About: LLM Parameters card and Performance & Hardware guidance in `AboutTechnology.vue`.
@@ -25,8 +46,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - Integrated into `replace_formatting_codes_for_translation` and `restore_formatting_codes_after_translation`
  - Developer documentation: Added concise Rustdoc to core backend modules and TSDoc to main frontend stores
   to clarify responsibilities and data flow without changing behavior.
+ - Backend/LLM: Multi-provider architecture with OpenAI support
+   - `core/provider.rs`: `ProviderKind` enum and `LlmService` trait
+   - `llm/factory.rs`: `create_service(LlmConfig)` selects provider (Ollama/OpenAI)
+   - `llm/services/openai.rs`: OpenAI via `LLMBuilder` (api_key, model, temperature, max_tokens)
+   - `commands/provider.rs`: `get_provider_models` loads `models/{provider}.json`
+   - `models/openai.json`: Model metadata with pricing and context windows
+ - Frontend/Settings: Provider selector and provider-specific model lists
+   - `components/settings/ProviderSelector.vue` (provider + model)
+   - `stores/provider.ts` (load providers, models, test)
+ - Frontend/Token Estimation: Pre-run project token and cost estimate
+   - `useTranslation.estimateTokens()` and `ProjectStats.vue` token card
+ - Backend/Token Estimation: `utils/token_estimation.rs` + Tauri command; uses `ModelInfo.pricing`
+
 ### Changed
+- **LLM Crate Migration:** Complete migration from `ollama-rs` to unified `llm` crate for better extensibility
+  - **Dependencies:** Replaced `ollama-rs = "0.3.2"` with `llm = { version = "1.2.4", features = ["ollama"] }`
+  - **OllamaService Migration:** Updated `src/llm/services/ollama.rs` to use `llm` crate's `LLMBuilder` pattern with `LLMBackend::Ollama`
+  - **API Integration:** Implemented proper configuration builder with model, temperature, max_tokens, and base_url support
+  - **Response Handling:** Fixed ChatResponse text extraction using Display trait implementation (`format!("{}", response)`)
+  - **Backward Compatibility:** Maintained all existing methods and functionality (generate, test_connection, config_matches)
+  - **Future-Ready:** Prepared foundation for easy addition of multiple LLM providers (OpenAI, Anthropic, DeepSeek, etc.)
+  - **Type Safety:** Enhanced with `Box<dyn LLMProvider>` for unified provider interface
+ - Backend/LLM State: `LlmState` now stores `Box<dyn LlmService>` and rebuilds on config change
+ - Backend/Translation: Retry logic now stops immediately on fatal provider `insufficient_quota`
+ - Backend/OpenAI: `test_connection` treats HTTP 429 as reachable, but reports `insufficient_quota` as not connected
+ - Backend/OpenAI: Base URL normalization (strip trailing `/v1`); base URL optional
+ - Frontend/Settings: Save `base_url` only for Ollama; clear for OpenAI automatically
+
 ### Fixed
+ - OpenAI: Avoid 404/RelativeUrl errors by normalizing optional base URL and leaving it empty by default
+ - Frontend/Translation: Abort batch early with clear toast when OpenAI reports `insufficient_quota`
+ - Provider model loading: `get_provider_models` resolves `openai.json` correctly
  - Backend/Engines: Fixed “Engine does not support extracting game data files” when loading MZ projects by adding MZ-specific dispatch in `commands/engine.rs`.
 - Frontend/Translation UX: Fixed double-wrapped refs in `app/composables/useTranslation.ts` causing incorrect busy/progress rendering.
 - Frontend/Batch Cancel: Batch translation now respects cancellation by checking `isTranslating` inside the loop in `app/stores/translate.ts`.

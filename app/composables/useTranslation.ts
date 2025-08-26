@@ -1,7 +1,10 @@
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import { invoke } from '@tauri-apps/api/core'
 import { useEngineStore } from '~/stores/engine'
 import { useTranslateStore } from '~/stores/translate'
+import { useSettingsStore } from '~/stores/settings'
+import type { ProjectTokenEstimate } from '~/types/tokens'
 import { TranslationStatus } from '~/types/translation'
 
 type Mode = 'raw' | 'process' | 'result'
@@ -13,6 +16,8 @@ const mode = ref<Mode>('raw')
 const processRows = ref<ProcessRow[]>([])
 const startTimestampMs = ref<number | null>(null)
 const elapsedMs = ref<number>(0)
+const tokenEstimate = ref<ProjectTokenEstimate | null>(null)
+const isEstimating = ref(false)
 let intervalId: number | null = null
 
 function formatDuration(ms: number): string {
@@ -149,6 +154,27 @@ export function useTranslation() {
     unit.status = TranslationStatus.HumanReviewed
   }
 
+  const estimateTokens = async (): Promise<ProjectTokenEstimate | null> => {
+    if (!engineStore.hasProject) return null
+    
+    try {
+      isEstimating.value = true
+      const settingsStore = useSettingsStore()
+      const result = await invoke<ProjectTokenEstimate>('estimate_project_tokens', {
+        textUnits: engineStore.textUnits,
+        engineInfo: engineStore.projectInfo,
+        config: settingsStore.providerConfig,
+      })
+      tokenEstimate.value = result
+      return result
+    } catch (error) {
+      console.error('Failed to estimate tokens:', error)
+      return null
+    } finally {
+      isEstimating.value = false
+    }
+  }
+
   return {
     // state
     mode,
@@ -161,12 +187,17 @@ export function useTranslation() {
     translationTotal,
     failedCount,
 
+    // token estimation
+    tokenEstimate,
+    isEstimating,
+
     // actions
     startProcess,
     translateOne,
     retranslate,
     reset,
     saveEdit,
+    estimateTokens,
 
     // timing
     elapsedMs,

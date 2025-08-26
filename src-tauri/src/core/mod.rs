@@ -3,4 +3,5 @@
 
 pub mod engine;
 pub mod error;
+pub mod provider;
 // pub mod provider; // removed in Ollama-only architecture

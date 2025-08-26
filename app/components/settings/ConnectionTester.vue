@@ -1,6 +1,7 @@
 <template>
   <div class="flex items-center gap-2">
     <UBadge :color="badgeColor" variant="soft">{{ providerStore.connectionStatusText }}</UBadge>
+    <UBadge color="neutral" variant="soft">{{ providerStore.selectedProvider }}</UBadge>
     <UButton
       :loading="providerStore.isLoading"
       variant="outline"
@@ -9,7 +10,7 @@
       :disabled="!ready"
       @click="testConnection"
     >
-      Test
+      Test {{ providerStore.selectedProvider }}
     </UButton>
   </div>
  </template>

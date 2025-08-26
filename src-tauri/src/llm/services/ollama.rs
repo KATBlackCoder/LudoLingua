@@ -1,14 +1,15 @@
-//use log::debug;
-use ollama_rs::generation::completion::request::GenerationRequest;
-use ollama_rs::models::ModelOptions;
-use ollama_rs::Ollama;
+use llm::{
+    builder::{LLMBackend, LLMBuilder},
+    chat::ChatMessage,
+    LLMProvider,
+};
+use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use tokio::time::{timeout, Duration};
 
 use crate::core::error::{AppError, AppResult};
-use crate::models::engine::EngineInfo;
+use crate::core::provider::{GenerationResponse, LlmService, TokenUsage};
 use crate::models::provider::{LlmConfig, ModelInfo};
-use crate::models::translation::TextUnit;
-use crate::utils::prompts::builder::PromptBuilder;
 
 /// JSON configuration structure for Ollama models
 #[derive(Debug, Deserialize, Serialize)]
@@ -16,11 +17,55 @@ struct OllamaModelsConfig {
     models: Vec<ModelInfo>,
 }
 
-/// Ollama LLM service implementation using ollama-rs crate
-#[derive(Debug)]
+/// Ollama API request for chat
+#[derive(Debug, Serialize)]
+struct OllamaChatRequest {
+    model: String,
+    messages: Vec<OllamaChatMessage>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    options: Option<OllamaOptions>,
+    stream: bool,
+}
+
+#[derive(Debug, Serialize)]
+struct OllamaChatMessage {
+    role: String,
+    content: String,
+}
+
+#[derive(Debug, Serialize)]
+struct OllamaOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    temperature: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    num_predict: Option<u32>,
+}
+
+/// Ollama API response for chat
+#[derive(Debug, Deserialize)]
+struct OllamaChatResponse {
+    message: OllamaChatResponseMessage,
+    #[serde(default)]
+    prompt_eval_count: Option<u32>,
+    #[serde(default)]
+    eval_count: Option<u32>,
+    #[serde(default)]
+    #[allow(dead_code)]
+    done: bool,
+}
+
+#[derive(Debug, Deserialize)]
+struct OllamaChatResponseMessage {
+    #[allow(dead_code)]
+    role: String,
+    content: String,
+}
+
+/// Ollama LLM service implementation using llm crate
 pub struct OllamaService {
     config: LlmConfig,
-    client: Ollama,
+    client: Box<dyn LLMProvider>,
+    http_client: Client,
 }
 
 impl OllamaService {
@@ -31,19 +76,23 @@ impl OllamaService {
             .clone()
             .unwrap_or_else(|| "http://localhost:11434".to_string());
 
-        // Parse the base URL to extract host and port
-        let url = base_url.replace("http://", "").replace("https://", "");
-        let parts: Vec<&str> = url.split(':').collect();
-        let host = parts[0].to_string();
-        let port = if parts.len() > 1 {
-            parts[1].parse::<u16>().unwrap_or(11434)
-        } else {
-            11434
-        };
+        // Create Ollama client using llm crate's builder pattern
+        let client = LLMBuilder::new()
+            .backend(LLMBackend::Ollama)
+            .base_url(base_url.clone())
+            .model(&config.model.model_name)
+            .max_tokens(config.max_tokens)
+            .temperature(config.temperature)
+            .stream(false)
+            .build()
+            .map_err(|e| AppError::Llm(format!("Failed to create Ollama client: {}", e)))?;
 
-        let client = Ollama::new(format!("http://{}", host), port);
+        let http_client = Client::builder()
+            .timeout(Duration::from_secs(60))
+            .build()
+            .map_err(|e| AppError::Llm(format!("Failed to create HTTP client: {}", e)))?;
 
-        Ok(Self { config, client })
+        Ok(Self { config, client, http_client })
     }
 
     /// Get the list of available models for Ollama from JSON configuration
@@ -71,66 +120,130 @@ impl OllamaService {
 
     /// Get fallback models when JSON configuration fails to load
     fn get_fallback_models() -> Vec<ModelInfo> {
+        use crate::models::provider::TokenPricing;
+        
         vec![
             ModelInfo {
                 display_name: "Mistral 7B".to_string(),
                 model_name: "mistral:latest".to_string(),
+                provider: "Ollama".to_string(),
+                description: Some("A 7B parameter model trained by Mistral AI, good for general-purpose text generation and translation".to_string()),
+                pricing: TokenPricing {
+                    input_price_per_1k: 0.0,
+                    output_price_per_1k: 0.0,
+                    currency: "USD".to_string(),
+                },
+                context_window: Some(32768),
+                enabled: true,
             },
             ModelInfo {
                 display_name: "Llama 3.1".to_string(),
                 model_name: "llama3.1".to_string(),
+                provider: "Ollama".to_string(),
+                description: Some("Meta's Llama 3.1 model with improved instruction following and reasoning capabilities".to_string()),
+                pricing: TokenPricing {
+                    input_price_per_1k: 0.0,
+                    output_price_per_1k: 0.0,
+                    currency: "USD".to_string(),
+                },
+                context_window: Some(131072),
+                enabled: true,
             },
         ]
     }
 
-    /// Get default model configuration for Ollama
-    #[allow(dead_code)]
-    pub fn default_model() -> String {
-        // Try to get the first model from JSON configuration, fallback to mistral
-        Self::get_available_models()
-            .first()
-            .map(|m| m.model_name.clone())
-            .unwrap_or_else(|| "mistral:latest".to_string())
-    }
-
-    /// Validate if a model name is supported by this provider
-    #[allow(dead_code)]
-    pub fn is_model_supported(model_name: &str) -> bool {
-        Self::get_available_models()
-            .iter()
-            .any(|m| m.model_name == model_name)
-    }
-
-    /// Get the display name for the current model
-    #[allow(dead_code)]
-    pub fn get_model_display_name(&self) -> String {
-        Self::get_available_models()
-            .iter()
-            .find(|m| m.model_name == self.config.model.model_name)
-            .map(|m| m.display_name.clone())
-            .unwrap_or_else(|| self.config.model.display_name.clone())
-    }
-
     /// Low-level generate call: takes a fully-built prompt and returns the raw model string
+    #[allow(dead_code)]
     pub async fn generate(&self, prompt: &str) -> AppResult<String> {
-        // Attach model options from config (temperature, max tokens)
-        let options = ModelOptions::default()
-            .temperature(self.config.temperature)
-            .num_predict(self.config.max_tokens as i32);
+        // Create a simple user message for the prompt
+        let messages = vec![ChatMessage::user().content(prompt).build()];
 
-        let request =
-            GenerationRequest::new(self.config.model.model_name.clone(), prompt.to_string())
-                .options(options);
-        match self.client.generate(request).await {
-            Ok(response) => Ok(response.response.trim().to_string()),
+        match self.client.chat(&messages).await {
+            Ok(response) => Ok(format!("{}", response)),
             Err(e) => Err(AppError::Llm(format!("Ollama generation failed: {}", e))),
         }
     }
 
-    pub async fn test_connection(&self) -> AppResult<bool> {
-        // debug!("Testing connection to Ollama");
+    /// Generate text with usage information using direct Ollama API
+    async fn do_generate_with_usage(&self, prompt: &str) -> AppResult<GenerationResponse> {
+        let base_url = self.config
+            .base_url
+            .as_ref()
+            .cloned()
+            .unwrap_or_else(|| "http://localhost:11434".to_string());
 
-        match self.client.list_local_models().await {
+        let request = OllamaChatRequest {
+            model: self.config.model.model_name.clone(),
+            messages: vec![OllamaChatMessage {
+                role: "user".to_string(),
+                content: prompt.to_string(),
+            }],
+            options: Some(OllamaOptions {
+                temperature: Some(self.config.temperature),
+                num_predict: Some(self.config.max_tokens),
+            }),
+            stream: false,
+        };
+
+        let response = timeout(
+            Duration::from_secs(60),
+            self.http_client
+                .post(&format!("{}/api/chat", base_url))
+                .header("Content-Type", "application/json")
+                .json(&request)
+                .send(),
+        )
+        .await
+        .map_err(|_| AppError::Llm("Request timeout".into()))?
+        .map_err(|e| AppError::Llm(format!("Request failed: {}", e)))?;
+
+        let status = response.status();
+        let response_text = response
+            .text()
+            .await
+            .map_err(|e| AppError::Llm(format!("Failed to read response: {}", e)))?;
+
+        log::debug!("Ollama HTTP status: {}", status);
+        log::debug!("Ollama response: {}", response_text);
+
+        if !status.is_success() {
+            return Err(AppError::Llm(format!(
+                "Ollama API error: HTTP {} - {}",
+                status, response_text
+            )));
+        }
+
+        let ollama_response: OllamaChatResponse =
+            serde_json::from_str(&response_text).map_err(|e| {
+                AppError::Llm(format!(
+                    "Failed to parse Ollama response: {} - Response: {}",
+                    e, response_text
+                ))
+            })?;
+
+        let content = ollama_response.message.content;
+        
+        // Extract token usage if available
+        let token_usage = match (ollama_response.prompt_eval_count, ollama_response.eval_count) {
+            (Some(input), Some(output)) => Some(TokenUsage {
+                input_tokens: input,
+                output_tokens: output,
+                total_tokens: input + output,
+            }),
+            _ => None,
+        };
+
+        Ok(GenerationResponse {
+            content,
+            token_usage,
+        })
+    }
+
+    pub async fn test_connection(&self) -> AppResult<bool> {
+        // Test connection with a simple chat message
+        let messages = vec![ChatMessage::user().content("test").build()];
+
+        match self.client.chat(&messages).await {
             Ok(_) => {
                 // info!("Successfully connected to Ollama");
                 Ok(true)
@@ -142,22 +255,32 @@ impl OllamaService {
         }
     }
 
-    /// Legacy helper kept temporarily for compatibility. Prefer building the prompt
-    /// in the caller and using `generate`.
-    pub async fn translate(
-        &self,
-        text_unit: &TextUnit,
-        engine_info: &EngineInfo,
-    ) -> AppResult<String> {
-        let prompt = PromptBuilder::build_translation_prompt(text_unit, engine_info).await;
-        self.generate(&prompt).await
-    }
-
     /// Check if the internal config matches another config
     pub fn config_matches(&self, other: &LlmConfig) -> bool {
         self.config.model == other.model
             && self.config.base_url == other.base_url
             && (self.config.temperature - other.temperature).abs() < f32::EPSILON
             && self.config.max_tokens == other.max_tokens
+    }
+}
+
+impl LlmService for OllamaService {
+    fn generate<'a>(&'a self, prompt: &'a str) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<String>> + Send + 'a>> {
+        Box::pin(async move { self.generate(prompt).await })
+    }
+
+    fn generate_with_usage<'a>(&'a self, prompt: &'a str) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<GenerationResponse>> + Send + 'a>> {
+        Box::pin(async move { 
+            // Try to get usage data directly from Ollama API
+            self.do_generate_with_usage(prompt).await
+        })
+    }
+
+    fn test_connection<'a>(&'a self) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<bool>> + Send + 'a>> {
+        Box::pin(async move { self.test_connection().await })
+    }
+
+    fn config_matches(&self, other: &LlmConfig) -> bool {
+        self.config_matches(other)
     }
 }

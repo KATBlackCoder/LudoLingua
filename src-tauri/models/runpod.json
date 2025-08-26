@@ -1,0 +1,17 @@
+{
+    "models": [
+        {
+            "display_name": "Gemma3 12B (Google's Best)",
+            "model_name": "gemma3:12b",
+            "provider": "RunPod",
+            "description": "Gemma3 12B - Google's latest model with 128K context, 140+ languages support, and excellent translation quality. Perfect for complex RPG texts",
+            "pricing": {
+                "input_price_per_1k": 0.0,
+                "output_price_per_1k": 0.0,
+                "currency": "USD"
+            },
+            "context_window": 131072,
+            "enabled": true
+        }
+    ]
+}

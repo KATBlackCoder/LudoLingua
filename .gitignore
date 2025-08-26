@@ -31,6 +31,7 @@ logs
 WolfRPG
 dump
 dump2
+openai.txt
 # Database files (exclude from git but allow in development)
 src-tauri/ludolingua.db*
 *.db

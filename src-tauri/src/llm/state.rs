@@ -1,13 +1,16 @@
 use tokio::sync::{Mutex, Semaphore};
 
 use crate::{
-    core::error::AppResult, llm::services::ollama::OllamaService, models::provider::LlmConfig,
+    core::error::AppResult,
+    core::provider::LlmService,
+    llm::factory::create_service,
+    models::provider::LlmConfig,
 };
 
 /// Shared LLM state managed by Tauri
 pub struct LlmState {
-    pub service: Mutex<Option<OllamaService>>, // lazily initialized
-    pub limiter: Semaphore,                    // simple concurrency/rate cap
+    pub service: Mutex<Option<Box<dyn LlmService>>>, // lazily initialized, multi-provider
+    pub limiter: Semaphore,                           // simple concurrency/rate cap
 }
 
 impl LlmState {
@@ -22,13 +25,14 @@ impl LlmState {
     /// If the existing service has a different config, it will be rebuilt.
     pub async fn ensure_service(&self, config: &LlmConfig) -> AppResult<()> {
         let mut guard = self.service.lock().await;
-        match guard.as_ref() {
-            Some(svc) if svc.config_matches(config) => Ok(()),
-            _ => {
-                let new_svc = OllamaService::new(config.clone())?;
-                *guard = Some(new_svc);
-                Ok(())
-            }
+        let needs_rebuild = match guard.as_ref() {
+            Some(svc) => !svc.config_matches(config),
+            None => true,
+        };
+        if needs_rebuild {
+            let new_svc = create_service(config.clone())?;
+            *guard = Some(new_svc);
         }
+        Ok(())
     }
 }

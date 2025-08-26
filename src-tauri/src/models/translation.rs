@@ -24,7 +24,7 @@ pub enum TranslationStatus {
 ///
 /// Different text types (names, descriptions, etc.) may require different
 /// translation approaches or prompt templates to get optimal results from the AI.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PromptType {
     /// Prompt specialized for translating character or location names
     Character,
@@ -55,14 +55,14 @@ impl PromptType {
     /// Return the prompt template path associated with this prompt type.
     pub fn template_path(self) -> &'static str {
         match self {
-            PromptType::Character => "prompts/character.txt",
-            PromptType::State => "prompts/state.txt",
-            PromptType::System => "prompts/system.txt",
-            PromptType::Dialogue => "prompts/dialogue.txt",
-            PromptType::Equipment => "prompts/equipment.txt",
-            PromptType::Skill => "prompts/skill.txt",
-            PromptType::Class => "prompts/class.txt",
-            PromptType::Other => "prompts/other.txt",
+            PromptType::Character => "prompts/optimized/character.txt",
+            PromptType::State => "prompts/optimized/state.txt",
+            PromptType::System => "prompts/optimized/system.txt",
+            PromptType::Dialogue => "prompts/optimized/dialogue.txt",
+            PromptType::Equipment => "prompts/optimized/equipment.txt",
+            PromptType::Skill => "prompts/optimized/skill.txt",
+            PromptType::Class => "prompts/optimized/class.txt",
+            PromptType::Other => "prompts/optimized/other.txt",
         }
     }
 }

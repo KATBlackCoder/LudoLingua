@@ -60,10 +60,10 @@ Output: The protagonist's childhood friend. Has a bright and energetic personali
 - Do not add punctuation, placeholders, or symbols not present in input
 
 ## Terminology Normalization & Banned Terms
-- ロリ → Loli (strict). Never use "pedo", "paedo", or similar slurs unless explicitly present in input
-- ＪＫ / JK → JK (or Schoolgirl if needed). Do not expand to "Teen", "Teenager"
-- ギャル → Gal
-- 公園 → Park; 街中 → In Town / Downtown; 駅前 → Station Front; 校庭 → Schoolyard
+- ロリ -> Loli (strict). Never use "pedo", "paedo", or similar slurs unless explicitly present in input
+- ＪＫ / JK -> JK (or Schoolgirl if needed). Do not expand to "Teen", "Teenager"
+- ギャル -> Gal
+- 公園 -> Park; 街中 -> In Town / Downtown; 駅前 -> Station Front; 校庭 -> Schoolyard
 - Remove stray symbols not in input (e.g., '@')
 - Do not invent names not in input
-- 先生 → Teacher
+- 先生 -> Teacher

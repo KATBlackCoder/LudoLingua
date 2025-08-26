@@ -40,7 +40,7 @@
               <span class="font-medium">Model</span>
             </template>
             <div class="space-y-4">
-              <ModelSelector />
+              <ProviderSelector />
             </div>
           </UCard>
 
@@ -64,6 +64,9 @@
               <UFormField label="Base URL" name="base_url" description="Provider API endpoint">
                 <UInput v-model="advancedSettings.base_url" placeholder="http://localhost:11434" />
               </UFormField>
+              <UFormField label="API Key" name="api_key" description="Only for cloud providers (OpenAI, etc.)">
+                <UInput v-model="advancedSettings.api_key" placeholder="sk-..." type="password" />
+              </UFormField>
 
               <UFormField label="Temperature" name="temperature" description="0.0 – 1.0 (randomness)">
                 <UInput v-model.number="advancedSettings.temperature" type="number" min="0" max="1" step="0.1" />
@@ -86,7 +89,7 @@
 <script setup lang="ts">
 import ConnectionTester from '~/components/settings/ConnectionTester.vue'
 import LanguageSelector from '~/components/settings/LanguageSelector.vue'
-import ModelSelector from '~/components/settings/ModelSelector.vue'
+import ProviderSelector from '~/components/settings/ProviderSelector.vue'
 import { useSettingsStore } from '~/stores/settings'
 import { useProviderStore } from '~/stores/provider'
 import { useLanguageStore } from '~/stores/language'
@@ -103,7 +106,7 @@ const hasSettings = ref(true)
 
 // Advanced settings form
 const advancedSettings = ref({
-  base_url: settingsStore.userSettings.base_url || 'http://localhost:11434',
+  base_url: settingsStore.userSettings.base_url || '',
   api_key: settingsStore.userSettings.api_key || '',
   temperature: settingsStore.userSettings.temperature || 0.3,
   max_tokens: settingsStore.userSettings.max_tokens || 256,
@@ -129,8 +132,9 @@ function applyPreset(presetId: string) {
 watch(
   () => settingsStore.userSettings,
   (newSettings) => {
+    const defaultBase = (newSettings.provider === 'Ollama') ? 'http://localhost:11434' : ''
     advancedSettings.value = {
-      base_url: newSettings.base_url || 'http://localhost:11434',
+      base_url: newSettings.base_url || defaultBase,
       api_key: newSettings.api_key || '',
       temperature: newSettings.temperature || 0.3,
       max_tokens: newSettings.max_tokens || 256,
@@ -193,4 +197,19 @@ onMounted(async () => {
     console.error('Failed to initialize settings:', error)
   }
 })
+
+// Keep sensible default for Ollama; do not clear for OpenAI (supports OpenRouter)
+watch(
+  () => providerStore.selectedProvider,
+  (p) => {
+    if (p === 'Ollama' && !advancedSettings.value.base_url) {
+      advancedSettings.value.base_url = 'http://localhost:11434'
+    }
+    // RunPod and Groq use custom endpoints, so we clear base_url for user input
+    if (p === 'RunPod' || p === 'Groq' || p === 'OpenAI') {
+      advancedSettings.value.base_url = ''
+    }
+  },
+  { immediate: true }
+)
 </script>

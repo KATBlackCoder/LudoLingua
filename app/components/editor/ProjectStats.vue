@@ -14,7 +14,7 @@
         </div>
       </template>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2">
         <!-- Progress -->
         <UCard>
           <template #header>
@@ -90,6 +90,91 @@
             </div>
           </div>
         </UCard>
+
+        <!-- Token Usage Estimate -->
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between">
+              <span class="font-medium">Token Usage</span>
+              <UButton 
+                size="xs" 
+                color="primary" 
+                icon="i-heroicons-calculator" 
+                :loading="isEstimating"
+                @click="handleEstimateClick"
+              >
+                {{ tokenEstimate ? 'Refresh' : 'Estimate' }}
+              </UButton>
+            </div>
+          </template>
+          
+          <div v-if="tokenEstimate" class="space-y-2 text-sm">
+            <div class="flex items-center justify-between">
+              <span>Total Tokens</span>
+              <span class="font-medium">{{ formatTokenCount(tokenEstimate.total_tokens) }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>Input</span>
+              <span class="font-medium">{{ formatTokenCount(tokenEstimate.total_input_tokens) }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>Output (est.)</span>
+              <span class="font-medium">{{ formatTokenCount(tokenEstimate.total_output_tokens) }}</span>
+            </div>
+            <USeparator />
+            <div class="flex items-center justify-between">
+              <span>Estimated Cost</span>
+              <UBadge color="success" variant="soft">{{ estimatedCost }}</UBadge>
+            </div>
+          </div>
+          
+          <div v-else-if="isEstimating" class="flex items-center justify-center py-4">
+            <UProgress size="sm" animation="carousel" />
+          </div>
+          
+          <div v-else class="text-center py-4 text-gray-500">
+            <p class="text-sm">Click "Estimate" to calculate token usage</p>
+          </div>
+        </UCard>
+
+        <!-- Actual Token Usage Card -->
+        <UCard v-if="translateStore.actualTokenUsage.length > 0" class="w-full">
+          <template #header>
+            <div class="flex items-center gap-2">
+              <Icon name="i-heroicons-chart-bar" class="w-5 h-5" />
+              <h3 class="text-lg font-semibold">Actual Token Usage</h3>
+            </div>
+          </template>
+          
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center justify-between">
+              <span>Total Tokens</span>
+              <span class="font-medium">{{ formatTokenCount(translateStore.totalActualTokenUsage.total_tokens) }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>Input</span>
+              <span class="font-medium">{{ formatTokenCount(translateStore.totalActualTokenUsage.input_tokens) }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>Output</span>
+              <span class="font-medium">{{ formatTokenCount(translateStore.totalActualTokenUsage.output_tokens) }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>Translations</span>
+              <span class="font-medium">{{ translateStore.actualTokenUsage.length }}</span>
+            </div>
+            <USeparator />
+            <div class="flex items-center justify-between">
+              <span>Actual Cost</span>
+              <UBadge color="primary" variant="soft">{{ actualCost }}</UBadge>
+            </div>
+            <USeparator />
+            <div class="flex items-center justify-between">
+              <span>Estimation Accuracy</span>
+              <UBadge :color="accuracyColor" variant="soft">{{ estimationAccuracy }}</UBadge>
+            </div>
+          </div>
+        </UCard>
       </div>
     </UCard>
   </div>
@@ -99,11 +184,14 @@
 import { computed, onMounted } from 'vue';
 import { useEngineStore } from '~/stores/engine';
 import { useSettingsStore } from '~/stores/settings';
+import { useTranslateStore } from '~/stores/translate';
 import { useTranslation } from '~/composables/useTranslation';
+import { formatTokenCount, formatCost, calculateCost } from '~/types/tokens';
 
 const engineStore = useEngineStore();
 const settingsStore = useSettingsStore();
-const { elapsedText, remainingText } = useTranslation();
+const translateStore = useTranslateStore();
+const { elapsedText, remainingText, tokenEstimate, isEstimating, estimateTokens } = useTranslation();
 
 // Initialize settings and log configuration for debugging
 onMounted(async () => {
@@ -145,12 +233,78 @@ const progressPercent = computed(() => {
   return total ? Math.round((translatedCount.value / total) * 100) : 0
 });
 
+const estimatedCost = computed(() => {
+  if (!tokenEstimate.value) return 'Unknown'
+  
+  // Get pricing directly from the model configuration
+  const model = settingsStore.userSettings.model
+  if (!model) return 'Unknown'
+  
+  // Debug: log model structure
+  console.log('Model structure:', model)
+  
+  // Fallback to Ollama pricing if pricing is missing (for backwards compatibility)
+  const pricing = model.pricing || {
+    input_price_per_1k: 0.0,
+    output_price_per_1k: 0.0,
+    currency: 'USD'
+  }
+  
+  const cost = calculateCost(tokenEstimate.value, pricing)
+  return formatCost(cost)
+});
+
+const actualCost = computed(() => {
+  if (!translateStore.totalActualTokenUsage || !settingsStore.userSettings.model.pricing) {
+    return 'Unknown'
+  }
+  
+  const pricing = settingsStore.userSettings.model.pricing
+  const usage = translateStore.totalActualTokenUsage
+  const inputCost = (usage.input_tokens / 1000.0) * pricing.input_price_per_1k
+  const outputCost = (usage.output_tokens / 1000.0) * pricing.output_price_per_1k
+  const totalCost = inputCost + outputCost
+  
+  return formatCost(totalCost)
+});
+
+const estimationAccuracy = computed(() => {
+  if (!tokenEstimate.value || !translateStore.totalActualTokenUsage || translateStore.totalActualTokenUsage.total_tokens === 0) {
+    return 'N/A'
+  }
+  
+  const estimated = tokenEstimate.value.total_tokens
+  const actual = translateStore.totalActualTokenUsage.total_tokens
+  const accuracy = (estimated / actual) * 100
+  
+  return `${accuracy.toFixed(0)}%`
+});
+
+const accuracyColor = computed(() => {
+  if (!tokenEstimate.value || !translateStore.totalActualTokenUsage) {
+    return 'neutral'
+  }
+  
+  const estimated = tokenEstimate.value.total_tokens
+  const actual = translateStore.totalActualTokenUsage.total_tokens
+  const accuracy = (estimated / actual) * 100
+  
+  if (accuracy >= 90 && accuracy <= 110) return 'success'      // Very accurate
+  if (accuracy >= 80 && accuracy <= 120) return 'info'     // Fairly accurate
+  if (accuracy >= 70 && accuracy <= 130) return 'warning'     // Somewhat accurate
+  return 'error'                                                // Poor accuracy
+});
+
 const refresh = async () => {
   try {
     await engineStore.refreshProject()
   } catch (e) {
     console.error('Failed to refresh project:', e)
   }
+}
+
+const handleEstimateClick = async () => {
+  await estimateTokens()
 }
 
 const getEngineColor = (engineType: string) => {

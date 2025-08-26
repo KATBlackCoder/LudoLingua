@@ -2,22 +2,25 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 import { load } from '@tauri-apps/plugin-store'
-import type { ModelInfo, OllamaConfig } from '~/types/provider'
+import type { ModelInfo } from '~/types/tokens'
+import type { LlmConfig, Provider } from '~/types/provider'
 import { useAppToast } from '~/composables/useAppToast'
+import { useSettingsStore } from './settings'
 
 /**
- * Provider store (Ollama-only)
+ * Provider store (Multi-provider ready)
  *
  * Manages model lists, selected model, and connection status for the
- * local Ollama service. Exposes a minimal config for translation calls
- * and basic health checks. Model list is loaded from the backend.
+ * LLM provider. Exposes a minimal config for translation calls and
+ * basic health checks. Model list is loaded from the backend.
  */
 export const useProviderStore = defineStore('provider', () => {
   const { showToast } = useAppToast();
+  const settingsStore = useSettingsStore();
   
   // State
-  const selectedProvider = ref<string>('ollama')
-  const availableProviders = ref<string[]>(['ollama'])
+  const selectedProvider = ref<Provider>('Ollama')
+  const availableProviders = ref<Provider[]>(['Ollama'])
   const availableModels = ref<ModelInfo[]>([])
   const selectedModel = ref<ModelInfo | null>(null)
   const connectionStatus = ref<'unknown' | 'connected' | 'disconnected'>('unknown')
@@ -28,11 +31,11 @@ export const useProviderStore = defineStore('provider', () => {
   
   // Getters
   const getProvider = computed(() =>
-    availableProviders.value.map(p => p.charAt(0).toUpperCase() + p.slice(1))
+    availableProviders.value.map(p => ({ label: p, value: p }))
   )
  
   const getModels = computed(() =>
-    availableModels.value.map(m => ({
+    availableModels.value.map((m: ModelInfo) => ({
       label: m.display_name,
       value: m.model_name
     }))
@@ -56,30 +59,40 @@ export const useProviderStore = defineStore('provider', () => {
     }
   })
 
-  const currentProviderConfig = computed((): OllamaConfig => ({
-    model: selectedModel.value || { model_name: 'mistral:latest', display_name: 'Mistral 7B' },
-    base_url: 'http://localhost:11434',
-    temperature: 0.7,
-    max_tokens: 2048,
-  }))
+  const currentProviderConfig = computed((): LlmConfig => {
+    const s = settingsStore.userSettings
+    return {
+      model: selectedModel.value || s.model,
+      base_url: s.base_url,
+      api_key: s.api_key,
+      temperature: s.temperature,
+      max_tokens: s.max_tokens,
+    }
+  })
   
   // Action: Fetch models for the current provider from the backend
   async function fetchModels() {
     try {
-      const models = await invoke<ModelInfo[]>('get_ollama_models')
+      const models = await invoke<ModelInfo[]>('get_provider_models', { provider: selectedProvider.value })
       availableModels.value = models
       selectedModel.value = models[0] ?? null
-    } catch {
+    } catch (e) {
+      console.error('Failed to fetch models for provider', selectedProvider.value, e)
       availableModels.value = []
       selectedModel.value = null
     }
   }
 
-  // Ollama-only: providers list is static
-  async function fetchProviders() { availableProviders.value = ['ollama'] }
+  // Providers list (static for now)
+  async function fetchProviders() {
+    availableProviders.value = ['Ollama', 'OpenAI', 'OpenRouter', 'RunPod', 'Groq'] as Provider[]
+    if (!availableProviders.value.includes(selectedProvider.value)) {
+      selectedProvider.value = 'Ollama'
+    }
+  }
 
   // Action: Set the provider and refresh models
-  async function setProvider(provider: string) {
+  async function setProvider(provider: Provider) {
     selectedProvider.value = provider
     await fetchModels()
     // Reset connection status when provider changes
@@ -94,7 +107,7 @@ export const useProviderStore = defineStore('provider', () => {
   }
 
   // Action: Test connection with current or provided config
-  async function testConnection(config?: OllamaConfig, opts?: { silent?: boolean }) {
+  async function testConnection(config?: LlmConfig, opts?: { silent?: boolean }) {
     try {
       isLoading.value = true
       error.value = null
@@ -105,7 +118,7 @@ export const useProviderStore = defineStore('provider', () => {
       connectionStatus.value = result ? 'connected' : 'disconnected'
       lastConnectionTest.value = new Date()
       
-      const message = result ? 'Connection successful' : 'Connection failed'
+      const message = result ? `Connected to ${selectedProvider.value}` : `Failed to connect to ${selectedProvider.value}`
       if (!opts?.silent) {
         showToast('Connection Test', message, result ? 'success' : 'error', 700)
       }
@@ -130,19 +143,18 @@ export const useProviderStore = defineStore('provider', () => {
   // Action: Load provider settings from persistent storage
   async function loadProviderSettings() {
     try {
-      const store = await load("ludollingua-settings.json", { autoSave: false });
+      const store = await load('ludollingua-settings.json', { autoSave: false });
       const val = await store.get<{
-        provider: string;
+        provider: Provider;
         model: ModelInfo;
         base_url?: string;
         temperature: number;
         max_tokens: number;
-      }>("provider_settings");
+      }>('provider_settings');
       
       if (val) {
-        selectedProvider.value = val.provider || 'ollama';
+        selectedProvider.value = (val.provider as Provider) || 'Ollama';
         selectedModel.value = val.model || null;
-        // Note: base_url, temperature, max_tokens would be used if we had them in state
       }
     } catch (error) {
       console.error('Failed to load provider settings:', error);
@@ -157,7 +169,7 @@ export const useProviderStore = defineStore('provider', () => {
     error.value = null
   }
 
-  async function ensureConnected(config?: OllamaConfig): Promise<boolean> {
+  async function ensureConnected(config?: LlmConfig): Promise<boolean> {
     if (isConnected.value && !shouldRetest.value) return true
     const ok = await testConnection(config)
     return !!ok

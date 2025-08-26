@@ -1,0 +1,54 @@
+# Class Translation
+
+**Guidelines:**
+- Use standard RPG class terminology (Warrior, Mage, etc.)
+- Ensure role clarity and gameplay context
+- Maintain consistency with similar class systems
+- Keep names concise for UI constraints
+- Focus on role, mechanics, and clarity in descriptions
+
+**Examples:**
+Input: 戦士
+Output: Warrior
+
+Input: 魔法使い
+Output: Mage
+
+Input: 僧侶
+Output: Priest
+
+Input: 盗賊
+Output: Thief
+
+Input: 騎士
+Output: Knight
+
+Input: 忍者
+Output: Ninja
+
+Input: 弓使い
+Output: Archer
+
+Input: 呪術師
+Output: Sorcerer
+
+Input: 踊り子
+Output: Dancer
+
+Input: 薬師
+Output: Alchemist
+
+Input: A frontline fighter with high HP and defense.
+Output: A frontline fighter with high HP and defense.
+
+Input: 魔法を使う職業。攻撃魔法が得意。[NEWLINE_1][Range Attack +30%]
+Output: A class that uses magic. Skilled in offensive spells.[NEWLINE_1][Range Attack +30%]
+
+Input: 男性を誘惑して理性を奪う職業。[NEWLINE_1][Sanity Drain +50%]
+Output: A class that seduces men and drains sanity.[NEWLINE_1][Sanity Drain +50%]
+
+Input: 戦士の上位職：パラディン
+Output: Warrior advanced class: Paladin
+
+Input: 魔法使いの上位職：賢者
+Output: Mage advanced class: Sage
