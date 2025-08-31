@@ -5,7 +5,7 @@ use llm::{
 };
 
 use crate::core::error::{AppError, AppResult};
-use crate::core::provider::{GenerationResponse, LlmService, TokenUsage};
+use crate::core::provider::{GenerationResponse, LlmService};
 use crate::models::provider::LlmConfig;
 
 /// OpenAI LLM service implementation using graniet/llm crate

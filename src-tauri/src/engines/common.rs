@@ -168,6 +168,7 @@ pub fn collect_text_units_from_json(
         match v {
             Value::String(s) => {
                 // Apply Wolf-specific filtering and placeholder encoding when enabled
+                #[allow(unused_mut)]
                 let mut should_keep = true;
                 if is_wolf {
                     #[cfg(target_os = "windows")]

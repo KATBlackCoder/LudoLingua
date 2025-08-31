@@ -351,6 +351,7 @@ impl Engine for RpgMakerMzEngine {
             target_language,
             version: None,
             detection_criteria: self.detection_criteria.clone(),
+            manifest_hash: None,
         })
     }
 

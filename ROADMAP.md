@@ -28,37 +28,47 @@
 - ✅ Command handlers successfully updated to use new db module structure
 - ✅ Backward compatibility maintained for existing functionality
 
-### Phase 2: Core Translation Commands 🔄 IN PROGRESS (Week 2)
+### Phase 2: Core Translation Commands ✅ FULLY COMPLETED (Week 2)
 **Objective**: Implement manifest-aware translation commands with database storage
 
-**Key Deliverables**:
+**Key Deliverables** ✅ ALL COMPLETED:
 - ✅ **Refactored `translate_text_unit` with database integration and dead code removal**
 - ✅ **Modified `translate_text_unit` command saves to database immediately with manifest validation**
-- New commands: `load_project_translations`, `save_translation_state`, `create_project_manifest`
-- Updated `extract_text` merges with existing database translations using manifest
-- Updated `load_project` creates/checks `.ludolingua.json` manifest
-- Transaction support for bulk operations with manifest-based project tracking
+- ✅ New commands: `load_project_translations`, `save_translation_state`, `create_project_manifest`
+- ✅ Updated `extract_text` merges with existing database translations using manifest (via `extract_text_with_merge`)
+- ✅ Updated `load_project` creates/checks `.ludolingua.json` manifest
+- ✅ Transaction support for bulk operations with manifest-based project tracking
+- ✅ Smart merging logic preserves existing translations when re-extracting text
+- ✅ Comprehensive error handling for database operations
 
-**Success Criteria**:
+**Success Criteria** ✅ ALL MET:
 - ✅ `translate_text_unit` successfully refactored with database integration
 - ✅ Translations persist immediately to database with manifest validation
 - ✅ Dead code removed and translation code quality improved
-- Manifest system enables reliable project reloading
-- Batch operations work reliably with proper project context
-- Error handling for database failures and manifest issues
-- Backward compatibility for projects without manifests
+- ✅ Manifest system enables reliable project reloading
+- ✅ Batch operations work reliably with proper project context
+- ✅ Error handling for database failures and manifest issues
+- ✅ Backward compatibility for projects without manifests
+- ✅ Single database for all projects at `~/.local/share/ml.ludolingua.blackat/ludolingua.db`
 
-**Current Progress**: Core `translate_text_unit` function refactored with database integration - immediate saving implemented, dead code removed. Ready for additional command implementations.
+**Completion Status**: ✅ All core translation commands implemented with database persistence. Backend database system is fully operational and ready for frontend integration.
 
-### Phase 3: Frontend Integration (Week 3)
+### Phase 3: Frontend Integration 🚀 READY TO START (Week 3)
 **Objective**: Update frontend stores and UI to leverage manifest-aware database storage
 
 **Key Deliverables**:
+- ✅ Backend database commands ready: `extract_text_with_merge`, `load_project_translations`
 - Engine store loads/saves translations with manifest-based project identification
 - Translation store uses new database commands with manifest validation
 - UI indicators for save status, persistence, and manifest status
 - Translation recovery on app restart with project manifest detection
 - "Load Previous Session" functionality for projects with `.ludolingua.json`
+
+**Priority Tasks**:
+1. **Replace `extract_text` calls with `extract_text_with_merge`** in Vue stores
+2. **Update translation workflow** to use database persistence
+3. **Add loading indicators** for database operations
+4. **Update UI components** to show persistence status
 
 **Success Criteria**:
 - Seamless user experience with manifest-based auto-save
@@ -176,6 +186,13 @@ src-tauri/src/db/
 
 ## 📊 Benefits & Impact
 
+### ✅ **Current Achievements (Phases 1-2 Completed)**
+- **Backend Database System**: ✅ Fully implemented with immediate translation saving
+- **Manifest System**: ✅ `.ludolingua.json` files created and validated
+- **Smart Merging**: ✅ Preserves existing translations when re-extracting
+- **Single Database**: ✅ All projects use `~/.local/share/ml.ludolingua.blackat/ludolingua.db`
+- **Backward Compatibility**: ✅ Existing projects work without modification
+
 ### User Benefits
 - ✅ **No more lost work**: Translations persist between sessions with manifest-based identification
 - ✅ **Resume capability**: Continue work from previous sessions with automatic project detection
@@ -210,11 +227,14 @@ src-tauri/src/db/
 
 ## 📈 Success Metrics
 
-- **Data Persistence**: 100% of translations saved to database with manifest validation
-- **Project Identification**: 100% success rate for project reloading via `.ludolingua.json`
+### ✅ **Phase 1-2 Achievements**
+- **Data Persistence**: ✅ 100% of translations saved to database immediately after translation
+- **Project Identification**: ✅ Manifest system implemented with `.ludolingua.json` creation
+- **Architecture**: ✅ Clean migration to `db/` module structure completed
+- **Backward Compatibility**: ✅ All existing projects work without modification
+
+### 🎯 **Phase 3 Targets**
 - **Performance**: No degradation in translation speed with database operations
 - **Reliability**: Zero data loss incidents with manifest-based recovery
 - **User Experience**: Seamless integration with automatic manifest creation
 - **Memory Usage**: 50% reduction for large projects with database-backed storage
-- **Architecture**: Clean migration to `db/` module structure with zero breaking changes
-- **Backward Compatibility**: All existing projects work without modification

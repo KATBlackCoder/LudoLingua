@@ -140,7 +140,7 @@ pub async fn bulk_upsert_units(
 
     for unit in units {
         match upsert_unit_in_transaction(&mut tx, unit).await {
-            Ok(id) => {
+            Ok(_id) => {
                 if unit.id.is_some() {
                     updated += 1;
                 } else {

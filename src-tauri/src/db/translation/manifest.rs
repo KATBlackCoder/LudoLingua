@@ -152,7 +152,7 @@ impl ProjectManifest {
 /// Create or load project manifest
 pub fn create_or_load_project_manifest(engine_info: &EngineInfo) -> AppResult<ProjectManifest> {
     match ProjectManifest::load_from_project(&engine_info.path)? {
-        Some(mut manifest) => {
+        Some(manifest) => {
             // Check if manifest matches current engine info
             if manifest.matches_engine_info(engine_info) {
                 Ok(manifest)

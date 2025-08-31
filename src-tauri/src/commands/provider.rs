@@ -38,7 +38,7 @@ pub fn get_models(provider: String) -> Result<Vec<ModelInfo>, String> {
         _ => return Err(format!("unknown provider: {}", provider)),
     };
 
-    let mut parsed: ModelCatalog = serde_json::from_str(json)
+    let parsed: ModelCatalog = serde_json::from_str(json)
         .map_err(|e| format!("failed to parse models for {}: {}", provider, e))?;
     
     log::debug!("Parsed {} models from JSON", parsed.models.len());

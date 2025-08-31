@@ -489,6 +489,7 @@ impl Engine for RpgMakerMvEngine {
             target_language,
             version,
             detection_criteria: self.detection_criteria.clone(),
+            manifest_hash: None,
         })
     }
 

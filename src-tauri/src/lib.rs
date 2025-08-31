@@ -46,9 +46,10 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::handler::load_project,
             commands::handler::extract_text,
+            commands::handler::extract_text_with_merge,
             commands::handler::extract_game_data_files,
             commands::handler::export_translated_subset,
-            commands::handler::load_subset_with_manifest,
+            commands::handler::load_project_translations,
             commands::handler::translate_text_unit,
             commands::handler::test_llm_connection,
             commands::handler::get_ollama_models,

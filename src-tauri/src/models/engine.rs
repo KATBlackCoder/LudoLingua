@@ -77,6 +77,10 @@ pub struct EngineInfo {
 
     /// Criteria that were used to detect this engine type
     pub detection_criteria: EngineCriteria,
+
+    /// Project manifest hash for database operations (added dynamically)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub manifest_hash: Option<String>,
 }
 
 /// Represents a game data file containing text that needs translation.

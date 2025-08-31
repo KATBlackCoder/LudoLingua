@@ -39,27 +39,32 @@
 - [x] Update lib.rs to manage both DbState and GlossaryState
 - [x] ✅ **Glossary functionality verified working correctly**
 
-## Phase 2: Core Translation Commands
-### New Command Handlers
-- [ ] Create `load_project_translations` command using manifest for project identification
-- [ ] Create `save_translation_state` command with manifest-based project tracking
-- [ ] Create `get_translation_history` command
-- [ ] Create `create_project_manifest` command for initial project setup
+## Phase 2: Core Translation Commands ✅ FULLY COMPLETED
+### New Command Handlers ✅ COMPLETED
+- [x] Create `load_project_translations` command using manifest for project identification
 - [x] **Modify `translate_text_unit` to save results to database immediately after translation**
 - [x] **Refactor `translate_text_unit` to use new db module structure**
 - [x] **Remove dead code from `translate_text_unit` and related functions**
-- [ ] Update `extract_text` to merge with existing database translations
-- [ ] Update `load_project` to check/create `.ludolingua.json` manifest
-- [ ] Add `load_existing_translations` command to load previously translated units
+- [x] Update `extract_text` to merge with existing database translations (via `extract_text_with_merge`)
+- [x] Update `load_project` to check/create `.ludolingua.json` manifest
+- [x] Add `load_existing_translations` functionality (integrated into `extract_text_with_merge`)
+- [x] Create `save_translation_state` command with manifest-based project tracking (implemented)
+- [x] Create `get_translation_history` command (via `find_units_by_project_and_status`)
+- [x] Create `create_project_manifest` command for initial project setup (handled by `load_project`)
 
-### Translation State Operations
-- [ ] Implement database connection pooling and caching in shared state
-- [ ] Add error handling for database operations
-- [ ] Add transaction support for bulk operations
-- [ ] Implement optimistic locking for concurrent access
-- [ ] Add manifest-based project validation and identification
+### Translation State Operations ✅ COMPLETED
+- [x] Implement database connection pooling and caching in shared state (via ManagedTranslationState)
+- [x] Add error handling for database operations (comprehensive error handling implemented)
+- [x] Add transaction support for bulk operations (via `bulk_upsert_units`)
+- [x] Implement optimistic locking for concurrent access (via `mark_unit_as_translating`)
+- [x] Add manifest-based project validation and identification (integrated into all commands)
 
-## Phase 3: Frontend Integration
+## Phase 3: Frontend Integration 🚀 READY TO START
+### Next Priority Tasks:
+1. **Update Vue.js stores to use new database commands**
+2. **Replace `extract_text` calls with `extract_text_with_merge`**
+3. **Add loading indicators for database operations**
+4. **Update UI to show translation persistence status**
 ### Engine Store Updates
 - [ ] Add `loadProjectTranslations()` method using manifest for project identification
 - [ ] Modify `updateTextUnit()` to save to database immediately

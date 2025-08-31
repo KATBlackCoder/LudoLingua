@@ -40,7 +40,17 @@ pub async fn extract_text(
     project_info: crate::models::engine::EngineInfo,
 ) -> Result<Vec<TextUnit>, String> {
     debug!("Command: extract_text - {}", project_info.name);
-    engine::extract_text(project_info).await
+    engine::extract_text_legacy(project_info).await
+}
+
+/// Extract text from a project with database merge
+#[tauri::command]
+pub async fn extract_text_with_merge(
+    project_info: crate::models::engine::EngineInfo,
+    db: State<'_, ManagedTranslationState>,
+) -> Result<Vec<TextUnit>, String> {
+    debug!("Command: extract_text_with_merge - {}", project_info.name);
+    engine::extract_text(project_info, Some(&db)).await
 }
 
 /// Extract all game data files from a project
@@ -52,14 +62,19 @@ pub async fn extract_game_data_files(
     engine::extract_game_data_files(project_info).await
 }
 
-/// Load subset via manifest if present
+/// Load existing project translations from database
 #[tauri::command]
-pub async fn load_subset_with_manifest(
+pub async fn load_project_translations(
     project_info: crate::models::engine::EngineInfo,
-) -> Result<Option<Vec<TextUnit>>, String> {
-    debug!("Command: load_subset_with_manifest - {}", project_info.name);
-    crate::commands::engine::load_subset_with_manifest(project_info).await
+    db: State<'_, ManagedTranslationState>,
+) -> Result<Vec<TextUnit>, String> {
+    debug!("Command: load_project_translations - {}", project_info.name);
+    crate::commands::engine::load_project_translations(project_info, &db).await
 }
+
+// Legacy command removed - use load_project_translations instead
+// The load_subset_with_manifest command has been deprecated in favor of
+// the new manifest system. Use load_project_translations with database state.
 
 // removed export_translated_copy
 
