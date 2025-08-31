@@ -1,146 +1,29 @@
 {
     "models": [
         {
-            "display_name": "Llama 3.1 8B (Primary Choice)",
-            "model_name": "llama3.1:8b",
-            "provider": "Ollama",
-            "description": "Meta's Llama 3.1 8B model - Best balance of quality, speed, and memory usage for translation. Excellent multilingual support with 128K context window",
-            "pricing": {
-                "input_price_per_1k": 0.0,
-                "output_price_per_1k": 0.0,
-                "currency": "USD"
-            },
-            "context_window": 131072,
-            "enabled": true
-        },
-        {
-            "display_name": "Qwen2.5 7B (Multilingual)",
-            "model_name": "qwen2.5:7b",
-            "provider": "Ollama",
-            "description": "Qwen2.5 7B with superior multilingual capabilities, especially strong for Asian languages (Chinese, Japanese, Korean) and technical translation",
-            "pricing": {
-                "input_price_per_1k": 0.0,
-                "output_price_per_1k": 0.0,
-                "currency": "USD"
-            },
-            "context_window": 131072,
-            "enabled": true
-        },
-        {
-            "display_name": "Mistral 7B (General Purpose)",
-            "model_name": "mistral:7b",
-            "provider": "Ollama",
-            "description": "Mistral 7B - Excellent general-purpose model with good translation quality and fast inference. Great for European languages",
-            "pricing": {
-                "input_price_per_1k": 0.0,
-                "output_price_per_1k": 0.0,
-                "currency": "USD"
-            },
-            "context_window": 32768,
-            "enabled": true
-        },
-        {
-            "display_name": "DeepSeek R1 8B (Reasoning)",
-            "model_name": "deepseek-r1:8b",
-            "provider": "Ollama",
-            "description": "DeepSeek R1 8B - Advanced reasoning model excellent for complex translations requiring deep understanding and context awareness",
-            "pricing": {
-                "input_price_per_1k": 0.0,
-                "output_price_per_1k": 0.0,
-                "currency": "USD"
-            },
-            "context_window": 131072,
-            "enabled": true
-        },
-        {
-            "display_name": "Llama 3.1 70B (Complex Translation)",
-            "model_name": "llama3.1:70b",
-            "provider": "Ollama",
-            "description": "Llama 3.1 70B - Highest quality translation for complex texts, literary works, and technical documents. Requires more VRAM",
-            "pricing": {
-                "input_price_per_1k": 0.0,
-                "output_price_per_1k": 0.0,
-                "currency": "USD"
-            },
-            "context_window": 131072,
-            "enabled": true
-        },
-        {
-            "display_name": "Qwen2.5 14B (Large Context)",
-            "model_name": "qwen2.5:14b",
-            "provider": "Ollama",
-            "description": "Qwen2.5 14B - Larger model with excellent long-context understanding, perfect for documents and books requiring extensive context",
-            "pricing": {
-                "input_price_per_1k": 0.0,
-                "output_price_per_1k": 0.0,
-                "currency": "USD"
-            },
-            "context_window": 131072,
-            "enabled": true
-        },
-        {
-            "display_name": "Qwen3 8B (Latest Generation)",
-            "model_name": "qwen3:8b",
-            "provider": "Ollama",
-            "description": "Qwen3 8B - Latest generation with advanced reasoning and multilingual capabilities. Excellent for modern translation tasks",
-            "pricing": {
-                "input_price_per_1k": 0.0,
-                "output_price_per_1k": 0.0,
-                "currency": "USD"
-            },
-            "context_window": 131072,
-            "enabled": true
-        },
-        {
-            "display_name": "Qwen3 30B (Premium Quality)",
-            "model_name": "qwen3:30b",
-            "provider": "Ollama",
-            "description": "Qwen3 30B - Large model with exceptional multilingual support and reasoning capabilities. Best for complex translations",
-            "pricing": {
-                "input_price_per_1k": 0.0,
-                "output_price_per_1k": 0.0,
-                "currency": "USD"
-            },
-            "context_window": 131072,
-            "enabled": true
-        },
-        {
-            "display_name": "Gemma3 4B (Modern Compact)",
-            "model_name": "gemma3:4b",
-            "provider": "Ollama",
-            "description": "Gemma3 4B - Google's latest compact model with excellent efficiency and modern architecture. Great for fast translation tasks",
-            "pricing": {
-                "input_price_per_1k": 0.0,
-                "output_price_per_1k": 0.0,
-                "currency": "USD"
-            },
-            "context_window": 131072,
-            "enabled": true
-        },
-        {
-            "display_name": "Gemma3 12B (Advanced Features)",
-            "model_name": "gemma3:12b",
-            "provider": "Ollama",
-            "description": "Gemma3 12B - Larger version with advanced reasoning and multimodal capabilities. Perfect for complex translation requirements",
-            "pricing": {
-                "input_price_per_1k": 0.0,
-                "output_price_per_1k": 0.0,
-                "currency": "USD"
-            },
-            "context_window": 131072,
-            "enabled": true
-        },
-        {
-            "display_name": "Schroneko Gemma-2-2B-JPN-IT",
+            "display_name": "Gemma 2 2B (Japanese/Italian)",
             "model_name": "schroneko/gemma-2-2b-jpn-it:latest",
             "provider": "Ollama",
-            "description": "A Gemma 2 2B model fine-tuned on Japanese text with excellent Japanese language support and translation capabilities",
+            "description": "Gemma 2 2B model - Best balance of quality, speed, and memory usage for translation. Excellent multilingual support with 128K context window",
             "pricing": {
                 "input_price_per_1k": 0.0,
                 "output_price_per_1k": 0.0,
                 "currency": "USD"
             },
-            "context_window": 8192,
+            "context_window": 131072,
+            "enabled": true
+        },
+        {
+            "display_name": "Qwen2.5 (Multilingual)",
+            "model_name": "qwen2.5:latest",
+            "provider": "Ollama",
+            "description": "Qwen2.5 with superior multilingual capabilities, especially strong for Asian languages (Chinese, Japanese, Korean) and technical translation",
+            "pricing": {
+                "input_price_per_1k": 0.0,
+                "output_price_per_1k": 0.0,
+                "currency": "USD"
+            },
+            "context_window": 131072,
             "enabled": true
         }
     ]

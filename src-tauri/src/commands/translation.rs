@@ -1,8 +1,10 @@
-use log::{debug, info};
+use log::{debug, error, info};
 
 use crate::core::error::AppResult;
 use crate::core::provider::GenerationResponse;
-use crate::glossaries::{GlossaryQuery, GlossaryState};
+use crate::db::glossary::GlossaryQuery;
+use crate::db::ManagedGlossaryState;
+use crate::db::state::ManagedTranslationState;
 use crate::llm::state::LlmState;
 use crate::models::engine::EngineInfo;
 use crate::models::provider::LlmConfig;
@@ -24,10 +26,12 @@ pub struct TranslationResult {
 /// Translate a single text unit using the configured LLM
 pub async fn translate_text_unit(
     state: State<'_, LlmState>,
-    glossary: State<'_, GlossaryState>,
+    glossary: State<'_, ManagedGlossaryState>,
+    db: State<'_, ManagedTranslationState>,
     text_unit: TextUnit,
     config: LlmConfig,
     engine_info: EngineInfo,
+    manifest_hash: Option<String>,
 ) -> AppResult<TranslationResult> {
     debug!("Translating text unit: {}", text_unit.id);
 
@@ -70,7 +74,7 @@ pub async fn translate_text_unit(
         only_enabled: true,
     };
 
-    let terms = match crate::glossaries::repo::find_terms(&glossary, &q).await {
+    let terms = match crate::db::glossary::repo::find_terms(&glossary, &q).await {
         Ok(v) => v,
         Err(_) => Vec::new(),
     };
@@ -99,6 +103,34 @@ pub async fn translate_text_unit(
         model_name: config.model.model_name.clone(),
     });
 
+    // Save translation to database immediately
+    // Extract project path from text unit ID (format: "project_path/file_path/field_type")
+    let project_path = engine_info.path.to_string_lossy().to_string();
+    let file_path = if let Some(_id_parts) = updated_unit.id.split('/').next() {
+        // For now, use a simple file path extraction - this could be improved
+        format!("{}/data", project_path)
+    } else {
+        format!("{}/data", project_path)
+    };
+
+    let text_unit_record = crate::db::translation::model::TextUnitRecord::from_text_unit(
+        &updated_unit,
+        &project_path,
+        &file_path,
+        manifest_hash.as_deref(),
+    );
+
+    // Save to database with error handling
+    match crate::db::translation::repo::upsert_unit(&db, &text_unit_record).await {
+        Ok(_) => {
+            info!("Translation saved to database for unit: {}", updated_unit.id);
+        }
+        Err(e) => {
+            // Log error but don't fail the translation - data consistency is more important than DB save
+            error!("Failed to save translation to database: {}", e);
+        }
+    }
+
     info!("Translation completed for unit: {}", updated_unit.id);
     Ok(TranslationResult {
         text_unit: updated_unit,
@@ -106,45 +138,7 @@ pub async fn translate_text_unit(
     })
 }
 
-/// Execute a single prompt with timeout and retry/backoff using the shared service.
-#[allow(dead_code)]
-async fn translate_with_retry(state: &LlmState, prompt: &str) -> AppResult<String> {
-    const REQ_TIMEOUT: Duration = Duration::from_secs(90);
-    const RETRIES: usize = 3;
 
-    let mut last_err: Option<crate::core::error::AppError> = None;
-    for attempt in 0..RETRIES {
-        let fut = async {
-            let guard = state.service.lock().await;
-            let svc = guard.as_ref().expect("LLM service must be initialized");
-            svc.generate(prompt).await
-        };
-        match timeout(REQ_TIMEOUT, fut).await {
-            Ok(Ok(text)) => return Ok(text),
-            Ok(Err(e)) => {
-                // Fatal provider errors should not be retried
-                let is_fatal_quota = match &e {
-                    crate::core::error::AppError::Llm(msg) => {
-                        let m = msg.to_ascii_lowercase();
-                        m.contains("insufficient_quota") || m.contains("exceeded your current quota")
-                    }
-                    _ => false,
-                };
-                if is_fatal_quota {
-                    return Err(e);
-                }
-                last_err = Some(e);
-            }
-            Err(_to) => {
-                last_err = Some(crate::core::error::AppError::Llm("request timeout".into()));
-            }
-        }
-        // simple backoff: 200ms, 400ms, 600ms
-        sleep(Duration::from_millis(200 * (attempt as u64 + 1))).await;
-    }
-
-    Err(last_err.unwrap_or_else(|| crate::core::error::AppError::Llm("unknown LLM error".into())))
-}
 
 /// Execute a single prompt with timeout and retry/backoff using the shared service, returning token usage.
 /// Optimized for remote Ollama servers (RunPod, Vast.ai) with enhanced network latency handling.

@@ -1,299 +1,220 @@
 # LudoLingua Development Roadmap
 
-## 📍 Current Status (v0.1.0-alpha)
-- ✅ Basic translation functionality for RPG Maker MV/MZ and Wolf RPG
-- ✅ Multi-provider AI integration (Ollama, OpenAI, OpenRouter, Groq, RunPod)
-- ✅ SQLite database with sqlx (glossary system only)
-- ✅ Tauri + Nuxt.js desktop application with Pinia stores
-- ✅ Project loading and text extraction (in-memory processing)
-- ❌ **Critical Gap**: No progress preservation - app crashes lose all progress
-- ❌ **Scalability Issue**: Large projects overwhelm memory
-- 🔄 **Database Architecture Refactor** - Shared `db/state.rs`, `db/glossaries/`, `db/translation/` with models in `src/models/`
-- 🔄 **Engine Modification** - Store extracted texts directly in database with project-based sessions
-- 🔄 **Glossary Migration** - Move `src/glossaries/` models to `src/models/glossary.rs`, logic to `db/glossaries/`
-- 📄 **Migration Status**: 0001 & 0002 (glossary), creating 0003 (translation progress)
+## 🎯 Translation Database Storage Enhancement
 
-### **Current Sprint: 35-Step Progress Preservation Implementation**
-- **Steps 1-2**: Architecture foundation and database structure
-- **Step 3**: Database schema, project ID system, and session detection
-- **Step 4**: Data models, repository pattern, and glossary migration
-- **Step 5**: RPG Maker MV engine integration (test implementation)
-- **Step 6**: Factory rework for progress preservation
-- **Step 7**: Backend commands with session management (12 sub-steps)
-- **Steps 8-11**: Engine integration for MZ and Wolf RPG
-- **Steps 12-15**: UI components, testing, and final integration
+**Goal**: Implement persistent database storage for text translations, following the established glossary pattern, to improve user experience and data reliability.
 
-**Key Focus: Project Isolation**
-- Each project gets its own database session (identified by unique project ID)
-- `.ludolingua.json` files in project roots for ID storage and metadata
-- No cross-project data confusion or conflicts
-- Independent progress tracking per project
-- Robust project detection even if folders are moved
+**Estimated Timeline**: 4-6 weeks
+**Priority**: High
+**Impact**: Major improvement to core functionality
 
-## 🎯 Phase 1: Stability & Reliability (v0.2.0) - IN PROGRESS
+### Phase 1: Database Architecture Refactoring ✅ FULLY COMPLETED (Week 1)
+**Objective**: Establish new database module structure and manifest-based project identification
 
-### Q1 2025 Goals (5-Day Sprint)
-- **Progress Preservation System** ⭐ **CURRENT FOCUS**
-  - **SOLVES:** No progress preservation - users lose hours of work on crashes
-  - **Days 1-2**: Database foundation, models, and repository pattern
-  - **Days 2-4**: Engine integration and factory rework
-  - **Days 4-5**: Backend commands, UI components, and testing
-  - **Result**: 100% progress preservation with database-first approach
+**Key Deliverables**:
+- ✅ New `src-tauri/src/db/` module structure with shared state
+- ✅ Migration of glossary operations to `db/glossary/` folder
+- ✅ Translation operations in `db/translation/` folder with immediate DB saving
+- ✅ `.ludolingua.json` manifest system for project identification
+- ✅ SQLite migration for `text_units` table with manifest hash support
+- ✅ Updated command handlers and state management to use new db module
+- ✅ **Glossary functionality verified working correctly**
 
-- **Database Architecture Overhaul**
-  - **SOLVES:** Memory limitations for large projects, no data persistence
-  - **Days 1-2**: Create modular `db/` structure with shared state management
-  - **Days 2-4**: Direct database storage of extracted texts during engine processing
-  - **Result**: Handle 100K+ text projects without memory constraints
+**Success Criteria** ✅ ALL MET:
+- ✅ Clean separation between glossary and translation database operations
+- ✅ Manifest system allows reliable project identification
+- ✅ Database schema supports all TextUnit fields with project metadata
+- ✅ Each translation is immediately saved to database for persistence
+- ✅ Command handlers successfully updated to use new db module structure
+- ✅ Backward compatibility maintained for existing functionality
 
-- **Translation Quality Improvements**
-  - Enhanced AI prompt engineering and output cleaning
-  - Retry mechanisms for failed translations
-  - Batch processing optimization to reduce API costs
+### Phase 2: Core Translation Commands 🔄 IN PROGRESS (Week 2)
+**Objective**: Implement manifest-aware translation commands with database storage
 
-- **Build & Distribution**
-  - Fix Linux AppImage packaging issues
-  - Cross-platform build optimization
-  - Automated testing pipeline
+**Key Deliverables**:
+- ✅ **Refactored `translate_text_unit` with database integration and dead code removal**
+- ✅ **Modified `translate_text_unit` command saves to database immediately with manifest validation**
+- New commands: `load_project_translations`, `save_translation_state`, `create_project_manifest`
+- Updated `extract_text` merges with existing database translations using manifest
+- Updated `load_project` creates/checks `.ludolingua.json` manifest
+- Transaction support for bulk operations with manifest-based project tracking
 
-### Key Milestones
-- [ ] **Steps 1-2**: Database architecture foundation and structure established
-- [ ] **Step 3**: Project ID system, SQL migration 0003, and session detection implemented
-- [ ] **Step 4**: Translation data models and repository pattern implemented
-- [ ] **Step 5**: RPG Maker MV engine integration (test implementation)
-- [ ] **Steps 6-7**: Complete backend integration, factory rework, and commands
-- [ ] **Steps 8-11**: All game engines storing texts directly in database
-- [ ] **Steps 12-15**: UI components, resume dialogs, and statistics tracking
-- [ ] **Result**: 100% progress preservation, crash-resistant translation workflow
-- [ ] Clean model separation with reusable components across all layers
-- [ ] Project isolation with unique IDs and session management
-- [ ] Comprehensive error recovery and auto-save functionality
+**Success Criteria**:
+- ✅ `translate_text_unit` successfully refactored with database integration
+- ✅ Translations persist immediately to database with manifest validation
+- ✅ Dead code removed and translation code quality improved
+- Manifest system enables reliable project reloading
+- Batch operations work reliably with proper project context
+- Error handling for database failures and manifest issues
+- Backward compatibility for projects without manifests
 
-### **Current Sprint Focus:** 35 Finishable Steps (2-3 Weeks)
+**Current Progress**: Core `translate_text_unit` function refactored with database integration - immediate saving implemented, dead code removed. Ready for additional command implementations.
 
-#### **Step 1-2: Architecture Foundation** 🏗️
-1. **Architecture Documentation Update** - Update BACKEND_STRUCTURE.md for new `db/` structure with DRY/SOLID principles
-2. **Database Structure Creation** - Create `db/` directory structure (`db/mod.rs`, `db/state.rs`, `db/glossaries/`, `db/translation/`)
+### Phase 3: Frontend Integration (Week 3)
+**Objective**: Update frontend stores and UI to leverage manifest-aware database storage
 
-#### **Step 3: Database Schema** 🗄️
-3. **Project ID System** - Create `.ludolingua.json` files with unique project IDs in project roots
-4. **SQL Migration 0003** - Create translation_sessions, translation_units, translation_progress tables (use project_id instead of project_path)
-5. **Project Detection** - Implement logic to read `.ludolingua.json` and detect existing sessions
-6. **Update Existing Glossary** - Move glossary_terms to use new `db/glossaries/` structure
+**Key Deliverables**:
+- Engine store loads/saves translations with manifest-based project identification
+- Translation store uses new database commands with manifest validation
+- UI indicators for save status, persistence, and manifest status
+- Translation recovery on app restart with project manifest detection
+- "Load Previous Session" functionality for projects with `.ludolingua.json`
 
-#### **Step 4: Data Models & Repository** 📊
-7. **Translation Data Models** - Implement TranslationSession, TranslationProgress in `src/models/translation.rs`
-8. **TranslationProgressRepository** - Implement basic CRUD operations in `db/translation/repo.rs`
-9. **Repository Integration** - Connect repository to shared `db/state.rs` connection
-10. **Move Glossary Repository** - Migrate existing glossary logic to `db/glossaries/repo.rs`
-11. **Update Prompt Builder** - Fix imports in `utils/prompts/builder.rs` to use new `db/glossaries/` path
+**Success Criteria**:
+- Seamless user experience with manifest-based auto-save
+- Visual feedback for translation persistence and project status
+- No data loss on app crashes with proper manifest handling
+- Performance impact minimized with efficient manifest queries
 
-#### **Step 5: Engine Integration - RPG Maker MV** 🎮
-12. **Extract Text Modification** - Update `rpg_maker_mv/engine.rs` to store texts in database
-13. **Database Session Creation** - Create translation session when project loads
-14. **Text Storage** - Store extracted texts directly in `translation_units` table
+### Phase 4: Migration & Optimization (Week 4)
+**Objective**: Migrate to new architecture and optimize performance with manifest system
 
-#### **Step 6: Factory Rework** 🏭
-15. **Progress Factory Pattern** - Adapt `factory.rs` export pattern for progress preservation
-16. **Session Management** - Integrate session creation with engine factory
-17. **Progress Queries** - Add database queries for progress statistics
+**Key Deliverables**:
+- Data migration script for existing translations with manifest creation
+- Architecture migration from old glossary structure to new `db/` modules
+- Removal of `export_translated_subset_via_factory` dependency
+- Dead code cleanup (unused token estimation, duplicate logic, export functions)
+- Performance optimizations (manifest-based query optimization, lazy loading)
 
-#### **Step 7: Backend Commands** ⚙️
-18. **Progress Commands** - Add progress preservation commands to `handler.rs`
-19. **Project Detection** - Implement `detect_project_progress()` to check existing sessions
-20. **Resume Logic** - Add `resume_project_translation()` with position detection
-21. **Auto-save Integration** - Hook into translation workflow for automatic saves
-22. **Session Management** - Handle project-specific sessions to avoid confusion
-23. **Update translation.rs** - Modify `translate_text_unit()` for database progress tracking
-24. **Update engine.rs** - Modify `load_project()` and `extract_text()` for database storage
-25. **Update glossary.rs** - Migrate to new `db/glossaries/` structure
-26. **Update mod.rs** - Update module exports for database integration
-27. **Update core/engine.rs** - Modify Engine trait for database operations (CRITICAL)
-28. **Update core/mod.rs** - Add db module exports
-29. **Update core/provider.rs** - Add progress tracking to LlmService trait
-30. **Update models/mod.rs** - Add new model exports (translation session, progress)
-31. **Move Glossary Models** - Move GlossaryTerm and GlossaryQuery from src/glossaries/ to src/models/glossary.rs
+**Success Criteria**:
+- All existing data preserved during migration with manifest generation
+- Clean migration to new `db/` module architecture
+- Significant reduction in memory usage with database-backed storage
+- Improved performance for large projects with manifest caching
+- Codebase simplified and maintainable with clear domain separation
 
-#### **Steps 8-11: Engine Integration & UI** 🎨
-32. **Engine Integration - RPG Maker MZ** - Update `rpg_maker_mz/engine.rs` to store texts in database
-33. **Engine Integration - Wolf RPG** - Update `wolf_rpg/engine.rs` to store texts in database
-34. **UI Components** - Progress bar, resume dialog, statistics tracking
-35. **Integration Testing** - End-to-end testing of complete progress preservation workflow
+### Phase 5: Testing & Documentation (Week 5-6)
+**Objective**: Comprehensive testing and documentation for new architecture
 
-### **Key Changes We're Making:**
+**Key Deliverables**:
+- Unit and integration tests for database operations with manifest support
+- Tests for backward compatibility and manifest creation scenarios
+- Updated architecture documentation reflecting `db/` module structure
+- Documentation for `.ludolingua.json` manifest file format and usage
+- User-facing documentation for new persistence features
+- Performance benchmarks with manifest-based optimizations
 
-**🔄 Architecture Changes:**
-- **Database-First Approach**: Extracted texts stored directly in DB (not memory)
-- **Project ID System**: `.ludolingua.json` files with UUIDs (robust project identification)
-- **Project Isolation**: Each project has its own translation session (no cross-project confusion)
-- **Clean Model Separation**: Models in `src/models/`, persistence logic in `src/db/`
-- **Modular Database Structure**: `db/glossaries/` + `db/translation/` + shared `db/state.rs`
-- **SOLID Principles**: Single responsibility for each module, open/closed for extensions
-- **DRY Implementation**: Shared database state, reusable repository patterns, no model duplication
-- **Glossary Migration**: Move models to `src/models/glossary.rs`, logic to `db/glossaries/`
-- **Factory Pattern Adaptation**: Reuse export logic for progress preservation
-- **Documentation Updates**: Keep BACKEND_STRUCTURE.md and FRONTEND_STRUCTURE.md current
+**Success Criteria**:
+- All tests passing with good coverage including manifest edge cases
+- Documentation accurately reflects new database architecture
+- Performance benchmarks meet requirements with manifest optimizations
+- Clear migration path documented for users
+- User feedback incorporated for manifest and persistence features
 
-**⚡ Performance & Reliability:**
-- Memory-efficient: Handle 100K+ text projects without memory issues
-- Crash-resistant: Resume from exact position after app restart
-- Real-time tracking: Live progress statistics from database queries
+## 🏗️ Technical Architecture
 
-**🎯 User Experience:**
-- Progress bars with completion percentages
-- Resume dialogs on project load
-- Auto-save after each translation
-- Batch processing to reduce API calls
+### Database Schema
+```sql
+CREATE TABLE text_units (
+  id INTEGER PRIMARY KEY,
+  project_path TEXT NOT NULL,
+  file_path TEXT NOT NULL,
+  field_type TEXT NOT NULL,
+  source_text TEXT NOT NULL,
+  translated_text TEXT,
+  status TEXT NOT NULL,
+  prompt_type TEXT NOT NULL,
+  source_lang TEXT NOT NULL,
+  target_lang TEXT NOT NULL,
+  manifest_hash TEXT, -- For project identification
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
-## 🚀 Phase 2: Enhanced Features (v0.3.0)
+-- Unique constraint prevents duplicate entries per project/file/field
+CREATE UNIQUE INDEX ux_text_units_project_file_field_text
+  ON text_units (project_path, file_path, field_type, source_text);
+```
 
-### Q2 2025 Goals
-- **Advanced AI Integration**
-  - Custom model configurations
-  - Model performance comparison tools
-  - Context-aware translations
-  - Multi-language support
+### Module Structure
+```
+src-tauri/src/db/
+├── state.rs (shared database state)
+├── glossary/
+│   ├── mod.rs
+│   ├── model.rs
+│   └── repo.rs (migrated from src-tauri/src/glossaries/)
+└── translation/
+    ├── mod.rs
+    ├── model.rs (TextUnitRecord)
+    ├── repo.rs (CRUD operations)
+    └── manifest.rs (project manifest handling)
+```
 
-- **User Experience Overhaul**
-  - Modern UI with improved workflows
-  - Real-time translation progress
-  - Advanced project management
-  - Keyboard shortcuts and productivity features
+### Project Manifest (.ludolingua.json)
+**Location**: Root directory of the game project
 
-- **Extended Engine Support**
-  - Enhanced Wolf RPG support
-  - Additional game engine formats
-  - Plugin architecture for new engines
-  - Improved text extraction accuracy
+```json
+{
+  "schema_version": 1,
+  "project_id": "unique-hash-based-on-path-and-engine",
+  "project_path": "/path/to/game/project",
+  "engine_type": "RpgMakerMv",
+  "engine_version": "1.6.1",
+  "source_language": "ja",
+  "target_language": "en",
+  "detection_criteria": {
+    "required_files": ["package.json", "index.html"],
+    "required_folders": ["data", "img"],
+    "export_data_roots": ["www/data"]
+  },
+  "created_at": "2024-01-01T00:00:00Z",
+  "last_accessed": "2024-01-01T00:00:00Z"
+}
+```
 
-### Key Milestones
-- [ ] Professional-grade translation workflow
-- [ ] Support for 5+ game engines
-- [ ] Advanced AI model management
-- [ ] Comprehensive project templates
+**Example File Structure**:
+```
+/path/to/game/project/
+├── .ludolingua.json          ← Project manifest
+├── package.json              ← Game engine files
+├── index.html
+├── data/                     ← Game data
+├── img/                      ← Game images
+└── ...                       ← Other game files
+```
 
-## 🔬 Phase 3: Power User Features (v0.4.0)
+## 📊 Benefits & Impact
 
-### Q3 2025 Goals
-- **Translation Memory System**
-  - Reusable translation segments
-  - Consistency checking across projects
-  - Automated terminology management
-  - Quality assurance tools
+### User Benefits
+- ✅ **No more lost work**: Translations persist between sessions with manifest-based identification
+- ✅ **Resume capability**: Continue work from previous sessions with automatic project detection
+- ✅ **Better reliability**: Survive app crashes and system restarts with `.ludolingua.json` tracking
+- ✅ **Performance**: Better memory management for large projects with database-backed storage
+- ✅ **Project portability**: Move projects between machines while maintaining translation progress
 
-- **Collaboration Features**
-  - Multi-user project support
-  - Review and approval workflows
-  - Version control integration
-  - Team productivity analytics
+### Technical Benefits
+- ✅ **Clean architecture**: Domain-driven design with clear separation between glossary and translation concerns
+- ✅ **Manifest system**: Robust project identification without relying on fragile export functions
+- ✅ **Project-root placement**: `.ludolingua.json` in game project root enables version control and portability
+- ✅ **Maintainability**: Modular `db/` structure with shared state management
+- ✅ **Scalability**: Database can handle large translation projects with efficient querying
+- ✅ **Reliability**: ACID transactions for data integrity and manifest-based validation
+- ✅ **Future-proofing**: Extensible manifest format for additional project metadata
 
-- **Performance & Scalability**
-  - Large project optimization
-  - Distributed processing support
-  - Advanced caching strategies
-  - Memory usage optimization
+## 🔄 Migration Strategy
 
-### Key Milestones
-- [ ] Handle projects with 100K+ text units
-- [ ] Team collaboration workflows
-- [ ] Enterprise-grade quality assurance
-- [ ] Advanced performance monitoring
+### Backward Compatibility
+- Existing projects continue to work without modification
+- Projects without `.ludolingua.json` get manifest created automatically in project root on first load
+- Database translations augment, don't replace, existing functionality
+- Graceful fallback if database operations fail
+- Clear migration path for existing users with automatic manifest generation
 
-## 🎨 Phase 4: Ecosystem Expansion (v0.5.0)
+### Risk Mitigation
+- Database operations wrapped in comprehensive error handling
+- Transaction support for atomic operations with manifest validation
+- Backup mechanisms for critical data and manifest files
+- Incremental rollout with feature flags and rollback capabilities
+- Extensive testing for manifest creation and project identification scenarios
 
-### Q4 2025 Goals
-- **Plugin Ecosystem**
-  - Third-party engine plugins
-  - Custom AI provider integrations
-  - Workflow automation plugins
-  - Community plugin marketplace
+## 📈 Success Metrics
 
-- **Advanced Analytics**
-  - Translation quality metrics
-  - Productivity dashboards
-  - Usage pattern analysis
-  - Performance benchmarking
-
-- **Industry Integration**
-  - CAT tool compatibility
-  - API for third-party integrations
-  - Enterprise deployment options
-  - Cloud synchronization
-
-### Key Milestones
-- [ ] Active plugin ecosystem
-- [ ] Professional translation studio integration
-- [ ] Enterprise deployment capabilities
-- [ ] Comprehensive analytics platform
-
-## 🏗️ Phase 5: Platform Evolution (v1.0.0)
-
-### 2026 Goals
-- **Web Platform**
-  - Browser-based translation interface
-  - Cloud-based processing options
-  - WebAssembly optimizations
-  - Progressive Web App features
-
-- **Mobile Support**
-  - iOS and Android applications
-  - Touch-optimized interfaces
-  - Offline translation capabilities
-  - Cross-device synchronization
-
-- **AI-Powered Features**
-  - Automated quality assessment
-  - Intelligent context detection
-  - Machine learning optimizations
-  - Advanced terminology extraction
-
-### Key Milestones
-- [ ] Full platform availability (Desktop + Web + Mobile)
-- [ ] AI-first translation experience
-- [ ] Global accessibility and localization
-- [ ] Industry-leading translation technology
-
-## 🔄 Maintenance & Evolution
-
-### Ongoing Activities
-- **Community Engagement**
-  - User feedback integration
-  - Feature request prioritization
-  - Documentation improvements
-  - Community event participation
-
-- **Technology Updates**
-  - Dependency management
-  - Security updates
-  - Performance optimizations
-  - Platform compatibility
-
-- **Research & Innovation**
-  - AI/ML advancements monitoring
-  - Game development trends
-  - Translation technology evolution
-  - Competitive analysis
-
-## 📊 Success Metrics
-
-### Technical Metrics
-- **Performance**: Handle 10K+ translations/hour
-- **Reliability**: 99.9% uptime, zero data loss
-- **Compatibility**: Support 10+ game engines
-- **Scalability**: Support projects with 1M+ text units
-
-### User Metrics
-- **Satisfaction**: 4.5+ star rating across platforms
-- **Adoption**: 10K+ active users
-- **Productivity**: 50%+ time savings for translators
-- **Retention**: 80%+ user retention rate
-
-### Business Metrics
-- **Market Share**: Top 3 translation tools for indie games
-- **Revenue**: Sustainable business model
-- **Partnerships**: 5+ industry partnerships
-- **Ecosystem**: 100+ community plugins
-
----
-
-*This roadmap is adaptive and will be updated based on user feedback, technological advancements, and market conditions.*
+- **Data Persistence**: 100% of translations saved to database with manifest validation
+- **Project Identification**: 100% success rate for project reloading via `.ludolingua.json`
+- **Performance**: No degradation in translation speed with database operations
+- **Reliability**: Zero data loss incidents with manifest-based recovery
+- **User Experience**: Seamless integration with automatic manifest creation
+- **Memory Usage**: 50% reduction for large projects with database-backed storage
+- **Architecture**: Clean migration to `db/` module structure with zero breaking changes
+- **Backward Compatibility**: All existing projects work without modification

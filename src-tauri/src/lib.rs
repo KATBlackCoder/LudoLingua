@@ -7,8 +7,8 @@
 
 mod commands;
 mod core;
+mod db;
 mod engines;
-mod glossaries;
 mod llm;
 mod models;
 mod utils;
@@ -30,8 +30,12 @@ pub fn run() {
             std::fs::create_dir_all(&app_data_dir)?;
             let db_path = app_data_dir.join("ludolingua.db");
 
-            app.handle()
-                .manage(crate::glossaries::GlossaryState::new(db_path));
+            let db_state = crate::db::DbState::new(db_path.clone());
+            let glossary_state = crate::db::ManagedGlossaryState::new(db_path.clone());
+            let translation_state = crate::db::state::ManagedTranslationState::new(db_path.clone());
+            app.handle().manage(db_state);
+            app.handle().manage(glossary_state);
+            app.handle().manage(translation_state);
             Ok(())
         })
         .plugin(tauri_plugin_fs::init())

@@ -11,8 +11,10 @@ use crate::commands::glossary as glossary_cmd;
 use crate::commands::languages;
 use crate::commands::provider;
 use crate::commands::translation;
-use crate::glossaries::model::GlossaryTerm;
-use crate::glossaries::{GlossaryQuery, GlossaryState};
+use crate::db::glossary::model::GlossaryTerm;
+use crate::db::glossary::model::GlossaryQuery;
+use crate::db::ManagedGlossaryState;
+use crate::db::state::ManagedTranslationState;
 use crate::llm::state::LlmState;
 use crate::models::engine::{EngineInfo, GameDataFile};
 use crate::models::language::Language;
@@ -82,13 +84,20 @@ pub async fn export_translated_subset(
 #[tauri::command]
 pub async fn translate_text_unit(
     state: State<'_, LlmState>,
-    glossary: State<'_, GlossaryState>,
+    glossary: State<'_, ManagedGlossaryState>,
+    db: State<'_, ManagedTranslationState>,
     text_unit: TextUnit,
     config: LlmConfig,
     engine_info: EngineInfo,
 ) -> Result<translation::TranslationResult, String> {
     debug!("Command: translate_text_unit - {}", text_unit.id);
-    translation::translate_text_unit(state, glossary, text_unit, config, engine_info)
+
+    // Generate manifest hash for project identification
+    // TODO: Use actual manifest system when implemented
+    let manifest_hash = Some(format!("project_{}",
+        engine_info.path.to_string_lossy().to_string().replace("/", "_").replace("\\", "_")));
+
+    translation::translate_text_unit(state, glossary, db, text_unit, config, engine_info, manifest_hash)
         .await
         .map_err(|e| e.to_string())
 }
@@ -136,7 +145,7 @@ pub async fn estimate_project_tokens(
 /// Glossary: list terms
 #[tauri::command]
 pub async fn glossary_list_terms(
-    glossary: State<'_, GlossaryState>,
+    glossary: State<'_, ManagedGlossaryState>,
     q: GlossaryQuery,
 ) -> Result<Vec<GlossaryTerm>, String> {
     debug!("Command: glossary_list_terms");
@@ -148,7 +157,7 @@ pub async fn glossary_list_terms(
 /// Glossary: upsert term
 #[tauri::command]
 pub async fn glossary_upsert_term(
-    glossary: State<'_, GlossaryState>,
+    glossary: State<'_, ManagedGlossaryState>,
     term: GlossaryTerm,
 ) -> Result<i64, String> {
     debug!("Command: glossary_upsert_term");
@@ -160,7 +169,7 @@ pub async fn glossary_upsert_term(
 /// Glossary: delete term
 #[tauri::command]
 pub async fn glossary_delete_term(
-    glossary: State<'_, GlossaryState>,
+    glossary: State<'_, ManagedGlossaryState>,
     id: i64,
 ) -> Result<(), String> {
     debug!("Command: glossary_delete_term");
@@ -172,7 +181,7 @@ pub async fn glossary_delete_term(
 /// Glossary: export terms (JSON)
 #[tauri::command]
 pub async fn glossary_export_terms(
-    glossary: State<'_, GlossaryState>,
+    glossary: State<'_, ManagedGlossaryState>,
     q: GlossaryQuery,
 ) -> Result<String, String> {
     debug!("Command: glossary_export_terms");
@@ -184,7 +193,7 @@ pub async fn glossary_export_terms(
 /// Glossary: import terms from JSON
 #[tauri::command]
 pub async fn glossary_import_terms(
-    glossary: State<'_, GlossaryState>,
+    glossary: State<'_, ManagedGlossaryState>,
     json: String,
 ) -> Result<usize, String> {
     debug!("Command: glossary_import_terms");

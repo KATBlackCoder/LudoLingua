@@ -3,6 +3,7 @@ use std::fs;
 use std::path::PathBuf;
 
 use crate::core::error::{AppError, AppResult};
+use crate::db::glossary::model::GlossaryTerm;
 use crate::models::engine::EngineInfo;
 use crate::models::translation::{PromptType, TextUnit};
 
@@ -14,12 +15,12 @@ pub struct PromptBuilder;
 
 impl PromptBuilder {
     /// Render glossary terms (DB) as a block compatible with `vocabularies.txt` sections.
-    pub fn render_glossary_terms(terms: &[crate::glossaries::model::GlossaryTerm]) -> String {
+    pub fn render_glossary_terms(terms: &[GlossaryTerm]) -> String {
         use std::collections::BTreeMap;
         if terms.is_empty() {
             return String::new();
         }
-        let mut by_cat: BTreeMap<&str, Vec<&crate::glossaries::model::GlossaryTerm>> =
+        let mut by_cat: BTreeMap<&str, Vec<&GlossaryTerm>> =
             BTreeMap::new();
         for t in terms {
             by_cat.entry(&t.category).or_default().push(t);
@@ -40,7 +41,7 @@ impl PromptBuilder {
     pub async fn build_translation_prompt_with_terms(
         text_unit: &TextUnit,
         engine_info: &EngineInfo,
-        terms: &[crate::glossaries::model::GlossaryTerm],
+        terms: &[GlossaryTerm],
     ) -> String {
         debug!(
             "PromptBuilder: using DB glossary terms ({} terms) for prompt_type {:?}",

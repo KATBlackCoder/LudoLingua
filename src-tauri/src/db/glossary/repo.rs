@@ -1,10 +1,11 @@
 use sqlx::{self, Arguments, Row};
 
 use crate::core::error::AppResult;
-use crate::glossaries::model::GlossaryTerm;
-use crate::glossaries::{GlossaryQuery, GlossaryState};
+use crate::db::glossary::model::GlossaryTerm;
+use crate::db::glossary::model::GlossaryQuery;
+use crate::db::ManagedGlossaryState;
 
-pub async fn find_terms(state: &GlossaryState, q: &GlossaryQuery) -> AppResult<Vec<GlossaryTerm>> {
+pub async fn find_terms(state: &ManagedGlossaryState, q: &GlossaryQuery) -> AppResult<Vec<GlossaryTerm>> {
     let pool = state.pool().await;
 
     // Build dynamic query
@@ -63,7 +64,7 @@ pub async fn find_terms(state: &GlossaryState, q: &GlossaryQuery) -> AppResult<V
     Ok(terms)
 }
 
-pub async fn upsert_term(state: &GlossaryState, term: GlossaryTerm) -> AppResult<i64> {
+pub async fn upsert_term(state: &ManagedGlossaryState, term: GlossaryTerm) -> AppResult<i64> {
     let pool = state.pool().await;
     let id = if term.id > 0 {
         sqlx::query(
@@ -106,7 +107,7 @@ pub async fn upsert_term(state: &GlossaryState, term: GlossaryTerm) -> AppResult
     Ok(id)
 }
 
-pub async fn delete_term(state: &GlossaryState, id: i64) -> AppResult<()> {
+pub async fn delete_term(state: &ManagedGlossaryState, id: i64) -> AppResult<()> {
     let pool = state.pool().await;
     sqlx::query("DELETE FROM glossary_terms WHERE id = ?")
         .bind(id)
@@ -117,21 +118,21 @@ pub async fn delete_term(state: &GlossaryState, id: i64) -> AppResult<()> {
 }
 
 /// Export all (or filtered) terms to JSON string
-pub async fn export_terms_json(state: &GlossaryState, q: &GlossaryQuery) -> AppResult<String> {
+pub async fn export_terms_json(state: &ManagedGlossaryState, q: &GlossaryQuery) -> AppResult<String> {
     let terms = find_terms(state, q).await?;
     serde_json::to_string_pretty(&terms)
         .map_err(|e| crate::core::error::AppError::Other(e.to_string()))
 }
 
 /// Import terms from JSON string, upserting each term
-pub async fn import_terms_json(state: &GlossaryState, json: &str) -> AppResult<usize> {
-    let terms: Vec<crate::glossaries::model::GlossaryTerm> = serde_json::from_str(json)
+pub async fn import_terms_json(state: &ManagedGlossaryState, json: &str) -> AppResult<usize> {
+    let terms: Vec<GlossaryTerm> = serde_json::from_str(json)
         .map_err(|e| crate::core::error::AppError::Other(e.to_string()))?;
     let mut count = 0usize;
     for t in terms {
         // Force conflict-based upsert on (source_lang, target_lang, category, input)
         // by resetting id to 0 so we don't rely on foreign DB ids.
-        let term = crate::glossaries::model::GlossaryTerm { id: 0, ..t };
+        let term = GlossaryTerm { id: 0, ..t };
         let _ = upsert_term(state, term).await?;
         count += 1;
     }
