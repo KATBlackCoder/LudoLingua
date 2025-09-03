@@ -3,6 +3,41 @@ use crate::core::error::{AppError, AppResult};
 use crate::db::state::ManagedTranslationState;
 use super::model::{TextUnitRecord, TextUnitQuery, BulkOperationResult};
 
+/// Find a single text unit by its database ID
+pub async fn find_unit_by_id(
+    state: &ManagedTranslationState,
+    id: i64,
+) -> AppResult<TextUnitRecord> {
+    let pool = state.pool().await;
+
+    let row = sqlx::query(
+        r#"SELECT id, project_path, file_path, field_type, source_text, translated_text,
+                  status, prompt_type, source_lang, target_lang, manifest_hash,
+                  created_at, updated_at
+           FROM text_units WHERE id = ?"#
+    )
+    .bind(id)
+    .fetch_one(&pool)
+    .await
+    .map_err(|e| AppError::Database(e.to_string()))?;
+
+    Ok(TextUnitRecord {
+        id: Some(row.get("id")),
+        project_path: row.get("project_path"),
+        file_path: row.get("file_path"),
+        field_type: row.get("field_type"),
+        source_text: row.get("source_text"),
+        translated_text: row.get("translated_text"),
+        status: row.get("status"),
+        prompt_type: row.get("prompt_type"),
+        source_lang: row.get("source_lang"),
+        target_lang: row.get("target_lang"),
+        manifest_hash: row.get("manifest_hash"),
+        created_at: row.get("created_at"),
+        updated_at: row.get("updated_at"),
+    })
+}
+
 /// Find text units matching the query criteria
 pub async fn find_units(
     state: &ManagedTranslationState,

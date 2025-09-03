@@ -293,7 +293,7 @@ impl RpgMakerMvEngine {
             "actor",
         )?;
 
-        // Inject item translations
+        /*// Inject item translations
         common::inject_file_type_translations(
             project_info,
             text_units,
@@ -447,7 +447,7 @@ impl RpgMakerMvEngine {
             } else {
                 log::info!("No text units found for map {}", map_id);
             }
-        }
+        }*/
 
         // info!("Translation injection completed");
         Ok(())

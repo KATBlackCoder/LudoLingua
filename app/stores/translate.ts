@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
-import type { TextUnit, TranslationResult, ActualTokenUsage } from '../types/translation';
-// import { useProviderStore } from './provider';
+import type { TextUnit, TranslationResult } from '../types/translation';
 import { useEngineStore } from './engine';
 import { useAppToast } from '~/composables/useAppToast';
 import { useSettingsStore } from './settings';
@@ -17,7 +16,6 @@ import { useSettingsStore } from './settings';
  */
 export const useTranslateStore = defineStore('translate', () => {
   const { showToast } = useAppToast();
-  // const providerStore = useProviderStore();
   const settingsStore = useSettingsStore();
   const engineStore = useEngineStore();
   
@@ -27,7 +25,6 @@ export const useTranslateStore = defineStore('translate', () => {
   const translationTotal = ref(0);
   const currentTranslatingUnit = ref<TextUnit | null>(null);
   const failedTranslations = ref<Array<{ unit: TextUnit; error: string }>>([]);
-  const actualTokenUsage = ref<ActualTokenUsage[]>([]);
   
   // Computed
   const isTranslationInProgress = computed(() => isTranslating.value);
@@ -36,13 +33,6 @@ export const useTranslateStore = defineStore('translate', () => {
     return Math.round((translationProgress.value / translationTotal.value) * 100);
   });
   const hasFailedTranslations = computed(() => failedTranslations.value.length > 0);
-  const totalActualTokenUsage = computed(() => {
-    return actualTokenUsage.value.reduce((total, usage) => ({
-      input_tokens: total.input_tokens + usage.input_tokens,
-      output_tokens: total.output_tokens + usage.output_tokens,
-      total_tokens: total.total_tokens + usage.total_tokens,
-    }), { input_tokens: 0, output_tokens: 0, total_tokens: 0 });
-  });
 
   // Actions
   const translateTextUnit = async (
@@ -52,7 +42,6 @@ export const useTranslateStore = defineStore('translate', () => {
       isTranslating.value = true;
       currentTranslatingUnit.value = textUnit;
 
-      //console.log('Translating text unit:', textUnit.id);
       const unitPayload = engineStore.getTextUnitById(textUnit.id)
       const enginePayload = engineStore.projectInfo
       const translationResult = await invoke<TranslationResult>('translate_text_unit', {
@@ -74,12 +63,6 @@ export const useTranslateStore = defineStore('translate', () => {
         target: translationResult.text_unit.translated_text,
       });
 
-      // Log token usage if available
-      if (translationResult.token_usage) {
-        console.debug('[MT][tokens]', translationResult.token_usage);
-        actualTokenUsage.value.push(translationResult.token_usage);
-      }
-
       // Update the engine store with the translated unit
       engineStore.updateTextUnit(translationResult.text_unit);
 
@@ -89,7 +72,6 @@ export const useTranslateStore = defineStore('translate', () => {
         failedTranslations.value.splice(failedIndex, 1);
       }
 
-      //console.log('Translation completed for:', textUnit.id);
       return translationResult.text_unit;
     } catch (error) {
       console.error('Translation error:', error);
@@ -126,12 +108,10 @@ export const useTranslateStore = defineStore('translate', () => {
       translationTotal.value = textUnits.length;
       translationProgress.value = 0;
       failedTranslations.value = [];
-      actualTokenUsage.value = [];
 
       showToast('Batch Translation Started', `Translating ${textUnits.length} text units`, 'info', 1200)
 
       for (const textUnit of textUnits) {
-        //if (!isTranslating.value) break
         try {
           const translatedUnit = await translateTextUnit(textUnit);
 
@@ -169,22 +149,12 @@ export const useTranslateStore = defineStore('translate', () => {
     }
   };
 
-  const cancelBatchTranslation = () => {
-    if (isTranslating.value) {
-      isTranslating.value = false;
-      currentTranslatingUnit.value = null;
-      
-      showToast('Translation Cancelled', 'Batch translation has been cancelled', 'warning', 1200)
-    }
-  };
-
   const reset = () => {
     isTranslating.value = false;
     translationProgress.value = 0;
     translationTotal.value = 0;
     currentTranslatingUnit.value = null;
     failedTranslations.value = [];
-    actualTokenUsage.value = [];
   };
 
   return {
@@ -199,13 +169,10 @@ export const useTranslateStore = defineStore('translate', () => {
     isTranslationInProgress,
     translationProgressPercentage,
     hasFailedTranslations,
-    totalActualTokenUsage,
-    actualTokenUsage,
 
     // Actions
     translateTextUnit,
     startBatchTranslation,
-    cancelBatchTranslation,
     reset,
   };
 }); 

@@ -1,4 +1,4 @@
-use log::{debug, error, info};
+use log::{debug, error, info, warn};
 
 use crate::core::error::AppResult;
 use crate::core::provider::GenerationResponse;
@@ -113,17 +113,67 @@ pub async fn translate_text_unit(
         format!("{}/data", project_path)
     };
 
-    let text_unit_record = crate::db::translation::model::TextUnitRecord::from_text_unit(
-        &updated_unit,
-        &project_path,
-        &file_path,
-        manifest_hash.as_deref(),
-    );
+    // Find existing database record to update (don't create new one!)
+    let existing_record = if let Some(db_id) = updated_unit.id.parse::<i64>().ok() {
+        // TextUnit ID is a database ID - find the existing record
+        match crate::db::translation::repo::find_unit_by_id(&db, db_id).await {
+            Ok(record) => Some(record),
+            Err(_) => None,
+        }
+    } else {
+        // Fallback: try to find by content matching
+        let query = crate::db::translation::model::TextUnitQuery {
+            project_path: Some(project_path.clone()),
+            manifest_hash: manifest_hash.clone().map(|s| s.to_string()),
+            ..Default::default()
+        };
+        match crate::db::translation::repo::find_units(&db, &query).await {
+            Ok(records) => {
+                // Find record with matching source_text and field_type
+                records.into_iter().find(|r|
+                    r.source_text == updated_unit.source_text &&
+                    r.field_type == updated_unit.field_type
+                )
+            }
+            Err(_) => None,
+        }
+    };
 
-    // Save to database with error handling
-    match crate::db::translation::repo::upsert_unit(&db, &text_unit_record).await {
+    let save_result = if let Some(mut record) = existing_record {
+        // Update existing record with translation data
+        record.translated_text = Some(updated_unit.translated_text.clone());
+        record.status = match updated_unit.status {
+            crate::models::translation::TranslationStatus::NotTranslated => "NotTranslated".to_string(),
+            crate::models::translation::TranslationStatus::MachineTranslated => "MachineTranslated".to_string(),
+            crate::models::translation::TranslationStatus::HumanReviewed => "HumanReviewed".to_string(),
+            crate::models::translation::TranslationStatus::Ignored => "Ignored".to_string(),
+        };
+
+        // Update in database
+        crate::db::translation::repo::upsert_unit(&db, &record).await
+    } else {
+        // Fallback: create new record if existing not found (shouldn't happen in normal flow)
+        warn!("Could not find existing record for unit {}, creating new one", updated_unit.id);
+        let text_unit_record = crate::db::translation::model::TextUnitRecord::from_text_unit(
+            &updated_unit,
+            &project_path,
+            &file_path,
+            manifest_hash.as_deref(),
+        );
+        crate::db::translation::repo::upsert_unit(&db, &text_unit_record).await
+    };
+
+    // Handle save result
+    match save_result {
         Ok(_) => {
             info!("Translation saved to database for unit: {}", updated_unit.id);
+
+            // Update manifest with current translated count
+            if let Some(manifest_hash) = manifest_hash.as_ref() {
+                if let Err(e) = update_manifest_translated_count(&db, &project_path, manifest_hash).await {
+                    warn!("Failed to update manifest with translated count: {}", e);
+                }
+            }
         }
         Err(e) => {
             // Log error but don't fail the translation - data consistency is more important than DB save
@@ -223,7 +273,7 @@ async fn translate_with_retry_and_usage(state: &LlmState, prompt: &str) -> AppRe
 /// Clean model output to remove thinking process and extract only the translation
 fn clean_model_output(content: &str) -> String {
     let content = content.trim();
-    
+
     // First, try to extract content between <<<INPUT_START>>> and <<<INPUT_END>>>
     if let Some(start_idx) = content.find("<<<INPUT_START>>>") {
         if let Some(end_idx) = content.find("<<<INPUT_END>>>") {
@@ -233,7 +283,7 @@ fn clean_model_output(content: &str) -> String {
             }
         }
     }
-    
+
     // Remove everything between <think> and </think> tags (including the tags)
     let mut cleaned = content.to_string();
     while let Some(start_idx) = cleaned.find("<think>") {
@@ -250,7 +300,7 @@ fn clean_model_output(content: &str) -> String {
             cleaned.replace_range(start_idx..start_idx + 7, "");
         }
     }
-    
+
     // Clean up any remaining whitespace and newlines
     cleaned = cleaned
         .lines()
@@ -260,11 +310,37 @@ fn clean_model_output(content: &str) -> String {
         .join(" ")
         .trim()
         .to_string();
-    
+
     // If the cleaned content is empty, return the original content
     if cleaned.is_empty() {
         content.to_string()
     } else {
         cleaned
+    }
+}
+
+/// Helper function to update manifest with current translated count from database
+async fn update_manifest_translated_count(
+    db: &crate::db::state::ManagedTranslationState,
+    project_path: &str,
+    manifest_hash: &str,
+) -> Result<(), String> {
+    // Get current statistics from database
+    match crate::db::translation::repo::get_project_stats(db, project_path).await {
+        Ok(stats) => {
+            if let Some(translated_count) = stats.get("has_translation").and_then(|v| v.as_i64()) {
+                let project_path_obj = std::path::Path::new(project_path);
+                crate::commands::engine::update_manifest_with_translated_units(
+                    project_path_obj,
+                    manifest_hash,
+                    translated_count,
+                ).await?;
+            }
+            Ok(())
+        }
+        Err(e) => {
+            warn!("Failed to get project stats for manifest update: {}", e);
+            Ok(())
+        }
     }
 }

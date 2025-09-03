@@ -28,6 +28,10 @@ pub struct ProjectManifest {
     pub created_at: String,
     /// When the project was last accessed
     pub last_accessed: String,
+    /// Total number of text units that need translation
+    pub total_text_units: Option<i64>,
+    /// Number of text units already translated
+    pub translated_text_units: Option<i64>,
 }
 
 /// Serializable version of EngineCriteria
@@ -89,12 +93,30 @@ impl ProjectManifest {
             detection_criteria: (&engine_info.detection_criteria).into(),
             created_at: now.clone(),
             last_accessed: now,
+            total_text_units: None,  // Will be updated when text units are extracted
+            translated_text_units: None,  // Will be updated when translations are saved
         }
     }
 
     /// Update the last accessed timestamp
     pub fn update_last_accessed(&mut self) {
         self.last_accessed = chrono::Utc::now().to_rfc3339();
+    }
+
+    /// Update the total number of text units
+    pub fn update_total_text_units(&mut self, total: i64) {
+        self.total_text_units = Some(total);
+    }
+
+    /// Update the number of translated text units
+    pub fn update_translated_text_units(&mut self, translated: i64) {
+        self.translated_text_units = Some(translated);
+    }
+
+    /// Update both total and translated counts
+    pub fn update_translation_stats(&mut self, total: i64, translated: i64) {
+        self.total_text_units = Some(total);
+        self.translated_text_units = Some(translated);
     }
 
     /// Get the manifest file path for a project
@@ -152,19 +174,25 @@ impl ProjectManifest {
 /// Create or load project manifest
 pub fn create_or_load_project_manifest(engine_info: &EngineInfo) -> AppResult<ProjectManifest> {
     match ProjectManifest::load_from_project(&engine_info.path)? {
-        Some(manifest) => {
+        Some(mut manifest) => {
             // Check if manifest matches current engine info
             if manifest.matches_engine_info(engine_info) {
+                // Update last accessed time
+                manifest.update_last_accessed();
+                manifest.save_to_project(&engine_info.path)?;
                 Ok(manifest)
             } else {
-                // Recreate manifest if it doesn't match
+                // Recreate manifest if it doesn't match, but preserve translation statistics
                 info!("Manifest doesn't match current project, recreating...");
-                let new_manifest = ProjectManifest::from_engine_info(engine_info);
+                let mut new_manifest = ProjectManifest::from_engine_info(engine_info);
+                // Preserve existing translation statistics
+                new_manifest.total_text_units = manifest.total_text_units;
+                new_manifest.translated_text_units = manifest.translated_text_units;
                 new_manifest.save_to_project(&engine_info.path)?;
                 Ok(new_manifest)
             }
         }
-        None => {
+        _none => {
             // Create new manifest
             let manifest = ProjectManifest::from_engine_info(engine_info);
             manifest.save_to_project(&engine_info.path)?;

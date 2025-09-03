@@ -1,13 +1,10 @@
-use log::{error, info, warn};
+use log::{info, warn};
 use std::path::Path;
 
 use crate::db::translation::manifest::create_or_load_project_manifest;
 use crate::db::state::ManagedTranslationState;
 use crate::db::translation::repo;
-use crate::engines::factory::{export_translated_subset_via_factory, get_engine};
-use crate::engines::rpg_maker_mv::engine::RpgMakerMvEngine;
-use crate::engines::rpg_maker_mz::engine::RpgMakerMzEngine;
-use crate::engines::wolf_rpg::engine::WolfRpgEngine;
+use crate::engines::factory::{get_engine, extract_game_data_files as factory_extract_game_data_files};
 use crate::models::engine::{EngineInfo, GameDataFile};
 use crate::models::language::Language;
 use crate::models::translation::{TextUnit, TranslationStatus};
@@ -38,13 +35,11 @@ pub async fn load_project(
     let path = Path::new(&project_path);
 
     // Get the appropriate engine for this project
-    let engine_result = get_engine(path);
+    let engine = get_engine(path).map_err(|e| format!("Failed to get engine: {}", e))?;
 
-    match engine_result {
-        Ok(engine) => {
-            // Use the engine to load the project info
-            match engine.load_project_info(path, source_language, target_language) {
-                Ok(mut project_info) => {
+    // Load the project info
+    let mut project_info = engine.load_project_info(path, source_language, target_language)
+        .map_err(|e| format!("Failed to load project info: {}", e))?;
                     info!("Successfully loaded project: {}", project_info.name);
 
                     // Create or load the project manifest
@@ -58,29 +53,20 @@ pub async fn load_project(
                         Err(e) => {
                             warn!("Failed to create/load manifest: {}", e);
                             // Don't fail the entire load if manifest creation fails
-                            // Just log the warning and continue
-                            Ok(project_info)
-                        }
-                    }
-                }
-                Err(e) => {
-                    error!("Failed to load project info: {}", e);
-                    Err(format!("Failed to load project info: {}", e))
-                }
-            }
-        }
-        Err(e) => {
-            error!("Failed to get engine: {}", e);
-            Err(format!("Failed to get engine: {}", e))
+                    Ok(project_info)
         }
     }
 }
 
-/// Extracts translatable text units from a project and merges with existing translations.
+/// Extracts translatable text units from a project with smart loading logic.
 ///
-/// This command is called from the frontend after a project is loaded.
-/// It uses the appropriate engine to extract all translatable text from the project files,
-/// then merges the results with any existing translations stored in the database.
+/// This command implements intelligent project loading:
+/// - If NO manifest exists: Extract translatable texts from files (fresh project)
+/// - If manifest EXISTS: Load from database with smart status-based routing
+///
+/// Smart status routing:
+/// - NotTranslated units → should go to TranslationRaw.vue
+/// - MachineTranslated/HumanReviewed units → should go to TranslationResult.vue
 ///
 /// # Arguments
 ///
@@ -89,109 +75,154 @@ pub async fn load_project(
 ///
 /// # Returns
 ///
-/// * `Result<Vec<TextUnit>, String>` - The merged text units or an error message
+/// * `Result<Vec<TextUnit>, String>` - The text units or an error message
 pub async fn extract_text(project_info: EngineInfo, db_state: Option<&ManagedTranslationState>) -> Result<Vec<TextUnit>, String> {
-    info!("Extracting text from project: {}", project_info.name);
+    info!("Smart loading text from project: {}", project_info.name);
 
+    // Check if this is a fresh project (no manifest) or existing project (manifest exists)
+    let manifest_path = project_info.path.join(".ludolingua.json");
+    let has_manifest = manifest_path.exists();
+
+    if !has_manifest {
+        // FRESH PROJECT: No manifest exists, extract from files
+        info!("No manifest found - extracting text from files for fresh project");
+        return extract_text_from_files(project_info, db_state).await;
+    }
+
+    // EXISTING PROJECT: Manifest exists, load from database with smart routing
+    info!("Manifest found - loading translations from database with smart routing");
+    return load_text_with_smart_routing(project_info, db_state).await;
+}
+
+/// Extract text units from files for fresh projects (no manifest)
+/// This function now saves ALL extracted units to database for complete persistence
+async fn extract_text_from_files(project_info: EngineInfo, db_state: Option<&ManagedTranslationState>) -> Result<Vec<TextUnit>, String> {
     // Get the appropriate engine for this project
-    let engine_result = get_engine(&project_info.path);
+    let engine = get_engine(&project_info.path)
+        .map_err(|e| format!("Failed to get engine: {}", e))?;
 
-    match engine_result {
-        Ok(engine) => {
-            // Use the engine to extract text units
-            match engine.extract_text_units(&project_info) {
-                Ok(extracted_units) => {
+    // Extract text units from files
+    let extracted_units = engine.extract_text_units(&project_info)
+        .map_err(|e| format!("Failed to extract text units: {}", e))?;
                     info!("Successfully extracted {} text units from files", extracted_units.len());
 
-                    // If we have database access and a manifest hash, merge with existing translations
-                    if let (Some(db), Some(manifest_hash)) = (db_state, &project_info.manifest_hash) {
-                        match load_existing_translations_from_db(db, manifest_hash, project_info.path.to_string_lossy().as_ref()).await {
-                            Ok(existing_units) => {
-                                if !existing_units.is_empty() {
-                                    info!("Found {} existing translations in database", existing_units.len());
+    // Save ALL extracted units to database for complete persistence
+    if let Some(db) = db_state {
+        info!("Saving all {} extracted text units to database for persistence", extracted_units.len());
 
-                                    // Merge extracted units with existing translations
-                                    let merged_units = merge_text_units(extracted_units, existing_units);
-                                    info!("Merged result: {} total units", merged_units.len());
-                                    return Ok(merged_units);
-                                } else {
-                                    info!("No existing translations found in database");
-                                }
-                            }
-                            Err(e) => {
-                                warn!("Failed to load existing translations from database: {}", e);
-                                // Continue with just extracted units
-                            }
+        // Convert TextUnits to TextUnitRecords with proper metadata
+        let records: Vec<crate::db::translation::model::TextUnitRecord> = extracted_units.iter()
+            .map(|unit| {
+                let project_path = project_info.path.to_string_lossy().to_string();
+                let file_path = format!("{}/data", project_path); // Default file path for extracted units
+
+                crate::db::translation::model::TextUnitRecord::from_text_unit(
+                    unit,
+                    &project_path,
+                    &file_path,
+                    project_info.manifest_hash.as_deref(),
+                )
+            })
+            .collect();
+
+        // Bulk save to database
+        match crate::db::translation::repo::bulk_upsert_units(db, &records).await {
+            Ok(result) => {
+                info!("Database persistence: {} inserted, {} updated, {} errors",
+                      result.inserted, result.updated, result.errors.len());
+                if !result.errors.is_empty() {
+                    warn!("Database save errors: {:?}", result.errors);
+                }
+            }
+            Err(e) => {
+                warn!("Failed to save extracted units to database: {}", e);
+                // Don't fail the extraction if database save fails - user can still work
+            }
+        }
+    } else {
+        warn!("No database state available - extracted units will not be persisted");
+    }
+
+                    // Update manifest with total text units count
+                    if let Some(manifest_hash) = &project_info.manifest_hash {
+                        if let Err(e) = update_manifest_with_total_units(&project_info.path, manifest_hash, extracted_units.len() as i64).await {
+                            warn!("Failed to update manifest with total text units: {}", e);
                         }
-                    } else if project_info.manifest_hash.is_none() {
-                        info!("No manifest hash available, skipping database merge");
                     }
 
                     Ok(extracted_units)
                 }
-                Err(e) => {
-                    error!("Failed to extract text units: {}", e);
-                    Err(format!("Failed to extract text units: {}", e))
-                }
-            }
-        }
-        Err(e) => {
-            error!("Failed to get engine: {}", e);
-            Err(format!("Failed to get engine: {}", e))
-        }
-    }
-}
 
-/// Legacy version of extract_text for backward compatibility
-/// This version doesn't merge with database translations
-pub async fn extract_text_legacy(project_info: EngineInfo) -> Result<Vec<TextUnit>, String> {
-    extract_text(project_info, None).await
-}
+/// Load text units from database with smart status-based routing
+/// Now loads ALL units (including NotTranslated) for complete project state restoration
+async fn load_text_with_smart_routing(project_info: EngineInfo, db_state: Option<&ManagedTranslationState>) -> Result<Vec<TextUnit>, String> {
+    let db = db_state.ok_or_else(|| "Database state required for smart loading".to_string())?;
+    let manifest_hash = project_info.manifest_hash
+        .as_ref()
+        .ok_or_else(|| "Manifest hash required for smart loading".to_string())?;
 
+    // Load ALL text units from database (including NotTranslated ones)
+    let query = crate::db::translation::model::TextUnitQuery {
+        project_path: Some(project_info.path.to_string_lossy().to_string()),
+        manifest_hash: Some(manifest_hash.to_string()),
+        ..Default::default()
+    };
 
+    let records = repo::find_units(db, &query).await
+        .map_err(|e| format!("Failed to load all text units from database: {}", e))?;
 
-/// Merge extracted text units with existing translations from the database
-/// Preserves existing translations for unchanged source text
-fn merge_text_units(extracted_units: Vec<TextUnit>, existing_units: Vec<TextUnit>) -> Vec<TextUnit> {
-    use std::collections::HashMap;
-
-    // Create a map of existing translations by ID for quick lookup
-    let mut existing_map: HashMap<String, TextUnit> = HashMap::new();
-    for unit in existing_units {
-        existing_map.insert(unit.id.clone(), unit);
+    if records.is_empty() {
+        info!("No text units found in database - falling back to file extraction");
+        return extract_text_from_files(project_info, Some(db)).await;
     }
 
-    let mut merged_units = Vec::new();
-    let mut preserved_count = 0;
-    let mut new_count = 0;
+    // Convert records to TextUnits
+    let db_units: Vec<TextUnit> = records.into_iter()
+        .map(|record| record.to_text_unit())
+        .collect();
 
-    for extracted_unit in extracted_units {
-        if let Some(existing_unit) = existing_map.remove(&extracted_unit.id) {
-            // Unit exists in both - check if source text changed
-            if extracted_unit.source_text == existing_unit.source_text {
-                // Source text unchanged - preserve existing translation
-                merged_units.push(existing_unit);
-                preserved_count += 1;
-            } else {
-                // Source text changed - use extracted unit but keep translation if it exists
-                let mut merged_unit = extracted_unit;
-                if !existing_unit.translated_text.is_empty() {
-                    merged_unit.translated_text = existing_unit.translated_text;
-                    merged_unit.status = TranslationStatus::MachineTranslated;
-                }
-                merged_units.push(merged_unit);
-                new_count += 1;
-            }
-        } else {
-            // New unit not in database
-            merged_units.push(extracted_unit);
-            new_count += 1;
+    info!("Loaded {} total text units from database (all statuses)", db_units.len());
+
+    // Apply smart status-based routing - this now handles ALL units properly
+    let routed_units = apply_smart_status_routing(db_units);
+    info!("Smart routing applied: {} units ready for frontend", routed_units.len());
+
+    Ok(routed_units)
+}
+
+/// Apply smart status-based routing to database-loaded units
+/// This prepares units for the frontend by ensuring all units are included
+/// The frontend will handle routing based on unit status:
+/// - NotTranslated → TranslationRaw.vue
+/// - MachineTranslated/HumanReviewed → TranslationResult.vue
+fn apply_smart_status_routing(units: Vec<TextUnit>) -> Vec<TextUnit> {
+    let mut not_translated = 0;
+    let mut machine_translated = 0;
+    let mut human_reviewed = 0;
+    let mut ignored = 0;
+
+    for unit in &units {
+        match unit.status {
+            TranslationStatus::NotTranslated => not_translated += 1,
+            TranslationStatus::MachineTranslated => machine_translated += 1,
+            TranslationStatus::HumanReviewed => human_reviewed += 1,
+            TranslationStatus::Ignored => ignored += 1,
         }
     }
 
-    info!("Merge summary: preserved {} existing translations, added {} new units", preserved_count, new_count);
-    merged_units
+    info!("Smart routing summary: {} not translated, {} machine translated, {} human reviewed, {} ignored",
+          not_translated, machine_translated, human_reviewed, ignored);
+
+    // Return ALL units - frontend will handle routing based on status
+    // This enables 100% smart loading capacity
+    units
 }
+
+// REMOVED: extract_text_legacy - deprecated function removed
+
+
+
+// REMOVED: merge_text_units - replaced with smart routing approach
 
 /// Extracts game data files from a project.
 ///
@@ -213,83 +244,19 @@ pub async fn extract_game_data_files(
         project_info.name
     );
 
-    // Get the appropriate engine for this project
-    let engine_result = get_engine(&project_info.path);
+    // Extract game data files using factory-managed dispatch (no downcasting needed!)
+    let game_data_files = factory_extract_game_data_files(&project_info)
+        .map_err(|e| format!("Failed to extract game data files: {}", e))?;
 
-    match engine_result {
-        Ok(engine) => {
-            // Dispatch to the specific engine implementation (MV or MZ)
-            if let Some(mv_engine) = engine.as_any().downcast_ref::<RpgMakerMvEngine>() {
-                match mv_engine.extract_game_data_files(&project_info) {
-                    Ok(game_data_files) => {
-                        info!(
-                            "Successfully extracted {} game data files",
-                            game_data_files.len()
-                        );
+    info!("Successfully extracted {} game data files", game_data_files.len());
                         Ok(game_data_files)
-                    }
-                    Err(e) => {
-                        error!("Failed to extract game data files: {}", e);
-                        Err(format!("Failed to extract game data files: {}", e))
-                    }
-                }
-            } else if let Some(mz_engine) = engine.as_any().downcast_ref::<RpgMakerMzEngine>() {
-                match mz_engine.extract_game_data_files(&project_info) {
-                    Ok(game_data_files) => {
-                        info!(
-                            "Successfully extracted {} game data files",
-                            game_data_files.len()
-                        );
-                        Ok(game_data_files)
-                    }
-                    Err(e) => {
-                        error!("Failed to extract game data files: {}", e);
-                        Err(format!("Failed to extract game data files: {}", e))
-                    }
-                }
-            } else if let Some(_wolf) = engine.as_any().downcast_ref::<WolfRpgEngine>() {
-                // Wolf RPG doesn't support structured game data files like RPG Maker
-                // Force fallback to extract_text during manifest merging
-                error!("Wolf RPG does not support structured game data file extraction");
-                Err("Wolf RPG does not support structured game data file extraction".to_string())
-            } else {
-                error!("Engine does not support extracting game data files");
-                Err("Engine does not support extracting game data files".to_string())
-            }
-        }
-        Err(e) => {
-            error!("Failed to get engine: {}", e);
-            Err(format!("Failed to get engine: {}", e))
-        }
-    }
 }
 
 // in-place inject removed; prefer minimal export flow via export_translated_subset
 
-/// Load existing project translations from the database using the manifest system
-/// This replaces the old ludolingua.json system with the new .ludolingua.json manifest
-pub async fn load_project_translations(
-    project_info: EngineInfo,
-    db_state: &ManagedTranslationState,
-) -> Result<Vec<TextUnit>, String> {
-    let manifest_hash = project_info.manifest_hash
-        .as_ref()
-        .ok_or_else(|| "No manifest hash available in project info".to_string())?;
-
-    info!("Loading translations for project: {} (manifest: {})",
-          project_info.name, manifest_hash);
-
-    // Load existing translations from database
-    load_existing_translations_from_db(
-        db_state,
-        manifest_hash,
-        project_info.path.to_string_lossy().as_ref()
-    ).await
-}
-
-/// Load existing translations from database for a project (helper function)
-/// This is used by both load_project_translations and extract_text merge logic
-async fn load_existing_translations_from_db(
+/// Load translations from database for a project using manifest hash
+/// Unified function that replaces both load_project_translations and load_existing_translations_from_db
+pub async fn load_translations_from_database(
     db_state: &ManagedTranslationState,
     manifest_hash: &str,
     project_path: &str,
@@ -297,18 +264,19 @@ async fn load_existing_translations_from_db(
     use crate::db::translation::model::TextUnitQuery;
     use crate::models::translation::{TranslationStatus, PromptType};
 
+    info!("Loading translations from database (manifest: {}, project: {})", manifest_hash, project_path);
+
     let query = TextUnitQuery {
         project_path: Some(project_path.to_string()),
         manifest_hash: Some(manifest_hash.to_string()),
         ..Default::default()
     };
 
-    match repo::find_units(db_state, &query).await {
-        Ok(records) => {
-            let mut text_units = Vec::new();
-            for record in records {
-                // Convert TextUnitRecord back to TextUnit
-                let text_unit = TextUnit {
+    let records = repo::find_units(db_state, &query).await
+        .map_err(|e| format!("Failed to load existing translations: {}", e))?;
+
+    let text_units = records.into_iter().map(|record| {
+        TextUnit {
                     id: record.id.map(|id| id.to_string()).unwrap_or_else(|| format!("{}/{}", record.file_path, record.field_type)),
                     source_text: record.source_text,
                     translated_text: record.translated_text.unwrap_or_default(),
@@ -331,48 +299,98 @@ async fn load_existing_translations_from_db(
                         "Other" => PromptType::Other,
                         _ => PromptType::Other,
                     },
-                };
-                text_units.push(text_unit);
-            }
-            Ok(text_units)
         }
-        Err(e) => Err(format!("Failed to load existing translations: {}", e)),
-    }
+    }).collect::<Vec<_>>();
+
+    info!("Loaded {} translations from database", text_units.len());
+    Ok(text_units)
 }
 
-/// Legacy function for backward compatibility with old ludolingua.json format
-/// This will be removed in a future version
-#[deprecated(note = "Use load_project_translations with the new .ludolingua.json manifest system")]
-pub async fn load_subset_with_manifest(
+/// Legacy wrapper for backward compatibility - delegates to unified function
+pub async fn load_project_translations(
     project_info: EngineInfo,
-) -> Result<Option<Vec<TextUnit>>, String> {
-    warn!("load_subset_with_manifest is deprecated. Use load_project_translations instead.");
+    db_state: &ManagedTranslationState,
+) -> Result<Vec<TextUnit>, String> {
+    let manifest_hash = project_info.manifest_hash
+        .as_ref()
+        .ok_or_else(|| "No manifest hash available in project info".to_string())?;
 
-    // Try to load from old ludolingua.json format for backward compatibility
-    let old_manifest_path = project_info.path.join("ludolingua.json");
-    if !old_manifest_path.exists() {
-        return Ok(None);
-    }
-
-    warn!("Found old ludolingua.json file. Consider migrating to the new .ludolingua.json manifest system.");
-    // For now, return None to indicate no translations loaded via old system
-    // This encourages migration to the new system
-    Ok(None)
+    load_translations_from_database(
+        db_state,
+        manifest_hash,
+        project_info.path.to_string_lossy().as_ref()
+    ).await
 }
 
+// REMOVED: load_subset_with_manifest - deprecated function removed
 
 
-/// Export only the translatable data subtree and detection artifacts, then inject into that copy.
+
+/// Export translation data using database-driven approach
 pub async fn export_translated_subset(
-    project_info: EngineInfo,
-    text_units: Vec<TextUnit>,
-    destination_root: String,
+    _project_info: EngineInfo,
+    _db: &crate::db::state::ManagedTranslationState,
+    _destination_root: String,
 ) -> Result<String, String> {
-    // Fully delegate to the factory to keep this engine-agnostic
-    let dest_root = Path::new(&destination_root);
-    let exported = export_translated_subset_via_factory(&project_info, &text_units, dest_root)
-        .map_err(|e| e.to_string())?;
-    Ok(exported.display().to_string())
+    // TODO: Implement new export functionality
+    // The old complex export_translated_data_from_db function has been removed
+    // This will be replaced with a simpler, better implementation
+    Err("Export functionality is temporarily disabled. A new implementation is being developed.".to_string())
 }
 
 // removed copy_file_create_parent; logic centralized in factory
+
+/// Helper function to update the manifest with total text units count
+async fn update_manifest_with_total_units(
+    project_path: &Path,
+    manifest_hash: &str,
+    total_units: i64,
+) -> Result<(), String> {
+    match crate::db::translation::manifest::ProjectManifest::load_from_project(project_path) {
+        Ok(Some(mut manifest)) => {
+            if manifest.project_id == manifest_hash {
+                manifest.update_total_text_units(total_units);
+                manifest.save_to_project(project_path)
+                    .map_err(|e| format!("Failed to save manifest: {}", e))?;
+                info!("Updated manifest with total text units: {}", total_units);
+            }
+            Ok(())
+        }
+        Ok(_none) => {
+            warn!("Manifest not found for project: {}", project_path.display());
+            Ok(())
+        }
+        Err(e) => {
+            warn!("Failed to load manifest: {}", e);
+            Ok(())
+        }
+    }
+}
+
+/// Helper function to update the manifest with translated text units count
+pub async fn update_manifest_with_translated_units(
+    project_path: &Path,
+    manifest_hash: &str,
+    translated_units: i64,
+) -> Result<(), String> {
+    match crate::db::translation::manifest::ProjectManifest::load_from_project(project_path) {
+        Ok(Some(mut manifest)) => {
+            if manifest.project_id == manifest_hash {
+                manifest.update_translated_text_units(translated_units);
+                manifest.save_to_project(project_path)
+                    .map_err(|e| format!("Failed to save manifest: {}", e))?;
+            } else {
+                warn!("Manifest hash mismatch: expected {}, got {}", manifest_hash, manifest.project_id);
+            }
+            Ok(())
+        }
+        Ok(_none) => {
+            warn!("Manifest not found for project: {}", project_path.display());
+            Ok(())
+        }
+        Err(e) => {
+            warn!("Failed to load manifest: {}", e);
+            Ok(())
+        }
+    }
+}

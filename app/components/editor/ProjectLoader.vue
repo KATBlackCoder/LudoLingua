@@ -11,7 +11,11 @@
       <p class="text-sm text-muted">Select an RPG Maker MV/MZ project folder to start translating.</p>
       <div v-if="engineStore.isLoading" class="flex items-center gap-2 text-sm text-muted">
         <UIcon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
-        <span>Extracting project data… This may take a while.</span>
+        <span>Extracting project data & merging with database… This may take a while.</span>
+      </div>
+      <div v-if="engineStore.isLoading" class="mt-2">
+        <UProgress :value="50" class="h-1" />
+        <p class="text-xs text-muted mt-1">Loading text units and checking existing translations...</p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
         <UButton
@@ -52,10 +56,10 @@ async function openProjectDialog() {
       await engineStore.loadProject(selected as string);
       showToast(
         'Project Loaded',
-        `${engineStore.totalTextUnits} units across ${engineStore.gameDataFiles.length} files`,
+        `${engineStore.totalTextUnits} units across ${engineStore.gameDataFiles.length} files - Database merged successfully`,
         'success',
-        1600,
-        'i-heroicons-check-circle'
+        2000,
+        'i-heroicons-server-stack'
       )
     }
   } catch (error) {

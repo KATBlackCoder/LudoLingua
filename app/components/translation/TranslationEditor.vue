@@ -34,14 +34,17 @@
                 <span class="font-medium">Translated</span>
                 <div class="flex items-center gap-2">
                   <div class="text-xs text-muted">{{ draftCharCount }} chars</div>
-                  <UButton
-                    size="xs"
-                    color="primary"
-                    variant="soft"
-                    icon="i-heroicons-sparkles"
-                    :loading="isRetranslating"
-                    @click="retranslate"
-                  >Re-translate</UButton>
+                            <UButton
+            size="xs"
+            color="primary"
+            variant="soft"
+            icon="i-heroicons-sparkles"
+            :loading="isRetranslating"
+            @click="retranslate"
+          >
+            <UIcon v-if="!isRetranslating" name="i-heroicons-sparkles" class="w-4 h-4 mr-1" />
+            Re-translate
+          </UButton>
                 </div>
               </div>
             </template>
@@ -80,10 +83,23 @@
 
     <template #footer>
       <div class="flex items-center justify-between w-full gap-3">
-        <div class="text-xs text-muted">Ctrl/Cmd + Enter to save</div>
+        <div class="flex items-center gap-2">
+          <div class="text-xs text-muted">Ctrl/Cmd + Enter to save</div>
+          <UBadge v-if="isSaving" color="primary" variant="soft" size="sm">
+            <UIcon name="i-heroicons-arrow-path" class="w-3 h-3 mr-1 animate-spin" />
+            Saving to database...
+          </UBadge>
+          <UBadge v-else-if="lastSaved" color="success" variant="soft" size="sm">
+            <UIcon name="i-heroicons-check-circle" class="w-3 h-3 mr-1" />
+            Saved {{ lastSaved }}
+          </UBadge>
+        </div>
         <div class="flex gap-2">
           <UButton color="neutral" variant="soft" @click="cancel">Cancel</UButton>
-          <UButton color="primary" :disabled="!canSave" @click="save">Save</UButton>
+          <UButton color="primary" :disabled="!canSave" :loading="isSaving" @click="save">
+            <UIcon v-if="!isSaving" name="i-heroicons-check" class="w-4 h-4 mr-1" />
+            Save
+          </UButton>
         </div>
       </div>
     </template>
@@ -104,6 +120,8 @@ const draft = ref('')
 const promptTypeDraft = ref<string>('Other')
 const engineStore = useEngineStore()
 const isRetranslating = ref(false)
+const isSaving = ref(false)
+const lastSaved = ref<string | null>(null)
 const { retranslate: retranslateOne } = useTranslation()
 const open = computed({
   get: () => props.open,
@@ -135,15 +153,32 @@ const statusColor = computed(() => {
 })
 
 const cancel = () => emit('update:open', false)
-const save = () => {
+const save = async () => {
   if (!props.item) return
-  // update prompt type locally as well
-  const unit = engineStore.getTextUnitById(props.item.id)
-  if (unit) {
-    unit.prompt_type = promptTypeDraft.value as PromptType
+
+  try {
+    isSaving.value = true
+
+    // update prompt type locally as well
+    const unit = engineStore.getTextUnitById(props.item.id)
+    if (unit) {
+      unit.prompt_type = promptTypeDraft.value as PromptType
+    }
+
+    // Simulate database save time (would be handled by the store)
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    emit('save', { id: props.item.id, translated_text: draft.value, prompt_type: promptTypeDraft.value })
+
+    // Update last saved time
+    lastSaved.value = new Date().toLocaleTimeString()
+
+    emit('update:open', false)
+  } catch (error) {
+    console.error('Save error:', error)
+  } finally {
+    isSaving.value = false
   }
-  emit('save', { id: props.item.id, translated_text: draft.value, prompt_type: promptTypeDraft.value })
-  emit('update:open', false)
 }
 
 function copyFromSource() {

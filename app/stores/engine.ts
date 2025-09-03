@@ -51,8 +51,11 @@ export const useEngineStore = defineStore('engine', () => {
       
       projectInfo.value = result;
       
-      // Extract text units from the loaded project
-      const extractedUnits = await invoke<TextUnit[]>('extract_text', { projectInfo: result });
+      // Extract text units from the loaded project with database merge
+      const extractedUnits = await invoke<TextUnit[]>('extract_text_with_merge', {
+        projectInfo: result
+        // Note: Database state is handled automatically on backend
+      });
       setTextUnits(extractedUnits);
       
       // Get game data files directly from the backend (RPG Maker only)
@@ -67,18 +70,8 @@ export const useEngineStore = defineStore('engine', () => {
         setGameDataFiles([]);
       }
 
-      // If this is an exported subset with a manifest, merge pre-translated units
-      const merged = await invoke<TextUnit[] | null>('load_subset_with_manifest', { 
-        projectInfo: result 
-      });
-      if (merged && Array.isArray(merged) && merged.length > 0) {
-        console.log('Merged units count:', merged.length);
-        console.log('Merged engine type:', result.engine_type);
-        setTextUnits(merged);
-      }
-      if (merged && Array.isArray(merged) && merged.length === 0) {
-        console.log('No merged units', result.engine_type);
-      }
+      // Database merging is now handled automatically by extract_text_with_merge
+      // No need for separate manifest merging - it's all done in one command
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load project';
       error.value = errorMessage;
@@ -93,15 +86,16 @@ export const useEngineStore = defineStore('engine', () => {
     if (!projectInfo.value) {
       throw new Error('No project loaded');
     }
-    
+
     await loadProject(projectInfo.value.path);
   }
 
-  // Removed saveProject/inject_text_units flow in favor of minimal export subset
+  // REMOVED: loadExistingTranslations - now handled automatically by smart loading in extract_text
 
-  // removed exportTranslatedCopy
+  // Database-driven export replaces old filesystem-based approach
+  // No longer needs to pass textUnits - backend queries database directly
 
-  // Export only the minimal subtree (e.g., www/data + detection artifacts) and inject into that copy
+  // Export translation data using database-driven approach
   async function exportTranslatedSubset(destinationRoot: string) {
     if (!projectInfo.value) {
       throw new Error('No project loaded');
@@ -111,17 +105,18 @@ export const useEngineStore = defineStore('engine', () => {
       isLoading.value = true;
       error.value = null;
 
+      // Database-driven export - no need to pass textUnits, backend queries database directly
       const exportedPath = await invoke<string>('export_translated_subset', {
         projectInfo: projectInfo.value,
-        textUnits: textUnits.value,
         destinationRoot
+        // Database state is handled automatically on backend
       });
 
       return exportedPath;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to export translated subset';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to export translation data';
       error.value = errorMessage;
-      console.error('Failed to export translated subset:', err);
+      console.error('Failed to export translation data:', err);
       throw err;
     } finally {
       isLoading.value = false;
@@ -181,7 +176,7 @@ export const useEngineStore = defineStore('engine', () => {
     gameDataFiles,
     isLoading,
     error,
-    
+
     // Computed
     hasProject,
     projectName,
@@ -190,7 +185,7 @@ export const useEngineStore = defineStore('engine', () => {
     totalTextUnits,
     getTextUnits,
     getGameDataFiles,
-    
+
     // Actions
     loadProject,
     refreshProject,

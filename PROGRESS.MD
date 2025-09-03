@@ -904,3 +904,47 @@ Goal: Detect MZ projects and support extraction/injection for core files using M
     *   [x] **Error handling:** Robust error handling with proper timeout and retry mechanisms
     *   [x] **Connection testing:** Full connection test support with appropriate error semantics
     *   [x] **Token estimation:** Supports token estimation and cost calculation using embedded pricing data
+
+### ✅ Phase 4: Database Integration & Manifest Statistics - FULLY COMPLETED
+
+**Goal:** Successfully implement database storage for translations with manifest statistics tracking and fix critical manifest hash mismatch issues.
+
+*   **Critical Fixes Completed:**
+    *   [x] **Fixed manifest hash mismatch** - Translations now use correct SHA hash format instead of old `project_/path` format
+    *   [x] **Updated translate_text_unit** - Now uses manifest hash from engine info instead of hardcoded format
+    *   [x] **Simplified manifest system** - Removed old format support, single SHA hash format only
+    *   [x] **Preserved statistics on recreation** - Manifest maintains `total_text_units` and `translated_text_units` when configuration changes
+
+*   **New Features Implemented:**
+    *   [x] **Translation statistics in manifest** - Added `total_text_units` and `translated_text_units` fields to `.ludolingua.json`
+    *   [x] **Automatic statistics updates** - Manifest updated after text extraction (total) and translation completion (translated)
+    *   [x] **Progress tracking** - Frontend displays translation progress using manifest statistics
+    *   [x] **Statistics preservation** - Statistics maintained when manifest is recreated due to config changes
+
+*   **Backend Architecture:**
+    *   [x] **Database persistence** - Translations saved immediately to SQLite with manifest validation
+    *   [x] **Manifest-based project identification** - Reliable project reloading with SHA hash system
+    *   [x] **Smart merging** - Existing translations preserved when re-extracting text from project
+    *   [x] **Transaction support** - ACID operations ensure data integrity
+    *   [x] **Optimistic locking** - Concurrent access protection with manifest validation
+
+*   **Frontend Integration:**
+    *   [x] **UI persistence indicators** - Database Status card shows save status and manifest presence
+    *   [x] **Translation recovery** - Automatic loading of saved translations on app restart
+    *   [x] **Progress tracking** - Real-time translation progress with manifest statistics
+    *   [x] **Error handling** - Comprehensive error handling with user-friendly messages
+
+*   **Benefits Achieved:**
+    *   [x] **No data loss** - Translations persist between sessions with manifest-based identification
+    *   [x] **Resume capability** - Continue work from previous sessions with automatic project detection
+    *   [x] **Better reliability** - Survive app crashes with `.ludolingua.json` tracking
+    *   [x] **Performance** - Better memory management for large projects with database-backed storage
+    *   [x] **Project portability** - Move projects between machines while maintaining translation progress
+    *   [x] **Progress visibility** - Manifest statistics provide clear translation completion tracking
+
+*   **Architecture Improvements:**
+    *   [x] **Clean separation of concerns** - Domain-driven design with clear separation between UI, business logic, and data persistence
+    *   [x] **Maintainability** - Modular `db/` structure with shared state management and clear interfaces
+    *   [x] **Scalability** - Database can handle large translation projects with efficient querying
+    *   [x] **Reliability** - ACID transactions and manifest-based validation ensure data consistency
+    *   [x] **Future-proofing** - Extensible manifest format for additional project metadata and features

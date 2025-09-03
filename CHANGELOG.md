@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+ - Backend/Manifest: Translation statistics tracking in `.ludolingua.json`
+   - Added `total_text_units` and `translated_text_units` fields to `ProjectManifest` struct
+   - Automatic manifest updates after text extraction (total count) and translation (translated count)
+   - Manifest preserves statistics when recreated due to configuration changes
+   - Frontend displays translation progress using manifest statistics
+ - Backend/Manifest: Critical manifest hash mismatch fix
+   - Fixed translations not loading due to manifest hash format mismatch
+   - Removed old manifest hash format support (only uses new SHA hash format)
+   - Updated `translate_text_unit` to use correct manifest hash from engine info
+   - Simplified manifest system with single consistent hash format
  - Backend/LLM: Groq integration for ultra-fast translation processing
    - Added `groq` feature to `llm` crate in `src-tauri/Cargo.toml`
    - Created `src-tauri/src/llm/services/groq.rs` using `LLMBuilder` with `LLMBackend::Groq`
@@ -78,7 +88,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - OpenAI: Avoid 404/RelativeUrl errors by normalizing optional base URL and leaving it empty by default
  - Frontend/Translation: Abort batch early with clear toast when OpenAI reports `insufficient_quota`
  - Provider model loading: `get_provider_models` resolves `openai.json` correctly
- - Backend/Engines: Fixed “Engine does not support extracting game data files” when loading MZ projects by adding MZ-specific dispatch in `commands/engine.rs`.
+ - Backend/Manifest: Fixed manifest hash mismatch causing "No translations found" error
+  - Translations were saved with old format hash (`project_/path`) but queried with new format hash (SHA)
+  - Updated `translate_text_unit` to use correct manifest hash from engine info instead of hardcoded format
+  - Removed old manifest hash format support for consistency
+  - Simplified manifest system to use single SHA hash format
+- Backend/Manifest: Fixed manifest statistics preservation
+  - Manifest now preserves `total_text_units` and `translated_text_units` when recreated
+  - Statistics are maintained across project configuration changes
+  - Automatic updates after text extraction and translation completion
+- Backend/Engines: Fixed "Engine does not support extracting game data files" when loading MZ projects by adding MZ-specific dispatch in `commands/engine.rs`.
 - Frontend/Translation UX: Fixed double-wrapped refs in `app/composables/useTranslation.ts` causing incorrect busy/progress rendering.
 - Frontend/Batch Cancel: Batch translation now respects cancellation by checking `isTranslating` inside the loop in `app/stores/translate.ts`.
 - Frontend/Translation: `translate_text_unit` invoke now passes snake_case keys (`text_unit`, `engine_info`) and uses `settingsStore.providerConfig` (temperature/max_tokens) instead of provider defaults.
@@ -87,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings/ConnectionTester: Connection test now uses current settings config (`providerConfig`) instead of static defaults.
 - ProjectStats: Simplified Token Settings (show Temperature + Max Tokens only); removed noisy token estimates.
 - AboutTechnology: Replaced unavailable components with Tailwind grid and `USeparator`.
-- GlossaryTable: Removed “All languages” option in language filters.
+- GlossaryTable: Removed "All languages" option in language filters.
 - Accessibility: Updated `GlossaryForm.vue` and `TranslationEditor.vue` modals to use `#title`/`#description`/`#actions`.
 - Backend/Storage: SQLite glossary database is now stored under the OS app data directory via Tauri path resolver instead of the process working directory.
   - Prevents write failures in packaged apps (read-only bundles, Program Files on Windows).

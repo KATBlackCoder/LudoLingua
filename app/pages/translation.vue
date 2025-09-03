@@ -27,20 +27,89 @@
 
       <div class="flex flex-wrap items-center gap-3 mb-3">
         <UButtonGroup>
-          <UButton icon="i-heroicons-play" :loading="isBusy" :disabled="isExportingSubset" @click="startProcess">Translate All</UButton>
-          <UButton icon="i-heroicons-folder" color="success" variant="soft" :loading="isExportingSubset" :disabled="!hasTranslated || isBusy" @click="exportSubset">Export data</UButton>
-          <UButton icon="i-heroicons-arrow-path" color="neutral" :disabled="isBusy || isExportingSubset || !hasTranslated" @click="reset">Reset</UButton>
+          <UButton
+            icon="i-heroicons-play"
+            :loading="isBusy"
+            :disabled="isExportingSubset || !hasNotTranslated"
+            @click="startProcess"
+          >
+            Translate All
+          </UButton>
+          <UButton
+            icon="i-heroicons-folder"
+            color="success"
+            variant="soft"
+            :loading="isExportingSubset"
+            :disabled="!hasTranslated || isBusy"
+            @click="exportSubset"
+          >
+            Export data
+          </UButton>
+          <UButton
+            icon="i-heroicons-arrow-path"
+            color="neutral"
+            :disabled="isBusy || isExportingSubset || !hasTranslated"
+            @click="reset"
+          >
+            Reset
+          </UButton>
         </UButtonGroup>
 
-        <UButtonGroup class="ml-auto">
-          <UButton size="xs" variant="soft" :color="mode === 'raw' ? 'secondary' : 'neutral'" @click="mode = 'raw'">Raw</UButton>
-          <UButton size="xs" variant="soft" :color="mode === 'process' ? 'warning' : 'neutral'" @click="mode = 'process'">Process</UButton>
-          <UButton size="xs" variant="soft" :color="mode === 'result' ? 'primary' : 'neutral'" @click="mode = 'result'">Result</UButton>
-        </UButtonGroup>
+        <!-- Enhanced mode indicators -->
+        <div class="flex items-center gap-2 ml-auto">
+          <UBadge v-if="hasNotTranslated" color="warning" variant="soft">
+            {{ engineStore.textUnits.filter(u => u.status === 'NotTranslated').length }} raw
+          </UBadge>
+          <UBadge v-if="hasTranslated" color="success" variant="soft">
+            {{ translatedItems.length }} translated
+          </UBadge>
+
+          <UButtonGroup>
+            <UButton
+              size="xs"
+              variant="soft"
+              :color="mode === 'raw' ? 'secondary' : 'neutral'"
+              :disabled="!hasNotTranslated && mode !== 'raw'"
+              @click="mode = 'raw'"
+            >
+              Raw
+            </UButton>
+            <UButton
+              size="xs"
+              variant="soft"
+              :color="mode === 'process' ? 'warning' : 'neutral'"
+              :disabled="isBusy"
+              @click="mode = 'process'"
+            >
+              Process
+            </UButton>
+            <UButton
+              size="xs"
+              variant="soft"
+              :color="mode === 'result' ? 'primary' : 'neutral'"
+              :disabled="!hasTranslated && mode !== 'result'"
+              @click="mode = 'result'"
+            >
+              Result
+            </UButton>
+          </UButtonGroup>
+        </div>
       </div>
 
+      <!-- Enhanced content display with mixed state support -->
       <div v-if="mode === 'raw'">
         <TranslationRaw />
+        <!-- Show translated items summary in mixed state -->
+        <div v-if="hasTranslated" class="mt-4 p-4 bg-primary-50 dark:bg-primary-950 rounded-lg">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-primary-700 dark:text-primary-300">
+              {{ translatedItems.length }} items already translated
+            </span>
+            <UButton size="xs" variant="soft" @click="mode = 'result'">
+              View Results
+            </UButton>
+          </div>
+        </div>
       </div>
 
       <div v-else-if="mode === 'process'">
@@ -49,6 +118,29 @@
 
       <div v-else-if="mode === 'result'">
         <TranslationResult :items="translatedItems" @save="saveEdit" />
+        <!-- Show raw items summary in mixed state -->
+        <div v-if="hasNotTranslated" class="mt-4 p-4 bg-warning-50 dark:bg-warning-950 rounded-lg">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-warning-700 dark:text-warning-300">
+              {{ engineStore.textUnits.filter(u => u.status === 'NotTranslated').length }} items still need translation
+            </span>
+            <UButton size="xs" variant="soft" @click="mode = 'raw'">
+              Continue Translating
+            </UButton>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto-navigation helpers -->
+      <div v-if="!hasNotTranslated && hasTranslated && mode !== 'result'" class="mt-4 p-4 bg-success-50 dark:bg-success-950 rounded-lg">
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-success-700 dark:text-success-300">
+            All items translated! 🎉
+          </span>
+          <UButton size="xs" color="primary" @click="mode = 'result'">
+            View All Results
+          </UButton>
+        </div>
       </div>
     </UCard>
   </UContainer>
@@ -62,7 +154,7 @@ import { useTranslation } from '~/composables/useTranslation'
 import ProjectStats from '~/components/editor/ProjectStats.vue'
 import { useEngineStore } from '~/stores/engine'
 import { open } from '@tauri-apps/plugin-dialog'
-import { useAppToast } from '~/composables/useAppToast'
+// REMOVED: useAppToast - no longer needed after removing loadExistingTranslations
 
 const {
   mode,
@@ -73,6 +165,8 @@ const {
   translationProgress,
   translationTotal,
   failedCount,
+  hasNotTranslated,
+  determineInitialMode,
   startProcess,
   reset,
   saveEdit,
@@ -83,11 +177,13 @@ const progressPercent = computed(() => {
 })
 
 const engineStore = useEngineStore()
-const { showToast } = useAppToast()
 
 // removed exportTranslated()
 
 const isExportingSubset = ref(false)
+
+// REMOVED: loadExistingTranslations - now handled automatically by smart loading
+
 async function exportSubset() {
   try {
     const dest = await open({
@@ -99,10 +195,10 @@ async function exportSubset() {
     const targetRoot = Array.isArray(dest) ? (dest[0] as string) : (dest as string)
     isExportingSubset.value = true
     const exportedPath = await engineStore.exportTranslatedSubset(targetRoot)
-    showToast('Export Completed', `Minimal export to: ${exportedPath}`, 'success', 2000, 'i-heroicons-check-circle')
+    console.log('Export Completed:', exportedPath)
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Export failed'
-    showToast('Export Failed', msg, 'error', 2000, 'i-heroicons-exclamation-triangle')
+    console.error('Export Failed:', msg)
   } finally {
     isExportingSubset.value = false
   }

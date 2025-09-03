@@ -32,6 +32,7 @@ export interface EngineInfo {
   target_language: Language;
   version?: string;
   detection_criteria: EngineCriteria;
+  manifest_hash?: string; // Added for project identification and database persistence
 }
 
 /**
