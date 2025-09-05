@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - Removed old manifest hash format support (only uses new SHA hash format)
    - Updated `translate_text_unit` to use correct manifest hash from engine info
    - Simplified manifest system with single consistent hash format
+ - Backend/Export: Complete export functionality for RPG Maker MV & MZ engines
+   - Implemented engine-agnostic export system using factory pattern
+   - Added `reconstruct_text_unit_id()` method to Engine trait for extensible export
+   - Created `find_translated_units_for_export()` function for efficient database queries
+   - Fixed export location to `project/ludolingua/` folder with proper file structure
+   - Added toast notifications for export success/error feedback
+   - Tested and verified working export for both MV and MZ engines
+   - Open-Closed Principle compliance: new engines need only implement `reconstruct_text_unit_id()`
  - Backend/LLM: Groq integration for ultra-fast translation processing
    - Added `groq` feature to `llm` crate in `src-tauri/Cargo.toml`
    - Created `src-tauri/src/llm/services/groq.rs` using `LLMBuilder` with `LLMBackend::Groq`

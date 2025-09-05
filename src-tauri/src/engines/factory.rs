@@ -110,6 +110,132 @@ pub fn extract_game_data_files(project_info: &crate::models::engine::EngineInfo)
     }
 }
 
+/// Export translated text units using engine-specific logic.
+/// This function handles the engine dispatch automatically based on engine type.
+pub async fn export_translated_subset(
+    project_info: &crate::models::engine::EngineInfo,
+    db: &crate::db::state::ManagedTranslationState,
+    destination_root: &str,
+) -> AppResult<String> {
+    use log::info;
+
+    info!("Starting export to: {}", destination_root);
+
+    // Get manifest hash from project path
+    let manifest = crate::db::translation::manifest::create_or_load_project_manifest(project_info)
+        .map_err(|e| AppError::Other(format!("Failed to load manifest: {}", e)))?;
+
+    let manifest_hash = manifest.project_id.clone();
+
+    // Find all translated units for this project
+    let translated_records = crate::db::translation::repo::find_translated_units_for_export(db, &manifest_hash)
+        .await
+        .map_err(|e| AppError::Other(format!("Failed to query translated units: {}", e)))?;
+
+    if translated_records.is_empty() {
+        return Err(AppError::Other("No translated units found for export".to_string()));
+    }
+
+    info!("Found {} translated units for export", translated_records.len());
+
+    // Get engine for this project type
+    let engine = create_engine_from_type(project_info.engine_type.clone())?;
+
+    // Convert database records to TextUnit for engine injection
+    let text_units: Vec<crate::models::translation::TextUnit> = translated_records
+        .into_iter()
+        .filter_map(|record| {
+            record.translated_text.as_ref().and_then(|translated| {
+                if translated.is_empty() {
+                    None
+                } else {
+                    // Use engine's own ID reconstruction method
+                    match engine.reconstruct_text_unit_id(&record.field_type, &record.source_text, translated) {
+                        Ok(mut text_unit) => {
+                            // Set the correct status from database record
+                            text_unit.status = match record.status.as_str() {
+                                "MachineTranslated" => crate::models::translation::TranslationStatus::MachineTranslated,
+                                "HumanReviewed" => crate::models::translation::TranslationStatus::HumanReviewed,
+                                _ => crate::models::translation::TranslationStatus::NotTranslated,
+                            };
+                            Some(text_unit)
+                        }
+                        Err(e) => {
+                            log::warn!("Failed to reconstruct ID for {}: {}", record.field_type, e);
+                            None
+                        }
+                    }
+                }
+            })
+        })
+        .collect();
+
+    info!("Converted {} units for injection", text_units.len());
+
+    // Create destination directory if it doesn't exist
+    std::fs::create_dir_all(destination_root)
+        .map_err(|e| AppError::FileSystem(format!("Failed to create destination directory: {}", e)))?;
+
+    // Copy project files to destination (only the files needed for injection)
+    let criteria = engine.get_detection_criteria();
+    for required_file in &criteria.required_files {
+        let src_path = project_info.path.join(required_file);
+        let dest_path = std::path::Path::new(destination_root).join(required_file);
+
+        if src_path.exists() {
+            if let Some(parent) = dest_path.parent() {
+                std::fs::create_dir_all(parent)
+                    .map_err(|e| AppError::FileSystem(format!("Failed to create parent directory: {}", e)))?;
+            }
+            std::fs::copy(&src_path, &dest_path)
+                .map_err(|e| AppError::FileSystem(format!("Failed to copy {}: {}", required_file, e)))?;
+        }
+    }
+
+    // Copy export data roots (the actual game data files to be translated)
+    for data_root in &criteria.export_data_roots {
+        let src_path = project_info.path.join(data_root);
+        let dest_path = std::path::Path::new(destination_root).join(data_root);
+
+        if src_path.exists() {
+            copy_dir_recursive(&src_path, &dest_path)
+                .map_err(|e| AppError::FileSystem(format!("Failed to copy data directory {}: {}", data_root, e)))?;
+        }
+    }
+
+    // Create new EngineInfo for the destination path
+    let mut dest_engine_info = project_info.clone();
+    dest_engine_info.path = std::path::Path::new(destination_root).to_path_buf();
+
+    // Inject translations into the copied files
+    engine.inject_text_units(&dest_engine_info, &text_units)
+        .map_err(|e| AppError::Other(format!("Failed to inject translations: {}", e)))?;
+
+    info!("Successfully exported {} translations to {}", text_units.len(), destination_root);
+
+    Ok(destination_root.to_string())
+}
+
+/// Recursively copy a directory
+fn copy_dir_recursive(src: &std::path::Path, dest: &std::path::Path) -> Result<(), std::io::Error> {
+    use std::fs;
+
+    if src.is_dir() {
+        fs::create_dir_all(dest)?;
+        for entry in fs::read_dir(src)? {
+            let entry = entry?;
+            let src_path = entry.path();
+            let dest_path = dest.join(entry.file_name());
+            if src_path.is_dir() {
+                copy_dir_recursive(&src_path, &dest_path)?;
+            } else {
+                fs::copy(&src_path, &dest_path)?;
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Detects the engine type based on the project directory structure.
 ///
 /// This function checks the project against criteria for each supported engine type

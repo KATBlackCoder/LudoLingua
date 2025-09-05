@@ -153,8 +153,7 @@ import TranslationResult from '~/components/translation/TranslationResult.vue'
 import { useTranslation } from '~/composables/useTranslation'
 import ProjectStats from '~/components/editor/ProjectStats.vue'
 import { useEngineStore } from '~/stores/engine'
-import { open } from '@tauri-apps/plugin-dialog'
-// REMOVED: useAppToast - no longer needed after removing loadExistingTranslations
+import { useAppToast } from '~/composables/useAppToast'
 
 const {
   mode,
@@ -166,11 +165,12 @@ const {
   translationTotal,
   failedCount,
   hasNotTranslated,
-  determineInitialMode,
   startProcess,
   reset,
   saveEdit,
 } = useTranslation()
+
+const { showToast } = useAppToast()
 
 const progressPercent = computed(() => {
   return translationTotal.value ? Math.round((translationProgress.value / translationTotal.value) * 100) : 0
@@ -186,19 +186,31 @@ const isExportingSubset = ref(false)
 
 async function exportSubset() {
   try {
-    const dest = await open({
-      directory: true,
-      multiple: false,
-      title: 'Select destination folder for minimal export'
-    })
-    if (!dest) return
-    const targetRoot = Array.isArray(dest) ? (dest[0] as string) : (dest as string)
+    // Use fixed location: project/ludolingua/ (next to original project)
+    const projectPath = engineStore.projectInfo?.path
+    if (!projectPath) {
+      throw new Error('No project loaded')
+    }
+    const fixedExportPath = `${projectPath}/ludolingua`
+
     isExportingSubset.value = true
-    const exportedPath = await engineStore.exportTranslatedSubset(targetRoot)
-    console.log('Export Completed:', exportedPath)
+    const _exportedPath = await engineStore.exportTranslatedSubset(fixedExportPath)
+    showToast(
+      'Export Completed',
+      `Translations exported successfully to ludolingua/ folder`,
+      'success',
+      5000,
+      'i-heroicons-check-circle'
+    )
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Export failed'
-    console.error('Export Failed:', msg)
+    showToast(
+      'Export Failed',
+      msg,
+      'error',
+      7000,
+      'i-heroicons-exclamation-triangle'
+    )
   } finally {
     isExportingSubset.value = false
   }

@@ -326,16 +326,18 @@ pub async fn load_project_translations(
 
 
 
+
 /// Export translation data using database-driven approach
+/// Delegates to factory function for engine-agnostic export
 pub async fn export_translated_subset(
-    _project_info: EngineInfo,
-    _db: &crate::db::state::ManagedTranslationState,
-    _destination_root: String,
+    project_info: EngineInfo,
+    db: &crate::db::state::ManagedTranslationState,
+    destination_root: String,
 ) -> Result<String, String> {
-    // TODO: Implement new export functionality
-    // The old complex export_translated_data_from_db function has been removed
-    // This will be replaced with a simpler, better implementation
-    Err("Export functionality is temporarily disabled. A new implementation is being developed.".to_string())
+    // Delegate to factory function for clean engine dispatch
+    crate::engines::factory::export_translated_subset(&project_info, db, &destination_root)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 // removed copy_file_create_parent; logic centralized in factory

@@ -328,3 +328,46 @@ pub async fn get_project_stats(
         "has_translation": stats.get::<i64, _>("has_translation")
     }))
 }
+
+/// Find all translated units for export (MachineTranslated + HumanReviewed)
+pub async fn find_translated_units_for_export(
+    state: &ManagedTranslationState,
+    manifest_hash: &str,
+) -> AppResult<Vec<TextUnitRecord>> {
+    let pool = state.pool().await;
+
+    let rows = sqlx::query(
+        r#"SELECT id, project_path, file_path, field_type, source_text, translated_text,
+                  status, prompt_type, source_lang, target_lang, manifest_hash,
+                  created_at, updated_at
+           FROM text_units
+           WHERE manifest_hash = ?
+           AND (status = 'MachineTranslated' OR status = 'HumanReviewed')
+           ORDER BY file_path, field_type"#
+    )
+    .bind(manifest_hash)
+    .fetch_all(&pool)
+    .await
+    .map_err(|e| AppError::Database(e.to_string()))?;
+
+    let mut records = Vec::new();
+    for row in rows {
+        records.push(TextUnitRecord {
+            id: Some(row.get("id")),
+            project_path: row.get("project_path"),
+            file_path: row.get("file_path"),
+            field_type: row.get("field_type"),
+            source_text: row.get("source_text"),
+            translated_text: row.get("translated_text"),
+            status: row.get("status"),
+            prompt_type: row.get("prompt_type"),
+            source_lang: row.get("source_lang"),
+            target_lang: row.get("target_lang"),
+            manifest_hash: row.get("manifest_hash"),
+            created_at: row.get("created_at"),
+            updated_at: row.get("updated_at"),
+        });
+    }
+
+    Ok(records)
+}

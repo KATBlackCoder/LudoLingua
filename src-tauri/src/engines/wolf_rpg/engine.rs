@@ -358,7 +358,77 @@ impl Engine for WolfRpgEngine {
         Ok(())
     }
 
+    fn reconstruct_text_unit_id(&self, field_type: &str, source_text: &str, translated_text: &str) -> AppResult<TextUnit> {
+        // Wolf RPG uses JSON-pointer style IDs and colon-separated field types
+        // Examples:
+        // MPS files: field_type = "command_101:dump/mps/Map001.json:events[0].pages[0].list[0]"
+        // DB files: field_type = "Database value (DataBase.json)" or "Database entry name (SysDatabase.json)"
+
+        // Parse the field_type to determine the correct ID format and prompt type
+        let prompt_type = determine_prompt_type_from_field_type(field_type);
+
+        // Generate the ID based on field_type format
+        let id = if field_type.starts_with("command_") {
+            // MPS file format: command_CODE:file_path:event_indices
+            // Reconstruct as: wolf_json:file_path#event_indices.stringArgs[0]
+            // Note: We need to determine the arg_idx, for now assume 0
+            let parts: Vec<&str> = field_type.split(':').collect();
+            if parts.len() >= 3 {
+                let file_path = parts[1];
+                let event_path = parts[2];
+                format!("wolf_json:{}#{}.stringArgs[0]", file_path, event_path)
+            } else {
+                return Err(AppError::Other(format!("Invalid Wolf RPG MPS field_type format: {}", field_type)));
+            }
+        } else if field_type.contains("Database") {
+            // DB file format: "Database value (FileName.json)" or "Database entry name (FileName.json)"
+            // Reconstruct as: file_path:types[0]:data[0]:field[0]:value/name
+            // Note: We need to determine the exact indices, for now use placeholders
+            let file_name = if field_type.contains("DataBase.json") {
+                "dump/db/DataBase.json"
+            } else if field_type.contains("SysDatabase.json") {
+                "dump/db/SysDatabase.json"
+            } else if field_type.contains("CDataBase.json") {
+                "dump/db/CDataBase.json"
+            } else {
+                return Err(AppError::Other(format!("Unknown Wolf RPG database file in field_type: {}", field_type)));
+            };
+
+            // For database entries, we need the actual indices from the original extraction
+            // For now, create a generic format that matches the extraction pattern
+            format!("{}:types[0]:data[0]:data[0]:value", file_name)
+        } else {
+            return Err(AppError::Other(format!("Unknown Wolf RPG field_type format: {}", field_type)));
+        };
+
+        Ok(TextUnit {
+            id,
+            source_text: source_text.to_string(),
+            translated_text: translated_text.to_string(),
+            status: crate::models::translation::TranslationStatus::MachineTranslated,
+            field_type: field_type.to_string(),
+            prompt_type,
+        })
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
+    }
+}
+
+/// Determine the appropriate prompt type based on Wolf RPG field_type
+fn determine_prompt_type_from_field_type(field_type: &str) -> crate::models::translation::PromptType {
+    if field_type.starts_with("command_101") {
+        // Message command - dialogue
+        crate::models::translation::PromptType::Dialogue
+    } else if field_type.starts_with("command_") {
+        // Other commands (210, 150, 122) - could be dialogue or other
+        crate::models::translation::PromptType::Other
+    } else if field_type.contains("Database") {
+        // Database entries - typically character/item/skill names
+        crate::models::translation::PromptType::Character
+    } else {
+        // Default fallback
+        crate::models::translation::PromptType::Other
     }
 }

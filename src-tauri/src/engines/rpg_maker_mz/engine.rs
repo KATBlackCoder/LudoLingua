@@ -376,6 +376,53 @@ impl Engine for RpgMakerMzEngine {
         self.inject_game_data_files(project_info, text_units)
     }
 
+    fn reconstruct_text_unit_id(&self, field_type: &str, source_text: &str, translated_text: &str) -> AppResult<TextUnit> {
+        // RPG Maker MZ has similar structure to MV, so we can reuse the same logic
+        // Parse field_type format: "field:file.json:index"
+        let parts: Vec<&str> = field_type.split(':').collect();
+        if parts.len() < 3 {
+            return Err(crate::core::error::AppError::Other(format!("Invalid field_type format: {}", field_type)));
+        }
+
+        let field = parts[0];
+        let file_path = parts[1];
+        let index: i32 = parts[2].parse().map_err(|_| crate::core::error::AppError::Other(format!("Invalid index in field_type: {}", field_type)))?;
+
+        // MZ uses same object types as MV
+        let object_type = if file_path.contains("Actors.json") {
+            "actor"
+        } else if file_path.contains("Items.json") {
+            "item"
+        } else if file_path.contains("Skills.json") {
+            "skill"
+        } else if file_path.contains("Weapons.json") {
+            "weapon"
+        } else if file_path.contains("Armors.json") {
+            "armor"
+        } else if file_path.contains("Classes.json") {
+            "class"
+        } else if file_path.contains("States.json") {
+            "state"
+        } else if file_path.contains("Enemies.json") {
+            "enemy"
+        } else if file_path.contains("Troops.json") {
+            "troop"
+        } else {
+            "other"
+        };
+
+        let reconstructed_id = format!("{}_{}_{}", object_type, index, field);
+
+        Ok(TextUnit {
+            id: reconstructed_id,
+            source_text: source_text.to_string(),
+            translated_text: translated_text.to_string(),
+            status: crate::models::translation::TranslationStatus::MachineTranslated,
+            field_type: field_type.to_string(),
+            prompt_type: crate::models::translation::PromptType::Character,
+        })
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
