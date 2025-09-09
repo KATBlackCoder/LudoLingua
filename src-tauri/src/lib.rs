@@ -59,7 +59,14 @@ pub fn run() {
             commands::handler::glossary_upsert_term,
             commands::handler::glossary_delete_term,
             commands::handler::glossary_export_terms,
-            commands::handler::glossary_import_terms
+            commands::handler::glossary_import_terms,
+            // Translation management commands
+            commands::handler::list_translations_cmd,
+            commands::handler::get_translation_cmd,
+            commands::handler::update_translation_cmd,
+            commands::handler::delete_translation_cmd,
+            commands::handler::bulk_delete_translations_cmd,
+            commands::handler::get_translation_stats_cmd
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -3,107 +3,138 @@ globs: *.vue
 alwaysApply: false
 ---
 
-# Nuxt UI Usage Policy
+# Nuxt UI v4 Usage Policy
 
-This project uses Nuxt UI for all UI components and elements. Follow these guidelines for consistent, performant, and accessible user interfaces.
+This project uses Nuxt UI v4 for all UI components and elements. Follow these guidelines for consistent, performant, and accessible user interfaces built on Reka UI primitives and Tailwind CSS v4.
 
 ## Core Principles
 
 ### Component Usage
-- **Always use Nuxt UI components** instead of raw HTML elements
-- **Prefer semantic components** that match the intended functionality
+- **Always use Nuxt UI v4 components** instead of raw HTML elements
+- **Leverage Reka UI's 55+ primitives** for enhanced accessibility and performance
 - **Use composition over inheritance** - combine smaller components for complex UIs
-- **Leverage Nuxt UI's built-in accessibility features**
+- **Built-in accessibility** following WAI-ARIA authoring practices
 
 ### Performance Guidelines
-- **Optimize for large datasets** (2000+ translation units)
-- **Use virtual scrolling** for long lists and tables
+- **Optimize for large datasets** (2000+ translation units) with virtualization
+- **Use table virtualization** for columns and rows in large data tables
 - **Implement proper loading states** and skeleton screens
-- **Minimize component re-renders** with proper reactive patterns
+- **Minimize component re-renders** with computed properties and reactive patterns
+- **Leverage Tailwind CSS v4's faster builds** (5x faster full builds, 100x faster incremental)
 
 ## Component Categories
 
-### Data Display
-- **UDataTable**: For translation tables with sorting, filtering, pagination
-- **UCard**: For content containers and project information
-- **UBadge**: For status indicators and file type labels
-- **UAvatar**: For user/profile images
-- **UProgress**: For translation progress indicators
+### Layout Components
+- **UApp**: Global application wrapper with configuration
+- **UContainer**: Content width constraint and responsive margins
+- **UHeader**: Responsive header with navigation
+- **UFooter**: Responsive footer sections
+- **UMain**: Fill available viewport height
+- **UPage**: Page layout with optional left/right slots
+- **UPageHeader**: Structured page headers
+- **UPageBody**: Main page content area
+- **UPageSection**: Content sections with consistent spacing
+
+### Data Display & Management
+- **UTable**: High-performance tables with sorting, filtering, virtualization
+- **UAccordion**: Collapsible content sections
+- **UCard**: Content containers with header/body/footer slots
+- **UTimeline**: Event timelines with icons and descriptions
+- **UCarousel**: Image/content carousels
+- **UTree**: Hierarchical data display
+- **UBadge**: Status indicators and labels
+- **UProgress**: Progress indicators for operations
+- **UUser**: User profile display components
 
 ### Forms & Input
-- **UFormField**: Wrap all form inputs for consistent styling
-- **UInput**: Text input with validation support
-- **USelect**: Dropdown selections for language/model choices
-- **UTextarea**: Multi-line text input for translations
+- **UForm**: Form wrapper with validation schema support (Standard Schema)
+- **UInput**: Text input with enhanced validation
+- **UInputNumber**: Numeric input with controls
+- **UInputTags**: Tag input for multiple values
+- **USelect**: Dropdown selections with search
+- **UTextarea**: Multi-line text input
 - **UCheckbox**: Boolean selections
 - **URadio**: Single-choice selections
+- **UColorPicker**: Color selection with throttling
+- **UFileUpload**: File upload with drag-and-drop
 
 ### Navigation
-- **UButton**: Primary action buttons with variants (primary, secondary, ghost)
-- **UButtonGroup**: Group related actions together
-- **UTabs**: Organize content into logical sections
-- **UBreadcrumb**: Show navigation hierarchy
-- **UPagination**: Navigate through large datasets
+- **UButton**: Action buttons with variants and states
+- **UButtonGroup**: Grouped related actions (UFieldGroup)
+- **UTabs**: Tabbed content organization
+- **UBreadcrumb**: Navigation hierarchy
+- **UPagination**: Dataset navigation with page controls
+- **UStepper**: Multi-step process indicators
+- **UHorizontalNavigation**: Horizontal navigation menus
 
-### Feedback & Notifications
-- **UToast**: Show success/error messages
-- **UAlert**: Display important information or warnings
-- **ULoading**: Show loading states during operations
-- **USkeleton**: Placeholder content while loading
-- **UModal**: Confirm actions or show detailed information
+### Feedback & Overlays
+- **UToast**: Success/error notifications
+- **UAlert**: Important information displays
+- **UModal**: Modal dialogs with overlay management
+- **USlideover**: Side panel overlays
+- **ULoading**: Loading state indicators
+- **USkeleton**: Content placeholders while loading
+- **UChip**: Small indicator badges
 
-### Layout
-- **UContainer**: Main content wrapper with responsive margins
-- **UGrid**: Responsive grid layouts
-- **UFlex**: Flexible layout containers
-- **USeparator**: Visual dividers between sections
-- **UDivider**: Horizontal or vertical separators
+### Content & Marketing
+- **UPageHero**: Landing page hero sections
+- **UPageFeature**: Feature showcases
+- **UPageGrid**: Responsive content grids
+- **UPageCTA**: Call-to-action sections
+- **UBlogPost**: Blog content display
+- **UPricingPlan**: Pricing plan components
+- **UPricingTable**: Pricing comparison tables
 
 ## Icon Usage
 
-### Heroicons Integration
-- **Use `i-heroicons-*` format** for all icons
+### Lucide Icons Integration
+- **Use `i-lucide-*` format** for all icons (updated from Heroicons)
 - **Prefer semantic icon names** over generic ones
 - **Maintain consistent icon sizing** within components
-- **Use appropriate icon variants** (solid, outline, mini)
+- **Use appropriate icon variants** based on context
 
 ### Common Icons
 ```vue
 <!-- Navigation -->
-<i-heroicons-arrow-left />
-<i-heroicons-home />
-<i-heroicons-cog-6-tooth />
+<i-lucide-arrow-left />
+<i-lucide-home />
+<i-lucide-settings />
 
 <!-- Actions -->
-<i-heroicons-play />
-<i-heroicons-pause />
-<i-heroicons-stop />
-<i-heroicons-arrow-path />
+<i-lucide-play />
+<i-lucide-pause />
+<i-lucide-square />
+<i-lucide-refresh-cw />
 
 <!-- Status -->
-<i-heroicons-check-circle />
-<i-heroicons-exclamation-triangle />
-<i-heroicons-x-circle />
+<i-lucide-check-circle />
+<i-lucide-alert-triangle />
+<i-lucide-x-circle />
 
 <!-- File Operations -->
-<i-heroicons-folder-open />
-<i-heroicons-document-text />
-<i-heroicons-arrow-down-tray />
+<i-lucide-folder-open />
+<i-lucide-file-text />
+<i-lucide-download />
+
+<!-- UI Elements -->
+<i-lucide-chevron-down />
+<i-lucide-ellipsis-vertical />
+<i-lucide-search />
 ```
 
 ## Theming & Styling
 
 ### Color System
-- **Use semantic color classes** (primary, secondary, success, warning, error)
+- **Use semantic color classes** (primary, secondary, success, warning, error, neutral)
 - **Leverage Nuxt UI's color palette** for consistency
-- **Support dark mode** with `.dark` class selector
-- **Use color variants** appropriately (solid, soft, outline)
+- **Support dark mode** with automatic theme switching
+- **Use color variants** appropriately (solid, soft, outline, subtle, ghost)
 
 ### Dark Mode Support
 ```vue
 <template>
   <UButton 
-    :icon="isDark ? 'i-heroicons-sun' : 'i-heroicons-moon'"
+    :icon="isDark ? 'i-lucide-sun' : 'i-lucide-moon'"
     @click="toggleColorMode"
   />
 </template>
@@ -117,16 +148,43 @@ This project uses Nuxt UI for all UI components and elements. Follow these guide
 
 ## Form Patterns
 
-### Validation Integration
+### Standard Schema Integration
 ```vue
+<script setup lang="ts">
+import * as z from 'zod'
+import type { FormSubmitEvent } from '@nuxt/ui'
+
+const schema = z.object({
+  email: z.string().email('Invalid email'),
+  password: z.string().min(8, 'Must be at least 8 characters')
+})
+
+type Schema = z.output<typeof schema>
+
+function onSubmit(payload: FormSubmitEvent<Schema>) {
+  console.log('Form submitted:', payload)
+}
+</script>
+
 <template>
-  <UFormField label="Project Path" required>
+  <UForm :schema="schema" @submit="onSubmit">
     <UInput 
-      v-model="projectPath"
-      placeholder="Select RPG Maker project folder"
-      :error="errors.projectPath"
+      v-model="email"
+      name="email"
+      label="Email"
+      placeholder="Enter your email"
+      required
     />
-  </UFormField>
+    <UInput 
+      v-model="password"
+      name="password"
+      type="password"
+      label="Password"
+      placeholder="Enter your password"
+      required
+    />
+    <UButton type="submit">Submit</UButton>
+  </UForm>
 </template>
 ```
 
@@ -136,57 +194,101 @@ This project uses Nuxt UI for all UI components and elements. Follow these guide
   <UButton 
     :loading="isLoading"
     :disabled="isLoading"
-    @click="loadProject"
+    @click="handleAction"
   >
-    {{ isLoading ? 'Loading...' : 'Load Project' }}
+    {{ isLoading ? 'Processing...' : 'Submit' }}
   </UButton>
 </template>
 ```
 
-## Data Table Best Practices
+## Table Best Practices
 
-### Translation Table Example
+### High-Performance Tables
 ```vue
+<script setup lang="ts">
+const table = useTemplateRef('table')
+
+const columns = [{
+  accessorKey: 'name',
+  header: 'Name',
+  cell: ({ row }) => h('div', row.getValue('name'))
+}, {
+  accessorKey: 'status',
+  header: 'Status',
+  cell: ({ row }) => h(UBadge, { 
+    color: getStatusColor(row.getValue('status'))
+  }, row.getValue('status'))
+}]
+</script>
+
 <template>
-  <UDataTable
-    :rows="translationUnits"
+  <UTable
+    ref="table"
+    :data="translationUnits"
     :columns="columns"
     :loading="isLoading"
-    :pagination="{ page: 1, pageCount: 10, pageSize: 50 }"
-    :search="{ placeholder: 'Search translations...' }"
-    :sort="{ column: 'original', direction: 'asc' }"
+    sticky
+    class="h-96"
   >
-    <template #status-data="{ row }">
-      <UBadge 
-        :color="getStatusColor(row.status)"
-        :variant="getStatusVariant(row.status)"
-      >
-        {{ row.status }}
-      </UBadge>
+    <template #expanded="{ row }">
+      <pre>{{ row.original }}</pre>
     </template>
-  </UDataTable>
+  </UTable>
 </template>
 ```
 
 ### Performance Optimizations
-- **Use virtual scrolling** for large datasets
+- **Use virtualization** for large datasets (1000+ rows)
 - **Implement proper pagination** to limit rendered items
 - **Debounce search inputs** to prevent excessive filtering
 - **Use computed properties** for derived data
+- **Leverage `useTemplateRef`** for direct table API access
+
+## Overlay Management
+
+### Modern Overlay Pattern
+```vue
+<script setup lang="ts">
+import { useOverlay } from '#imports'
+import { ModalExample } from '#components'
+
+const overlay = useOverlay()
+const modal = overlay.create(ModalExample, { title: 'Default Title' })
+
+function openModal() {
+  // Override props when opening
+  modal.open({ title: 'Custom Title' })
+}
+
+async function openModalWithResult() {
+  const result = await modal.open()
+  console.log('Modal result:', result)
+}
+</script>
+```
 
 ## Error Handling
 
 ### Toast Notifications
 ```vue
 <script setup>
-const toast = useToast()
+const { $toast } = useNuxtApp()
 
 const handleError = (error) => {
-  toast.add({
+  $toast.add({
     title: 'Error',
     description: error.message,
     color: 'red',
-    icon: 'i-heroicons-exclamation-triangle'
+    icon: 'i-lucide-alert-triangle'
+  })
+}
+
+const handleSuccess = () => {
+  $toast.add({
+    title: 'Success',
+    description: 'Operation completed successfully',
+    color: 'green',
+    icon: 'i-lucide-check-circle'
   })
 }
 </script>
@@ -213,24 +315,24 @@ const handleError = (error) => {
 
 ## Accessibility Guidelines
 
-### ARIA Labels
-- **Always provide meaningful labels** for form inputs
-- **Use proper heading hierarchy** (h1, h2, h3, etc.)
-- **Add descriptive alt text** for images and icons
-- **Ensure keyboard navigation** works properly
-
-### Screen Reader Support
+### ARIA Labels & Screen Reader Support
 ```vue
 <template>
   <UButton 
     aria-label="Load new RPG Maker project"
     @click="loadProject"
   >
-    <i-heroicons-folder-open class="w-4 h-4" />
+    <i-lucide-folder-open class="w-4 h-4" />
     Load Project
   </UButton>
 </template>
 ```
+
+### Keyboard Navigation
+- **Ensure all interactive elements** are keyboard accessible
+- **Use proper heading hierarchy** (h1, h2, h3, etc.)
+- **Provide meaningful labels** for form inputs
+- **Test with screen readers** during development
 
 ## Component Composition
 
@@ -261,7 +363,7 @@ const handleError = (error) => {
 
 ## Performance Tips
 
-### Lazy Loading
+### Lazy Loading & Code Splitting
 - **Use dynamic imports** for heavy components
 - **Implement code splitting** for better initial load times
 - **Use `v-show` vs `v-if`** appropriately
@@ -271,6 +373,22 @@ const handleError = (error) => {
 - **Clean up event listeners** in `onUnmounted`
 - **Use `shallowRef`** for large objects that don't need deep reactivity
 - **Implement proper cleanup** for long-running operations
+
+## Migration from Nuxt UI v3
+
+### Key Changes
+- **Icons**: Migrated from Heroicons to Lucide (`i-heroicons-*` → `i-lucide-*`)
+- **Foundation**: Now built on Reka UI instead of Headless UI
+- **Performance**: 5x faster builds with Tailwind CSS v4
+- **Overlay Management**: New `useOverlay` composable for modals/slideovers
+- **Table API**: Enhanced with `useTemplateRef` for direct access
+
+### Migration Steps
+1. **Update icon references** from Heroicons to Lucide format
+2. **Refactor overlay usage** to use `useOverlay` composable
+3. **Update table implementations** to leverage new virtualization features
+4. **Test component accessibility** with updated Reka UI primitives
+5. **Optimize performance** with new Tailwind CSS v4 features
 
 ## Testing Considerations
 
@@ -284,18 +402,4 @@ const handleError = (error) => {
 - **Test component composition** and data flow
 - **Verify loading states** and error handling
 - **Test user interactions** and state changes
-- **Validate performance** with large datasets
-
-## Migration Guidelines
-
-### From Other UI Libraries
-- **Replace custom components** with Nuxt UI equivalents
-- **Update icon usage** to Heroicons format
-- **Refactor styling** to use Nuxt UI classes
-- **Test functionality** after migration
-
-### Legacy Code Updates
-- **Remove custom CSS** in favor of Nuxt UI utilities
-- **Update component props** to match Nuxt UI API
-- **Refactor event handling** to use Nuxt UI patterns
-- **Optimize performance** with Nuxt UI features
+- **Validate performance** with large datasets (2000+ items)

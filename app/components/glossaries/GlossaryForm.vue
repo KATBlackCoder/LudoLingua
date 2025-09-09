@@ -81,9 +81,9 @@
 
         <div class="flex justify-end">
           <UFormField label="Direction">
-            <UButtonGroup>
+            <UFieldGroup>
               <UButton size="xs" icon="i-heroicons-arrows-right-left" variant="soft" @click="swapLangs">Swap</UButton>
-            </UButtonGroup>
+            </UFieldGroup>
           </UFormField>
         </div>
       </div>

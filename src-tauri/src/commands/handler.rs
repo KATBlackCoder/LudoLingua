@@ -14,7 +14,7 @@ use log::debug;
 use tauri::State;
 
 // Internal command modules
-use crate::commands::{engine, glossary as glossary_cmd, languages, provider, translator};
+use crate::commands::{engine, glossary as glossary_cmd, languages, provider, translations, translator};
 
 // Database types
 use crate::db::{glossary::model::{GlossaryQuery, GlossaryTerm}, ManagedGlossaryState, state::ManagedTranslationState};
@@ -200,5 +200,71 @@ pub async fn glossary_import_terms(
 ) -> Result<usize, String> {
     debug!("Command: glossary_import_terms");
     glossary_cmd::import_terms(&glossary, json).await.map_err(|e| e.to_string())
+}
+
+// ============================================================================
+// TRANSLATION MANAGEMENT COMMANDS
+// ============================================================================
+
+/// List translations with optional filtering
+#[tauri::command]
+pub async fn list_translations_cmd(
+    translation: State<'_, ManagedTranslationState>,
+    query: crate::db::translation::model::TextUnitQuery,
+) -> Result<Vec<crate::db::translation::model::TextUnitRecord>, String> {
+    debug!("Command: list_translations");
+    translations::list_translations(&translation, query).await.map_err(|e| e.to_string())
+}
+
+/// Get a single translation by ID
+#[tauri::command]
+pub async fn get_translation_cmd(
+    translation: State<'_, ManagedTranslationState>,
+    id: i64,
+) -> Result<crate::db::translation::model::TextUnitRecord, String> {
+    debug!("Command: get_translation - {}", id);
+    translations::get_translation(&translation, id).await.map_err(|e| e.to_string())
+}
+
+/// Update an existing translation
+#[tauri::command]
+pub async fn update_translation_cmd(
+    translation: State<'_, ManagedTranslationState>,
+    id: i64,
+    translated_text: String,
+    status: Option<String>,
+) -> Result<bool, String> {
+    debug!("Command: update_translation - {}", id);
+    translations::update_translation(&translation, id, translated_text, status).await.map_err(|e| e.to_string())
+}
+
+/// Delete a single translation by ID
+#[tauri::command]
+pub async fn delete_translation_cmd(
+    translation: State<'_, ManagedTranslationState>,
+    id: i64,
+) -> Result<bool, String> {
+    debug!("Command: delete_translation - {}", id);
+    translations::delete_translation(&translation, id).await.map_err(|e| e.to_string())
+}
+
+/// Bulk delete multiple translations
+#[tauri::command]
+pub async fn bulk_delete_translations_cmd(
+    translation: State<'_, ManagedTranslationState>,
+    ids: Vec<i64>,
+) -> Result<i64, String> {
+    debug!("Command: bulk_delete_translations - {} items", ids.len());
+    translations::bulk_delete_translations(&translation, ids).await.map_err(|e| e.to_string())
+}
+
+/// Get translation statistics
+#[tauri::command]
+pub async fn get_translation_stats_cmd(
+    translation: State<'_, ManagedTranslationState>,
+    project_path: Option<String>,
+) -> Result<serde_json::Value, String> {
+    debug!("Command: get_translation_stats");
+    translations::get_translation_stats(&translation, project_path).await.map_err(|e| e.to_string())
 }
 

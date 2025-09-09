@@ -10,9 +10,9 @@
       </UFormField>
 
       <UFormField label="Direction" name="direction" description="Swap source and target">
-        <UButtonGroup>
+        <UFieldGroup>
           <UButton size="xs" icon="i-heroicons-arrows-right-left" variant="soft" @click="swap">Swap</UButton>
-        </UButtonGroup>
+        </UFieldGroup>
       </UFormField>
     </div>
   </div>
