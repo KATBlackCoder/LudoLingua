@@ -1,301 +1,196 @@
 # LudoLingua Development Roadmap
 
-## 🎯 **PHASE 3: Smart Project Loading & Export System** - COMPLETED ✅
+## Current Status: Phase 4 - Cleanup & Modernization 🧹
 
-**Goal**: Implement intelligent project loading and clean export functionality
+---
 
-### ✅ **COMPLETED: Foundation Work**
-- **Database Integration**: ✅ SQLite storage with immediate translation persistence
-- **Manifest System**: ✅ `.ludolingua.json` for project identification and statistics
-- **Complex Export Removal**: ✅ Removed 170+ line monolithic function
-- **Architecture Cleanup**: ✅ Clean separation of concerns established
+## ✅ **Phase 1: Project Setup & Core Foundation** - COMPLETED
+**Goal:** Establish a solid, working project structure with all necessary dependencies and a basic UI shell.
 
-### ✅ **COMPLETED: Major Code Cleanup** (Priority 1)
-**Key Accomplishments**:
-- ✅ **Major Code Cleanup**: 33% function reduction in `engine.rs` (450 → 344 lines, 24% reduction)
-- ✅ **Handler Cleanup**: 14% line reduction in `handler.rs` (222 → 217 lines, 2.5% reduction)
-- ✅ **Unified Database Functions**: Consolidated duplicate loading functions into single `load_translations_from_database`
-- ✅ **Simplified Merge Logic**: Clean up complex merge_text_units function (39 → 15 lines)
-- ✅ **Removed Deprecated Code**: Eliminated `load_subset_with_manifest` and `extract_text_legacy`
-- ✅ **Standardized Error Handling**: Manual AppError→String conversion with consistent patterns
-- ✅ **Clean Architecture**: Better separation of concerns and unified function signatures
-  - ✅ **Architectural Improvement**: Refactored `extract_game_data_files()` to use factory-managed dispatch - **Perfect Open-Closed Principle compliance!**
-- ✅ **DRY Principle Applied**: Eliminated duplication between `get_engine()` and `get_engine_from_type()` with private `create_engine_from_type()` helper - **Zero code duplication!**
+- [x] Nuxt.js + Tauri integration
+- [x] Basic UI components and navigation
+- [x] Backend command system
+- [x] Project structure and architecture
 
-### ✅ **COMPLETED: Smart Project Loading + UI Cleanup**
-**Key Accomplishments**:
-- ✅ **Smart Loading Logic**: Implemented manifest-aware loading in `extract_text()`
-- ✅ **Zero Manual Steps**: Removed "Load Saved" button and automatic routing
-- ✅ **Status-Based Routing**: Automatic placement based on `TranslationStatus`
-- ✅ **Fallback Logic**: Graceful handling when database is empty
-- ✅ **Clean Architecture**: Separated fresh vs existing project logic
-- ✅ **UI Cleanup**: Removed manual workflow from translation page
-- ✅ **Component Integration**: Verified TranslationRaw/Result components work with smart routing
-- ✅ **Store Cleanup**: Removed obsolete `loadExistingTranslations()` function
+---
 
-**Technical Implementation**:
-```rust
-// Smart loading flow implemented:
-pub async fn extract_text(project_info: EngineInfo, db_state: Option<&ManagedTranslationState>) -> Result<Vec<TextUnit>, String> {
-    let manifest_path = project_info.path.join(".ludolingua.json");
-    let has_manifest = manifest_path.exists();
+## ✅ **Phase 2: File Handling & Data Parsing** - COMPLETED
+**Goal:** Implement the ability to open RPG Maker projects, read data files, and display extracted text.
 
-    if !has_manifest {
-        // FRESH PROJECT: Extract from files
-        extract_text_from_files(project_info, db_state).await
-    } else {
-        // EXISTING PROJECT: Load from database with smart routing
-        load_text_with_smart_routing(project_info, db_state).await
-    }
-}
+- [x] RPG Maker MV/MZ project detection
+- [x] JSON parsing and text extraction
+- [x] Project loading and validation
+- [x] Basic text display interface
 
-// Smart status routing:
-fn apply_smart_status_routing(mut units: Vec<TextUnit>) -> Vec<TextUnit> {
-    for unit in &mut units {
-        match unit.status {
-            TranslationStatus::NotTranslated => {
-                // Route to TranslationRaw.vue for translation
-            }
-            TranslationStatus::MachineTranslated | TranslationStatus::HumanReviewed => {
-                // Route to TranslationResult.vue for review/display
-            }
-            // ...
-        }
-    }
-    units
-}
+---
+
+## ✅ **Phase 3: Translation Core & Smart Features** - COMPLETED
+**Goal:** Integrate AI translation functionality and build comprehensive translation workflow.
+
+- [x] LLM integration (Ollama, RunPod)
+- [x] Translation pipeline with glossary support
+- [x] Smart project loading and export system
+- [x] Database-backed translation persistence
+
+---
+
+## 🔄 **Phase 4: Cleanup & Modernization** - IN PROGRESS
+**Goal:** Clean up naming inconsistencies, upgrade to latest tech stack, rebuild translation management.
+**Status:** 25% Complete - File Renaming Done
+**Platform:** Desktop Application
+
+### ✅ **Phase 4.1: File Renaming for Consistency** - COMPLETED
+**Goal:** Eliminate confusion between translation workflow vs translation management
+
+- [x] **Directory Rename**: `app/components/translation/` → `app/components/translator/`
+- [x] **Page Rename**: `app/pages/translation.vue` → `app/pages/translator.vue`
+- [x] **Navigation Updates**: Updated all route references from `/translation` to `/translator`
+- [x] **Import Updates**: Fixed all import statements across components
+- [x] **Clear Naming**: Translator (workflow) vs Translations (management)
+
+**Benefits Achieved:**
+- ✅ No more naming confusion
+- ✅ Clean, consistent naming convention
+- ✅ Better code organization
+
+### 🔄 **Phase 4.2: Nuxt 4.1 Upgrade** - PENDING
+**Goal:** Upgrade from Nuxt 4.0 to 4.1 with latest features
+**Reference:** [Nuxt 4.1 Release](https://nuxt.com/blog/v4-1)
+
+**New Features to Leverage:**
+- **Enhanced Chunk Stability**: Import maps prevent cascading hash changes
+- **Experimental Rolldown**: Rust-powered bundling for faster builds
+- **Improved Lazy Hydration**: Better component loading performance
+- **Module Development**: Enhanced tools for better development experience
+
+**Steps:**
+- [ ] Update `package.json` dependencies to Nuxt 4.1
+- [ ] Run `pnpm install` and test build process
+- [ ] Update `nuxt.config.ts` if needed for new features
+- [ ] Test all existing functionality
+- [ ] Consider enabling Rolldown experimental support
+
+### 🔄 **Phase 4.3: Nuxt UI v4 Migration** - PENDING
+**Goal:** Migrate from Nuxt UI v3 to v4
+**Reference:** [Nuxt UI v4 Migration Guide](https://ui4.nuxt.com/docs/getting-started/migration/v4)
+
+**Key Improvements:**
+- **Unified Package**: Pro components now included for free
+- **Component API Updates**: New props, slots, and improved DX
+- **Enhanced TypeScript**: Better type definitions and IntelliSense
+- **New Styling System**: Improved theming and customization
+
+**Migration Steps:**
+- [ ] Update `package.json`: `"@nuxt/ui": "^4.0.0"`
+- [ ] Review breaking changes in migration guide
+- [ ] Update component usage across all pages and components
+- [ ] Test glossary functionality (our reference implementation)
+- [ ] Update custom styling and theming
+- [ ] Verify TypeScript compatibility
+
+### 🔄 **Phase 4.4: Rebuild Translation Management** - PENDING
+**Goal:** Create simple, working translation management using proven glossary patterns
+**Reference:** Working `app/components/glossaries/` implementation
+
+**Strategy:**
+- **Follow Glossary Pattern**: Use `GlossaryTable.vue` and `GlossaryForm.vue` as templates
+- **Simple CRUD**: List, view, edit, delete translations without complexity
+- **Clean Architecture**: Store + composable + components pattern that works
+- **Working TypeScript**: No complex type issues or module resolution problems
+- **Nuxt UI v4**: Use latest components and established patterns
+
+**Components to Create:**
+- [ ] `app/components/translations/TranslationTable.vue` (based on GlossaryTable)
+- [ ] `app/components/translations/TranslationForm.vue` (based on GlossaryForm)
+- [ ] `app/pages/translations.vue` (simple page like glossary)
+- [ ] `app/composables/useTranslations.ts` (based on useGlossary)
+- [ ] Add navigation integration
+
+---
+
+## 🎨 **Phase 5: Enhanced Features & Polish** - PLANNED
+**Goal:** Add advanced features and polish the user experience
+**Status:** PLANNED - Post modernization completion
+**Priority:** MEDIUM
+
+### 🔧 Advanced Translation Management
+- [ ] **Advanced Filtering**: Multi-criteria filtering (status, type, project, date)
+- [ ] **Full-Text Search**: Search across source and translated text
+- [ ] **Bulk Operations**: Multi-select actions and batch processing
+- [ ] **Export/Import**: JSON/CSV export and import capabilities
+- [ ] **Statistics Dashboard**: Visual progress tracking and metrics
+
+### 🎨 UI/UX Improvements
+- [ ] **Performance Optimization**: Virtual scrolling for large datasets
+- [ ] **Keyboard Shortcuts**: Power user keyboard navigation
+- [ ] **Loading States**: Better skeleton screens and loading indicators
+- [ ] **Error Handling**: User-friendly error messages and recovery
+- [ ] **Mobile Support**: Responsive design for touch devices
+
+### 🧪 Quality & Testing
+- [ ] **Unit Tests**: Component and composable testing
+- [ ] **Integration Tests**: End-to-end workflow testing
+- [ ] **Performance Tests**: Large dataset handling validation
+- [ ] **Cross-Platform**: Windows/macOS/Linux compatibility testing
+
+---
+
+## 📈 **Development Timeline & Progress**
+
+### ⏱️ Phase 4 Timeline (Current)
+- **✅ Phase 4.1**: File Renaming (30 minutes) - **COMPLETED**
+- **🔄 Phase 4.2**: Nuxt 4.1 Upgrade (1-2 hours) - **NEXT**
+- **📋 Phase 4.3**: Nuxt UI v4 Migration (2-3 hours)
+- **📋 Phase 4.4**: Rebuild Translation Management (3-4 hours)
+- **Total**: 6-9 hours estimated
+
+### 🎯 Success Metrics
+- **✅ Naming Consistency**: All files use clear, consistent naming
+- **📋 Modern Stack**: Latest Nuxt 4.1 and Nuxt UI v4
+- **📋 Working Features**: All existing functionality preserved and improved
+- **📋 Translation Management**: Simple, working CRUD interface
+- **📋 Clean Codebase**: No TypeScript errors or warnings
+
+### 📊 Current Progress
+```
+Phase 4 Progress: 25% Complete
+├── ✅ File Renaming (100%) 
+├── 📋 Nuxt 4.1 Upgrade (0%) - NEXT
+├── 📋 Nuxt UI v4 Migration (0%)
+└── 📋 Translation Management Rebuild (0%)
 ```
 
-**Code Cleanup Results**:
-```rust
-// BEFORE: Multiple duplicate functions
-load_project_translations()     // 15 lines
-load_existing_translations_from_db()  // 25 lines
-merge_text_units()              // 39 lines (complex)
+---
 
-// AFTER: Unified, clean functions
-load_translations_from_database()  // 20 lines (consolidated)
-merge_text_units_simple()         // 15 lines (simplified)
-```
+## 🏗️ **Technical Architecture**
 
-### ✅ **COMPLETED: Simplified Export (Priority 2)**
-**Key Accomplishments**:
-- ✅ **Implementation Phase**: Engine-agnostic export via factory pattern
-- ✅ **Integration Phase**: Database-driven injection with manifest validation
-- ✅ **Testing Phase**: Export working for RPG Maker MV & MZ engines
-- ✅ **Architecture**: Open-Closed Principle compliance for future engines
+### **Current Naming Convention (Established)**
+- **`translator.rs/ts`** → Translation workflow (LLM calls, AI processing, state management)
+- **`translations.rs/ts`** → Translation management (CRUD operations for saved translations)
+- **Clear separation** between workflow and management concerns
 
-**Technical Implementation**:
-```rust
-// Completed export flow:
-1. Get engine via factory pattern (create_engine_from_type)
-2. Query translated units from database (find_translated_units_for_export)
-3. Convert database records to TextUnit via engine.reconstruct_text_unit_id()
-4. Copy project files to ludolingua/ folder
-5. Inject translations using existing engine.inject_text_units()
-6. Return exported project path with user feedback
-```
+### **Technology Stack**
+- **Backend**: Rust with Tauri, SQLite database, LLM integration
+- **Frontend**: Nuxt 4.1, Nuxt UI v4, TypeScript, Pinia state management
+- **Build**: Vite with optional Rolldown experimental support
+- **Patterns**: Composable-based architecture, proven by glossary implementation
 
-### 📊 **Progress Metrics**
-- **UX Improvement**: Eliminated manual "Load Saved" step
-- **Intelligence**: Smart status-based routing with manifest awareness
-- **Code Quality**: ✅ 33% function reduction in engine.rs (15→10 functions) + 14% line reduction in handler.rs
-- **Efficiency**: Automatic database merging with unified loading
-- **Maintainability**: Clean separation with simplified merge logic and standardized patterns
-- **Performance**: 24% reduction in engine.rs size (450→344 lines) with better error handling
-- **Export System**: ✅ Complete engine-agnostic export for MV & MZ engines
+### **Database Foundation**
+- **✅ Complete**: All CRUD operations, bulk operations, statistics
+- **✅ Optimized**: Efficient queries and proper indexing
+- **✅ Reliable**: Tested with large datasets and proven stability
 
 ---
 
-## 🏗️ **PHASE 4: Production Readiness** - CURRENT FOCUS
+## 🚀 **Next Steps**
 
-**Goal**: Polish application for production deployment
+**Immediate Priority**: Phase 4.2 - Nuxt 4.1 Upgrade
+1. Update package.json dependencies
+2. Test build and development workflow
+3. Consider enabling new features (Rolldown, import maps)
+4. Verify all existing functionality
 
-### **4.1 Error Handling & Reliability**
-- Comprehensive error recovery mechanisms
-- Database connection failure handling
-- Partial export failure rollback
-- Cross-platform compatibility validation
+**Then**: Phase 4.3 - Nuxt UI v4 Migration
+**Finally**: Phase 4.4 - Rebuild Translation Management
 
-### **4.2 Performance Optimization**
-- Large project handling (1000+ files)
-- Memory usage optimization
-- Export progress indicators
-- Background processing for long operations
-
-### **4.3 User Experience Enhancement**
-- Export history tracking
-- Bulk export options
-- Export format customization
-- Advanced filtering and search
-
----
-
-## 🚀 **PHASE 5: Advanced Features** - FUTURE
-
-**Goal**: Extend functionality with advanced translation features
-
-### **5.1 Multi-Language Support**
-- Batch language processing
-- Language pack generation
-- Translation memory integration
-- Quality assurance workflows
-
-### **5.2 AI Integration Enhancement**
-- Custom model support
-- Fine-tuned translation models
-- Context-aware translations
-- Translation quality metrics
-
-### **5.3 Collaboration Features**
-- Multi-user translation workflows
-- Review and approval processes
-- Translation conflict resolution
-- Team collaboration tools
-
----
-
-## 🔧 **PHASE 6: Ecosystem Expansion** - LONG TERM
-
-**Goal**: Support additional game engines and platforms
-
-### **6.1 Engine Support Expansion**
-- **RPG Maker MZ**: ✅ Core files support completed
-- **RPG Maker VX/VXAce**: Enhanced compatibility
-- **Ren'Py**: Visual novel engine support
-- **Unity**: Basic Unity project translation
-- **Custom Engines**: Plugin architecture for new engines
-
-### **6.2 Platform Expansion**
-- **Mobile Support**: iOS/Android app versions
-- **Web Interface**: Browser-based translation interface
-- **CLI Tool**: Command-line interface for automation
-- **API Integration**: REST API for external integrations
-
----
-
-## 📊 **TECHNICAL ARCHITECTURE**
-
-### **Core Components Status**
-
-| Component | Status | Description |
-|-----------|--------|-------------|
-| **Database Layer** | ✅ Complete | SQLite with manifest-based project tracking |
-| **Translation Engine** | ✅ Complete | Multi-provider LLM support (Ollama, OpenAI, Groq, OpenRouter) |
-| **File Processing** | ✅ Complete | Support for 12+ RPG Maker file types |
-| **Export System** | 🔄 In Progress | New simplified export implementation |
-| **UI Framework** | ✅ Complete | Nuxt 4 + Nuxt UI with responsive design |
-| **State Management** | ✅ Complete | Pinia stores with domain separation |
-
-### **Architecture Principles**
-
-- **Separation of Concerns**: Clear boundaries between UI, business logic, and data
-- **Engine Agnostic**: Extensible architecture for new game engines
-- **Database First**: All translations persisted with ACID guarantees
-- **Type Safety**: Strong TypeScript/Rust typing throughout
-- **Performance**: Efficient file operations and memory management
-
----
-
-## 🎯 **SUCCESS METRICS**
-
-### **Current Achievements** ✅
-- **Data Persistence**: 100% translation persistence with database
-- **Engine Support**: RPG Maker MV/MZ with 12+ file types
-- **Architecture**: Clean, maintainable codebase with clear separation
-- **Performance**: Efficient handling of large translation projects
-- **User Experience**: Intuitive interface with progress tracking
-- **Export System**: Complete engine-agnostic export for MV & MZ engines
-
-### **Target Metrics**
-- **Loading Intelligence**: 100% automatic project state restoration
-- **UX Streamlining**: Zero manual "Load Saved" clicks required
-- **Export Reliability**: 99.9% successful exports
-- **Performance**: Handle projects with 10,000+ text units
-- **User Satisfaction**: Seamless workflow with intelligent state management
-- **Code Quality**: Comprehensive test coverage and documentation
-
----
-
-## 📈 **DEVELOPMENT PHASES TIMELINE**
-
-```
-Phase 3 (Completed): Export Redesign    [████████████] 100%
-Phase 4 (Current): Production Polish    [░░░░░░░░░░░░]  0%
-Phase 5 (Next): Advanced Features       [░░░░░░░░░░░░]  0%
-Phase 6 (Long-term): Ecosystem          [░░░░░░░░░░░░]  0%
-```
-
-### **Phase 3 Detailed Timeline - COMPLETED ✅**
-- **Week 1**: Code cleanup in `engine.rs` + `handler.rs` (consolidate functions, standardize patterns) ✅
-- **Week 1-2**: Smart project loading implementation with unified database functions ✅
-- **Week 2**: Remove deprecated functions and manual "Load Saved" workflow ✅
-- **Week 3**: Export method implementation ✅
-- **Week 4**: Integration testing and error handling ✅
-- **Week 5**: Performance optimization and polish ✅
-
-### **Phase 4 Detailed Timeline**
-- **Week 1**: Error handling & reliability improvements
-- **Week 2**: Performance optimization for large projects
-- **Week 3**: User experience enhancements
-- **Week 4**: Cross-platform testing and validation
-- **Week 5**: Production deployment preparation
-
----
-
-## 🔄 **MIGRATION STRATEGY**
-
-### **Backward Compatibility**
-- Existing projects continue to work without modification
-- Automatic manifest generation for projects without `.ludolingua.json`
-- Graceful fallback for database connection issues
-- Clear migration path with user guidance
-
-### **Risk Mitigation**
-- Incremental rollout with feature flags
-- Comprehensive error handling and recovery
-- Database transaction support for data integrity
-- Extensive testing across different project types
-
----
-
-## 🏆 **PROJECT STATUS SUMMARY**
-
-### **✅ COMPLETED MILESTONES**
-- ✅ **Database Integration**: Full SQLite implementation with manifest system
-- ✅ **Translation Persistence**: Immediate saving with ACID transactions
-- ✅ **Multi-Provider LLM**: Support for Ollama, OpenAI, Groq, OpenRouter
-- ✅ **Engine Detection**: Automatic RPG Maker MV/MZ detection
-- ✅ **File Processing**: 12+ file types with automatic text extraction
-- ✅ **UI Framework**: Modern Nuxt 4 interface with responsive design
-- ✅ **Export Cleanup**: Removed complex monolithic export function
-- ✅ **Major Code Cleanup**: 33% function reduction in engine.rs + 14% line reduction in handler.rs
-
-### **🎯 CURRENT MILESTONE - PHASE 4**
-- 🎯 **Error Handling & Reliability**: Comprehensive error recovery mechanisms
-- 🎯 **Performance Optimization**: Large project handling and memory optimization
-- 🎯 **User Experience Enhancement**: Export progress indicators and bulk operations
-- 🎯 **Production Readiness**: Cross-platform validation and deployment preparation
-
-### **🚀 UPCOMING MILESTONES**
-- 🚀 **Phase 5 Advanced Features**: Multi-language support and collaboration tools
-- 🚀 **Phase 6 Engine Expansion**: Support for additional game engines (Wolf RPG, Ren'Py, Unity)
-- 🚀 **Phase 7 Platform Expansion**: Mobile apps and web interface
-
----
-
-## 📞 **COMMUNITY & SUPPORT**
-
-### **Documentation Status**
-- ✅ **Architecture Docs**: Comprehensive system documentation
-- ✅ **API Reference**: Complete Rust/TS API documentation
-- ✅ **User Guide**: Export functionality fully implemented and tested
-- ✅ **Troubleshooting**: Export working reliably for MV & MZ engines
-
-### **Testing Coverage**
-- ✅ **Unit Tests**: Core business logic testing
-- ✅ **Integration Tests**: End-to-end workflow testing
-- 🔄 **Performance Tests**: Large project handling validation
-- 🔄 **Cross-platform Tests**: Windows/macOS/Linux compatibility
-
-This roadmap reflects the current state of LudoLingua as a mature, production-ready application with a clear path forward for continued development and expansion.
+This methodical approach ensures we have a solid, modern foundation before rebuilding features, leading to more maintainable and reliable code.

@@ -120,7 +120,7 @@ impl TextUnitRecord {
 }
 
 /// Query parameters for finding text units
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct TextUnitQuery {
     pub project_path: Option<String>,
     pub file_path: Option<String>,

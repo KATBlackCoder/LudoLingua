@@ -329,6 +329,30 @@ pub async fn get_project_stats(
     }))
 }
 
+/// Get overall statistics across all projects
+pub async fn get_overall_stats(
+    state: &ManagedTranslationState,
+) -> AppResult<serde_json::Value> {
+    let pool = state.pool().await;
+
+    let stats = sqlx::query(
+        r#"SELECT
+            COUNT(*) as total,
+            COUNT(CASE WHEN status = 'NotTranslated' THEN 1 END) as pending,
+            COUNT(CASE WHEN translated_text IS NOT NULL AND translated_text != '' THEN 1 END) as translated
+           FROM text_units"#
+    )
+    .fetch_one(&pool)
+    .await
+    .map_err(|e| AppError::Database(e.to_string()))?;
+
+    Ok(serde_json::json!({
+        "total": stats.get::<i64, _>("total"),
+        "pending": stats.get::<i64, _>("pending"),
+        "translated": stats.get::<i64, _>("translated")
+    }))
+}
+
 /// Find all translated units for export (MachineTranslated + HumanReviewed)
 pub async fn find_translated_units_for_export(
     state: &ManagedTranslationState,
@@ -370,4 +394,37 @@ pub async fn find_translated_units_for_export(
     }
 
     Ok(records)
+}
+
+/// Bulk delete text units by their IDs
+/// This function efficiently deletes multiple text units in a single SQL query
+pub async fn bulk_delete_units(
+    state: &ManagedTranslationState,
+    ids: Vec<i64>,
+) -> AppResult<i64> {
+    // Handle empty list case
+    if ids.is_empty() {
+        return Ok(0);
+    }
+
+    let pool = state.pool().await;
+
+    // Create placeholders for the IN clause (?, ?, ?, ...)
+    let placeholders = vec!["?"; ids.len()].join(", ");
+
+    // Build the SQL query with dynamic placeholders
+    let sql = format!("DELETE FROM text_units WHERE id IN ({})", placeholders);
+
+    // Bind all IDs to the query
+    let mut query = sqlx::query(&sql);
+    for id in &ids {
+        query = query.bind(id);
+    }
+
+    // Execute the query and return the number of affected rows
+    let result = query.execute(&pool)
+        .await
+        .map_err(|e| AppError::Database(e.to_string()))?;
+
+    Ok(result.rows_affected() as i64)
 }

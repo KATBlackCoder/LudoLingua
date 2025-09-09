@@ -70,7 +70,7 @@ async function pickProject() {
 
 function goWorkspace() {
   if (engineStore.isLoading || !engineStore.hasProject) return
-  navigateTo('/translation')
+  navigateTo('/translator')
 }
 
 onMounted(async () => {

@@ -1,6 +1,6 @@
 # LudoLingua Frontend Architecture
 
-This document provides a detailed walkthrough of the Nuxt.js frontend's structure for the LudoLingua application. The architecture is designed to be modular, maintainable, and to fully leverage the features of Nuxt 3 and Pinia for a reactive and efficient user experience.
+This document provides a detailed walkthrough of the Nuxt.js frontend's structure for the LudoLingua application. The architecture is designed to be modular, maintainable, and to fully leverage the features of Nuxt 4 and Pinia for a reactive and efficient user experience.
 
 ---
 
@@ -10,31 +10,49 @@ The following diagram illustrates the file and directory layout for the frontend
 
 ```
 /
-├── .vscode/          # VS Code settings (e.g., for recommended extensions)
-├── assets/           # For static assets like fonts and global CSS
-│   └── css/
-│       └── main.css
-├── components/       # Reusable Vue components, organized by feature
-│   ├── layout/       # Components for the main layout (e.g., AppHeader, AppSidebar)
-│   ├── settings/     # Components specific to the settings page
-│   ├── glossary/     # Components specific to the glossary page
-│   └── editor/       # Components for the main translation editor view
-├── layouts/          # For the main application layouts
-│   └── default.vue
-├── pages/            # Application pages, which map to routes
-│   ├── index.vue     # Main editor page
-│   ├── glossary.vue  # Glossary management page
-│   └── settings.vue  # Application settings page
-├── stores/           # Pinia stores for state management
-│   ├── project.ts    # State for the currently loaded project and its text
-│   ├── settings.ts   # State for user settings (e.g., API keys, theme)
-│   └── ui.ts         # State for UI elements (e.g., loading states, modal visibility)
-├── types/            # TypeScript type definitions, organized by domain
-│   ├── engine.ts      # Types related to the game project data
-│   ├── glossary.ts    # Types for glossary terms
-│   ├── settings.ts    # Types for application settings
-│   └── translation.ts # Types for translation units and status
-└── nuxt.config.ts    # Nuxt configuration file
+├── app/              # Nuxt 4 app directory structure
+│   ├── app.vue       # Root application component
+│   ├── assets/       # Static assets and global CSS
+│   │   └── css/
+│   │       └── main.css
+│   ├── components/   # Reusable Vue components, organized by feature
+│   │   ├── layout/   # Main layout components (AppHeader, AppFooter, etc.)
+│   │   ├── settings/ # Settings page components (ProviderSelector, etc.)
+│   │   ├── glossary/ # Glossary management components
+│   │   ├── translation/ # Translation workflow components
+│   │   ├── editor/   # Legacy editor components
+│   │   └── about/    # About page components
+│   ├── layouts/      # Application layouts
+│   │   └── default.vue
+│   ├── pages/        # Application pages (auto-routed)
+│   │   ├── index.vue     # Main translation page
+│   │   ├── glossary.vue  # Glossary management
+│   │   ├── settings.vue  # Application settings
+│   │   ├── translation.vue # Translation workflow page
+│   │   └── about.vue     # About/application info
+│   ├── stores/       # Pinia stores for state management
+│   │   ├── engine.ts     # Game engine and project management
+│   │   ├── settings.ts   # User settings and configuration
+│   │   ├── provider.ts   # LLM provider management
+│   │   ├── language.ts   # Language configuration
+│   │   ├── translate.ts  # Translation workflow state
+│   │   └── glossary.ts   # Glossary term management
+│   ├── types/        # TypeScript type definitions
+│   │   ├── engine.ts     # Game project data types
+│   │   ├── glossary.ts   # Glossary term types
+│   │   ├── provider.ts   # LLM provider types
+│   │   ├── language.ts   # Language types
+│   │   ├── settings.ts   # Settings configuration types
+│   │   ├── tokens.ts     # Token estimation types
+│   │   └── translation.ts # Translation workflow types
+│   └── composables/  # Vue composables for shared logic
+│       ├── useAppToast.ts   # Toast notification system
+│       ├── useGlossary.ts   # Glossary operations
+│       └── useTranslation.ts # Translation utilities
+├── plugins/          # Nuxt plugins
+│   └── pinia.client.ts # Pinia client-side initialization
+├── nuxt.config.ts    # Nuxt configuration file
+└── package.json      # Dependencies and scripts
 ```
 
 ---
@@ -45,42 +63,90 @@ This section explains the purpose of each directory and how they work together t
 
 ### The Foundation: Configuration and Global Assets
 
-*   **`nuxt.config.ts`**: The main configuration file for the entire Nuxt application. This is where we will disable Server-Side Rendering (SSR) for Tauri compatibility, register Nuxt modules (like Nuxt UI and Pinia), and define global application settings.
-*   **`assets/`**: This directory holds globally used static files. The primary use case for us will be `assets/css/main.css`, where we can define any global CSS styles or overrides that apply across the entire application.
+*   **`nuxt.config.ts`**: The main configuration file for the Nuxt 4 application. Configures Tauri compatibility (SSR disabled), registers Nuxt UI and Pinia modules, and defines global application settings for the desktop app environment.
+*   **`app/assets/`**: Contains globally used static files including the main CSS file for global styles and overrides that apply across the entire application.
 
 ### The UI Layer: Components, Layouts, and Pages
 
-This layer is responsible for everything the user sees and interacts with. It's built on a hierarchy of components.
+This layer is responsible for everything the user sees and interacts with. It's built on a modern Nuxt 4 component hierarchy.
 
-*   **`layouts/`**: Defines the main "shell" of the application. For example, `layouts/default.vue` will contain the persistent UI elements like the main header or sidebar, and a `<NuxtPage />` component. The content of the current page is rendered inside `<NuxtPage />`.
-*   **`pages/`**: Contains the top-level Vue components for each "page" or "route" of our application. Nuxt's file-based routing automatically creates routes based on the filenames here (e.g., `glossary.vue` becomes the `/glossary` route). Pages are responsible for fetching data from Pinia stores and passing it down to the display components.
-*   **`components/`**: This is the heart of the UI. It contains all our reusable Vue components, which are the building blocks of the application. They are organized into subdirectories by feature or page (e.g., `editor/`, `glossary/`) to keep them organized. These components receive data via props and emit events to notify their parent pages of user actions.
+*   **`app/layouts/`**: Defines the main application shell with persistent UI elements like headers, footers, and navigation. Uses `<NuxtPage />` to render the current page content.
+*   **`app/pages/`**: Contains top-level Vue components for each application route. Nuxt's file-based routing automatically creates routes from filenames. Pages orchestrate data flow between stores and components.
+*   **`app/components/`**: Contains all reusable Vue components organized by feature:
+    *   `layout/`: Main layout components (AppHeader, AppFooter, ColorModeButton)
+    *   `settings/`: Settings page components (ProviderSelector, ConnectionTester)
+    *   `glossary/`: Glossary management components (GlossaryTable, GlossaryForm)
+    *   `translation/`: Translation workflow components (TranslationEditor, TranslationResult)
+    *   `editor/`: Legacy editor components (ProjectLoader, ProjectStats)
+    *   `about/`: About page components with comprehensive documentation
 
 ### The Logic & State Layer: Pinia Stores
 
-This is the "brain" of the frontend. It manages the application's state and is the sole bridge to the Rust backend. This separation keeps our UI components clean and focused on display logic.
+This is the "brain" of the frontend, managing application state and serving as the bridge to the Rust backend.
 
-*   **`stores/`**: This directory houses all our Pinia state management stores. Each store is a self-contained module responsible for a specific slice of the application's state.
-    *   `project.ts`: Will hold all data related to the currently loaded RPG Maker project, such as the list of game files and the extracted text units for translation.
-    *   `settings.ts`: Manages the user's saved settings. It will be responsible for calling the Tauri commands to load settings from the `tauri-plugin-store` on startup and save them when they change.
-    *   `ui.ts`: Manages the state of the UI itself, such as loading spinners, error message visibility, or which modal is currently open.
+*   **`app/stores/`**: Contains all Pinia stores using the Setup Store pattern for optimal Vue 3 Composition API integration:
+    *   `engine.ts`: Manages game engine detection, project loading, and text extraction operations
+    *   `settings.ts`: Handles user settings persistence and configuration management
+    *   `provider.ts`: Manages LLM provider selection and model configurations
+    *   `language.ts`: Handles language selection and RTL support
+    *   `translate.ts`: Manages translation workflow state, progress tracking, and batch operations
+    *   `glossary.ts`: Handles glossary term CRUD operations and database synchronization
 
-### Type Safety
+### Composables and Shared Logic
 
-*   **`types/`**: A centralized location for all our custom TypeScript interfaces and type definitions. To keep them organized, types are broken into files based on their application domain (e.g., `engine.ts`, `glossary.ts`), mirroring the backend's data models. This helps ensure type safety across the entire frontend.
+*   **`app/composables/`**: Contains Vue composables for reusable logic:
+    *   `useAppToast.ts`: Centralized toast notification system
+    *   `useGlossary.ts`: Glossary operations and state management
+    *   `useTranslation.ts`: Translation utilities and workflow helpers
+
+### Type Safety and Type Definitions
+
+*   **`app/types/`**: Comprehensive TypeScript type definitions organized by domain:
+    *   `engine.ts`: Game project data and engine-specific types
+    *   `glossary.ts`: Glossary term and category types
+    *   `provider.ts`: LLM provider and model configuration types
+    *   `language.ts`: Language and locale types
+    *   `settings.ts`: Application settings and configuration types
+    *   `tokens.ts`: Token estimation and pricing types
+    *   `translation.ts`: Translation workflow and status types
+
+### Plugins and Initialization
+
+*   **`plugins/`**: Nuxt plugins for client-side initialization:
+    *   `pinia.client.ts`: Ensures Pinia store availability on the client side
 
 ---
 
-## 3. Frontend Data Flow: A Complete Example
+## 3. Frontend Data Flow: Modern Translation Workflow
 
-Understanding the flow of data is key to understanding the architecture. Here's a typical user interaction:
+Understanding the flow of data is key to understanding the architecture. Here's how the modern translation workflow operates:
 
-1.  **User Action:** A user clicks the "Translate" button inside a component in `editor/`.
-2.  **Event Emission:** The component doesn't perform the translation itself. Instead, it emits an event (e.g., `@translate-clicked`).
-3.  **Page Handler:** The page (`pages/index.vue`) listens for this event and calls an **action** in the appropriate Pinia store, for example, `projectStore.translateSelectedText()`.
-4.  **Store Action & Backend Communication:** The `projectStore` action contains the core logic. It gets the current state, fetches the user's settings from the `settingsStore`, and then calls `invoke()` from the Tauri API to execute a Rust command (e.g., `invoke('translate_text', { ... })`).
-5.  **State Mutation:** When the Rust backend returns the translated text, the store action updates its own state by modifying its reactive refs (e.g., `translationUnits.value[i].translated_text = result`).
-6.  **Automatic UI Update:** Because our Vue components get their data from the Pinia store, they are inherently reactive. As soon as the state in the store changes, Nuxt and Vue automatically re-render the affected components to display the new translated text. The component doesn't need to be explicitly told to update.
+### Translation Workflow Example:
 
-This clean, one-way data flow makes the application easy to reason about, debug, and scale.
+1.  **User Action:** User clicks "Load Project" on the main page
+2.  **Store Dispatch:** Page calls `engineStore.loadProject()` action
+3.  **Multi-Store Coordination:** Engine store coordinates with settings store for configuration
+4.  **Backend Communication:** Store invokes Tauri command `invoke('load_project')`
+5.  **State Updates:** Engine store updates reactive state with project data
+6.  **UI Synchronization:** Components automatically re-render with new project information
 
+### Advanced Translation Flow:
+
+1.  **Batch Translation:** User initiates batch translation in `TranslationProcess` component
+2.  **Progress Tracking:** `translateStore` manages progress state and cancellation
+3.  **Provider Integration:** `providerStore` provides current LLM configuration
+4.  **Glossary Enhancement:** `glossaryStore` supplies relevant terms for context
+5.  **Toast Notifications:** `useAppToast` composable provides user feedback
+6.  **Export Workflow:** User triggers export via `engineStore.exportTranslatedSubset()`
+7.  **File Operations:** Backend handles file copying and translation injection
+8.  **Success Feedback:** Toast notifications confirm successful export
+
+### Key Architectural Patterns:
+
+- **Store Composition:** Multiple stores work together (engine + provider + glossary)
+- **Composable Integration:** Shared logic via composables (toast, translation utils)
+- **Reactive Updates:** Vue 3 reactivity automatically syncs UI with store state
+- **Type Safety:** TypeScript interfaces ensure data consistency across layers
+- **Clean Separation:** UI components focus on display, stores handle business logic
+
+This modern architecture supports complex workflows while maintaining clean separation of concerns and excellent developer experience.

@@ -109,7 +109,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { PromptType, TextUnit } from '~/types/translation'
-import { useTranslation } from '~/composables/useTranslation'
+import { useTranslator } from '~/composables/useTranslator'
 import type { SelectItem } from '#ui/types'
 import { useEngineStore } from '~/stores/engine'
 
@@ -122,7 +122,7 @@ const engineStore = useEngineStore()
 const isRetranslating = ref(false)
 const isSaving = ref(false)
 const lastSaved = ref<string | null>(null)
-const { retranslate: retranslateOne } = useTranslation()
+const { retranslate: retranslateOne } = useTranslator()
 const open = computed({
   get: () => props.open,
   set: (v: boolean) => emit('update:open', v)

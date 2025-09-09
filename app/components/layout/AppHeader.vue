@@ -9,7 +9,7 @@
         <nav>
           <UButtonGroup>
             <UButton to="/" variant="ghost" :active="$route.path === '/'" icon="i-heroicons-home">Home</UButton>
-            <UButton to="/translation" variant="ghost" :active="$route.path === '/translation'" icon="i-heroicons-language">Translation</UButton>
+            <UButton to="/translator" variant="ghost" :active="$route.path === '/translator'" icon="i-heroicons-language">Translator</UButton>
             <UButton to="/settings" variant="ghost" :active="$route.path === '/settings'" icon="i-heroicons-cog-6-tooth">Settings</UButton>
             <UButton to="/glossary" variant="ghost" :active="$route.path === '/glossary'" icon="i-heroicons-book-open">Glossary</UButton>
             <UButton to="/about" variant="ghost" :active="$route.path === '/about'" icon="i-heroicons-information-circle">About</UButton>

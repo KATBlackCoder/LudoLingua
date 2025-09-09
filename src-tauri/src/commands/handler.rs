@@ -14,7 +14,7 @@ use log::debug;
 use tauri::State;
 
 // Internal command modules
-use crate::commands::{engine, glossary as glossary_cmd, languages, provider, translation};
+use crate::commands::{engine, glossary as glossary_cmd, languages, provider, translator};
 
 // Database types
 use crate::db::{glossary::model::{GlossaryQuery, GlossaryTerm}, ManagedGlossaryState, state::ManagedTranslationState};
@@ -22,7 +22,6 @@ use crate::db::{glossary::model::{GlossaryQuery, GlossaryTerm}, ManagedGlossaryS
 // Core types
 use crate::llm::state::LlmState;
 use crate::models::{engine::{EngineInfo, GameDataFile}, language::Language, provider::{LlmConfig, ModelInfo}, translation::TextUnit};
-use crate::utils::token_estimation::ProjectTokenEstimate;
 
 // ============================================================================
 // PROJECT MANAGEMENT COMMANDS
@@ -101,13 +100,13 @@ pub async fn translate_text_unit(
     text_unit: TextUnit,
     config: LlmConfig,
     engine_info: EngineInfo,
-) -> Result<translation::TranslationResult, String> {
+) -> Result<translator::TranslationResult, String> {
     debug!("Command: translate_text_unit - {}", text_unit.id);
 
     // Use manifest hash from engine info for project identification
     let manifest_hash = engine_info.manifest_hash.clone();
 
-    translation::translate_text_unit(state, glossary, db, text_unit, config, engine_info, manifest_hash)
+    translator::translate_text_unit(state, glossary, db, text_unit, config, engine_info, manifest_hash)
         .await
         .map_err(|e| e.to_string())
 }
@@ -148,18 +147,6 @@ pub fn get_languages() -> Result<Vec<Language>, String> {
     languages::get_languages()
 }
 
-/// Estimate token usage for project translation
-#[tauri::command]
-pub async fn estimate_project_tokens(
-    text_units: Vec<TextUnit>,
-    engine_info: EngineInfo,
-    config: LlmConfig,
-) -> Result<ProjectTokenEstimate, String> {
-    debug!("Command: estimate_project_tokens - {} units", text_units.len());
-    crate::utils::token_estimation::estimate_project_tokens(&text_units, &engine_info, &config)
-        .await
-        .map_err(|e| e.to_string())
-}
 
 // ============================================================================
 // GLOSSARY COMMANDS
@@ -214,3 +201,4 @@ pub async fn glossary_import_terms(
     debug!("Command: glossary_import_terms");
     glossary_cmd::import_terms(&glossary, json).await.map_err(|e| e.to_string())
 }
+

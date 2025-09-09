@@ -27,11 +27,11 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useTranslation } from '~/composables/useTranslation'
+import { useTranslator } from '~/composables/useTranslator'
 type ProcessRow = { id: string; source_text: string; target_text: string; status: 'pending' | 'processing' | 'done' | 'error' }
 
 const props = defineProps<{ rows: ProcessRow[]; errors?: Array<{ id: string; message: string }> }>()
-const { translationProgress, translationTotal } = useTranslation()
+const { translationProgress, translationTotal } = useTranslator()
 
 const percentage = computed(() => {
   if (!translationTotal.value) return 0

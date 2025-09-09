@@ -85,7 +85,7 @@ export const useProviderStore = defineStore('provider', () => {
 
   // Providers list (static for now)
   async function fetchProviders() {
-    availableProviders.value = ['Ollama', 'OpenAI', 'OpenRouter', 'RunPod', 'Groq'] as Provider[]
+    availableProviders.value = ['Ollama', 'RunPod'] as Provider[]
     if (!availableProviders.value.includes(selectedProvider.value)) {
       selectedProvider.value = 'Ollama'
     }

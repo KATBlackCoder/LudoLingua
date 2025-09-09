@@ -4,35 +4,35 @@ This document provides a comprehensive overview of the LudoLingua application ar
 
 ## System Overview
 
-LudoLingua is built using a hybrid architecture:
+LudoLingua is built using a modern hybrid architecture:
 
-- **Frontend**: A Nuxt.js Single-Page Application (SPA) that provides the user interface
-- **Backend**: A Rust-based Tauri application that handles file operations, data processing, and AI integration
+- **Frontend**: Nuxt 4 Single-Page Application with Nuxt UI components and TypeScript
+- **Backend**: Rust-based Tauri application with SQLite persistence and multi-provider LLM support
 
-The application follows a clear separation of concerns pattern, with well-defined boundaries between different components.
+The application follows a clean separation of concerns with well-defined boundaries between components, supporting multiple game engines and AI translation providers.
 
 ## Component Interaction Diagram
 
 ```
-┌─────────────────────────────────────────┐     ┌─────────────────────────────────────────┐
-│           FRONTEND (Nuxt.js)            │     │             BACKEND (Rust)              │
-│                                         │     │                                         │
-│  ┌─────────────┐      ┌─────────────┐   │     │   ┌─────────────┐      ┌─────────────┐  │
-│  │    Pages    │◄────►│    Stores   │◄──┼─────┼──►│  Commands   │◄────►│    Core     │  │
-│  └─────────────┘      └─────────────┘   │     │   └─────────────┘      └─────────────┘  │
-│         ▲                    ▲          │     │         ▲                    ▲          │
-│         │                    │          │     │         │                    │          │
-│         ▼                    ▼          │     │         ▼                    ▼          │
-│  ┌─────────────┐      ┌─────────────┐   │     │   ┌─────────────┐      ┌─────────────┐  │
-│  │ Components  │      │    Types    │   │     │   │   Models    │◄────►│   Engines   │  │
-│  └─────────────┘      └─────────────┘   │     │   └─────────────┘      └─────────────┘  │
-│                                         │     │         ▲                    ▲          │
-│                                         │     │         │                    │          │
-│                                         │     │         ▼                    ▼          │
-│                                         │     │   ┌─────────────┐      ┌─────────────┐  │
-│                                         │     │   │     DB      │      │     LLM     │  │
-│                                         │     │   └─────────────┘      └─────────────┘  │
-└─────────────────────────────────────────┘     └─────────────────────────────────────────┘
+┌─────────────────────────────────────────────┐     ┌─────────────────────────────────────────────┐
+│            FRONTEND (Nuxt 4)                │     │             BACKEND (Rust)                  │
+│                                             │     │                                             │
+│  ┌─────────────┐      ┌─────────────┐       │     │   ┌─────────────┐      ┌─────────────┐      │
+│  │    Pages    │◄────►│    Stores   │◄─────┼─────┼──►│  Commands   │◄────►│    Core     │      │
+│  └─────────────┘      └─────────────┘       │     │   └─────────────┘      └─────────────┘      │
+│         ▲                    ▲              │     │         ▲                    ▲              │
+│         │                    │              │     │         │                    │              │
+│         ▼                    ▼              │     │         ▼                    ▼              │
+│  ┌─────────────┐      ┌─────────────┐       │     │   ┌─────────────┐      ┌─────────────┐      │
+│  │ Components  │      │ Composables │       │     │   │   Models    │◄────►│   Engines   │      │
+│  └─────────────┘      └─────────────┘       │     │   └─────────────┘      └─────────────┘      │
+│         ▲                    ▲              │     │         ▲                    ▲              │
+│         │                    │              │     │         │                    │              │
+│         ▼                    ▼              │     │         ▼                    ▼              │
+│  ┌─────────────┐      ┌─────────────┐       │     │   ┌─────────────┐      ┌─────────────┐      │
+│  │    Types    │      │   Plugins   │       │     │   │     DB      │      │     LLM     │      │
+│  └─────────────┘      └─────────────┘       │     │   └─────────────┘      └─────────────┘      │
+└─────────────────────────────────────────────┘     └─────────────────────────────────────────────┘
 ```
 
 ## Key Interaction Patterns
@@ -41,89 +41,137 @@ The application follows a clear separation of concerns pattern, with well-define
 
 The frontend and backend communicate through Tauri's command system:
 
-1. **Command Invocation**: The frontend's Pinia stores use Tauri's `invoke()` function to call backend commands defined in `src-tauri/src/commands/`.
-2. **Data Transfer**: Data is serialized/deserialized using Serde on the backend and TypeScript types on the frontend.
-3. **Response Handling**: The backend returns data that is processed by the store and updates the reactive state.
+1. **Store Coordination**: Frontend Pinia stores coordinate multi-store interactions (engine + provider + glossary)
+2. **Command Invocation**: Stores use Tauri's `invoke()` to call backend commands
+3. **Data Serialization**: Serde handles Rust ↔ TypeScript data transformation
+4. **Reactive Updates**: Vue 3 reactivity automatically syncs UI with store state changes
 
 ### 2. Backend Component Interactions
 
 #### Commands Layer → Core/Models/Engines
 
-- **Purpose**: The commands layer acts as an API gateway, receiving requests from the frontend and orchestrating the appropriate backend services.
-- **Interaction**: Commands validate input, call the appropriate business logic in the engines or core modules, and return serializable responses.
+- **Purpose**: Commands layer serves as API gateway between frontend and backend services
+- **Interaction**: Validates input, orchestrates business logic, returns serializable responses
 
 #### Core → Engines
 
-- **Purpose**: The core module defines contracts (traits) that engines must implement.
-- **Interaction**: The `Engine` trait in `core/engine.rs` defines methods like `load_project` and `extract_text` that engine implementations must provide.
+- **Purpose**: Core defines contracts and abstractions for game engine implementations
+- **Interaction**: `Engine` trait provides `load_project`, `extract_text`, `inject_text_units`, `reconstruct_text_unit_id`
 
 #### Engines → Models
 
-- **Purpose**: Engines parse game files and transform them into the application's domain models.
-- **Interaction**: Engine implementations read game files, extract data, and populate model structs from `models/` that represent game entities and translation units.
+- **Purpose**: Engines parse game files into domain models for processing
+- **Interaction**: File parsers populate model structs representing game entities and text units
 
 #### Models → DB/LLM
 
-- **Purpose**: Models are passed to the database and LLM modules for persistence and processing.
-- **Interaction**: The glossary database operations use model structs, and the LLM module receives translation models to process.
+- **Purpose**: Models enable data persistence and AI processing
+- **Interaction**: Database operations use models for CRUD, LLM receives models for translation
 
-#### Glossary System Integration
+#### Multi-Provider LLM Integration
 
-- **Purpose**: The glossary system provides consistent translation vocabulary and terminology management.
-- **Interaction**: 
-  - Glossary terms are stored in SQLite database with language-specific pairs
-  - Terms are automatically injected into translation prompts via the shared prompt builder
-  - Users can customize character names and game-specific terminology
-  - Fallback system uses curated vocabulary when database is empty
+- **Purpose**: Support multiple AI providers with unified interface
+- **Interaction**:
+  - Factory pattern instantiates appropriate provider services
+  - Shared prompt builder ensures consistency across providers
+  - Token estimation provides cost/budgeting information
 
 ### 3. Frontend Component Interactions
 
 #### Pages → Components
 
-- **Purpose**: Pages compose the UI using smaller, reusable components.
-- **Interaction**: Pages pass data from stores to components via props and listen for events emitted by components.
+- **Purpose**: Pages orchestrate UI composition using reusable components
+- **Interaction**: Pages pass reactive data from stores via props, handle component events
+
+#### Components → Composables
+
+- **Purpose**: Composables provide shared logic and state management
+- **Interaction**: Components use composables for toast notifications, translation utilities, glossary operations
 
 #### Pages/Components → Stores
 
-- **Purpose**: Stores manage application state and communicate with the backend.
-- **Interaction**: UI components dispatch actions to stores, which update reactive state and/or communicate with the backend.
+- **Purpose**: Stores manage application state and backend communication
+- **Interaction**: Components trigger store actions, stores handle async operations and state updates
 
 #### Stores → Types
 
-- **Purpose**: Types ensure type safety between the frontend and backend.
-- **Interaction**: Stores use TypeScript interfaces that mirror the backend's Rust structs to ensure data consistency.
+- **Purpose**: TypeScript ensures type safety across the application
+- **Interaction**: Stores use typed interfaces matching backend Rust structs
+
+#### Multi-Store Coordination
+
+- **Purpose**: Complex workflows require coordination between multiple stores
+- **Interaction**: Stores reference each other (engine + provider + glossary) for unified operations
 
 ## Data Flow Examples
 
-### Loading a Project
+### Modern Project Loading & Translation Workflow
 
-1. User clicks "Load Project" in the UI (`pages/index.vue`)
-2. The page calls `projectStore.loadProject()`
-3. The store invokes the backend command `load_project`
-4. The backend command handler calls the engine factory to determine the project type
-5. The appropriate engine implementation loads and parses the project files
-6. The engine returns structured data using model types
-7. The data is serialized and returned to the frontend
-8. The store updates its state with the project data
-9. Components reactively update to display the loaded project
+1. **User Action**: User clicks "Load Project" in translation page
+2. **Store Coordination**: `engineStore.loadProject()` coordinates with settings store
+3. **Backend Command**: Store invokes `invoke('load_project')` with project path
+4. **Engine Detection**: Backend factory detects engine type (MV/MZ/Wolf RPG)
+5. **File Processing**: Engine extracts text units with manifest creation
+6. **Database Persistence**: Text units stored in SQLite with project identification
+7. **State Update**: Frontend stores update reactive state
+8. **UI Synchronization**: Components automatically re-render with project data
 
-### Translating Text
+### Advanced Translation Flow
 
-1. User selects text and clicks "Translate" in the editor component
-2. The component emits a translation event to the parent page
-3. The page calls `projectStore.translateText()`
-4. The store invokes the backend command `translate_text`
-5. The backend command handler retrieves relevant glossary terms from the database
-6. The shared prompt builder injects glossary terms into the translation prompt
-7. The LLM module is called with the enhanced prompt containing glossary context
-8. The AI model generates a translation with consistent terminology
-9. The result is returned to the frontend
-10. The store updates the translation state
-11. The UI components reactively update to show the translated text
+1. **Batch Translation**: User initiates translation in `TranslationProcess` component
+2. **Multi-Store Coordination**: `translateStore` coordinates with `providerStore` and `glossaryStore`
+3. **Provider Selection**: `providerStore` provides current LLM configuration (Ollama/OpenAI/Groq)
+4. **Glossary Integration**: `glossaryStore` supplies relevant terms for context
+5. **Prompt Building**: Backend shared prompt builder creates context-rich prompts
+6. **Token Estimation**: `token_estimation.rs` provides cost/budgeting information
+7. **Translation Execution**: LLM service processes text with provider-specific optimizations
+8. **Progress Tracking**: Real-time progress updates with cancellation support
+9. **Database Updates**: Translation results persisted with status tracking
+10. **UI Feedback**: Toast notifications and progress indicators update user
+
+### Export Workflow
+
+1. **Export Trigger**: User clicks "Export" in translation interface
+2. **Database Query**: Backend queries translated units by manifest hash
+3. **Engine Dispatch**: Factory instantiates appropriate engine implementation
+4. **ID Reconstruction**: Engine's `reconstruct_text_unit_id()` recreates TextUnit objects
+5. **File Operations**: Engine copies project files and injects translations
+6. **User Feedback**: Toast notifications confirm successful export to `ludolingua/` folder
 
 ## Directory Structure
 
 For detailed directory structures and module explanations, please refer to:
 
 - [Backend Structure](BACKEND_STRUCTURE.md)
-- [Frontend Structure](FRONTEND_STRUCTURE.md) 
+- [Frontend Structure](FRONTEND_STRUCTURE.md)
+
+## Technology Stack
+
+### Frontend Technologies
+- **Framework**: Nuxt 4 with Vue 3 Composition API
+- **UI Library**: Nuxt UI with Tailwind CSS
+- **State Management**: Pinia stores with TypeScript
+- **Package Manager**: pnpm
+- **Build Tool**: Vite
+- **Type Safety**: TypeScript throughout
+
+### Backend Technologies
+- **Core**: Rust with Tokio async runtime
+- **Desktop Framework**: Tauri for cross-platform desktop apps
+- **Database**: SQLite with SQLx for persistence
+- **AI Integration**: Multi-provider LLM support (Ollama, OpenAI, Groq, OpenRouter)
+- **Serialization**: Serde for JSON handling
+- **Error Handling**: Custom error types with comprehensive error recovery
+
+### Supported Game Engines
+- **RPG Maker MV**: Full support with 12+ file types
+- **RPG Maker MZ**: Full support with core files
+- **Wolf RPG**: Experimental support with MPS/DB files
+
+### Key Features
+- **Database Persistence**: SQLite storage with ACID transactions
+- **Multi-Provider LLM**: Unified interface for different AI providers
+- **Engine-Agnostic Export**: Factory pattern for extensible game engine support
+- **Glossary System**: Database-backed term management with prompt integration
+- **Token Estimation**: Pre-translation cost and budget planning
+- **Progress Preservation**: Resume functionality after interruptions 
