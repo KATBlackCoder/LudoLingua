@@ -20,9 +20,9 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useTranslation } from '~/composables/useTranslation'
+import { useTranslator } from '~/composables/useTranslator'
 
-const { textUnits } = useTranslation()
+const { textUnits } = useTranslator()
 
 const rows = computed(() => textUnits.value.map(u => ({ id: u.id, prompt_type: u.prompt_type, source_text: u.source_text })))
 const page = ref(1)

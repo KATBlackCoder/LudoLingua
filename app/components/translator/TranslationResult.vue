@@ -18,8 +18,8 @@
 import { computed, ref, h, resolveComponent } from 'vue'
 import type { Component } from 'vue'
 import type { TextUnit } from '~/types/translation'
-import TranslationEditor from '~/components/translation/TranslationEditor.vue'
-import { useTranslation } from '~/composables/useTranslation'
+import TranslationEditor from '~/components/translator/TranslationEditor.vue'
+import { useTranslator } from '~/composables/useTranslator'
 import type { TableColumn } from '#ui/types'
 import { useGlossary } from '~/composables/useGlossary'
 import type { GlossaryTerm } from '~/types/glossary'
@@ -32,7 +32,7 @@ const emit = defineEmits<{
   (e: 'save', payload: { id: string; translated_text: string; prompt_type?: string }): void
   (e: 'remove', id: string): void
 }>()
-const { isBusy, retranslate, saveEdit } = useTranslation()
+const { isBusy, retranslate, saveEdit } = useTranslator()
 const engineStore = useEngineStore()
 const glossary = useGlossary()
 const languageStore = useLanguageStore()

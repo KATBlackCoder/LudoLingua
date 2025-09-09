@@ -147,10 +147,10 @@
 </template>
 
 <script setup lang="ts">
-import TranslationProcess from '~/components/translation/TranslationProcess.vue'
-import TranslationRaw from '~/components/translation/TranslationRaw.vue'
-import TranslationResult from '~/components/translation/TranslationResult.vue'
-import { useTranslation } from '~/composables/useTranslation'
+import TranslationProcess from '~/components/translator/TranslationProcess.vue'
+import TranslationRaw from '~/components/translator/TranslationRaw.vue'
+import TranslationResult from '~/components/translator/TranslationResult.vue'
+import { useTranslator } from '~/composables/useTranslator'
 import ProjectStats from '~/components/editor/ProjectStats.vue'
 import { useEngineStore } from '~/stores/engine'
 import { useAppToast } from '~/composables/useAppToast'
@@ -168,7 +168,7 @@ const {
   startProcess,
   reset,
   saveEdit,
-} = useTranslation()
+} = useTranslator()
 
 const { showToast } = useAppToast()
 

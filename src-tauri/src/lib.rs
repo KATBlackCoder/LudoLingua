@@ -55,7 +55,6 @@ pub fn run() {
             commands::handler::get_ollama_models,
             commands::handler::get_provider_models,
             commands::handler::get_languages,
-            commands::handler::estimate_project_tokens,
             commands::handler::glossary_list_terms,
             commands::handler::glossary_upsert_term,
             commands::handler::glossary_delete_term,

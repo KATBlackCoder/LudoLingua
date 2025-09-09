@@ -32,5 +32,3 @@ export const useGlossaryStore = defineStore('glossary', () => {
 
   return { terms, isLoading, error, fetchTerms, upsertTerm, deleteTerm }
 })
-
-

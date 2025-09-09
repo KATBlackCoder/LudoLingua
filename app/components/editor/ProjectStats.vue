@@ -97,11 +97,11 @@
 import { computed, onMounted } from 'vue';
 import { useEngineStore } from '~/stores/engine';
 import { useSettingsStore } from '~/stores/settings';
-import { useTranslation } from '~/composables/useTranslation';
+import { useTranslator } from '~/composables/useTranslator';
 
 const engineStore = useEngineStore();
 const settingsStore = useSettingsStore();
-const { elapsedText, remainingText } = useTranslation();
+const { elapsedText, remainingText } = useTranslator();
 
 // Check if manifest file actually exists in project directory
 const manifestExists = computed(() => {

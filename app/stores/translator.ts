@@ -14,7 +14,7 @@ import { useSettingsStore } from './settings';
  * configuration and source data, and calls the `translate_text_unit`
  * Tauri command to perform translations.
  */
-export const useTranslateStore = defineStore('translate', () => {
+export const useTranslatorStore = defineStore('translator', () => {
   const { showToast } = useAppToast();
   const settingsStore = useSettingsStore();
   const engineStore = useEngineStore();
@@ -127,7 +127,7 @@ export const useTranslateStore = defineStore('translate', () => {
           const msgLower = message.toLowerCase()
           const isFatalQuota = msgLower.includes('insufficient_quota') || msgLower.includes('exceeded your current quota')
           if (isFatalQuota) {
-            showToast('Provider Quota Exceeded', 'OpenAI reports insufficient quota. Check your plan/billing.', 'error', 2500)
+            showToast('Provider Quota Exceeded', 'Provider reports insufficient quota. Check your plan/billing.', 'error', 2500)
             break
           }
           // Otherwise continue to next unit

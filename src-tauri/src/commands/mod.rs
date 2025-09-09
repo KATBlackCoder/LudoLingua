@@ -10,4 +10,4 @@ pub mod glossary;
 pub mod handler;
 pub mod languages;
 pub mod provider;
-pub mod translation;
+pub mod translator;

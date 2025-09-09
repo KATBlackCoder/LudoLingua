@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEngineStore } from '~/stores/engine'
-import { useTranslateStore } from '~/stores/translate'
+import { useTranslatorStore } from '~/stores/translator'
 import { TranslationStatus } from '~/types/translation'
 
 type Mode = 'raw' | 'process' | 'result'
@@ -46,9 +46,9 @@ function stopTimer(): void {
   startTimestampMs.value = null
 }
 
-export function useTranslation() {
+export function useTranslator() {
   const engineStore = useEngineStore()
-  const translateStore = useTranslateStore()
+  const translatorStore = useTranslatorStore()
 
   const translatedItems = computed(() => engineStore.textUnits.filter((u) =>
     u.status === 'MachineTranslated' ||
@@ -61,7 +61,7 @@ export function useTranslation() {
     translationProgress,
     translationTotal,
     failedTranslations,
-  } = storeToRefs(translateStore)
+  } = storeToRefs(translatorStore)
   const isBusy = isTranslationInProgress
   const failedCount = computed(() => failedTranslations.value.length)
 
@@ -123,7 +123,7 @@ export function useTranslation() {
       processRows.value[0]!.status = 'processing'
     }
     startTimer()
-    await translateStore.startBatchTranslation(untranslated, (translatedUnit) => {
+    await translatorStore.startBatchTranslation(untranslated, (translatedUnit) => {
       const currentIndex = processRows.value.findIndex(r => r.status === 'processing')
       const rowIndex = processRows.value.findIndex(r => r.id === translatedUnit.id)
       if (rowIndex !== -1) {
@@ -145,7 +145,7 @@ export function useTranslation() {
     processRows.value = [{ id: unit.id, source_text: unit.source_text, target_text: '', status: 'processing' }]
     mode.value = 'process'
     startTimer()
-    const translated = await translateStore.translateTextUnit(unit)
+    const translated = await translatorStore.translateTextUnit(unit)
     stopTimer()
     processRows.value[0]!.status = 'done'
     processRows.value[0]!.target_text = translated.translated_text ?? ''
@@ -156,7 +156,7 @@ export function useTranslation() {
   const retranslate = async (id: string) => {
     const unit = engineStore.getTextUnitById(id)
     if (!unit) return
-    const updated = await translateStore.translateTextUnit(unit)
+    const updated = await translatorStore.translateTextUnit(unit)
     return updated
   }
 

@@ -10,15 +10,7 @@ use crate::core::error::AppResult;
 #[serde(rename_all = "lowercase")]
 pub enum ProviderKind {
     Ollama,
-    Openai,
-    Openrouter,
     Runpod,
-    Deepl,
-    Anthropic,
-    Google,
-    Groq,
-    Mistral,
-    Cohere,
 }
 
 /// Generation response with token usage information

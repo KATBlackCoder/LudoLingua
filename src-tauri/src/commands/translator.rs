@@ -10,9 +10,23 @@ use crate::models::engine::EngineInfo;
 use crate::models::provider::LlmConfig;
 use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
 use crate::utils::prompts::builder::PromptBuilder;
-use crate::utils::token_estimation::ActualTokenUsage;
 use tauri::State;
 use tokio::time::{sleep, timeout, Duration};
+
+/// Actual token usage from completed translation
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct ActualTokenUsage {
+    /// Input tokens used (from LLM response)
+    pub input_tokens: u32,
+    /// Output tokens used (from LLM response)
+    pub output_tokens: u32,
+    /// Total tokens used
+    pub total_tokens: u32,
+    /// Text unit ID this usage is for
+    pub text_unit_id: String,
+    /// Model used for this translation
+    pub model_name: String,
+}
 
 /// Response for text unit translation including token usage
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -42,10 +56,8 @@ pub async fn translate_text_unit(
     // Add small delay for cloud providers to prevent rate limits
     let provider = config.model.provider.to_lowercase();
     match provider.as_str() {
-        "groq" => sleep(Duration::from_millis(500)).await,      // Groq: 500ms delay (increased for strict rate limits)
-        "openai" => sleep(Duration::from_millis(200)).await,    // OpenAI: 200ms delay
-        "openrouter" => sleep(Duration::from_millis(150)).await, // OpenRouter: 150ms delay
-        _ => sleep(Duration::from_millis(500)).await,          // Default: 500ms delay for remote Ollama and other providers
+        "runpod" => sleep(Duration::from_millis(500)).await,    // RunPod: 500ms delay for remote servers
+        _ => sleep(Duration::from_millis(200)).await,           // Default: 200ms delay for local Ollama
     }
     // Build prompt at the command layer to keep service focused on generation
     // Try to fetch glossary terms filtered by prompt type
@@ -187,8 +199,6 @@ pub async fn translate_text_unit(
         token_usage,
     })
 }
-
-
 
 /// Execute a single prompt with timeout and retry/backoff using the shared service, returning token usage.
 /// Optimized for remote Ollama servers (RunPod, Vast.ai) with enhanced network latency handling.
