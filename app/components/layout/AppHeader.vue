@@ -3,25 +3,25 @@
     <UContainer class="py-3">
       <div class="flex justify-between items-center gap-3">
         <div class="flex items-center gap-2">
-          <UIcon name="i-heroicons-language" class="w-6 h-6" />
+          <UIcon name="i-lucide-languages" class="w-6 h-6" />
           <h1 class="text-xl font-semibold">LudoLingua</h1>
         </div>
         <nav>
           <UFieldGroup>
-            <UButton to="/" variant="ghost" :active="$route.path === '/'" icon="i-heroicons-home">Home</UButton>
+            <UButton to="/" variant="ghost" :active="$route.path === '/'" icon="i-lucide-home">Home</UButton>
             <UButton 
               v-if="engineStore.hasProject && !engineStore.isLoading"
               to="/translator" 
               variant="ghost" 
               :active="$route.path === '/translator'" 
-              icon="i-heroicons-language"
+              icon="i-lucide-languages"
             >
               Translator
             </UButton>
-            <UButton to="/translations" variant="ghost" :active="$route.path === '/translations'" icon="i-heroicons-queue-list">Translations</UButton>
-            <UButton to="/settings" variant="ghost" :active="$route.path === '/settings'" icon="i-heroicons-cog-6-tooth">Settings</UButton>
-            <UButton to="/glossary" variant="ghost" :active="$route.path === '/glossary'" icon="i-heroicons-book-open">Glossary</UButton>
-            <UButton to="/about" variant="ghost" :active="$route.path === '/about'" icon="i-heroicons-information-circle">About</UButton>
+            <UButton to="/translations" variant="ghost" :active="$route.path === '/translations'" icon="i-lucide-list">Translations</UButton>
+            <UButton to="/settings" variant="ghost" :active="$route.path === '/settings'" icon="i-lucide-settings">Settings</UButton>
+            <UButton to="/glossary" variant="ghost" :active="$route.path === '/glossary'" icon="i-lucide-book-open">Glossary</UButton>
+            <UButton to="/about" variant="ghost" :active="$route.path === '/about'" icon="i-lucide-info">About</UButton>
           </UFieldGroup>
         </nav>
       </div>

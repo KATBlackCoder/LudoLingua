@@ -134,10 +134,10 @@ pub async fn upsert_unit(
 
         Ok(id)
     } else {
-        // Use INSERT OR IGNORE to handle conflicts with unique constraint
-        // This preserves existing translations while allowing new units to be added
+        // Insert new record - now allowing duplicates for RPG game context
+        // Each text occurrence is treated as a separate translatable unit
         let result = sqlx::query(
-            r#"INSERT OR IGNORE INTO text_units
+            r#"INSERT INTO text_units
                (project_path, file_path, field_type, source_text, translated_text,
                 status, prompt_type, source_lang, target_lang, manifest_hash)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#
@@ -156,26 +156,7 @@ pub async fn upsert_unit(
         .await
         .map_err(|e| AppError::Database(e.to_string()))?;
 
-        // If INSERT OR IGNORE didn't insert anything (because record exists),
-        // try to find the existing record ID
-        if result.rows_affected() == 0 {
-            // Find the existing record
-            let existing_row = sqlx::query(
-                r#"SELECT id FROM text_units 
-                   WHERE project_path = ? AND file_path = ? AND field_type = ? AND source_text = ?"#
-            )
-            .bind(&unit.project_path)
-            .bind(&unit.file_path)
-            .bind(&unit.field_type)
-            .bind(&unit.source_text)
-            .fetch_one(&pool)
-            .await
-            .map_err(|e| AppError::Database(e.to_string()))?;
-            
-            Ok(existing_row.get::<i64, _>("id"))
-        } else {
-            Ok(result.last_insert_rowid())
-        }
+        Ok(result.last_insert_rowid())
     }
 }
 
@@ -199,8 +180,6 @@ pub async fn bulk_upsert_units(
                 if unit.id.is_some() {
                     updated += 1;
                 } else {
-                    // For new units, check if it was actually inserted or if it already existed
-                    // We can't easily distinguish here, so we'll count all as "processed"
                     inserted += 1;
                 }
             }
@@ -247,10 +226,10 @@ async fn upsert_unit_in_transaction(
 
         Ok(id)
     } else {
-        // Use INSERT OR IGNORE to handle conflicts with unique constraint
-        // This preserves existing translations while allowing new units to be added
+        // Insert new record - now allowing duplicates for RPG game context
+        // Each text occurrence is treated as a separate translatable unit
         let result = sqlx::query(
-            r#"INSERT OR IGNORE INTO text_units
+            r#"INSERT INTO text_units
                (project_path, file_path, field_type, source_text, translated_text,
                 status, prompt_type, source_lang, target_lang, manifest_hash)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#
@@ -269,26 +248,7 @@ async fn upsert_unit_in_transaction(
         .await
         .map_err(|e| AppError::Database(e.to_string()))?;
 
-        // If INSERT OR IGNORE didn't insert anything (because record exists),
-        // try to find the existing record ID
-        if result.rows_affected() == 0 {
-            // Find the existing record
-            let existing_row = sqlx::query(
-                r#"SELECT id FROM text_units 
-                   WHERE project_path = ? AND file_path = ? AND field_type = ? AND source_text = ?"#
-            )
-            .bind(&unit.project_path)
-            .bind(&unit.file_path)
-            .bind(&unit.field_type)
-            .bind(&unit.source_text)
-            .fetch_one(&mut **tx)
-            .await
-            .map_err(|e| AppError::Database(e.to_string()))?;
-            
-            Ok(existing_row.get::<i64, _>("id"))
-        } else {
-            Ok(result.last_insert_rowid())
-        }
+        Ok(result.last_insert_rowid())
     }
 }
 

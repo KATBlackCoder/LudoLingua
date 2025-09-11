@@ -11,7 +11,7 @@
 
       <UFormField label="Direction" name="direction" description="Swap source and target">
         <UFieldGroup>
-          <UButton size="xs" icon="i-heroicons-arrows-right-left" variant="soft" @click="swap">Swap</UButton>
+          <UButton size="xs" icon="i-lucide-arrow-left-right" variant="soft" @click="swap">Swap</UButton>
         </UFieldGroup>
       </UFormField>
     </div>

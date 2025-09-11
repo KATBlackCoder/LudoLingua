@@ -11,7 +11,7 @@
     <UAlert
       color="primary"
       variant="soft"
-      icon="i-heroicons-circle-stack"
+      icon="i-lucide-layers"
       title="Database location"
     >
       <template #description>
@@ -67,7 +67,7 @@
 
     <!-- Placeholder guide moved to AboutPlaceholders.vue -->
 
-    <UAlert color="warning" variant="soft" icon="i-heroicons-exclamation-triangle" class="mt-3">
+    <UAlert color="warning" variant="soft" icon="i-lucide-triangle-alert" class="mt-3">
       <template #title>Keep glossary entries short</template>
       <template #description>
         <div class="text-sm">

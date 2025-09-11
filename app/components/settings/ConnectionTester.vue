@@ -6,7 +6,7 @@
       :loading="providerStore.isLoading"
       variant="outline"
       size="sm"
-      icon="i-heroicons-wifi"
+      icon="i-lucide-wifi"
       :disabled="!ready"
       @click="testConnection"
     >

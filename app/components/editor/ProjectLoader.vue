@@ -10,7 +10,7 @@
     <div class="space-y-4">
       <p class="text-sm text-muted">Select an RPG Maker MV/MZ project folder to start translating.</p>
       <div v-if="engineStore.isLoading" class="flex items-center gap-2 text-sm text-muted">
-        <UIcon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+        <UIcon name="i-lucide-loader-2" class="w-4 h-4 animate-spin" />
         <span>Extracting project data & merging with database… This may take a while.</span>
       </div>
       <div v-if="engineStore.isLoading" class="mt-2">
@@ -20,7 +20,7 @@
       <div class="flex flex-wrap items-center gap-2">
         <UButton
           label="Select Folder"
-          icon="i-heroicons-folder-open"
+          icon="i-lucide-folder-open"
           color="primary"
           :loading="engineStore.isLoading"
           @click="openProjectDialog"
@@ -59,7 +59,7 @@ async function openProjectDialog() {
         `${engineStore.totalTextUnits} units across ${engineStore.gameDataFiles.length} files - Database merged successfully`,
         'success',
         2000,
-        'i-heroicons-server-stack'
+        'i-lucide-server'
       )
     }
   } catch (error) {
@@ -69,7 +69,7 @@ async function openProjectDialog() {
       error instanceof Error ? error.message : 'Unexpected error',
       'error',
       1800,
-      'i-heroicons-exclamation-triangle'
+      'i-lucide-triangle-alert'
     )
   }
 }

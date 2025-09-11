@@ -5,7 +5,7 @@
       <UBadge color="primary" variant="soft" size="xs">Do not edit inside [ … ]</UBadge>
     </div>
 
-    <UAlert color="error" variant="soft" icon="i-heroicons-information-circle" class="mb-3">
+    <UAlert color="error" variant="soft" icon="i-lucide-info" class="mb-3">
       <template #title>Preserve placeholders exactly</template>
       <template #description>
         <div class="text-sm">

@@ -15,13 +15,13 @@
           </div>
         </div>
 
-        <UAlert v-if="showSuccessMessage" color="success" variant="soft" icon="i-heroicons-check-circle" title="Settings saved" />
+        <UAlert v-if="showSuccessMessage" color="success" variant="soft" icon="i-lucide-check-circle" title="Settings saved" />
 
         <UAlert
           v-if="!hasSettings"
           color="warning"
           variant="soft"
-          icon="i-heroicons-cog-6-tooth"
+          icon="i-lucide-settings"
           title="Finish initial setup"
           class="mt-2"
         >

@@ -9,7 +9,7 @@
           </div>
           <div class="flex items-center gap-2">
             <UBadge size="sm" color="neutral" variant="soft">{{ engineStore.projectName }}</UBadge>
-            <UButton size="xs" color="neutral" icon="i-heroicons-arrow-path" @click="refresh" />
+            <UButton size="xs" color="neutral" icon="i-lucide-refresh-cw" @click="refresh" />
           </div>
         </div>
       </template>
@@ -117,8 +117,8 @@ const databaseStatusText = computed(() => {
 });
 
 const databaseStatusIcon = computed(() => {
-  if (translatedCount.value === 0) return 'i-heroicons-check-circle';
-  return 'i-heroicons-server-stack';
+  if (translatedCount.value === 0) return 'i-lucide-check-circle';
+  return 'i-lucide-server';
 });
 
 const databaseStatusColor = computed(() => {

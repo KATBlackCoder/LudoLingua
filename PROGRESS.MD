@@ -113,6 +113,16 @@ Phase 5 (Next): Enhanced Features & Polish           [░░░░░░░░�
 - ✅ Row selection with checkboxes using official Nuxt UI v4 pattern
 - ✅ Bulk delete functionality with proper selection management
 
+**4.5 Database Schema & Critical Bug Fixes - COMPLETED**
+- ✅ Fixed UNIQUE constraint errors preventing duplicate text storage
+- ✅ Created migration `0004_fix_text_units_uniqueness.sql` to remove restrictive constraint
+- ✅ Updated repository logic to allow duplicate text units for RPG contexts
+- ✅ Enhanced about page with comprehensive translation management information
+- ✅ Added new `AboutTranslations.vue` component with workflow, features, and best practices
+- ✅ Navigation improvements (translations page → home, conditional translator visibility)
+- ✅ Complete migration to Lucide icons across all about components
+- ✅ Fixed app info loading in footer with proper async handling
+
 ---
 
 ## 🏗️ **Technical Architecture**
