@@ -2,7 +2,7 @@
   <div class="space-y-4">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold">Results</h3>
-      <UInput v-model="search" icon="i-heroicons-magnifying-glass" placeholder="Search source/translated/type…" />
+      <UInput v-model="search" icon="i-lucide-search" placeholder="Search source/translated/type…" />
     </div>
     <UTable :data="pagedRows" :columns="columns" class="text-base" />
     <div class="flex items-center justify-between">
@@ -90,7 +90,7 @@ const columns: TableColumn<Row>[] = [
           size: 'xs',
           color: 'primary',
           variant: 'soft',
-          icon: 'i-heroicons-arrow-path',
+          icon: 'i-lucide-refresh-cw',
           disabled: isBusy.value,
           onClick: async () => { await onRetranslate(row.original.id) }
         }, { default: () => 'Re-translate' }),
@@ -98,7 +98,7 @@ const columns: TableColumn<Row>[] = [
           size: 'xs',
           color: 'warning',
           variant: 'soft',
-          icon: 'i-heroicons-plus',
+          icon: 'i-lucide-plus',
           disabled: isBusy.value,
           onClick: async () => { await onAddToGlossary(row.original.id) }
         }, { default: () => 'Add to glossary' }),
@@ -106,14 +106,14 @@ const columns: TableColumn<Row>[] = [
           size: 'xs',
           color: 'error',
           variant: 'soft',
-          icon: 'i-heroicons-trash',
+          icon: 'i-lucide-trash-2',
           disabled: isBusy.value,
           onClick: () => { onRemove(row.original.id) }
         }, { default: () => 'Remove' }),
         h(UButton, {
           size: 'xs',
           color: 'neutral',
-          icon: 'i-heroicons-pencil',
+          icon: 'i-lucide-pencil',
           disabled: isBusy.value || editorOpen.value,
           onClick: () => openEditor(row.original.id)
         }, { default: () => 'Edit' })
@@ -158,7 +158,7 @@ async function onAddToGlossary(id: string) {
     enabled: true,
   }
   await glossary.save(term)
-  showToast('Added to glossary', `${category}: “${term.input}” → “${term.output || '…'}”`, 'success', 2500, 'i-heroicons-check-circle')
+  showToast('Added to glossary', `${category}: "${term.input}" → "${term.output || '…'}"`, 'success', 2500, 'i-lucide-check-circle')
 }
 
 function onRemove(id: string) {

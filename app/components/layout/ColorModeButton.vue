@@ -16,7 +16,7 @@ const isDark = computed({
     <UTooltip :text="isDark ? 'Switch to Light' : 'Switch to Dark'">
       <UButton
         :aria-label="isDark ? 'Light mode' : 'Dark mode'"
-        :icon="isDark ? 'i-heroicons-moon' : 'i-heroicons-sun'"
+        :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
         color="neutral"
         variant="ghost"
         square

@@ -72,7 +72,7 @@ export const useLanguageStore = defineStore("language", () => {
         "You can change this in the settings",
         "primary",
         1000,
-        "i-heroicons-check-circle"
+        "i-lucide-check-circle"
       );
     }
   }

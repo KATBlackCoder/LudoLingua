@@ -38,11 +38,11 @@
             size="xs"
             color="primary"
             variant="soft"
-            icon="i-heroicons-sparkles"
+            icon="i-lucide-sparkles"
             :loading="isRetranslating"
             @click="retranslate"
           >
-            <UIcon v-if="!isRetranslating" name="i-heroicons-sparkles" class="w-4 h-4 mr-1" />
+            <UIcon v-if="!isRetranslating" name="i-lucide-sparkles" class="w-4 h-4 mr-1" />
             Re-translate
           </UButton>
                 </div>
@@ -64,15 +64,15 @@
             </UFormField>
             <template #footer>
               <div class="flex items-center gap-2">
-                <UButton size="xs" color="neutral" variant="subtle" icon="i-heroicons-document-duplicate" @click="copyFromSource">Copy source</UButton>
-                <UButton size="xs" color="neutral" variant="subtle" icon="i-heroicons-backspace" @click="clearDraft">Clear</UButton>
+                <UButton size="xs" color="neutral" variant="subtle" icon="i-lucide-copy" @click="copyFromSource">Copy source</UButton>
+                <UButton size="xs" color="neutral" variant="subtle" icon="i-lucide-x" @click="clearDraft">Clear</UButton>
               </div>
             </template>
           </UCard>
         </div>
 
         <UAlert
-          icon="i-heroicons-information-circle"
+          icon="i-lucide-info"
           color="neutral"
           variant="soft"
           title="Placeholders"
@@ -86,18 +86,18 @@
         <div class="flex items-center gap-2">
           <div class="text-xs text-muted">Ctrl/Cmd + Enter to save</div>
           <UBadge v-if="isSaving" color="primary" variant="soft" size="sm">
-            <UIcon name="i-heroicons-arrow-path" class="w-3 h-3 mr-1 animate-spin" />
+            <UIcon name="i-lucide-loader-2" class="w-3 h-3 mr-1 animate-spin" />
             Saving to database...
           </UBadge>
           <UBadge v-else-if="lastSaved" color="success" variant="soft" size="sm">
-            <UIcon name="i-heroicons-check-circle" class="w-3 h-3 mr-1" />
+            <UIcon name="i-lucide-check-circle" class="w-3 h-3 mr-1" />
             Saved {{ lastSaved }}
           </UBadge>
         </div>
         <div class="flex gap-2">
           <UButton color="neutral" variant="soft" @click="cancel">Cancel</UButton>
           <UButton color="primary" :disabled="!canSave" :loading="isSaving" @click="save">
-            <UIcon v-if="!isSaving" name="i-heroicons-check" class="w-4 h-4 mr-1" />
+            <UIcon v-if="!isSaving" name="i-lucide-check" class="w-4 h-4 mr-1" />
             Save
           </UButton>
         </div>

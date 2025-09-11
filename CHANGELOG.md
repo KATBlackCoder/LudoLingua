@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Phase 4: Cleanup & Modernization - 100% COMPLETED ✅**
+  - **Database Schema Fixes & RPG Game Support:** Critical fixes for duplicate text handling
+    - Fixed UNIQUE constraint errors that prevented storing duplicate text from RPG games
+    - Created migration `0004_fix_text_units_uniqueness.sql` to remove overly restrictive constraint
+    - Updated database repository logic to allow legitimate text duplicates (same dialogue in different contexts)
+    - Enhanced support for RPG games where same text appears multiple times requiring separate translations
+    - Each text occurrence now treated as separate translatable unit for better context handling
+  - **Enhanced About Page:** Comprehensive documentation and user guidance
+    - Added new `AboutTranslations.vue` component with complete translation workflow documentation
+    - Detailed translation management features including status system, content types, and best practices
+    - Visual workflow diagram showing 4-step translation process with numbered badges
+    - Status system explanation with color-coded badges (NotTranslated, MachineTranslated, HumanReviewed, Ignored)
+    - Content type categorization guide (Character, Dialogue, System, Equipment, Skill, Class, State, Other)
+    - Tips and best practices section for efficient translation management
+    - Integrated new tab into existing about page navigation structure
+  - **Navigation & UX Improvements:** Better user flow and conditional visibility
+    - Modified translations page navigation to return to home instead of translator for better workflow
+    - Enhanced translator link visibility to show only when project is loaded AND loading is finished
+    - Improved conditional navigation preventing premature access to translation workspace
+    - Fixed app info loading in footer using proper async composable pattern
+  - **Icon System Modernization:** Complete migration to Lucide for Nuxt UI v4 consistency
+    - Updated all about page components from Heroicons to Lucide icons for modern design
+    - Migrated AppHeader and AppFooter icons to Lucide (`i-lucide-*` format)
+    - Enhanced AboutWhat, AboutFeatures components with updated icon system
+    - Consistent iconography throughout application following Nuxt UI v4 standards
   - **Row Selection & Bulk Operations:** Complete implementation using official Nuxt UI v4 patterns
     - Fixed row selection using correct `v-model:row-selection` pattern from [Nuxt UI v4 documentation](https://ui4.nuxt.com/docs/components/table#with-row-selection)
     - Implemented proper table reference with `useTemplateRef` for accessing table API

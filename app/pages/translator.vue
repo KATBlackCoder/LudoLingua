@@ -19,7 +19,7 @@
             <span class="text-xs text-muted">{{ translationProgress }}/{{ translationTotal }}</span>
           </div>
           <div v-else-if="isExportingSubset" class="flex items-center gap-2 ml-auto text-muted">
-            <UIcon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+            <UIcon name="i-lucide-loader-2" class="w-4 h-4 animate-spin" />
             <span class="text-xs">Exporting minimal copy…</span>
           </div>
         </div>
@@ -28,7 +28,7 @@
       <div class="flex flex-wrap items-center gap-3 mb-3">
         <UButtonGroup>
           <UButton
-            icon="i-heroicons-play"
+            icon="i-lucide-play"
             :loading="isBusy"
             :disabled="isExportingSubset || !hasNotTranslated"
             @click="startProcess"
@@ -36,7 +36,7 @@
             Translate All
           </UButton>
           <UButton
-            icon="i-heroicons-folder"
+            icon="i-lucide-folder"
             color="success"
             variant="soft"
             :loading="isExportingSubset"
@@ -46,7 +46,7 @@
             Export data
           </UButton>
           <UButton
-            icon="i-heroicons-arrow-path"
+            icon="i-lucide-refresh-cw"
             color="neutral"
             :disabled="isBusy || isExportingSubset || !hasTranslated"
             @click="reset"
@@ -200,7 +200,7 @@ async function exportSubset() {
       `Translations exported successfully to ludolingua/ folder`,
       'success',
       5000,
-      'i-heroicons-check-circle'
+      'i-lucide-check-circle'
     )
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Export failed'
@@ -209,7 +209,7 @@ async function exportSubset() {
       msg,
       'error',
       7000,
-      'i-heroicons-exclamation-triangle'
+      'i-lucide-triangle-alert'
     )
   } finally {
     isExportingSubset.value = false

@@ -13,7 +13,7 @@
       <UAlert
         color="warning"
         variant="soft"
-        icon="i-heroicons-exclamation-triangle"
+        icon="i-lucide-triangle-alert"
         title="Save settings to apply changes"
       >
         <template #description>
@@ -32,7 +32,7 @@
         <UAlert
           color="error"
           variant="soft"
-          icon="i-heroicons-exclamation-triangle"
+          icon="i-lucide-triangle-alert"
           class="mt-2"
           title="Model requirement"
         >
@@ -45,7 +45,7 @@
             </div>
           </template>
         </UAlert>
-        <UAlert color="warning" variant="soft" icon="i-heroicons-cog-6-tooth">
+        <UAlert color="warning" variant="soft" icon="i-lucide-settings">
           <template #title>Connection tests require saved settings</template>
           <template #description>
             Tests only run once your settings file exists. Open <strong>Settings</strong> and click <strong>Save</strong> at least once to create <code>ludollingua-settings.json</code>.
@@ -65,7 +65,7 @@
             <span class="ml-2 text-muted">Use 512 for longer paragraphs; smaller for short UI strings.</span>
           </div>
         </div>
-        <UAlert color="neutral" variant="soft" icon="i-heroicons-information-circle" class="mt-2">
+        <UAlert color="neutral" variant="soft" icon="i-lucide-info" class="mt-2">
           <template #title>How it’s applied</template>
           <template #description>
             These settings are sent to Ollama as <code>ModelOptions</code> (<code>temperature</code>, <code>num_predict</code>) during generation.
@@ -120,7 +120,7 @@
             </ul>
           </UCard>
         </div>
-        <UAlert color="neutral" variant="soft" icon="i-heroicons-information-circle">
+        <UAlert color="neutral" variant="soft" icon="i-lucide-info">
           <template #description>
             Actual capacity depends on quantization, drivers, and model family. For most projects, a 7–8B Q4/Q5 model on an 8–12 GB GPU is sufficient.
           </template>

@@ -10,17 +10,17 @@
     <template #description>
       <div class="flex items-center gap-4 text-sm">
         <div>
-          <UIcon name="i-heroicons-document-text" class="mr-1" />
+          <UIcon name="i-lucide-file-text" class="mr-1" />
           <span class="font-medium">Files:</span> {{ engineStore.gameDataFiles.length }}
         </div>
         <div>
-          <UIcon name="i-heroicons-language" class="mr-1" />
+          <UIcon name="i-lucide-languages" class="mr-1" />
           <span class="font-medium">Text Units:</span> {{ engineStore.textUnits.length }}
         </div>
       </div>
     </template>
     <template #icon>
-      <UIcon name="i-heroicons-folder-open" />
+      <UIcon name="i-lucide-folder-open" />
     </template>
   </UAlert>
 </template>

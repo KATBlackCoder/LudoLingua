@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-semibold">Glossary Manager</h1>
         <p class="text-sm text-muted">Define canonical terms used by the translator.</p>
       </div>
-      <UButton to="/translator" variant="ghost" icon="i-heroicons-arrow-left">Back to Translator</UButton>
+      <UButton to="/translator" variant="ghost" icon="i-lucide-arrow-left">Back to Translator</UButton>
     </div>
     <GlossaryTable />
   </UContainer>

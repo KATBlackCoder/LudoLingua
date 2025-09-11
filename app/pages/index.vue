@@ -13,7 +13,7 @@
             v-if="!engineStore.hasProject"
             title="No project loaded"
             description="Select an RPG Maker project folder to begin."
-            icon="i-heroicons-information-circle"
+            icon="i-lucide-info"
             color="neutral"
             variant="soft"
           />
@@ -23,9 +23,9 @@
 
           <div v-else class="space-y-4">
             <div class="flex flex-wrap items-center gap-2">
-              <UButton v-if="engineStore.hasProject" variant="outline" color="neutral" icon="i-heroicons-folder-open" @click="pickProject">Change Project</UButton>
-              <UButton :disabled="engineStore.isLoading || !engineStore.hasProject" :loading="engineStore.isLoading" icon="i-heroicons-language" @click="goWorkspace">Open Workspace</UButton>
-              <UButton to="/settings" variant="outline" icon="i-heroicons-cog-6-tooth">Settings</UButton>
+              <UButton v-if="engineStore.hasProject" variant="outline" color="neutral" icon="i-lucide-folder-open" @click="pickProject">Change Project</UButton>
+              <UButton :disabled="engineStore.isLoading || !engineStore.hasProject" :loading="engineStore.isLoading" icon="i-lucide-languages" @click="goWorkspace">Open Workspace</UButton>
+              <UButton to="/settings" variant="outline" icon="i-lucide-settings">Settings</UButton>
               <UBadge color="neutral" variant="soft">{{ engineStore.totalTextUnits }} units • {{ engineStore.gameDataFiles.length }} files</UBadge>
             </div>
 
