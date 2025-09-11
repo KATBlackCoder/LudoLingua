@@ -134,9 +134,10 @@ pub async fn upsert_unit(
 
         Ok(id)
     } else {
-        // Insert new record
+        // Use INSERT OR IGNORE to handle conflicts with unique constraint
+        // This preserves existing translations while allowing new units to be added
         let result = sqlx::query(
-            r#"INSERT INTO text_units
+            r#"INSERT OR IGNORE INTO text_units
                (project_path, file_path, field_type, source_text, translated_text,
                 status, prompt_type, source_lang, target_lang, manifest_hash)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#
@@ -155,7 +156,26 @@ pub async fn upsert_unit(
         .await
         .map_err(|e| AppError::Database(e.to_string()))?;
 
-        Ok(result.last_insert_rowid())
+        // If INSERT OR IGNORE didn't insert anything (because record exists),
+        // try to find the existing record ID
+        if result.rows_affected() == 0 {
+            // Find the existing record
+            let existing_row = sqlx::query(
+                r#"SELECT id FROM text_units 
+                   WHERE project_path = ? AND file_path = ? AND field_type = ? AND source_text = ?"#
+            )
+            .bind(&unit.project_path)
+            .bind(&unit.file_path)
+            .bind(&unit.field_type)
+            .bind(&unit.source_text)
+            .fetch_one(&pool)
+            .await
+            .map_err(|e| AppError::Database(e.to_string()))?;
+            
+            Ok(existing_row.get::<i64, _>("id"))
+        } else {
+            Ok(result.last_insert_rowid())
+        }
     }
 }
 
@@ -179,6 +199,8 @@ pub async fn bulk_upsert_units(
                 if unit.id.is_some() {
                     updated += 1;
                 } else {
+                    // For new units, check if it was actually inserted or if it already existed
+                    // We can't easily distinguish here, so we'll count all as "processed"
                     inserted += 1;
                 }
             }
@@ -225,9 +247,10 @@ async fn upsert_unit_in_transaction(
 
         Ok(id)
     } else {
-        // Insert new record
+        // Use INSERT OR IGNORE to handle conflicts with unique constraint
+        // This preserves existing translations while allowing new units to be added
         let result = sqlx::query(
-            r#"INSERT INTO text_units
+            r#"INSERT OR IGNORE INTO text_units
                (project_path, file_path, field_type, source_text, translated_text,
                 status, prompt_type, source_lang, target_lang, manifest_hash)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#
@@ -246,7 +269,26 @@ async fn upsert_unit_in_transaction(
         .await
         .map_err(|e| AppError::Database(e.to_string()))?;
 
-        Ok(result.last_insert_rowid())
+        // If INSERT OR IGNORE didn't insert anything (because record exists),
+        // try to find the existing record ID
+        if result.rows_affected() == 0 {
+            // Find the existing record
+            let existing_row = sqlx::query(
+                r#"SELECT id FROM text_units 
+                   WHERE project_path = ? AND file_path = ? AND field_type = ? AND source_text = ?"#
+            )
+            .bind(&unit.project_path)
+            .bind(&unit.file_path)
+            .bind(&unit.field_type)
+            .bind(&unit.source_text)
+            .fetch_one(&mut **tx)
+            .await
+            .map_err(|e| AppError::Database(e.to_string()))?;
+            
+            Ok(existing_row.get::<i64, _>("id"))
+        } else {
+            Ok(result.last_insert_rowid())
+        }
     }
 }
 
@@ -423,6 +465,54 @@ pub async fn bulk_delete_units(
 
     // Execute the query and return the number of affected rows
     let result = query.execute(&pool)
+        .await
+        .map_err(|e| AppError::Database(e.to_string()))?;
+
+    Ok(result.rows_affected() as i64)
+}
+
+use std::path::PathBuf;
+
+/// Get all unique project manifests from the database
+/// Returns a list of (manifest_hash, project_path) pairs
+pub async fn get_all_project_manifests(
+    state: &ManagedTranslationState,
+) -> AppResult<Vec<(String, PathBuf)>> {
+    let pool = state.pool().await;
+
+    let rows = sqlx::query(
+        r#"SELECT DISTINCT manifest_hash, project_path 
+           FROM text_units 
+           WHERE manifest_hash IS NOT NULL 
+           ORDER BY project_path"#
+    )
+    .fetch_all(&pool)
+    .await
+    .map_err(|e| AppError::Database(e.to_string()))?;
+
+    let projects = rows
+        .into_iter()
+        .map(|row| {
+            let manifest_hash: String = row.get("manifest_hash");
+            let project_path: String = row.get("project_path");
+            (manifest_hash, PathBuf::from(project_path))
+        })
+        .collect();
+
+    Ok(projects)
+}
+
+/// Delete all translations for a specific project
+/// Returns the number of deleted translations
+pub async fn delete_all_translations_for_project(
+    state: &ManagedTranslationState,
+    project_hash: &str,
+) -> AppResult<i64> {
+    let pool = state.pool().await;
+
+    let result = sqlx::query("DELETE FROM text_units WHERE manifest_hash = ?")
+        .bind(project_hash)
+        .execute(&pool)
         .await
         .map_err(|e| AppError::Database(e.to_string()))?;
 

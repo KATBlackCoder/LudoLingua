@@ -72,6 +72,25 @@ pub async fn load_project_translations(
     engine::load_project_translations(project_info, &db).await
 }
 
+/// Get all available projects from the database
+#[tauri::command]
+pub async fn get_available_projects(
+    db: State<'_, ManagedTranslationState>,
+) -> Result<Vec<engine::ProjectInfo>, String> {
+    debug!("Command: get_available_projects");
+    engine::get_available_projects(&db).await
+}
+
+/// Delete a project and all its associated translations
+#[tauri::command]
+pub async fn delete_project(
+    project_hash: String,
+    db: State<'_, ManagedTranslationState>,
+) -> Result<(), String> {
+    debug!("Command: delete_project - {}", project_hash);
+    engine::delete_project(&db, project_hash).await
+}
+
 // ============================================================================
 // EXPORT COMMANDS
 // ============================================================================

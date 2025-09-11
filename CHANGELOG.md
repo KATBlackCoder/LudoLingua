@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Phase 4: Cleanup & Modernization - 100% COMPLETED ✅**
+  - **Row Selection & Bulk Operations:** Complete implementation using official Nuxt UI v4 patterns
+    - Fixed row selection using correct `v-model:row-selection` pattern from [Nuxt UI v4 documentation](https://ui4.nuxt.com/docs/components/table#with-row-selection)
+    - Implemented proper table reference with `useTemplateRef` for accessing table API
+    - Added working checkboxes for individual row selection and "Select All" functionality
+    - Created selection counter showing "X of Y row(s) selected" in table footer
+    - Implemented bulk delete functionality with proper selection management
+    - Added dynamic buttons ("Delete X", "Clear Selection") that appear when rows are selected
+    - Used proper TypeScript types for table API access and row selection state
+    - Enhanced user experience with visual feedback for selected rows
+    - Followed official documentation patterns exactly for maximum reliability
+  - **UX Simplification:** Streamlined interface for better usability
+    - Removed project filter dropdown from translation management for simplified workflow
+    - Removed project loading functionality from translations page (not needed in this context)
+    - Cleaned up grid layout from 5 columns to 4 columns for better space utilization
+    - Focused interface on core translation management tasks (search, status, type filtering)
+    - Improved clarity by removing potentially confusing project switching from management interface
   - **File Renaming for Consistency:** Complete reorganization for clear naming conventions
     - Renamed `app/components/translation/` → `app/components/translator/` for workflow clarity
     - Renamed `app/pages/translation.vue` → `app/pages/translator.vue` for consistency
@@ -178,6 +194,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Backend/Token Estimation: `utils/token_estimation.rs` + Tauri command; uses `ModelInfo.pricing`
 
 ### Changed
+- **Translation Management UX:** Simplified interface for focused user experience
+  - Streamlined filter grid from 5 to 4 columns for better space utilization
+  - Removed project filter and project loading functionality from translation management
+  - Focused on core translation management tasks (search, status filtering, type filtering)
+  - Improved interface clarity by removing potentially confusing project switching
 - **LLM Crate Migration:** Complete migration from `ollama-rs` to unified `llm` crate for better extensibility
   - **Dependencies:** Replaced `ollama-rs = "0.3.2"` with `llm = { version = "1.2.4", features = ["ollama"] }`
   - **OllamaService Migration:** Updated `src/llm/services/ollama.rs` to use `llm` crate's `LLMBuilder` pattern with `LLMBackend::Ollama`
@@ -193,7 +214,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Frontend/Settings: Save `base_url` only for Ollama; clear for OpenAI automatically
 
 ### Fixed
- - OpenAI: Avoid 404/RelativeUrl errors by normalizing optional base URL and leaving it empty by default
+- **Translation Management Row Selection:** Fixed non-functional row selection using official Nuxt UI v4 patterns
+  - Corrected table binding from `v-model:selected` to `v-model:row-selection` per official documentation
+  - Fixed selection state management using `rowSelection` ref and `useTemplateRef` for table access
+  - Resolved TypeScript errors in selection counter and row access functions
+  - Fixed checkbox implementation using proper `h()` render functions with correct props
+  - Corrected table API access for selected row retrieval and bulk operations
+  - Ensured bulk delete functionality works reliably with proper selection clearing
+- OpenAI: Avoid 404/RelativeUrl errors by normalizing optional base URL and leaving it empty by default
  - Frontend/Translation: Abort batch early with clear toast when OpenAI reports `insufficient_quota`
  - Provider model loading: `get_provider_models` resolves `openai.json` correctly
  - Backend/Manifest: Fixed manifest hash mismatch causing "No translations found" error

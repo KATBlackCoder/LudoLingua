@@ -396,3 +396,60 @@ pub async fn update_manifest_with_translated_units(
         }
     }
 }
+
+#[derive(serde::Serialize)]
+pub struct ProjectInfo {
+    pub name: String,
+    pub path: String,
+    pub hash: String,
+}
+
+/// Get all available projects from the database
+pub async fn get_available_projects(
+    state: &ManagedTranslationState,
+) -> Result<Vec<ProjectInfo>, String> {
+    match repo::get_all_project_manifests(state).await {
+        Ok(projects) => {
+            let project_list = projects
+                .into_iter()
+                .map(|(manifest_hash, project_path)| ProjectInfo {
+                    name: project_path
+                        .file_name()
+                        .and_then(|n| n.to_str())
+                        .unwrap_or("Unknown Project")
+                        .to_string(),
+                    path: project_path.to_string_lossy().to_string(),
+                    hash: manifest_hash,
+                })
+                .collect();
+            Ok(project_list)
+        }
+        Err(e) => Err(format!("Failed to get projects: {}", e)),
+    }
+}
+
+/// Delete a project and all its associated translations
+pub async fn delete_project(
+    state: &ManagedTranslationState,
+    project_hash: String,
+) -> Result<(), String> {
+    info!("Deleting project with hash: {}", project_hash);
+    
+    // Delete all translations for this project
+    match repo::delete_all_translations_for_project(state, &project_hash).await {
+        Ok(deleted_count) => {
+            info!("Deleted {} translations for project {}", deleted_count, project_hash);
+        }
+        Err(e) => {
+            warn!("Error deleting translations for project {}: {}", project_hash, e);
+            return Err(format!("Failed to delete project translations: {}", e));
+        }
+    }
+    
+    // Note: We don't delete the .ludolingua.json manifest file from the file system
+    // as that would require knowing the exact project path and could be risky
+    // The project can be re-imported if needed and will get a new hash
+    
+    info!("Successfully deleted project: {}", project_hash);
+    Ok(())
+}

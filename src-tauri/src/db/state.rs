@@ -80,24 +80,7 @@ impl DbState {
     }
 }
 
-/// Wrapper state for glossary-specific operations
-pub struct GlossaryState<'a> {
-    db_state: &'a DbState,
-}
-
-impl<'a> GlossaryState<'a> {
-    pub fn new(db_state: &'a DbState) -> Self {
-        Self { db_state }
-    }
-
-    pub async fn pool(&self) -> sqlx::SqlitePool {
-        self.db_state.pool().await
-    }
-
-    pub fn cache(&self) -> &Mutex<HashMap<String, std::sync::Arc<Vec<GlossaryTerm>>>> {
-        self.db_state.glossary_cache()
-    }
-}
+// Note: Old GlossaryState wrapper removed - use ManagedGlossaryState instead
 
 /// Standalone GlossaryState for independent management
 pub struct ManagedGlossaryState {
@@ -164,20 +147,7 @@ impl ManagedGlossaryState {
     }
 }
 
-/// Wrapper state for translation-specific operations
-pub struct TranslationState<'a> {
-    db_state: &'a DbState,
-}
-
-impl<'a> TranslationState<'a> {
-    pub fn new(db_state: &'a DbState) -> Self {
-        Self { db_state }
-    }
-
-    pub async fn pool(&self) -> sqlx::SqlitePool {
-        self.db_state.pool().await
-    }
-}
+// Note: Old TranslationState wrapper removed - use ManagedTranslationState instead
 
 /// Standalone TranslationState for independent management (for Tauri commands)
 pub struct ManagedTranslationState {

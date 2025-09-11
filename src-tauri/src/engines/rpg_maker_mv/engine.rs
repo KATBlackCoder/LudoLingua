@@ -161,7 +161,7 @@ impl RpgMakerMvEngine {
         )?;
         game_data_files.extend(weapons_files);
 
-        /*// Extract text from Armors.json
+        // Extract text from Armors.json
         let armors_paths = ["www/data/Armors.json"];
         let armors_files = common::extract_file_type_text(
             project_info,
@@ -253,7 +253,7 @@ impl RpgMakerMvEngine {
                     // Continue with other map files
                 }
             }
-        }*/
+        }
 
         // info!(
         //     "Extracted {} game data files from RPG Maker MV project",

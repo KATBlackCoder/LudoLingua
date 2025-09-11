@@ -34,7 +34,7 @@
                 <span class="font-medium">Translated</span>
                 <div class="flex items-center gap-2">
                   <div class="text-xs text-muted">{{ draftCharCount }} chars</div>
-                            <UButton
+                <UButton
             size="xs"
             color="primary"
             variant="soft"

@@ -9,13 +9,13 @@
               <UBadge variant="soft">{{ rows.length }} terms</UBadge>
             </div>
             <div class="flex gap-2">
-              <UButton color="primary" icon="i-heroicons-plus" @click="openAdd">Add</UButton>
-              <UButton color="neutral" icon="i-heroicons-arrow-path" :loading="isLoading" @click="reload">Reload</UButton>
+              <UButton color="primary" icon="i-lucide-plus" @click="openAdd">Add</UButton>
+              <UButton color="neutral" icon="i-lucide-refresh-cw" :loading="isLoading" @click="reload">Reload</UButton>
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-            <UInput v-model="search" icon="i-heroicons-magnifying-glass" placeholder="Search input/output…" />
+            <UInput v-model="search" icon="i-lucide-search" placeholder="Search input/output…" />
 
             <USelect v-model="categoryFilter" :items="categoryItems" placeholder="All categories" />
 
@@ -42,8 +42,8 @@
       <template #footer>
             <div class="flex items-center justify-between w-full">
               <div class="flex items-center gap-2">
-                <UButton size="xs" variant="soft" icon="i-heroicons-arrow-down-tray" @click="exportJson">Export JSON</UButton>
-                <UButton size="xs" variant="soft" icon="i-heroicons-arrow-up-tray" @click="importJson">Import JSON</UButton>
+                <UButton size="xs" variant="soft" icon="i-lucide-download" @click="exportJson">Export JSON</UButton>
+                <UButton size="xs" variant="soft" icon="i-lucide-upload" @click="importJson">Import JSON</UButton>
               </div>
               <div class="flex items-center gap-3">
                 <span class="text-xs text-muted">Page {{ page }} / {{ pageCount }}</span>
@@ -108,12 +108,12 @@ const columns: TableColumn<Row>[] = [
       const UButton = resolveComponent('UButton') as Component
       return h('div', { class: 'flex gap-2' }, [
         h(UButton, {
-          size: 'xs', color: 'neutral', variant: 'soft', icon: 'i-heroicons-pencil',
+          size: 'xs', color: 'neutral', variant: 'soft', icon: 'i-lucide-pencil',
           disabled: modalOpen.value,
           onClick: () => openEdit(row.original._id)
         }, { default: () => 'Edit' }),
         h(UButton, {
-          size: 'xs', color: 'error', variant: 'soft', icon: 'i-heroicons-trash',
+          size: 'xs', color: 'error', variant: 'soft', icon: 'i-lucide-trash',
           disabled: modalOpen.value,
           onClick: () => remove(row.original._id)
         }, { default: () => 'Delete' })
