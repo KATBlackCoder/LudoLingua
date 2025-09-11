@@ -9,7 +9,15 @@
         <nav>
           <UFieldGroup>
             <UButton to="/" variant="ghost" :active="$route.path === '/'" icon="i-heroicons-home">Home</UButton>
-            <UButton to="/translator" variant="ghost" :active="$route.path === '/translator'" icon="i-heroicons-language">Translator</UButton>
+            <UButton 
+              v-if="engineStore.hasProject && !engineStore.isLoading"
+              to="/translator" 
+              variant="ghost" 
+              :active="$route.path === '/translator'" 
+              icon="i-heroicons-language"
+            >
+              Translator
+            </UButton>
             <UButton to="/translations" variant="ghost" :active="$route.path === '/translations'" icon="i-heroicons-queue-list">Translations</UButton>
             <UButton to="/settings" variant="ghost" :active="$route.path === '/settings'" icon="i-heroicons-cog-6-tooth">Settings</UButton>
             <UButton to="/glossary" variant="ghost" :active="$route.path === '/glossary'" icon="i-heroicons-book-open">Glossary</UButton>
@@ -22,5 +30,7 @@
 </template>
 
 <script setup lang="ts">
-// Header component logic can go here
+import { useEngineStore } from '~/stores/engine'
+
+const engineStore = useEngineStore()
 </script>

@@ -65,8 +65,18 @@ export function useGlossary() {
     await reload()
   }
   async function remove(id: number) {
-    await glossary.deleteTerm(id)
-    await reload()
+    // Use native Tauri dialog for delete confirmation
+    const { ask } = await import('@tauri-apps/plugin-dialog')
+    
+    const confirmed = await ask('Are you sure you want to delete this glossary term?', {
+      title: 'Delete Glossary Term',
+      kind: 'warning'
+    })
+    
+    if (confirmed) {
+      await glossary.deleteTerm(id)
+      await reload()
+    }
   }
   async function toggleEnabled(id: number, v: boolean) {
     const t = glossary.terms.find(x => x.id === id)

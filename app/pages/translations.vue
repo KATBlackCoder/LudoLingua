@@ -1,6 +1,6 @@
 <template>
-  <div class="container mx-auto p-6">
-    <div class="space-y-6">
+  <UContainer class="max-w-full">
+    <div class="space-y-6 p-6">
       <!-- Page Header -->
       <div class="space-y-2">
         <UBreadcrumb :links="breadcrumbLinks" />
@@ -13,10 +13,10 @@
           </div>
           <UButton 
             variant="outline" 
-            icon="i-heroicons-arrow-left" 
-            to="/translator"
+            icon="i-lucide-arrow-left" 
+            to="/"
           >
-            Back to Translator
+            Back to Home
           </UButton>
         </div>
       </div>
@@ -26,7 +26,7 @@
         <UCard>
           <div class="flex items-center gap-3">
             <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <Icon name="i-heroicons-document-text" class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <Icon name="i-lucide-file-text" class="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
               <p class="text-sm text-muted-foreground">Total</p>
@@ -38,7 +38,7 @@
         <UCard>
           <div class="flex items-center gap-3">
             <div class="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-              <Icon name="i-heroicons-check-circle" class="h-5 w-5 text-green-600 dark:text-green-400" />
+              <Icon name="i-lucide-check-circle" class="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
               <p class="text-sm text-muted-foreground">Translated</p>
@@ -50,7 +50,7 @@
         <UCard>
           <div class="flex items-center gap-3">
             <div class="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
-              <Icon name="i-heroicons-clock" class="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+              <Icon name="i-lucide-clock" class="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div>
               <p class="text-sm text-muted-foreground">Pending</p>
@@ -62,7 +62,7 @@
         <UCard>
           <div class="flex items-center gap-3">
             <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-              <Icon name="i-heroicons-chart-bar" class="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <Icon name="i-lucide-bar-chart" class="h-5 w-5 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
               <p class="text-sm text-muted-foreground">Progress</p>
@@ -75,7 +75,7 @@
       <!-- Main Table -->
       <TranslationTable />
     </div>
-  </div>
+  </UContainer>
 </template>
 
 <script setup lang="ts">
@@ -93,7 +93,6 @@ const { stats, loadTranslations } = useTranslations()
 // Breadcrumb navigation
 const breadcrumbLinks = [
   { label: 'Home', to: '/' },
-  { label: 'Translator', to: '/translator' },
   { label: 'Translation Management' }
 ]
 

@@ -54,8 +54,8 @@
             </UFormField>
             <template #footer>
               <div class="flex items-center gap-2">
-                <UButton size="xs" color="neutral" variant="subtle" icon="i-heroicons-document-duplicate" @click="copyFromInput">Copy input</UButton>
-                <UButton size="xs" color="neutral" variant="subtle" icon="i-heroicons-backspace" @click="clearOutput">Clear</UButton>
+                <UButton size="xs" color="neutral" variant="subtle" icon="i-lucide-copy" @click="copyFromInput">Copy input</UButton>
+                <UButton size="xs" color="neutral" variant="subtle" icon="i-lucide-x" @click="clearOutput">Clear</UButton>
               </div>
             </template>
           </UCard>
@@ -82,7 +82,7 @@
         <div class="flex justify-end">
           <UFormField label="Direction">
             <UFieldGroup>
-              <UButton size="xs" icon="i-heroicons-arrows-right-left" variant="soft" @click="swapLangs">Swap</UButton>
+              <UButton size="xs" icon="i-lucide-arrow-left-right" variant="soft" @click="swapLangs">Swap</UButton>
             </UFieldGroup>
           </UFormField>
         </div>
