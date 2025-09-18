@@ -1,11 +1,14 @@
 use sqlx::{self, Arguments, Row};
 
 use crate::core::error::AppResult;
-use crate::db::glossary::model::GlossaryTerm;
 use crate::db::glossary::model::GlossaryQuery;
+use crate::db::glossary::model::GlossaryTerm;
 use crate::db::ManagedGlossaryState;
 
-pub async fn find_terms(state: &ManagedGlossaryState, q: &GlossaryQuery) -> AppResult<Vec<GlossaryTerm>> {
+pub async fn find_terms(
+    state: &ManagedGlossaryState,
+    q: &GlossaryQuery,
+) -> AppResult<Vec<GlossaryTerm>> {
     let pool = state.pool().await;
 
     // Build dynamic query
@@ -118,7 +121,10 @@ pub async fn delete_term(state: &ManagedGlossaryState, id: i64) -> AppResult<()>
 }
 
 /// Export all (or filtered) terms to JSON string
-pub async fn export_terms_json(state: &ManagedGlossaryState, q: &GlossaryQuery) -> AppResult<String> {
+pub async fn export_terms_json(
+    state: &ManagedGlossaryState,
+    q: &GlossaryQuery,
+) -> AppResult<String> {
     let terms = find_terms(state, q).await?;
     serde_json::to_string_pretty(&terms)
         .map_err(|e| crate::core::error::AppError::Other(e.to_string()))

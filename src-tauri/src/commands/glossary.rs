@@ -1,9 +1,12 @@
 use crate::core::error::AppResult;
-use crate::db::glossary::model::GlossaryTerm;
 use crate::db::glossary::model::GlossaryQuery;
+use crate::db::glossary::model::GlossaryTerm;
 use crate::db::ManagedGlossaryState;
 
-pub async fn list_terms(state: &ManagedGlossaryState, q: GlossaryQuery) -> AppResult<Vec<GlossaryTerm>> {
+pub async fn list_terms(
+    state: &ManagedGlossaryState,
+    q: GlossaryQuery,
+) -> AppResult<Vec<GlossaryTerm>> {
     crate::db::glossary::repo::find_terms(state, &q).await
 }
 

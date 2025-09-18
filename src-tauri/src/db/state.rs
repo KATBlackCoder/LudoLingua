@@ -14,8 +14,7 @@ pub struct DbState {
     /// Shared database connection pool
     pub(crate) pool: Mutex<Option<sqlx::SqlitePool>>,
     /// Naive in-memory cache for glossary terms keyed by a composed string
-    pub(crate) glossary_cache:
-        Mutex<HashMap<String, std::sync::Arc<Vec<GlossaryTerm>>>>,
+    pub(crate) glossary_cache: Mutex<HashMap<String, std::sync::Arc<Vec<GlossaryTerm>>>>,
 }
 
 impl DbState {

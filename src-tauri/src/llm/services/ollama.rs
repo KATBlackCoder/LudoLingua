@@ -92,7 +92,11 @@ impl OllamaService {
             .build()
             .map_err(|e| AppError::Llm(format!("Failed to create HTTP client: {}", e)))?;
 
-        Ok(Self { config, client, http_client })
+        Ok(Self {
+            config,
+            client,
+            http_client,
+        })
     }
 
     /// Get the list of available models for Ollama from JSON configuration
@@ -121,7 +125,7 @@ impl OllamaService {
     /// Get fallback models when JSON configuration fails to load
     fn get_fallback_models() -> Vec<ModelInfo> {
         use crate::models::provider::TokenPricing;
-        
+
         vec![
             ModelInfo {
                 display_name: "Mistral 7B".to_string(),
@@ -166,7 +170,8 @@ impl OllamaService {
 
     /// Generate text with usage information using direct Ollama API
     async fn do_generate_with_usage(&self, prompt: &str) -> AppResult<GenerationResponse> {
-        let base_url = self.config
+        let base_url = self
+            .config
             .base_url
             .as_ref()
             .cloned()
@@ -222,9 +227,12 @@ impl OllamaService {
             })?;
 
         let content = ollama_response.message.content;
-        
+
         // Extract token usage if available
-        let token_usage = match (ollama_response.prompt_eval_count, ollama_response.eval_count) {
+        let token_usage = match (
+            ollama_response.prompt_eval_count,
+            ollama_response.eval_count,
+        ) {
             (Some(input), Some(output)) => Some(TokenUsage {
                 input_tokens: input,
                 output_tokens: output,
@@ -265,18 +273,28 @@ impl OllamaService {
 }
 
 impl LlmService for OllamaService {
-    fn generate<'a>(&'a self, prompt: &'a str) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<String>> + Send + 'a>> {
+    fn generate<'a>(
+        &'a self,
+        prompt: &'a str,
+    ) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<String>> + Send + 'a>> {
         Box::pin(async move { self.generate(prompt).await })
     }
 
-    fn generate_with_usage<'a>(&'a self, prompt: &'a str) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<GenerationResponse>> + Send + 'a>> {
-        Box::pin(async move { 
+    fn generate_with_usage<'a>(
+        &'a self,
+        prompt: &'a str,
+    ) -> core::pin::Pin<
+        Box<dyn core::future::Future<Output = AppResult<GenerationResponse>> + Send + 'a>,
+    > {
+        Box::pin(async move {
             // Try to get usage data directly from Ollama API
             self.do_generate_with_usage(prompt).await
         })
     }
 
-    fn test_connection<'a>(&'a self) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<bool>> + Send + 'a>> {
+    fn test_connection<'a>(
+        &'a self,
+    ) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<bool>> + Send + 'a>> {
         Box::pin(async move { self.test_connection().await })
     }
 

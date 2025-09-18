@@ -53,33 +53,9 @@
           </UCard>
 
           <!-- Advanced (spans full on lg via col-span-2) -->
-          <UCard class="lg:col-span-2">
-            <template #header>
-              <span class="font-medium">Advanced</span>
-            </template>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <UFormField label="Preset" name="preset" description="Quick apply recommended values">
-                <USelect v-model="selectedPreset" :items="presetItems" @update:model-value="applyPreset" />
-              </UFormField>
-              <UFormField label="Base URL" name="base_url" description="Provider API endpoint">
-                <UInput v-model="advancedSettings.base_url" placeholder="http://localhost:11434" />
-              </UFormField>
-              <UFormField label="API Key" name="api_key" description="Only for cloud providers (OpenAI, etc.)">
-                <UInput v-model="advancedSettings.api_key" placeholder="sk-..." type="password" />
-              </UFormField>
-
-              <UFormField label="Temperature" name="temperature" description="0.0 – 1.0 (randomness)">
-                <UInput v-model.number="advancedSettings.temperature" type="number" min="0" max="1" step="0.1" />
-              </UFormField>
-
-              <UFormField label="Max Tokens" name="max_tokens" description="Response token cap">
-                <UInput v-model.number="advancedSettings.max_tokens" type="number" min="1" max="8192" />
-              </UFormField>
-            </div>
-            <template #footer>
-              <div class="text-xs text-muted">Changes are saved locally using Tauri Store.</div>
-            </template>
-          </UCard>
+          <AdvancedSettings 
+            v-model:advanced-settings="advancedSettings"
+          />
         </div>
       </div>
     </UContainer>
@@ -90,6 +66,7 @@
 import ConnectionTester from '~/components/settings/ConnectionTester.vue'
 import LanguageSelector from '~/components/settings/LanguageSelector.vue'
 import ProviderSelector from '~/components/settings/ProviderSelector.vue'
+import AdvancedSettings from '~/components/settings/AdvancedSettings.vue'
 import { useSettingsStore } from '~/stores/settings'
 import { useProviderStore } from '~/stores/provider'
 import { useLanguageStore } from '~/stores/language'
@@ -107,40 +84,51 @@ const hasSettings = ref(true)
 // Advanced settings form
 const advancedSettings = ref({
   base_url: settingsStore.userSettings.base_url || '',
-  api_key: settingsStore.userSettings.api_key || '',
+  api_key: '', // Void - not used in UI but kept for backend compatibility
   temperature: settingsStore.userSettings.temperature || 0.3,
-  max_tokens: settingsStore.userSettings.max_tokens || 256,
+  max_tokens: settingsStore.userSettings.max_tokens || 512,
 })
 
-// Presets for temperature/max_tokens
-const presets = [
-  { id: 'recommended', label: 'Recommended (0.3 · 256)', temperature: 0.3, max_tokens: 256 },
-  { id: 'high', label: 'High (long lines) (0.3 · 512)', temperature: 0.3, max_tokens: 512 },
-  { id: 'creative', label: 'Creative (0.7 · 256)', temperature: 0.7, max_tokens: 256 },
-]
-const presetItems = computed(() => presets.map(p => ({ label: p.label, value: p.id })))
-const selectedPreset = ref('recommended')
 
-function applyPreset(presetId: string) {
-  const p = presets.find(x => x.id === presetId)
-  if (!p) return
-  advancedSettings.value.temperature = p.temperature
-  advancedSettings.value.max_tokens = p.max_tokens
+// Initialize settings when component mounts
+onMounted(async () => {
+  try {
+    await settingsStore.initializeStores()
+    // Check persisted settings existence for first-run alert
+    hasSettings.value = await settingsStore.hasPersistedUserSettings()
+    
+    // Initialize form with current settings after stores are loaded
+    updateFormFromSettings()
+  } catch (error) {
+    console.error('Failed to initialize settings:', error)
+  }
+})
+
+// Update form from store settings
+function updateFormFromSettings() {
+  const currentSettings = settingsStore.userSettings
+  const defaultBase = (currentSettings.provider === 'Ollama') ? 'http://localhost:11434' : ''
+  
+  advancedSettings.value = {
+    base_url: currentSettings.base_url || defaultBase,
+    api_key: '', // Void - not used in UI but kept for backend compatibility
+    temperature: currentSettings.temperature || 0.3,
+    max_tokens: currentSettings.max_tokens || 512,
+  }
 }
 
-// Watch for settings changes and update form
+// Watch for provider changes to update base_url defaults
 watch(
-  () => settingsStore.userSettings,
-  (newSettings) => {
-    const defaultBase = (newSettings.provider === 'Ollama') ? 'http://localhost:11434' : ''
-    advancedSettings.value = {
-      base_url: newSettings.base_url || defaultBase,
-      api_key: newSettings.api_key || '',
-      temperature: newSettings.temperature || 0.3,
-      max_tokens: newSettings.max_tokens || 256,
+  () => providerStore.selectedProvider,
+  (newProvider) => {
+    // Only update if the form hasn't been manually modified
+    if (newProvider === 'Ollama' && !advancedSettings.value.base_url) {
+      advancedSettings.value.base_url = 'http://localhost:11434'
+    } else if (newProvider === 'RunPod') {
+      // Clear base_url for RunPod to let user input their custom endpoint
+      advancedSettings.value.base_url = ''
     }
-  },
-  { immediate: true, deep: true }
+  }
 )
 
 // Methods
@@ -153,7 +141,7 @@ const saveSettings = async () => {
       source_language: languageStore.getLanguage.source_language as Language,
       target_language: languageStore.getLanguage.target_language as Language,
       base_url: advancedSettings.value.base_url,
-      api_key: advancedSettings.value.api_key || undefined,
+      api_key: undefined, // Void - not used in UI but kept for backend compatibility
       temperature: advancedSettings.value.temperature,
       max_tokens: advancedSettings.value.max_tokens,
     }
@@ -177,6 +165,9 @@ const resetSettings = async () => {
     await settingsStore.resetUserSettings()
     hasSettings.value = true
     
+    // Update form after reset
+    updateFormFromSettings()
+    
     // Show success message
     showSuccessMessage.value = true
     setTimeout(() => {
@@ -186,30 +177,4 @@ const resetSettings = async () => {
     console.error('Failed to reset settings:', error)
   }
 }
-
-// Initialize settings when component mounts
-onMounted(async () => {
-  try {
-    await settingsStore.initializeStores()
-    // Check persisted settings existence for first-run alert
-    hasSettings.value = await settingsStore.hasPersistedUserSettings()
-  } catch (error) {
-    console.error('Failed to initialize settings:', error)
-  }
-})
-
-// Keep sensible default for Ollama; do not clear for OpenAI (supports OpenRouter)
-watch(
-  () => providerStore.selectedProvider,
-  (p) => {
-    if (p === 'Ollama' && !advancedSettings.value.base_url) {
-      advancedSettings.value.base_url = 'http://localhost:11434'
-    }
-    // RunPod and Groq use custom endpoints, so we clear base_url for user input
-    if (p === 'RunPod' || p === 'Groq' || p === 'OpenAI') {
-      advancedSettings.value.base_url = ''
-    }
-  },
-  { immediate: true }
-)
 </script>

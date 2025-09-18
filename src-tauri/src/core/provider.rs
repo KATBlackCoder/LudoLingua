@@ -38,15 +38,24 @@ pub struct TokenUsage {
 /// Concrete implementations live under `crate::llm::services::*`.
 pub trait LlmService: Send + Sync {
     /// Execute a prompt and return the raw model output.
-    fn generate<'a>(&'a self, prompt: &'a str) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<String>> + Send + 'a>>;
+    fn generate<'a>(
+        &'a self,
+        prompt: &'a str,
+    ) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<String>> + Send + 'a>>;
 
     /// Execute a prompt and return the model output with token usage information.
-    fn generate_with_usage<'a>(&'a self, prompt: &'a str) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<GenerationResponse>> + Send + 'a>>;
+    fn generate_with_usage<'a>(
+        &'a self,
+        prompt: &'a str,
+    ) -> core::pin::Pin<
+        Box<dyn core::future::Future<Output = AppResult<GenerationResponse>> + Send + 'a>,
+    >;
 
     /// Health check or lightweight connectivity test.
-    fn test_connection<'a>(&'a self) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<bool>> + Send + 'a>>;
+    fn test_connection<'a>(
+        &'a self,
+    ) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<bool>> + Send + 'a>>;
 
     /// Check whether the internal config matches the provided one (used for reuse).
     fn config_matches(&self, other: &crate::models::provider::LlmConfig) -> bool;
 }
-

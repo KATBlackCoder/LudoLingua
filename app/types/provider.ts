@@ -5,15 +5,7 @@ import type { ModelInfo } from './tokens';
 // Supported providers (front-end view)
 export type Provider =
   | 'Ollama'
-  | 'OpenAI'
-  | 'OpenRouter'
   | 'RunPod'
-  | 'DeepL'
-  | 'Anthropic'
-  | 'Google'
-  | 'Groq'
-  | 'Mistral'
-  | 'Cohere'
 ;
 
 /** Simplified config matching Rust `LlmConfig` (Ollama-only) */
@@ -42,10 +34,10 @@ export interface TranslationSettings {
  */
 export const defaultOllamaConfig: LlmConfig = {
   model: {
-    display_name: 'Mistral 7B',
-    model_name: 'mistral:latest',
+    display_name: 'Qwen2.5 7B',
+    model_name: 'qwen2.5:latest',
     provider: 'Ollama',
-    description: 'A 7B parameter model trained by Mistral AI, good for general-purpose text generation and translation',
+    description: 'A 7B parameter model trained by Qwen AI, good for general-purpose text generation and translation',
     pricing: {
       input_price_per_1k: 0.0,
       output_price_per_1k: 0.0,
@@ -57,7 +49,7 @@ export const defaultOllamaConfig: LlmConfig = {
   base_url: 'http://localhost:11434',
   api_key: undefined,
   temperature: 0.3,
-  max_tokens: 256,
+  max_tokens: 512,
 };
 
 /**

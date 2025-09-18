@@ -1,16 +1,14 @@
 use tokio::sync::{Mutex, Semaphore};
 
 use crate::{
-    core::error::AppResult,
-    core::provider::LlmService,
-    llm::factory::create_service,
+    core::error::AppResult, core::provider::LlmService, llm::factory::create_service,
     models::provider::LlmConfig,
 };
 
 /// Shared LLM state managed by Tauri
 pub struct LlmState {
     pub service: Mutex<Option<Box<dyn LlmService>>>, // lazily initialized, multi-provider
-    pub limiter: Semaphore,                           // simple concurrency/rate cap
+    pub limiter: Semaphore,                          // simple concurrency/rate cap
 }
 
 impl LlmState {

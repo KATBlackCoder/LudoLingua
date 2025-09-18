@@ -209,49 +209,52 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
     }
 
     // Extract weapon types
-    for (index, weapon_type) in system.weapon_types.iter().enumerate() {
-        if !weapon_type.is_empty() {
-            let clean = replace_formatting_codes_for_translation(weapon_type);
-            text_units.push(TextUnit {
-                id: format!("system_weapon_type_{}", index),
-                source_text: clean,
-                translated_text: String::new(),
-                field_type: format!("weaponTypes[{}]:data/System.json:0", index),
-                status: TranslationStatus::NotTranslated,
-                prompt_type: PromptType::Equipment,
-            });
-        }
-    }
+    // NOTE: Weapon types are not translated per project requirements
+    // for (index, weapon_type) in system.weapon_types.iter().enumerate() {
+    //     if !weapon_type.is_empty() {
+    //         let clean = replace_formatting_codes_for_translation(weapon_type);
+    //         text_units.push(TextUnit {
+    //             id: format!("system_weapon_type_{}", index),
+    //             source_text: clean,
+    //             translated_text: String::new(),
+    //             field_type: format!("weaponTypes[{}]:data/System.json:0", index),
+    //             status: TranslationStatus::NotTranslated,
+    //             prompt_type: PromptType::Equipment,
+    //         });
+    //     }
+    // }
 
     // Extract switches
-    for (index, switch_name) in system.switches.iter().enumerate() {
-        if !switch_name.is_empty() && !is_technical_content(switch_name) {
-            let clean = replace_formatting_codes_for_translation(switch_name);
-            text_units.push(TextUnit {
-                id: format!("system_switch_{}", index),
-                source_text: clean,
-                translated_text: String::new(),
-                field_type: format!("switches[{}]:data/System.json:0", index),
-                status: TranslationStatus::NotTranslated,
-                prompt_type: PromptType::System,
-            });
-        }
-    }
+    // NOTE: Switches are not translated per project requirements
+    // for (index, switch_name) in system.switches.iter().enumerate() {
+    //     if !switch_name.is_empty() && !is_technical_content(switch_name) {
+    //         let clean = replace_formatting_codes_for_translation(switch_name);
+    //         text_units.push(TextUnit {
+    //             id: format!("system_switch_{}", index),
+    //             source_text: clean,
+    //             translated_text: String::new(),
+    //             field_type: format!("switches[{}]:data/System.json:0", index),
+    //             status: TranslationStatus::NotTranslated,
+    //             prompt_type: PromptType::System,
+    //         });
+    //     }
+    // }
 
     // Extract variables
-    for (index, variable_name) in system.variables.iter().enumerate() {
-        if !variable_name.is_empty() && !is_technical_content(variable_name) {
-            let clean = replace_formatting_codes_for_translation(variable_name);
-            text_units.push(TextUnit {
-                id: format!("system_variable_{}", index),
-                source_text: clean,
-                translated_text: String::new(),
-                field_type: format!("variables[{}]:data/System.json:0", index),
-                status: TranslationStatus::NotTranslated,
-                prompt_type: PromptType::System,
-            });
-        }
-    }
+    // NOTE: Variables are not translated per project requirements
+    // for (index, variable_name) in system.variables.iter().enumerate() {
+    //     if !variable_name.is_empty() && !is_technical_content(variable_name) {
+    //         let clean = replace_formatting_codes_for_translation(variable_name);
+    //         text_units.push(TextUnit {
+    //             id: format!("system_variable_{}", index),
+    //             source_text: clean,
+    //             translated_text: String::new(),
+    //             field_type: format!("variables[{}]:data/System.json:0", index),
+    //             status: TranslationStatus::NotTranslated,
+    //             prompt_type: PromptType::System,
+    //         });
+    //     }
+    // }
 
     // Extract basic terms
     for (index, basic_term) in system.terms.basic.iter().enumerate() {
@@ -378,7 +381,8 @@ pub fn inject_translations(
     if let Some(unit) = text_units_map.get("system_game_title") {
         if !unit.translated_text.is_empty() {
             let restored = restore_formatting_codes_after_translation(&unit.translated_text);
-            system.game_title = restored;
+            // Add LudoLingua signature to the translated title
+            system.game_title = format!("{} - LudoLingua", restored);
         }
     }
 
@@ -431,34 +435,37 @@ pub fn inject_translations(
     }
 
     // Update weapon types
-    for (index, weapon_type) in system.weapon_types.iter_mut().enumerate() {
-        if let Some(unit) = text_units_map.get(&format!("system_weapon_type_{}", index)) {
-            if !unit.translated_text.is_empty() {
-                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
-                *weapon_type = restored;
-            }
-        }
-    }
+    // NOTE: Weapon types are not translated per project requirements
+    // for (index, weapon_type) in system.weapon_types.iter_mut().enumerate() {
+    //     if let Some(unit) = text_units_map.get(&format!("system_weapon_type_{}", index)) {
+    //         if !unit.translated_text.is_empty() {
+    //             let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+    //             *weapon_type = restored;
+    //         }
+    //     }
+    // }
 
     // Update switches
-    for (index, switch_name) in system.switches.iter_mut().enumerate() {
-        if let Some(unit) = text_units_map.get(&format!("system_switch_{}", index)) {
-            if !unit.translated_text.is_empty() {
-                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
-                *switch_name = restored;
-            }
-        }
-    }
+    // NOTE: Switches are not translated per project requirements
+    // for (index, switch_name) in system.switches.iter_mut().enumerate() {
+    //     if let Some(unit) = text_units_map.get(&format!("system_switch_{}", index)) {
+    //         if !unit.translated_text.is_empty() {
+    //             let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+    //             *switch_name = restored;
+    //         }
+    //     }
+    // }
 
     // Update variables
-    for (index, variable_name) in system.variables.iter_mut().enumerate() {
-        if let Some(unit) = text_units_map.get(&format!("system_variable_{}", index)) {
-            if !unit.translated_text.is_empty() {
-                let restored = restore_formatting_codes_after_translation(&unit.translated_text);
-                *variable_name = restored;
-            }
-        }
-    }
+    // NOTE: Variables are not translated per project requirements
+    // for (index, variable_name) in system.variables.iter_mut().enumerate() {
+    //     if let Some(unit) = text_units_map.get(&format!("system_variable_{}", index)) {
+    //         if !unit.translated_text.is_empty() {
+    //             let restored = restore_formatting_codes_after_translation(&unit.translated_text);
+    //             *variable_name = restored;
+    //         }
+    //     }
+    // }
 
     // Update basic terms
     for (index, basic_term) in system.terms.basic.iter_mut().enumerate() {

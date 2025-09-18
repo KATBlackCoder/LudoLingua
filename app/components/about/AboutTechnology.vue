@@ -18,116 +18,47 @@
       >
         <template #description>
           <div class="text-sm">
-            After choosing a different model or languages in <strong>Settings</strong>, click <strong>Save</strong>. If you don’t save, the configuration won’t be used by translation or connection tests.
+            After choosing a different model or languages in <strong>Settings</strong>, click <strong>Save</strong>. If you don't save, the configuration won't be used by translation or connection tests.
           </div>
         </template>
       </UAlert>
     </div>
 
-    <UCard class="mt-4">
-      <template #header>
-        <div class="font-medium">LLM Parameters (Ollama)</div>
-      </template>
-      <div class="space-y-3 text-sm">
-        <UAlert
-          color="error"
-          variant="soft"
-          icon="i-lucide-triangle-alert"
-          class="mt-2"
-          title="Model requirement"
+    <!-- Provider Selection Tabs -->
+    <div class="mt-6">
+      <div class="flex gap-2 mb-4">
+        <UButton
+          :variant="activeProvider === 'ollama' ? 'solid' : 'outline'"
+          :color="activeProvider === 'ollama' ? 'primary' : 'neutral'"
+          icon="i-lucide-cpu"
+          @click="activeProvider = 'ollama'"
         >
-          <template #description>
-            <div class="text-sm">
-              You need an Ollama endpoint to translate. Either install Ollama locally and use
-              <code>http://localhost:11434</code> (<a class="underline" href="https://ollama.com/" target="_blank" rel="noreferrer">ollama.com</a>),
-              or point to a remote Ollama-compatible URL (e.g., a hosted instance).
-              Configure it under <strong>Settings</strong>.
-            </div>
-          </template>
-        </UAlert>
-        <UAlert color="warning" variant="soft" icon="i-lucide-settings">
-          <template #title>Connection tests require saved settings</template>
-          <template #description>
-            Tests only run once your settings file exists. Open <strong>Settings</strong> and click <strong>Save</strong> at least once to create <code>ludollingua-settings.json</code>.
-          </template>
-        </UAlert>
-        <div>
-          <div class="font-medium">Temperature</div>
-          <div class="text-muted">Controls randomness/creativity. Lower = more literal and consistent; higher = more diverse but riskier.</div>
-          <div class="mt-1"><UBadge color="primary" variant="soft">Recommended: 0.2–0.3 (default: 0.3)</UBadge></div>
-        </div>
-        <USeparator />
-        <div>
-          <div class="font-medium">Max Tokens (num_predict)</div>
-          <div class="text-muted">Caps the length of the generated translation. Prevents overly long outputs and improves latency.</div>
-          <div class="mt-1">
-            <UBadge color="primary" variant="soft">Recommended: 256</UBadge>
-            <span class="ml-2 text-muted">Use 512 for longer paragraphs; smaller for short UI strings.</span>
-          </div>
-        </div>
-        <UAlert color="neutral" variant="soft" icon="i-lucide-info" class="mt-2">
-          <template #title>How it’s applied</template>
-          <template #description>
-            These settings are sent to Ollama as <code>ModelOptions</code> (<code>temperature</code>, <code>num_predict</code>) during generation.
-          </template>
-        </UAlert>
+          Ollama
+        </UButton>
+        <UButton
+          :variant="activeProvider === 'runpod' ? 'solid' : 'outline'"
+          :color="activeProvider === 'runpod' ? 'primary' : 'neutral'"
+          icon="i-lucide-cloud"
+          @click="activeProvider = 'runpod'"
+        >
+          RunPod
+        </UButton>
       </div>
-    </UCard>
 
-    <UCard class="mt-4">
-      <template #header>
-        <div class="font-medium">Performance & Hardware (Guidance)</div>
-      </template>
-      <div class="space-y-4 text-sm">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <UCard>
-            <template #header>
-              <div class="flex items-center gap-2"><UBadge color="neutral" variant="soft">Baseline</UBadge><span>CPU‑only</span></div>
-            </template>
-            <ul class="list-disc pl-5 space-y-1">
-              <li><strong>CPU</strong>: 6–8 physical cores</li>
-              <li><strong>RAM</strong>: 16–32 GB</li>
-              <li><strong>VRAM</strong>: N/A</li>
-              <li><strong>Models</strong>: 7B Q4 quant</li>
-              <li><strong>Parallelism</strong>: 1–2</li>
-              <li class="text-muted">Slower; good for small batches/UI text.</li>
-            </ul>
-          </UCard>
-          <UCard>
-            <template #header>
-              <div class="flex items-center gap-2"><UBadge color="primary" variant="soft">Recommended</UBadge><span>Single GPU</span></div>
-            </template>
-            <ul class="list-disc pl-5 space-y-1">
-              <li><strong>CPU</strong>: 6+ physical cores</li>
-              <li><strong>RAM</strong>: 16–32 GB</li>
-              <li><strong>VRAM</strong>: 8–12 GB</li>
-              <li><strong>Models</strong>: 7–8B Q4–Q5 quant</li>
-              <li><strong>Parallelism</strong>: 2–3</li>
-              <li class="text-muted">Balanced throughput and quality for dialogue/editing.</li>
-            </ul>
-          </UCard>
-          <UCard>
-            <template #header>
-              <div class="flex items-center gap-2"><UBadge color="success" variant="soft">High</UBadge><span>Large VRAM</span></div>
-            </template>
-            <ul class="list-disc pl-5 space-y-1">
-              <li><strong>CPU</strong>: 8+ physical cores</li>
-              <li><strong>RAM</strong>: 32+ GB</li>
-              <li><strong>VRAM</strong>: 16–24 GB</li>
-              <li><strong>Models</strong>: 13B Q4 or 7–8B higher quant</li>
-              <li><strong>Parallelism</strong>: 3–4</li>
-              <li class="text-muted">Best latency and longer generations (num_predict 512+).</li>
-            </ul>
-          </UCard>
-        </div>
-        <UAlert color="neutral" variant="soft" icon="i-lucide-info">
-          <template #description>
-            Actual capacity depends on quantization, drivers, and model family. For most projects, a 7–8B Q4/Q5 model on an 8–12 GB GPU is sufficient.
-          </template>
-        </UAlert>
+      <!-- Provider Content -->
+      <div>
+        <AboutOllama v-if="activeProvider === 'ollama'" />
+        <AboutRunPod v-else-if="activeProvider === 'runpod'" />
       </div>
-    </UCard>
+    </div>
   </section>
 </template>
+
+<script setup lang="ts">
+import AboutOllama from '~/components/about/technologies/AboutOllama.vue'
+import AboutRunPod from '~/components/about/technologies/AboutRunPod.vue'
+
+const activeProvider = ref<'ollama' | 'runpod'>('ollama')
+</script>
 
 

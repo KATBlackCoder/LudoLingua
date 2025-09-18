@@ -1,7 +1,7 @@
-use sqlx::{self, Row, Arguments};
+use super::model::{BulkOperationResult, TextUnitQuery, TextUnitRecord};
 use crate::core::error::{AppError, AppResult};
 use crate::db::state::ManagedTranslationState;
-use super::model::{TextUnitRecord, TextUnitQuery, BulkOperationResult};
+use sqlx::{self, Arguments, Row};
 
 /// Find a single text unit by its database ID
 pub async fn find_unit_by_id(
@@ -14,7 +14,7 @@ pub async fn find_unit_by_id(
         r#"SELECT id, project_path, file_path, field_type, source_text, translated_text,
                   status, prompt_type, source_lang, target_lang, manifest_hash,
                   created_at, updated_at
-           FROM text_units WHERE id = ?"#
+           FROM text_units WHERE id = ?"#,
     )
     .bind(id)
     .fetch_one(&pool)
@@ -49,28 +49,32 @@ pub async fn find_units(
         r#"SELECT id, project_path, file_path, field_type, source_text, translated_text,
                   status, prompt_type, source_lang, target_lang, manifest_hash,
                   created_at, updated_at
-           FROM text_units WHERE 1=1"#
+           FROM text_units WHERE 1=1"#,
     );
     let mut args = sqlx::sqlite::SqliteArguments::default();
 
     if let Some(project_path) = &query.project_path {
         sql.push_str(" AND project_path = ?");
-        args.add(project_path).map_err(|e| AppError::Database(e.to_string()))?;
+        args.add(project_path)
+            .map_err(|e| AppError::Database(e.to_string()))?;
     }
 
     if let Some(file_path) = &query.file_path {
         sql.push_str(" AND file_path = ?");
-        args.add(file_path).map_err(|e| AppError::Database(e.to_string()))?;
+        args.add(file_path)
+            .map_err(|e| AppError::Database(e.to_string()))?;
     }
 
     if let Some(status) = &query.status {
         sql.push_str(" AND status = ?");
-        args.add(status).map_err(|e| AppError::Database(e.to_string()))?;
+        args.add(status)
+            .map_err(|e| AppError::Database(e.to_string()))?;
     }
 
     if let Some(manifest_hash) = &query.manifest_hash {
         sql.push_str(" AND manifest_hash = ?");
-        args.add(manifest_hash).map_err(|e| AppError::Database(e.to_string()))?;
+        args.add(manifest_hash)
+            .map_err(|e| AppError::Database(e.to_string()))?;
     }
 
     sql.push_str(" ORDER BY updated_at DESC");
@@ -111,10 +115,7 @@ pub async fn find_units(
 }
 
 /// Save a single text unit (insert or update)
-pub async fn upsert_unit(
-    state: &ManagedTranslationState,
-    unit: &TextUnitRecord,
-) -> AppResult<i64> {
+pub async fn upsert_unit(state: &ManagedTranslationState, unit: &TextUnitRecord) -> AppResult<i64> {
     let pool = state.pool().await;
 
     if let Some(id) = unit.id {
@@ -122,7 +123,7 @@ pub async fn upsert_unit(
         sqlx::query(
             r#"UPDATE text_units
                SET translated_text = ?, status = ?, prompt_type = ?, updated_at = CURRENT_TIMESTAMP
-               WHERE id = ?"#
+               WHERE id = ?"#,
         )
         .bind(&unit.translated_text)
         .bind(&unit.status)
@@ -140,7 +141,7 @@ pub async fn upsert_unit(
             r#"INSERT INTO text_units
                (project_path, file_path, field_type, source_text, translated_text,
                 status, prompt_type, source_lang, target_lang, manifest_hash)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
         )
         .bind(&unit.project_path)
         .bind(&unit.file_path)
@@ -171,7 +172,9 @@ pub async fn bulk_upsert_units(
     let mut errors = Vec::new();
 
     // Use a transaction for atomicity
-    let mut tx = pool.begin().await
+    let mut tx = pool
+        .begin()
+        .await
         .map_err(|e| AppError::Database(e.to_string()))?;
 
     for unit in units {
@@ -190,10 +193,12 @@ pub async fn bulk_upsert_units(
     }
 
     if errors.is_empty() {
-        tx.commit().await
+        tx.commit()
+            .await
             .map_err(|e| AppError::Database(e.to_string()))?;
     } else {
-        tx.rollback().await
+        tx.rollback()
+            .await
             .map_err(|e| AppError::Database(e.to_string()))?;
     }
 
@@ -214,7 +219,7 @@ async fn upsert_unit_in_transaction(
         sqlx::query(
             r#"UPDATE text_units
                SET translated_text = ?, status = ?, prompt_type = ?, updated_at = CURRENT_TIMESTAMP
-               WHERE id = ?"#
+               WHERE id = ?"#,
         )
         .bind(&unit.translated_text)
         .bind(&unit.status)
@@ -232,7 +237,7 @@ async fn upsert_unit_in_transaction(
             r#"INSERT INTO text_units
                (project_path, file_path, field_type, source_text, translated_text,
                 status, prompt_type, source_lang, target_lang, manifest_hash)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
         )
         .bind(&unit.project_path)
         .bind(&unit.file_path)
@@ -253,10 +258,7 @@ async fn upsert_unit_in_transaction(
 }
 
 /// Delete a text unit by ID
-pub async fn delete_unit(
-    state: &ManagedTranslationState,
-    id: i64,
-) -> AppResult<()> {
+pub async fn delete_unit(state: &ManagedTranslationState, id: i64) -> AppResult<()> {
     let pool = state.pool().await;
 
     sqlx::query("DELETE FROM text_units WHERE id = ?")
@@ -284,16 +286,13 @@ pub async fn find_units_by_project_and_status(
 }
 
 /// Mark a unit as being translated (for concurrency control)
-pub async fn mark_unit_as_translating(
-    state: &ManagedTranslationState,
-    id: i64,
-) -> AppResult<()> {
+pub async fn mark_unit_as_translating(state: &ManagedTranslationState, id: i64) -> AppResult<()> {
     let pool = state.pool().await;
 
     sqlx::query(
         r#"UPDATE text_units
            SET status = 'Translating', updated_at = CURRENT_TIMESTAMP
-           WHERE id = ? AND status != 'Translating'"#
+           WHERE id = ? AND status != 'Translating'"#,
     )
     .bind(id)
     .execute(&pool)
@@ -332,9 +331,7 @@ pub async fn get_project_stats(
 }
 
 /// Get overall statistics across all projects
-pub async fn get_overall_stats(
-    state: &ManagedTranslationState,
-) -> AppResult<serde_json::Value> {
+pub async fn get_overall_stats(state: &ManagedTranslationState) -> AppResult<serde_json::Value> {
     let pool = state.pool().await;
 
     let stats = sqlx::query(
@@ -369,7 +366,7 @@ pub async fn find_translated_units_for_export(
            FROM text_units
            WHERE manifest_hash = ?
            AND (status = 'MachineTranslated' OR status = 'HumanReviewed')
-           ORDER BY file_path, field_type"#
+           ORDER BY file_path, field_type"#,
     )
     .bind(manifest_hash)
     .fetch_all(&pool)
@@ -400,10 +397,7 @@ pub async fn find_translated_units_for_export(
 
 /// Bulk delete text units by their IDs
 /// This function efficiently deletes multiple text units in a single SQL query
-pub async fn bulk_delete_units(
-    state: &ManagedTranslationState,
-    ids: Vec<i64>,
-) -> AppResult<i64> {
+pub async fn bulk_delete_units(state: &ManagedTranslationState, ids: Vec<i64>) -> AppResult<i64> {
     // Handle empty list case
     if ids.is_empty() {
         return Ok(0);
@@ -424,7 +418,8 @@ pub async fn bulk_delete_units(
     }
 
     // Execute the query and return the number of affected rows
-    let result = query.execute(&pool)
+    let result = query
+        .execute(&pool)
         .await
         .map_err(|e| AppError::Database(e.to_string()))?;
 
@@ -444,7 +439,7 @@ pub async fn get_all_project_manifests(
         r#"SELECT DISTINCT manifest_hash, project_path 
            FROM text_units 
            WHERE manifest_hash IS NOT NULL 
-           ORDER BY project_path"#
+           ORDER BY project_path"#,
     )
     .fetch_all(&pool)
     .await
