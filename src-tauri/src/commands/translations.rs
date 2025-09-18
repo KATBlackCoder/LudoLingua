@@ -1,6 +1,6 @@
 use crate::core::error::AppResult;
-use crate::db::translation::model::{TextUnitRecord, TextUnitQuery};
 use crate::db::state::ManagedTranslationState;
+use crate::db::translation::model::{TextUnitQuery, TextUnitRecord};
 
 /// List translations with optional filtering and pagination
 pub async fn list_translations(
@@ -27,23 +27,20 @@ pub async fn update_translation(
 ) -> AppResult<bool> {
     // First get the existing record
     let mut record = crate::db::translation::repo::find_unit_by_id(state, id).await?;
-    
+
     // Update the fields
     record.translated_text = Some(translated_text);
     if let Some(new_status) = status {
         record.status = new_status;
     }
-    
+
     // Upsert back to database
     let _updated_id = crate::db::translation::repo::upsert_unit(state, &record).await?;
     Ok(true)
 }
 
 /// Delete a single translation by ID
-pub async fn delete_translation(
-    state: &ManagedTranslationState,
-    id: i64,
-) -> AppResult<bool> {
+pub async fn delete_translation(state: &ManagedTranslationState, id: i64) -> AppResult<bool> {
     crate::db::translation::repo::delete_unit(state, id).await?;
     Ok(true)
 }

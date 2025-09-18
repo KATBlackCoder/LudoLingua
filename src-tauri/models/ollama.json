@@ -1,19 +1,6 @@
 {
     "models": [
         {
-            "display_name": "Gemma 2 2B (Japanese/Italian)",
-            "model_name": "schroneko/gemma-2-2b-jpn-it:latest",
-            "provider": "Ollama",
-            "description": "Gemma 2 2B model - Best balance of quality, speed, and memory usage for translation. Excellent multilingual support with 128K context window",
-            "pricing": {
-                "input_price_per_1k": 0.0,
-                "output_price_per_1k": 0.0,
-                "currency": "USD"
-            },
-            "context_window": 131072,
-            "enabled": true
-        },
-        {
             "display_name": "Qwen2.5 (Multilingual)",
             "model_name": "qwen2.5:latest",
             "provider": "Ollama",

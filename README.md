@@ -55,14 +55,15 @@ pnpm preview
 
 - **Frontend**: Nuxt 4 SPA with Nuxt UI components and TypeScript
 - **Backend**: Rust with Tauri for desktop functionality
-- **AI Providers**: Ollama, OpenAI, Groq, OpenRouter
+- **AI Providers**: Ollama, RunPod
 - **Database**: SQLite for glossary and translation persistence
 - **Styling**: Tailwind CSS with Nuxt UI design system
 
 ### LLM Requirements
 
-You need an Ollama endpoint to translate. Either:
+You need an AI provider endpoint to translate. Either:
 - Install Ollama locally and use `http://localhost:11434` ([ollama.com](https://ollama.com/))
+- Use RunPod with your API key
 - Point to a remote Ollama-compatible URL
 
 Configure it under **Settings**.
@@ -126,7 +127,7 @@ Glossary terms are automatically injected into LLM prompts based on the text typ
 
 1. **Install Dependencies**: Run `pnpm install`
 2. **Start Development Server**: Run `pnpm dev`
-3. **Configure AI Provider**: Set up Ollama or other AI provider in Settings
+3. **Configure AI Provider**: Set up Ollama or RunPod in Settings
 4. **Load RPG Project**: Use "Load Project" to select your RPG Maker game folder
 5. **Extract Text**: The app will automatically extract translatable text
 6. **Translate**: Use AI translation or manual editing
@@ -137,7 +138,7 @@ Glossary terms are automatically injected into LLM prompts based on the text typ
 - ✅ **RPG Maker MV**: Full support
 - ✅ **RPG Maker MZ**: Full support
 - ✅ **Wolf RPG**: Experimental support
-- ✅ **AI Translation**: Ollama, OpenAI, Groq, OpenRouter
+- ✅ **AI Translation**: Ollama, RunPod
 - ✅ **Glossary System**: Database-backed term management
 - ✅ **Export Functionality**: Direct injection to game files
 

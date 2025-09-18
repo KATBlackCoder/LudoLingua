@@ -216,6 +216,9 @@ async function exportSubset() {
   }
 }
 
+if (!engineStore.hasProject) {
+  navigateTo('/')
+}
 </script>
 
 

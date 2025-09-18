@@ -3,8 +3,8 @@ use log::{debug, error, info, warn};
 use crate::core::error::AppResult;
 use crate::core::provider::GenerationResponse;
 use crate::db::glossary::GlossaryQuery;
-use crate::db::ManagedGlossaryState;
 use crate::db::state::ManagedTranslationState;
+use crate::db::ManagedGlossaryState;
 use crate::llm::state::LlmState;
 use crate::models::engine::EngineInfo;
 use crate::models::provider::LlmConfig;
@@ -52,12 +52,12 @@ pub async fn translate_text_unit(
     // Ensure shared service and apply lightweight rate limiting
     state.ensure_service(&config).await?;
     let _permit = state.limiter.acquire().await.unwrap();
-    
+
     // Add small delay for cloud providers to prevent rate limits
     let provider = config.model.provider.to_lowercase();
     match provider.as_str() {
-        "runpod" => sleep(Duration::from_millis(500)).await,    // RunPod: 500ms delay for remote servers
-        _ => sleep(Duration::from_millis(200)).await,           // Default: 200ms delay for local Ollama
+        "runpod" => sleep(Duration::from_millis(500)).await, // RunPod: 500ms delay for remote servers
+        _ => sleep(Duration::from_millis(200)).await, // Default: 200ms delay for local Ollama
     }
     // Build prompt at the command layer to keep service focused on generation
     // Try to fetch glossary terms filtered by prompt type
@@ -142,10 +142,10 @@ pub async fn translate_text_unit(
         match crate::db::translation::repo::find_units(&db, &query).await {
             Ok(records) => {
                 // Find record with matching source_text and field_type
-                records.into_iter().find(|r|
-                    r.source_text == updated_unit.source_text &&
-                    r.field_type == updated_unit.field_type
-                )
+                records.into_iter().find(|r| {
+                    r.source_text == updated_unit.source_text
+                        && r.field_type == updated_unit.field_type
+                })
             }
             Err(_) => None,
         }
@@ -155,9 +155,15 @@ pub async fn translate_text_unit(
         // Update existing record with translation data
         record.translated_text = Some(updated_unit.translated_text.clone());
         record.status = match updated_unit.status {
-            crate::models::translation::TranslationStatus::NotTranslated => "NotTranslated".to_string(),
-            crate::models::translation::TranslationStatus::MachineTranslated => "MachineTranslated".to_string(),
-            crate::models::translation::TranslationStatus::HumanReviewed => "HumanReviewed".to_string(),
+            crate::models::translation::TranslationStatus::NotTranslated => {
+                "NotTranslated".to_string()
+            }
+            crate::models::translation::TranslationStatus::MachineTranslated => {
+                "MachineTranslated".to_string()
+            }
+            crate::models::translation::TranslationStatus::HumanReviewed => {
+                "HumanReviewed".to_string()
+            }
             crate::models::translation::TranslationStatus::Ignored => "Ignored".to_string(),
         };
 
@@ -165,7 +171,10 @@ pub async fn translate_text_unit(
         crate::db::translation::repo::upsert_unit(&db, &record).await
     } else {
         // Fallback: create new record if existing not found (shouldn't happen in normal flow)
-        warn!("Could not find existing record for unit {}, creating new one", updated_unit.id);
+        warn!(
+            "Could not find existing record for unit {}, creating new one",
+            updated_unit.id
+        );
         let text_unit_record = crate::db::translation::model::TextUnitRecord::from_text_unit(
             &updated_unit,
             &project_path,
@@ -178,11 +187,16 @@ pub async fn translate_text_unit(
     // Handle save result
     match save_result {
         Ok(_) => {
-            info!("Translation saved to database for unit: {}", updated_unit.id);
+            info!(
+                "Translation saved to database for unit: {}",
+                updated_unit.id
+            );
 
             // Update manifest with current translated count
             if let Some(manifest_hash) = manifest_hash.as_ref() {
-                if let Err(e) = update_manifest_translated_count(&db, &project_path, manifest_hash).await {
+                if let Err(e) =
+                    update_manifest_translated_count(&db, &project_path, manifest_hash).await
+                {
                     warn!("Failed to update manifest with translated count: {}", e);
                 }
             }
@@ -202,7 +216,10 @@ pub async fn translate_text_unit(
 
 /// Execute a single prompt with timeout and retry/backoff using the shared service, returning token usage.
 /// Optimized for remote Ollama servers (RunPod, Vast.ai) with enhanced network latency handling.
-async fn translate_with_retry_and_usage(state: &LlmState, prompt: &str) -> AppResult<GenerationResponse> {
+async fn translate_with_retry_and_usage(
+    state: &LlmState,
+    prompt: &str,
+) -> AppResult<GenerationResponse> {
     const REQ_TIMEOUT: Duration = Duration::from_secs(120); // Increased for remote servers
     const RETRIES: usize = 5; // Increased retries for better network resilience
 
@@ -220,19 +237,22 @@ async fn translate_with_retry_and_usage(state: &LlmState, prompt: &str) -> AppRe
                 let is_fatal_quota = match &e {
                     crate::core::error::AppError::Llm(msg) => {
                         let m = msg.to_ascii_lowercase();
-                        m.contains("insufficient_quota") || m.contains("exceeded your current quota")
+                        m.contains("insufficient_quota")
+                            || m.contains("exceeded your current quota")
                     }
                     _ => false,
                 };
                 if is_fatal_quota {
                     return Err(e);
                 }
-                
+
                 // Handle rate limits with longer backoff
                 let is_rate_limit = match &e {
                     crate::core::error::AppError::Llm(msg) => {
                         let m = msg.to_ascii_lowercase();
-                        m.contains("429") || m.contains("too many requests") || m.contains("rate limit")
+                        m.contains("429")
+                            || m.contains("too many requests")
+                            || m.contains("rate limit")
                     }
                     _ => false,
                 };
@@ -248,21 +268,33 @@ async fn translate_with_retry_and_usage(state: &LlmState, prompt: &str) -> AppRe
                 let is_network_error = match &e {
                     crate::core::error::AppError::Llm(msg) => {
                         let m = msg.to_ascii_lowercase();
-                        m.contains("connection") || m.contains("timeout") ||
-                        m.contains("network") || m.contains("unreachable") ||
-                        m.contains("dns") || m.contains("resolve") ||
-                        m.contains("connection refused") || m.contains("connection reset") ||
-                        m.contains("connection aborted") || m.contains("no route to host") ||
-                        m.contains("network is unreachable") || m.contains("temporary failure") ||
-                        m.contains("server error") || m.contains("bad gateway") ||
-                        m.contains("service unavailable") || m.contains("gateway timeout")
+                        m.contains("connection")
+                            || m.contains("timeout")
+                            || m.contains("network")
+                            || m.contains("unreachable")
+                            || m.contains("dns")
+                            || m.contains("resolve")
+                            || m.contains("connection refused")
+                            || m.contains("connection reset")
+                            || m.contains("connection aborted")
+                            || m.contains("no route to host")
+                            || m.contains("network is unreachable")
+                            || m.contains("temporary failure")
+                            || m.contains("server error")
+                            || m.contains("bad gateway")
+                            || m.contains("service unavailable")
+                            || m.contains("gateway timeout")
                     }
                     _ => false,
                 };
                 if is_network_error {
                     // Exponential backoff for network issues: 1s, 2s, 4s, 8s, 16s
                     let backoff_ms = 1000 * (1 << attempt);
-                    debug!("Network error detected, backing off for {}ms (attempt {})", backoff_ms, attempt + 1);
+                    debug!(
+                        "Network error detected, backing off for {}ms (attempt {})",
+                        backoff_ms,
+                        attempt + 1
+                    );
                     sleep(Duration::from_millis(backoff_ms)).await;
                     continue;
                 }
@@ -270,32 +302,32 @@ async fn translate_with_retry_and_usage(state: &LlmState, prompt: &str) -> AppRe
                 last_err = Some(e);
             }
             Err(_to) => {
-                last_err = Some(crate::core::error::AppError::Llm("request timeout - remote server may be busy".into()));
+                last_err = Some(crate::core::error::AppError::Llm(
+                    "request timeout - remote server may be busy".into(),
+                ));
             }
         }
         // simple backoff: 200ms, 400ms, 600ms
         sleep(Duration::from_millis(200 * (attempt as u64 + 1))).await;
     }
 
-    Err(last_err.unwrap_or_else(|| crate::core::error::AppError::Llm("max retries exceeded - check network connection to remote server".into())))
+    Err(last_err.unwrap_or_else(|| {
+        crate::core::error::AppError::Llm(
+            "max retries exceeded - check network connection to remote server".into(),
+        )
+    }))
 }
 
 /// Clean model output to remove thinking process and extract only the translation
 fn clean_model_output(content: &str) -> String {
     let content = content.trim();
 
-    // First, try to extract content between <<<INPUT_START>>> and <<<INPUT_END>>>
-    if let Some(start_idx) = content.find("<<<INPUT_START>>>") {
-        if let Some(end_idx) = content.find("<<<INPUT_END>>>") {
-            let start = start_idx + "<<<INPUT_START>>>".len();
-            if start < end_idx {
-                return content[start..end_idx].trim().to_string();
-            }
-        }
-    }
+    // Remove all occurrences of <<<INPUT_START>>> and <<<INPUT_END>>> tags
+    let mut cleaned = content
+        .replace("<<<INPUT_START>>>", "")
+        .replace("<<<INPUT_END>>>", "");
 
     // Remove everything between <think> and </think> tags (including the tags)
-    let mut cleaned = content.to_string();
     while let Some(start_idx) = cleaned.find("<think>") {
         if let Some(end_idx) = cleaned.find("</think>") {
             if start_idx < end_idx {
@@ -344,7 +376,8 @@ async fn update_manifest_translated_count(
                     project_path_obj,
                     manifest_hash,
                     translated_count,
-                ).await?;
+                )
+                .await?;
             }
             Ok(())
         }

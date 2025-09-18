@@ -7,8 +7,6 @@ use crate::engines::rpg_maker_mz::engine::RpgMakerMzEngine;
 use crate::engines::wolf_rpg::engine::WolfRpgEngine;
 use crate::models::engine::{EngineCriteria, EngineType};
 
-
-
 /// Factory function to get the appropriate engine implementation based on project path.
 ///
 /// This function analyzes the given project directory and determines which game engine
@@ -80,14 +78,16 @@ fn create_engine_from_type(engine_type: EngineType) -> AppResult<Box<dyn Engine>
         EngineType::RpgMakerMz => Ok(Box::new(RpgMakerMzEngine::new()) as Box<dyn Engine>),
         EngineType::WolfRpg => Ok(Box::new(WolfRpgEngine::new()) as Box<dyn Engine>),
         EngineType::Unknown => Err(AppError::Other(
-            "Unknown engine type - cannot create engine".to_string()
+            "Unknown engine type - cannot create engine".to_string(),
         )),
     }
 }
 
 /// Extract game data files using engine-specific logic.
 /// This function handles the engine dispatch automatically based on engine type.
-pub fn extract_game_data_files(project_info: &crate::models::engine::EngineInfo) -> AppResult<Vec<crate::models::engine::GameDataFile>> {
+pub fn extract_game_data_files(
+    project_info: &crate::models::engine::EngineInfo,
+) -> AppResult<Vec<crate::models::engine::GameDataFile>> {
     match project_info.engine_type {
         EngineType::RpgMakerMv => {
             let engine = RpgMakerMvEngine::new();
@@ -97,16 +97,12 @@ pub fn extract_game_data_files(project_info: &crate::models::engine::EngineInfo)
             let engine = RpgMakerMzEngine::new();
             engine.extract_game_data_files(project_info)
         }
-        EngineType::WolfRpg => {
-            Err(AppError::Other(
-                "Wolf RPG does not support structured game data file extraction".to_string()
-            ))
-        }
-        EngineType::Unknown => {
-            Err(AppError::Other(
-                "Unknown engine type - cannot extract game data files".to_string()
-            ))
-        }
+        EngineType::WolfRpg => Err(AppError::Other(
+            "Wolf RPG does not support structured game data file extraction".to_string(),
+        )),
+        EngineType::Unknown => Err(AppError::Other(
+            "Unknown engine type - cannot extract game data files".to_string(),
+        )),
     }
 }
 
@@ -128,15 +124,21 @@ pub async fn export_translated_subset(
     let manifest_hash = manifest.project_id.clone();
 
     // Find all translated units for this project
-    let translated_records = crate::db::translation::repo::find_translated_units_for_export(db, &manifest_hash)
-        .await
-        .map_err(|e| AppError::Other(format!("Failed to query translated units: {}", e)))?;
+    let translated_records =
+        crate::db::translation::repo::find_translated_units_for_export(db, &manifest_hash)
+            .await
+            .map_err(|e| AppError::Other(format!("Failed to query translated units: {}", e)))?;
 
     if translated_records.is_empty() {
-        return Err(AppError::Other("No translated units found for export".to_string()));
+        return Err(AppError::Other(
+            "No translated units found for export".to_string(),
+        ));
     }
 
-    info!("Found {} translated units for export", translated_records.len());
+    info!(
+        "Found {} translated units for export",
+        translated_records.len()
+    );
 
     // Get engine for this project type
     let engine = create_engine_from_type(project_info.engine_type.clone())?;
@@ -150,12 +152,20 @@ pub async fn export_translated_subset(
                     None
                 } else {
                     // Use engine's own ID reconstruction method
-                    match engine.reconstruct_text_unit_id(&record.field_type, &record.source_text, translated) {
+                    match engine.reconstruct_text_unit_id(
+                        &record.field_type,
+                        &record.source_text,
+                        translated,
+                    ) {
                         Ok(mut text_unit) => {
                             // Set the correct status from database record
                             text_unit.status = match record.status.as_str() {
-                                "MachineTranslated" => crate::models::translation::TranslationStatus::MachineTranslated,
-                                "HumanReviewed" => crate::models::translation::TranslationStatus::HumanReviewed,
+                                "MachineTranslated" => {
+                                    crate::models::translation::TranslationStatus::MachineTranslated
+                                }
+                                "HumanReviewed" => {
+                                    crate::models::translation::TranslationStatus::HumanReviewed
+                                }
                                 _ => crate::models::translation::TranslationStatus::NotTranslated,
                             };
                             Some(text_unit)
@@ -173,8 +183,9 @@ pub async fn export_translated_subset(
     info!("Converted {} units for injection", text_units.len());
 
     // Create destination directory if it doesn't exist
-    std::fs::create_dir_all(destination_root)
-        .map_err(|e| AppError::FileSystem(format!("Failed to create destination directory: {}", e)))?;
+    std::fs::create_dir_all(destination_root).map_err(|e| {
+        AppError::FileSystem(format!("Failed to create destination directory: {}", e))
+    })?;
 
     // Copy project files to destination (only the files needed for injection)
     let criteria = engine.get_detection_criteria();
@@ -184,11 +195,13 @@ pub async fn export_translated_subset(
 
         if src_path.exists() {
             if let Some(parent) = dest_path.parent() {
-                std::fs::create_dir_all(parent)
-                    .map_err(|e| AppError::FileSystem(format!("Failed to create parent directory: {}", e)))?;
+                std::fs::create_dir_all(parent).map_err(|e| {
+                    AppError::FileSystem(format!("Failed to create parent directory: {}", e))
+                })?;
             }
-            std::fs::copy(&src_path, &dest_path)
-                .map_err(|e| AppError::FileSystem(format!("Failed to copy {}: {}", required_file, e)))?;
+            std::fs::copy(&src_path, &dest_path).map_err(|e| {
+                AppError::FileSystem(format!("Failed to copy {}: {}", required_file, e))
+            })?;
         }
     }
 
@@ -198,8 +211,12 @@ pub async fn export_translated_subset(
         let dest_path = std::path::Path::new(destination_root).join(data_root);
 
         if src_path.exists() {
-            copy_dir_recursive(&src_path, &dest_path)
-                .map_err(|e| AppError::FileSystem(format!("Failed to copy data directory {}: {}", data_root, e)))?;
+            copy_dir_recursive(&src_path, &dest_path).map_err(|e| {
+                AppError::FileSystem(format!(
+                    "Failed to copy data directory {}: {}",
+                    data_root, e
+                ))
+            })?;
         }
     }
 
@@ -208,10 +225,15 @@ pub async fn export_translated_subset(
     dest_engine_info.path = std::path::Path::new(destination_root).to_path_buf();
 
     // Inject translations into the copied files
-    engine.inject_text_units(&dest_engine_info, &text_units)
+    engine
+        .inject_text_units(&dest_engine_info, &text_units)
         .map_err(|e| AppError::Other(format!("Failed to inject translations: {}", e)))?;
 
-    info!("Successfully exported {} translations to {}", text_units.len(), destination_root);
+    info!(
+        "Successfully exported {} translations to {}",
+        text_units.len(),
+        destination_root
+    );
 
     Ok(destination_root.to_string())
 }
@@ -326,8 +348,3 @@ fn matches_criteria(project_path: &Path, criteria: &EngineCriteria) -> AppResult
     debug!("Project matches criteria");
     Ok(true)
 }
-
-
-
-
-

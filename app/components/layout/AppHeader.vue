@@ -19,8 +19,8 @@
               Translator
             </UButton>
             <UButton to="/translations" variant="ghost" :active="$route.path === '/translations'" icon="i-lucide-list">Translations</UButton>
-            <UButton to="/settings" variant="ghost" :active="$route.path === '/settings'" icon="i-lucide-settings">Settings</UButton>
             <UButton to="/glossary" variant="ghost" :active="$route.path === '/glossary'" icon="i-lucide-book-open">Glossary</UButton>
+            <UButton to="/settings" variant="ghost" :active="$route.path === '/settings'" icon="i-lucide-settings">Settings</UButton>
             <UButton to="/about" variant="ghost" :active="$route.path === '/about'" icon="i-lucide-info">About</UButton>
           </UFieldGroup>
         </nav>

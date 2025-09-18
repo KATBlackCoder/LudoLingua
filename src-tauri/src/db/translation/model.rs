@@ -1,5 +1,5 @@
+use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
 use serde::{Deserialize, Serialize};
-use crate::models::translation::{TextUnit, TranslationStatus, PromptType};
 
 /// Database representation of a text unit for translation
 /// This is the persistent version of TextUnit with additional metadata
@@ -11,7 +11,7 @@ pub struct TextUnitRecord {
     pub field_type: String,
     pub source_text: String,
     pub translated_text: Option<String>,
-    pub status: String, // Stored as string in DB, converted to enum
+    pub status: String,      // Stored as string in DB, converted to enum
     pub prompt_type: String, // Stored as string in DB, converted to enum
     pub source_lang: String,
     pub target_lang: String,
@@ -52,8 +52,12 @@ impl TextUnitRecord {
     /// Convert TextUnitRecord back to TextUnit for frontend use
     pub fn to_text_unit(&self) -> TextUnit {
         TextUnit {
-            id: self.id.map(|id| id.to_string())
-                .unwrap_or_else(|| format!("{}_{}_{}", self.project_path, self.file_path, self.field_type)),
+            id: self.id.map(|id| id.to_string()).unwrap_or_else(|| {
+                format!(
+                    "{}_{}_{}",
+                    self.project_path, self.file_path, self.field_type
+                )
+            }),
             source_text: self.source_text.clone(),
             translated_text: self.translated_text.clone().unwrap_or_default(),
             field_type: self.field_type.clone(),

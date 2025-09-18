@@ -38,7 +38,6 @@
             size="xs"
             color="primary"
             variant="soft"
-            icon="i-lucide-sparkles"
             :loading="isRetranslating"
             @click="retranslate"
           >

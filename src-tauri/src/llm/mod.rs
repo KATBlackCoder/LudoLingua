@@ -9,6 +9,6 @@
 //! - `state`: Shared `LlmState` with a lazily-initialized service instance and a
 //!   semaphore-based limiter to protect the backend from overload
 
+pub mod factory;
 pub mod services;
 pub mod state;
-pub mod factory;

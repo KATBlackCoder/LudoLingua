@@ -32,7 +32,12 @@ pub trait Engine: Send + Sync {
 
     /// Reconstruct a TextUnit ID from a field_type string for export purposes
     /// This allows each engine to handle its own ID format during export
-    fn reconstruct_text_unit_id(&self, field_type: &str, source_text: &str, translated_text: &str) -> AppResult<TextUnit>;
+    fn reconstruct_text_unit_id(
+        &self,
+        field_type: &str,
+        source_text: &str,
+        translated_text: &str,
+    ) -> AppResult<TextUnit>;
 
     /// Returns self as Any for downcasting to specific engine implementations
     fn as_any(&self) -> &dyn Any;

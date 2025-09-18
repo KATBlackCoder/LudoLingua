@@ -69,11 +69,14 @@ impl RunPodService {
         Self::format_runpod_url(&config)?;
 
         let http_client = Client::builder()
-            .timeout(Duration::from_secs(120))  // Longer timeout for cloud
+            .timeout(Duration::from_secs(120)) // Longer timeout for cloud
             .build()
             .map_err(|e| AppError::Llm(format!("Failed to create HTTP client: {}", e)))?;
 
-        Ok(Self { config, http_client })
+        Ok(Self {
+            config,
+            http_client,
+        })
     }
 
     /// Convert RunPod pod ID to proper API endpoint URL
@@ -112,7 +115,10 @@ impl RunPodService {
 
     /// Generate text with usage information using direct RunPod API
     async fn do_generate_with_usage(&self, prompt: &str) -> AppResult<GenerationResponse> {
-        log::debug!("RunPod: Starting generation with prompt length: {}", prompt.len());
+        log::debug!(
+            "RunPod: Starting generation with prompt length: {}",
+            prompt.len()
+        );
         let base_url = Self::format_runpod_url(&self.config)?;
         log::debug!("RunPod: Using base URL: {}", base_url);
 
@@ -171,7 +177,10 @@ impl RunPodService {
         let content = runpod_response.message.content;
 
         // Extract token usage if available
-        let token_usage = match (runpod_response.prompt_eval_count, runpod_response.eval_count) {
+        let token_usage = match (
+            runpod_response.prompt_eval_count,
+            runpod_response.eval_count,
+        ) {
             (Some(input), Some(output)) => Some(TokenUsage {
                 input_tokens: input,
                 output_tokens: output,
@@ -231,20 +240,28 @@ impl RunPodService {
 }
 
 impl LlmService for RunPodService {
-    fn generate<'a>(&'a self, prompt: &'a str) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<String>> + Send + 'a>> {
+    fn generate<'a>(
+        &'a self,
+        prompt: &'a str,
+    ) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<String>> + Send + 'a>> {
         Box::pin(async move {
             let response = self.do_generate_with_usage(prompt).await?;
             Ok(response.content)
         })
     }
 
-    fn generate_with_usage<'a>(&'a self, prompt: &'a str) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<GenerationResponse>> + Send + 'a>> {
-        Box::pin(async move {
-            self.do_generate_with_usage(prompt).await
-        })
+    fn generate_with_usage<'a>(
+        &'a self,
+        prompt: &'a str,
+    ) -> core::pin::Pin<
+        Box<dyn core::future::Future<Output = AppResult<GenerationResponse>> + Send + 'a>,
+    > {
+        Box::pin(async move { self.do_generate_with_usage(prompt).await })
     }
 
-    fn test_connection<'a>(&'a self) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<bool>> + Send + 'a>> {
+    fn test_connection<'a>(
+        &'a self,
+    ) -> core::pin::Pin<Box<dyn core::future::Future<Output = AppResult<bool>> + Send + 'a>> {
         Box::pin(async move { self.do_test_connection().await })
     }
 

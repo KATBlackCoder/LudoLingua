@@ -301,7 +301,10 @@ pub fn extract_text_units_from_event_commands(
                                 ),
                                 source_text: clean_text,
                                 translated_text: String::new(),
-                                field_type: "message".to_string(),
+                                field_type: format!(
+                                    "message:{}:{}:{}",
+                                    _file_path, object_id, command_index
+                                ),
                                 status: TranslationStatus::NotTranslated,
                                 prompt_type: PromptType::Dialogue,
                             });
@@ -327,7 +330,10 @@ pub fn extract_text_units_from_event_commands(
                                         ),
                                         source_text: clean_text,
                                         translated_text: String::new(),
-                                        field_type: "choice".to_string(),
+                                        field_type: format!(
+                                            "choice:{}:{}:{}:{}",
+                                            _file_path, object_id, command_index, choice_index
+                                        ),
                                         status: TranslationStatus::NotTranslated,
                                         prompt_type: PromptType::Dialogue,
                                     });

@@ -14,14 +14,25 @@ use log::debug;
 use tauri::State;
 
 // Internal command modules
-use crate::commands::{engine, glossary as glossary_cmd, languages, provider, translations, translator};
+use crate::commands::{
+    engine, glossary as glossary_cmd, languages, provider, translations, translator,
+};
 
 // Database types
-use crate::db::{glossary::model::{GlossaryQuery, GlossaryTerm}, ManagedGlossaryState, state::ManagedTranslationState};
+use crate::db::{
+    glossary::model::{GlossaryQuery, GlossaryTerm},
+    state::ManagedTranslationState,
+    ManagedGlossaryState,
+};
 
 // Core types
 use crate::llm::state::LlmState;
-use crate::models::{engine::{EngineInfo, GameDataFile}, language::Language, provider::{LlmConfig, ModelInfo}, translation::TextUnit};
+use crate::models::{
+    engine::{EngineInfo, GameDataFile},
+    language::Language,
+    provider::{LlmConfig, ModelInfo},
+    translation::TextUnit,
+};
 
 // ============================================================================
 // PROJECT MANAGEMENT COMMANDS
@@ -57,7 +68,9 @@ pub async fn extract_text_with_merge(
 
 /// Extract all game data files from a project
 #[tauri::command]
-pub async fn extract_game_data_files(project_info: EngineInfo) -> Result<Vec<GameDataFile>, String> {
+pub async fn extract_game_data_files(
+    project_info: EngineInfo,
+) -> Result<Vec<GameDataFile>, String> {
     debug!("Command: extract_game_data_files - {}", project_info.name);
     engine::extract_game_data_files(project_info).await
 }
@@ -102,7 +115,10 @@ pub async fn export_translated_subset(
     db: State<'_, ManagedTranslationState>,
     destination_root: String,
 ) -> Result<String, String> {
-    debug!("Command: export_translated_subset - {} to {}", project_info.name, destination_root);
+    debug!(
+        "Command: export_translated_subset - {} to {}",
+        project_info.name, destination_root
+    );
     engine::export_translated_subset(project_info, &db, destination_root).await
 }
 
@@ -125,9 +141,17 @@ pub async fn translate_text_unit(
     // Use manifest hash from engine info for project identification
     let manifest_hash = engine_info.manifest_hash.clone();
 
-    translator::translate_text_unit(state, glossary, db, text_unit, config, engine_info, manifest_hash)
-        .await
-        .map_err(|e| e.to_string())
+    translator::translate_text_unit(
+        state,
+        glossary,
+        db,
+        text_unit,
+        config,
+        engine_info,
+        manifest_hash,
+    )
+    .await
+    .map_err(|e| e.to_string())
 }
 
 // ============================================================================
@@ -166,7 +190,6 @@ pub fn get_languages() -> Result<Vec<Language>, String> {
     languages::get_languages()
 }
 
-
 // ============================================================================
 // GLOSSARY COMMANDS
 // ============================================================================
@@ -178,7 +201,9 @@ pub async fn glossary_list_terms(
     q: GlossaryQuery,
 ) -> Result<Vec<GlossaryTerm>, String> {
     debug!("Command: glossary_list_terms");
-    glossary_cmd::list_terms(&glossary, q).await.map_err(|e| e.to_string())
+    glossary_cmd::list_terms(&glossary, q)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Create or update a glossary term
@@ -188,7 +213,9 @@ pub async fn glossary_upsert_term(
     term: GlossaryTerm,
 ) -> Result<i64, String> {
     debug!("Command: glossary_upsert_term");
-    glossary_cmd::upsert_term(&glossary, term).await.map_err(|e| e.to_string())
+    glossary_cmd::upsert_term(&glossary, term)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Delete a glossary term by ID
@@ -198,7 +225,9 @@ pub async fn glossary_delete_term(
     id: i64,
 ) -> Result<(), String> {
     debug!("Command: glossary_delete_term");
-    glossary_cmd::delete_term(&glossary, id).await.map_err(|e| e.to_string())
+    glossary_cmd::delete_term(&glossary, id)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Export glossary terms as JSON
@@ -208,7 +237,9 @@ pub async fn glossary_export_terms(
     q: GlossaryQuery,
 ) -> Result<String, String> {
     debug!("Command: glossary_export_terms");
-    glossary_cmd::export_terms(&glossary, q).await.map_err(|e| e.to_string())
+    glossary_cmd::export_terms(&glossary, q)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Import glossary terms from JSON
@@ -218,7 +249,9 @@ pub async fn glossary_import_terms(
     json: String,
 ) -> Result<usize, String> {
     debug!("Command: glossary_import_terms");
-    glossary_cmd::import_terms(&glossary, json).await.map_err(|e| e.to_string())
+    glossary_cmd::import_terms(&glossary, json)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 // ============================================================================
@@ -232,7 +265,9 @@ pub async fn list_translations_cmd(
     query: crate::db::translation::model::TextUnitQuery,
 ) -> Result<Vec<crate::db::translation::model::TextUnitRecord>, String> {
     debug!("Command: list_translations");
-    translations::list_translations(&translation, query).await.map_err(|e| e.to_string())
+    translations::list_translations(&translation, query)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Get a single translation by ID
@@ -242,7 +277,9 @@ pub async fn get_translation_cmd(
     id: i64,
 ) -> Result<crate::db::translation::model::TextUnitRecord, String> {
     debug!("Command: get_translation - {}", id);
-    translations::get_translation(&translation, id).await.map_err(|e| e.to_string())
+    translations::get_translation(&translation, id)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Update an existing translation
@@ -254,7 +291,9 @@ pub async fn update_translation_cmd(
     status: Option<String>,
 ) -> Result<bool, String> {
     debug!("Command: update_translation - {}", id);
-    translations::update_translation(&translation, id, translated_text, status).await.map_err(|e| e.to_string())
+    translations::update_translation(&translation, id, translated_text, status)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Delete a single translation by ID
@@ -264,7 +303,9 @@ pub async fn delete_translation_cmd(
     id: i64,
 ) -> Result<bool, String> {
     debug!("Command: delete_translation - {}", id);
-    translations::delete_translation(&translation, id).await.map_err(|e| e.to_string())
+    translations::delete_translation(&translation, id)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Bulk delete multiple translations
@@ -274,7 +315,9 @@ pub async fn bulk_delete_translations_cmd(
     ids: Vec<i64>,
 ) -> Result<i64, String> {
     debug!("Command: bulk_delete_translations - {} items", ids.len());
-    translations::bulk_delete_translations(&translation, ids).await.map_err(|e| e.to_string())
+    translations::bulk_delete_translations(&translation, ids)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Get translation statistics
@@ -284,6 +327,7 @@ pub async fn get_translation_stats_cmd(
     project_path: Option<String>,
 ) -> Result<serde_json::Value, String> {
     debug!("Command: get_translation_stats");
-    translations::get_translation_stats(&translation, project_path).await.map_err(|e| e.to_string())
+    translations::get_translation_stats(&translation, project_path)
+        .await
+        .map_err(|e| e.to_string())
 }
-

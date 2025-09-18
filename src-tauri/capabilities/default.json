@@ -11,6 +11,8 @@
         "dialog:allow-open",
         "dialog:default",
         "store:default",
-        "fs:default"
+        "fs:default",
+        "notification:default",
+        "notification:allow-is-permission-granted"
   ]
 }

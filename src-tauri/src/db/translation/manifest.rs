@@ -1,9 +1,9 @@
-use std::path::{Path, PathBuf};
+use crate::core::error::{AppError, AppResult};
+use crate::models::engine::{EngineCriteria, EngineInfo, EngineType};
+use log::info;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use log::info;
-use crate::core::error::{AppError, AppResult};
-use crate::models::engine::{EngineInfo, EngineType, EngineCriteria};
+use std::path::{Path, PathBuf};
 
 /// Project manifest stored as .ludolingua.json in project root
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -59,12 +59,15 @@ impl ProjectManifest {
     pub fn generate_project_id(project_path: &Path, engine_info: &EngineInfo) -> String {
         let mut hasher = Sha256::new();
         hasher.update(project_path.to_string_lossy().as_bytes());
-        hasher.update(match engine_info.engine_type {
-            EngineType::RpgMakerMv => "RpgMakerMv",
-            EngineType::RpgMakerMz => "RpgMakerMz",
-            EngineType::WolfRpg => "WolfRpg",
-            EngineType::Unknown => "Unknown",
-        }.as_bytes());
+        hasher.update(
+            match engine_info.engine_type {
+                EngineType::RpgMakerMv => "RpgMakerMv",
+                EngineType::RpgMakerMz => "RpgMakerMz",
+                EngineType::WolfRpg => "WolfRpg",
+                EngineType::Unknown => "Unknown",
+            }
+            .as_bytes(),
+        );
         if let Some(version) = &engine_info.version {
             hasher.update(version.as_bytes());
         }
@@ -93,8 +96,8 @@ impl ProjectManifest {
             detection_criteria: (&engine_info.detection_criteria).into(),
             created_at: now.clone(),
             last_accessed: now,
-            total_text_units: None,  // Will be updated when text units are extracted
-            translated_text_units: None,  // Will be updated when translations are saved
+            total_text_units: None, // Will be updated when text units are extracted
+            translated_text_units: None, // Will be updated when translations are saved
         }
     }
 
@@ -130,8 +133,13 @@ impl ProjectManifest {
         let json = serde_json::to_string_pretty(self)
             .map_err(|e| AppError::Other(format!("Failed to serialize manifest: {}", e)))?;
 
-        std::fs::write(&manifest_path, json)
-            .map_err(|e| AppError::Other(format!("Failed to write manifest to {}: {}", manifest_path.display(), e)))?;
+        std::fs::write(&manifest_path, json).map_err(|e| {
+            AppError::Other(format!(
+                "Failed to write manifest to {}: {}",
+                manifest_path.display(),
+                e
+            ))
+        })?;
 
         Ok(())
     }
@@ -144,11 +152,21 @@ impl ProjectManifest {
             return Ok(None);
         }
 
-        let json = std::fs::read_to_string(&manifest_path)
-            .map_err(|e| AppError::Other(format!("Failed to read manifest from {}: {}", manifest_path.display(), e)))?;
+        let json = std::fs::read_to_string(&manifest_path).map_err(|e| {
+            AppError::Other(format!(
+                "Failed to read manifest from {}: {}",
+                manifest_path.display(),
+                e
+            ))
+        })?;
 
-        let mut manifest: Self = serde_json::from_str(&json)
-            .map_err(|e| AppError::Other(format!("Failed to parse manifest from {}: {}", manifest_path.display(), e)))?;
+        let mut manifest: Self = serde_json::from_str(&json).map_err(|e| {
+            AppError::Other(format!(
+                "Failed to parse manifest from {}: {}",
+                manifest_path.display(),
+                e
+            ))
+        })?;
 
         // Update last accessed time
         manifest.update_last_accessed();
@@ -159,15 +177,16 @@ impl ProjectManifest {
 
     /// Check if manifest matches current engine info
     pub fn matches_engine_info(&self, engine_info: &EngineInfo) -> bool {
-        self.project_path == engine_info.path.to_string_lossy() &&
-        self.engine_type == match engine_info.engine_type {
-            EngineType::RpgMakerMv => "RpgMakerMv",
-            EngineType::RpgMakerMz => "RpgMakerMz",
-            EngineType::WolfRpg => "WolfRpg",
-            EngineType::Unknown => "Unknown",
-        } &&
-        self.source_language == engine_info.source_language.id &&
-        self.target_language == engine_info.target_language.id
+        self.project_path == engine_info.path.to_string_lossy()
+            && self.engine_type
+                == match engine_info.engine_type {
+                    EngineType::RpgMakerMv => "RpgMakerMv",
+                    EngineType::RpgMakerMz => "RpgMakerMz",
+                    EngineType::WolfRpg => "WolfRpg",
+                    EngineType::Unknown => "Unknown",
+                }
+            && self.source_language == engine_info.source_language.id
+            && self.target_language == engine_info.target_language.id
     }
 }
 

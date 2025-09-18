@@ -8,8 +8,11 @@ use crate::models::provider::LlmConfig;
 /// model metadata. Currently supports Ollama and RunPod.
 pub fn create_service(config: LlmConfig) -> AppResult<Box<dyn LlmService>> {
     // Debug: Log the provider name being processed
-    log::debug!("Creating service for provider: '{}' (lowercase: '{}')",
-                config.model.provider, config.model.provider.to_lowercase());
+    log::debug!(
+        "Creating service for provider: '{}' (lowercase: '{}')",
+        config.model.provider,
+        config.model.provider.to_lowercase()
+    );
 
     // Only support implemented providers
     let provider = match config.model.provider.to_lowercase().as_str() {
@@ -22,14 +25,13 @@ pub fn create_service(config: LlmConfig) -> AppResult<Box<dyn LlmService>> {
         ProviderKind::Ollama => {
             log::debug!("Creating OllamaService");
             Ok(Box::new(OllamaService::new(config)?))
-        },
+        }
         ProviderKind::Runpod => {
             log::debug!("Creating RunPodService");
             Ok(Box::new(RunPodService::new(config)?))
-        },
+        }
     };
 
     log::debug!("Service created successfully for provider: {:?}", provider);
     service
 }
-

@@ -1,18 +1,15 @@
-use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
 use crate::engines::wolf_rpg::files::regex::{
-    is_translatable_wolf_text, wolf_replace_placeholders_for_translation
+    is_translatable_wolf_text, wolf_replace_placeholders_for_translation,
 };
+use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
 use serde_json::Value;
 use std::collections::HashMap;
 
 /// Extract text units from Wolf RPG MPS (Map Script) files
 /// Based on actual Wolf RPG JSON structure with events, pages, and command lists
-pub fn extract_text_units_from_mps(
-    mps_data: &Value,
-    file_path: &str,
-) -> Vec<TextUnit> {
+pub fn extract_text_units_from_mps(mps_data: &Value, file_path: &str) -> Vec<TextUnit> {
     let mut text_units = Vec::new();
-    
+
     if let Some(obj) = mps_data.as_object() {
         // Wolf RPG MPS files have an "events" array
         if let Some(events) = obj.get("events").and_then(|v| v.as_array()) {
@@ -21,7 +18,7 @@ pub fn extract_text_units_from_mps(
             }
         }
     }
-    
+
     text_units
 }
 
@@ -35,7 +32,7 @@ fn extract_from_wolf_event(
 ) {
     if let Some(event_obj) = event.as_object() {
         // Skip event names - user says not to translate them
-        
+
         // Extract from event pages (where the actual commands are)
         if let Some(pages) = event_obj.get("pages").and_then(|v| v.as_array()) {
             for (page_idx, page) in pages.iter().enumerate() {
@@ -58,7 +55,9 @@ fn extract_from_wolf_page(
         // Extract from command list (similar to RPG Maker event commands)
         if let Some(commands) = page_obj.get("list").and_then(|v| v.as_array()) {
             for (cmd_idx, command) in commands.iter().enumerate() {
-                extract_from_wolf_command(text_units, command, file_path, event_idx, page_idx, cmd_idx);
+                extract_from_wolf_command(
+                    text_units, command, file_path, event_idx, page_idx, cmd_idx,
+                );
             }
         }
     }
@@ -77,24 +76,64 @@ fn extract_from_wolf_command(
     if let Some(cmd_obj) = command.as_object() {
         // Get command code (like RPG Maker's command codes)
         let code = cmd_obj.get("code").and_then(|v| v.as_i64()).unwrap_or(0);
-        
+
         // Extract based on specific translatable command codes only
         match code {
             101 => {
                 // Message - extract all text from stringArgs
-                extract_command_strings(text_units, cmd_obj, file_path, event_idx, page_idx, cmd_idx, code, PromptType::Dialogue, false);
+                extract_command_strings(
+                    text_units,
+                    cmd_obj,
+                    file_path,
+                    event_idx,
+                    page_idx,
+                    cmd_idx,
+                    code,
+                    PromptType::Dialogue,
+                    false,
+                );
             }
             210 => {
                 // CommonEvent - extract text but skip files (.mp3, .png, etc)
-                extract_command_strings(text_units, cmd_obj, file_path, event_idx, page_idx, cmd_idx, code, PromptType::Dialogue, true);
+                extract_command_strings(
+                    text_units,
+                    cmd_obj,
+                    file_path,
+                    event_idx,
+                    page_idx,
+                    cmd_idx,
+                    code,
+                    PromptType::Dialogue,
+                    true,
+                );
             }
             150 => {
                 // Picture - extract text but skip files, handle Wolf codes like \\E\\c[2], \n
-                extract_command_strings(text_units, cmd_obj, file_path, event_idx, page_idx, cmd_idx, code, PromptType::Dialogue, true);
+                extract_command_strings(
+                    text_units,
+                    cmd_obj,
+                    file_path,
+                    event_idx,
+                    page_idx,
+                    cmd_idx,
+                    code,
+                    PromptType::Dialogue,
+                    true,
+                );
             }
             122 => {
                 // SetString - extract text only if not empty
-                extract_command_strings(text_units, cmd_obj, file_path, event_idx, page_idx, cmd_idx, code, PromptType::Other, true);
+                extract_command_strings(
+                    text_units,
+                    cmd_obj,
+                    file_path,
+                    event_idx,
+                    page_idx,
+                    cmd_idx,
+                    code,
+                    PromptType::Other,
+                    true,
+                );
             }
             _ => {
                 // Skip all other command codes - they don't contain translatable text
@@ -122,7 +161,7 @@ fn extract_command_strings(
                 if arg_text.trim().is_empty() {
                     continue;
                 }
-                
+
                 // Use enhanced filtering that skips files if requested
                 if skip_files {
                     if !is_translatable_wolf_text(arg_text) {
@@ -134,7 +173,7 @@ fn extract_command_strings(
                         continue;
                     }
                 }
-                
+
                 let processed_text = wolf_replace_placeholders_for_translation(arg_text);
                 let normalized_path = file_path.replace('\\', "/");
                 text_units.push(TextUnit {
@@ -165,10 +204,6 @@ fn is_text_worth_translating(text: &str) -> bool {
     text.chars().any(|c| c.is_alphabetic())
 }
 
-
-
-
-
 /// Inject translated text back into Wolf RPG MPS structures
 pub fn inject_text_units_into_mps(
     mps_data: &mut Value,
@@ -194,7 +229,7 @@ fn inject_into_wolf_event(
 ) {
     if let Some(event_obj) = event.as_object_mut() {
         // Skip event name injection - user says not to translate names
-        
+
         // Inject into event pages (where the actual commands are)
         if let Some(pages) = event_obj.get_mut("pages").and_then(|v| v.as_array_mut()) {
             for (page_idx, page) in pages.iter_mut().enumerate() {
@@ -216,7 +251,9 @@ fn inject_into_wolf_page(
         // Inject into command list
         if let Some(commands) = page_obj.get_mut("list").and_then(|v| v.as_array_mut()) {
             for (cmd_idx, command) in commands.iter_mut().enumerate() {
-                inject_into_wolf_command(command, text_units, file_path, event_idx, page_idx, cmd_idx);
+                inject_into_wolf_command(
+                    command, text_units, file_path, event_idx, page_idx, cmd_idx,
+                );
             }
         }
     }

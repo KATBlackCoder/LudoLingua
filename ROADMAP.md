@@ -119,6 +119,39 @@
 **Status:** READY TO BEGIN - Post modernization completion
 **Priority:** HIGH (Next development focus)
 
+### 🏗️ **Phase 5.0: Code Architecture Refinement** - PREPARATION
+**Timeline:** 1-2 weeks
+**Goal:** Improve code organization and create unified text processing utilities
+
+#### **📁 Text Processing Module Restructure**
+- [ ] **Create `utils/text/` Directory Structure**:
+  - [ ] `utils/text/llm_output.rs` - LLM response cleaning and processing
+  - [ ] `utils/text/formatting.rs` - RPG Maker code replacement/restoration
+  - [ ] `utils/text/whitespace.rs` - Whitespace encoding/decoding utilities
+  - [ ] `utils/text/validation.rs` - Technical content detection
+  - [ ] `utils/text/pipeline.rs` - Unified text processing pipeline
+  - [ ] `utils/text/mod.rs` - Module exports and public API
+
+#### **🔄 Refactoring & Migration**
+- [ ] **Move Functions from Scattered Locations**:
+  - [ ] Move `clean_model_output` from `commands/translator.rs` to `utils/text/llm_output.rs`
+  - [ ] Refactor large `text_processing.rs` into specialized modules
+  - [ ] Create unified `TextProcessor` struct with configuration options
+  - [ ] Add engine-specific processing methods
+
+#### **🔗 Integration & Testing**
+- [ ] **Update All Engine Imports**: Update `engines/` to use new unified utilities
+- [ ] **Add Comprehensive Unit Tests**: Test all text processing functions individually
+- [ ] **Create Integration Tests**: Test full text processing pipeline
+- [ ] **Performance Validation**: Ensure no regression in processing speed
+
+#### **📚 Benefits Achieved**
+- ✅ **Better Organization**: Clear separation of text processing concerns
+- ✅ **Maintainability**: Easier to modify and extend text processing logic
+- ✅ **Testability**: Isolated functions for comprehensive unit testing
+- ✅ **Reusability**: Shared utilities across all game engines
+- ✅ **Future-Ready**: Foundation for additional game engine support
+
 ### 🔧 **Phase 5.1: Advanced Translation Management**
 **Timeline:** 3-4 weeks
 
@@ -212,10 +245,11 @@
 - **Total**: 9 hours completed successfully
 
 ### 🎯 Phase 5 Estimated Timeline (Planned)
+- **Phase 5.0**: Code Architecture Refinement (1-2 weeks)
 - **Phase 5.1**: Advanced Management Features (3-4 weeks)
 - **Phase 5.2**: UI/UX Polish & Performance (2-3 weeks)
 - **Phase 5.3**: Quality Assurance & Testing (2 weeks)
-- **Total Estimated**: 7-9 weeks of development
+- **Total Estimated**: 8-11 weeks of development
 
 ### 🔄 Development Strategy
 - **Incremental**: Each sub-phase can be developed and released independently
@@ -265,6 +299,14 @@
 **Phase 4 Complete!** 🎉 All modernization objectives achieved successfully.
 
 **Immediate Priority**: **Phase 5 - Enhanced Features & Polish**
+
+**Phase 5.0** - Code Architecture Refinement (1-2 weeks):
+1. Text processing module restructure (`utils/text/` organization)
+2. Unified `TextProcessor` pipeline for all engines
+3. Comprehensive unit testing for text utilities
+4. Foundation for future engine support
+
+**Subsequent Phases**:
 1. Advanced translation management features (multi-criteria filtering, full-text search)
 2. Performance optimization for large datasets (virtual scrolling, memory optimization)
 3. Enhanced UI/UX improvements (keyboard shortcuts, better loading states)

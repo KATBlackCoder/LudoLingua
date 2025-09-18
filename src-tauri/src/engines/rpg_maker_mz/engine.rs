@@ -376,42 +376,158 @@ impl Engine for RpgMakerMzEngine {
         self.inject_game_data_files(project_info, text_units)
     }
 
-    fn reconstruct_text_unit_id(&self, field_type: &str, source_text: &str, translated_text: &str) -> AppResult<TextUnit> {
-        // RPG Maker MZ has similar structure to MV, so we can reuse the same logic
-        // Parse field_type format: "field:file.json:index"
+    fn reconstruct_text_unit_id(
+        &self,
+        field_type: &str,
+        source_text: &str,
+        translated_text: &str,
+    ) -> AppResult<TextUnit> {
+        // Parse field_type format - handle both regular format and event command format
         let parts: Vec<&str> = field_type.split(':').collect();
+        
+        // Handle event command format: "message:file_path:object_id:command_index"
+        if parts.len() == 4 && parts[0] == "message" {
+            let file_path = parts[1];
+            let object_id: i32 = parts[2].parse().map_err(|_| {
+                crate::core::error::AppError::Other(format!("Invalid object_id in field_type: {}", field_type))
+            })?;
+            let command_index: i32 = parts[3].parse().map_err(|_| {
+                crate::core::error::AppError::Other(format!(
+                    "Invalid command_index in field_type: {}",
+                    field_type
+                ))
+            })?;
+            
+            // Determine object type from file path for event commands
+            let object_type = if file_path.contains("Map") && file_path.contains(".json") {
+                // Handle MapXXX.json files - extract map ID and create proper object type
+                let map_id = mz_maps::extract_map_id(file_path);
+                format!("map_{}_event", map_id)
+            } else if file_path.contains("CommonEvents.json") {
+                "common_event".to_string()
+            } else if file_path.contains("Troops.json") {
+                "troop".to_string()
+            } else {
+                "event".to_string() // fallback
+            };
+            
+            let reconstructed_id = format!("{}_{}_message_{}", object_type, object_id, command_index);
+            
+            return Ok(TextUnit {
+                id: reconstructed_id,
+                source_text: source_text.to_string(),
+                translated_text: translated_text.to_string(),
+                status: crate::models::translation::TranslationStatus::MachineTranslated,
+                field_type: field_type.to_string(),
+                prompt_type: crate::models::translation::PromptType::Dialogue,
+            });
+        }
+        
+        // Handle choice command format: "choice:file_path:object_id:command_index:choice_index"
+        if parts.len() == 5 && parts[0] == "choice" {
+            let file_path = parts[1];
+            let object_id: i32 = parts[2].parse().map_err(|_| {
+                crate::core::error::AppError::Other(format!("Invalid object_id in field_type: {}", field_type))
+            })?;
+            let command_index: i32 = parts[3].parse().map_err(|_| {
+                crate::core::error::AppError::Other(format!(
+                    "Invalid command_index in field_type: {}",
+                    field_type
+                ))
+            })?;
+            let choice_index: i32 = parts[4].parse().map_err(|_| {
+                crate::core::error::AppError::Other(format!(
+                    "Invalid choice_index in field_type: {}",
+                    field_type
+                ))
+            })?;
+            
+            // Determine object type from file path for event commands
+            let object_type = if file_path.contains("Map") && file_path.contains(".json") {
+                // Handle MapXXX.json files - extract map ID and create proper object type
+                let map_id = mz_maps::extract_map_id(file_path);
+                format!("map_{}_event", map_id)
+            } else if file_path.contains("CommonEvents.json") {
+                "common_event".to_string()
+            } else if file_path.contains("Troops.json") {
+                "troop".to_string()
+            } else {
+                "event".to_string() // fallback
+            };
+            
+            let reconstructed_id = format!(
+                "{}_{}_choice_{}_{}",
+                object_type, object_id, command_index, choice_index
+            );
+            
+            return Ok(TextUnit {
+                id: reconstructed_id,
+                source_text: source_text.to_string(),
+                translated_text: translated_text.to_string(),
+                status: crate::models::translation::TranslationStatus::MachineTranslated,
+                field_type: field_type.to_string(),
+                prompt_type: crate::models::translation::PromptType::Dialogue,
+            });
+        }
+        
+        // Handle regular format: "field:file.json:index"
         if parts.len() < 3 {
-            return Err(crate::core::error::AppError::Other(format!("Invalid field_type format: {}", field_type)));
+            return Err(crate::core::error::AppError::Other(format!(
+                "Invalid field_type format: {}",
+                field_type
+            )));
         }
 
         let field = parts[0];
         let file_path = parts[1];
-        let index: i32 = parts[2].parse().map_err(|_| crate::core::error::AppError::Other(format!("Invalid index in field_type: {}", field_type)))?;
+        let index: i32 = parts[2].parse().map_err(|_| {
+            crate::core::error::AppError::Other(format!(
+                "Invalid index in field_type: {}",
+                field_type
+            ))
+        })?;
 
-        // MZ uses same object types as MV
+        // Determine object type from file path (RPG Maker MZ specific)
         let object_type = if file_path.contains("Actors.json") {
-            "actor"
+            format!("actor")
         } else if file_path.contains("Items.json") {
-            "item"
+            format!("item")
         } else if file_path.contains("Skills.json") {
-            "skill"
+            format!("skill")
         } else if file_path.contains("Weapons.json") {
-            "weapon"
+            format!("weapon")
         } else if file_path.contains("Armors.json") {
-            "armor"
+            format!("armor")
         } else if file_path.contains("Classes.json") {
-            "class"
+            format!("class")
+        } else if file_path.contains("System.json") {
+            format!("system")
         } else if file_path.contains("States.json") {
-            "state"
+            format!("state")
         } else if file_path.contains("Enemies.json") {
-            "enemy"
+            format!("enemy")
+        } else if file_path.contains("CommonEvents.json") {
+            format!("common_event")
         } else if file_path.contains("Troops.json") {
-            "troop"
+            format!("troop")
+        } else if file_path.contains("MapInfos.json") {
+            format!("map_info")
+        } else if file_path.contains("Map") && file_path.contains(".json") {
+            // Handle MapXXX.json files - extract map ID and create proper object type
+            let map_id = mz_maps::extract_map_id(file_path);
+            format!("map_{}_event", map_id)
         } else {
-            "other"
+            format!("other")
         };
 
-        let reconstructed_id = format!("{}_{}_{}", object_type, index, field);
+        // Special handling for System.json - it uses simple field-based IDs without index
+        let reconstructed_id = if file_path.contains("System.json") {
+            // System uses format: "system_{field_name}" (no index)
+            format!("system_{}", field)
+        } else {
+            // All other files use format: "object_type_index_field"
+            format!("{}_{}_{}", object_type, index, field)
+        };
 
         Ok(TextUnit {
             id: reconstructed_id,

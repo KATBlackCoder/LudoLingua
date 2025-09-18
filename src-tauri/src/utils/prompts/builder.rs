@@ -20,8 +20,7 @@ impl PromptBuilder {
         if terms.is_empty() {
             return String::new();
         }
-        let mut by_cat: BTreeMap<&str, Vec<&GlossaryTerm>> =
-            BTreeMap::new();
+        let mut by_cat: BTreeMap<&str, Vec<&GlossaryTerm>> = BTreeMap::new();
         for t in terms {
             by_cat.entry(&t.category).or_default().push(t);
         }
@@ -29,7 +28,9 @@ impl PromptBuilder {
         for (cat, group) in by_cat {
             s.push_str(&format!("**{}:** ", cat));
             for (i, t) in group.iter().enumerate() {
-                if i > 0 { s.push_str(", "); }
+                if i > 0 {
+                    s.push_str(", ");
+                }
                 s.push_str(&format!("{} -> {}", t.input, t.output));
             }
             s.push('\n');
@@ -112,13 +113,14 @@ impl PromptBuilder {
         };
 
         // Load vocabulary template and filter by prompt type to reduce token usage
-        let vocabulary_template = match Self::load_prompt_template("prompts/optimized/vocabularies.txt") {
-            Ok(template) => Self::filter_vocabulary_sections(&template, text_unit.prompt_type),
-            Err(e) => {
-                error!("Failed to load vocabulary template: {}", e);
-                String::new()
-            }
-        };
+        let vocabulary_template =
+            match Self::load_prompt_template("prompts/optimized/vocabularies.txt") {
+                Ok(template) => Self::filter_vocabulary_sections(&template, text_unit.prompt_type),
+                Err(e) => {
+                    error!("Failed to load vocabulary template: {}", e);
+                    String::new()
+                }
+            };
 
         // Load specific template based on prompt type
         let specific_template = text_unit.prompt_type.template_path();
@@ -180,9 +182,7 @@ impl PromptBuilder {
             let trimmed = line.trim();
             if trimmed.starts_with("**") && trimmed.ends_with(":**") {
                 // Check if this section header matches any wanted section
-                keep = wanted_sections.iter().any(|wanted| {
-                    trimmed == *wanted
-                });
+                keep = wanted_sections.iter().any(|wanted| trimmed == *wanted);
             }
             if keep {
                 output.push_str(line);
@@ -248,11 +248,19 @@ impl PromptBuilder {
     fn load_prompt_template(template_path: &str) -> AppResult<String> {
         let content: &'static str = match template_path {
             "prompts/optimized/basic.txt" => include_str!("../../../prompts/optimized/basic.txt"),
-            "prompts/optimized/vocabularies.txt" => include_str!("../../../prompts/optimized/vocabularies.txt"),
-            "prompts/optimized/character.txt" => include_str!("../../../prompts/optimized/character.txt"),
+            "prompts/optimized/vocabularies.txt" => {
+                include_str!("../../../prompts/optimized/vocabularies.txt")
+            }
+            "prompts/optimized/character.txt" => {
+                include_str!("../../../prompts/optimized/character.txt")
+            }
             "prompts/optimized/state.txt" => include_str!("../../../prompts/optimized/state.txt"),
-            "prompts/optimized/dialogue.txt" => include_str!("../../../prompts/optimized/dialogue.txt"),
-            "prompts/optimized/equipment.txt" => include_str!("../../../prompts/optimized/equipment.txt"),
+            "prompts/optimized/dialogue.txt" => {
+                include_str!("../../../prompts/optimized/dialogue.txt")
+            }
+            "prompts/optimized/equipment.txt" => {
+                include_str!("../../../prompts/optimized/equipment.txt")
+            }
             "prompts/optimized/skill.txt" => include_str!("../../../prompts/optimized/skill.txt"),
             "prompts/optimized/class.txt" => include_str!("../../../prompts/optimized/class.txt"),
             "prompts/optimized/system.txt" => include_str!("../../../prompts/optimized/system.txt"),
