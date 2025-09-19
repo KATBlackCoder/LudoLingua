@@ -1,73 +1,107 @@
 <template>
   <section>
-    <div class="flex items-center gap-2 mb-2">
-      <h3 class="text-lg font-medium">Glossary and Prompt Types</h3>
-      <UBadge color="primary" variant="soft" size="xs">Consistency</UBadge>
+    <div class="flex items-center gap-3 mb-4">
+      <div class="flex items-center gap-2">
+        <UIcon name="i-lucide-book-open" class="text-primary" />
+        <h3 class="text-xl font-semibold">Glossary & Prompt Types</h3>
+      </div>
+      <UBadge color="primary" variant="soft" size="sm">
+        <UIcon name="i-lucide-shield-check" class="mr-1" />
+        Consistency
+      </UBadge>
     </div>
-    <p class="text-sm text-muted mb-3">
-      Glossary terms are stored in the database and injected into the LLM prompt based on the text unit's PromptType. If DB terms exist, they are used (DB-only) for the vocabulary block; otherwise we fall back to the file <code>prompts/vocabularies.txt</code>. For <strong>Character</strong> names, an exact source match in the glossary bypasses the LLM.
-    </p>
 
-    <UAlert
-      color="primary"
-      variant="soft"
-      icon="i-lucide-layers"
-      title="Database location"
-    >
-      <template #description>
-        <div class="text-sm space-y-1">
-          <p>The glossary database is stored per user in the OS app data directory as <code>ludolingua.db</code>.</p>
-          <ul class="list-disc pl-5">
-            <li>Windows: <code>%AppData%/LudoLingua/ludolingua.db</code></li>
-            <li>macOS: <code>~/Library/Application Support/LudoLingua/ludolingua.db</code></li>
-            <li>Linux: <code>~/.local/share/LudoLingua/ludolingua.db</code></li>
-          </ul>
-          <p class="text-xs text-gray-500 dark:text-gray-400">Note: the app folder name may appear as <code>LudoLingua</code> or as the identifier (e.g., <code>ml.ludolingua.blackat</code>) depending on the platform.</p>
+    <UCard class="mb-6">
+      <template #header>
+        <div class="flex items-center gap-2">
+          <UIcon name="i-lucide-info" class="text-primary" />
+          <span class="font-medium">How It Works</span>
         </div>
       </template>
-    </UAlert>
+      <div class="space-y-3">
+        <p class="text-sm leading-relaxed">
+          Glossary terms are stored in the database and injected into the LLM prompt based on the text unit's PromptType. 
+          If DB terms exist, they are used (DB-only) for the vocabulary block; otherwise we fall back to the file 
+          <code class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">prompts/vocabularies.txt</code>.
+        </p>
+        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div class="flex items-start gap-2">
+            <UIcon name="i-lucide-lightbulb" class="text-blue-600 dark:text-blue-400 mt-0.5" />
+            <p class="text-sm text-blue-800 dark:text-blue-200">
+              <strong>Pro Tip:</strong> For <strong>Character</strong> names, an exact source match in the glossary bypasses the LLM entirely.
+            </p>
+          </div>
+        </div>
+      </div>
+    </UCard>
 
-    <div class="space-y-2 text-sm">
-      <div>
-        <span class="font-medium">Dialogue</span>
-        <span class="mx-2">→</span>
-        <UBadge variant="soft" class="mr-1">Characters</UBadge>
-        <UBadge variant="soft" class="mr-1">Essential Terms</UBadge>
-        <UBadge variant="soft" class="mr-1">Translation Rules</UBadge>
-        <UBadge variant="soft" class="mr-1">Locations</UBadge>
-        <UBadge variant="soft" class="mr-1">Time & Weather</UBadge>
-        <UBadge variant="soft" class="mr-1">Mechanics</UBadge>
+    <UCard class="mb-6">
+      <template #header>
+        <div class="flex items-center gap-2">
+          <UIcon name="i-lucide-database" class="text-primary" />
+          <span class="font-medium">Database Location</span>
+        </div>
+      </template>
+      <div class="space-y-3">
+        <p class="text-sm">
+          The glossary database is stored per user in the OS app data directory <code class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">ml.ludolingua.blackat</code> as <code class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">ludolingua.db</code>.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <div class="flex items-center gap-2 mb-2">
+              <UIcon name="i-lucide-monitor" class="text-blue-600" />
+              <span class="font-medium text-sm">Windows</span>
+            </div>
+            <code class="text-xs text-gray-600 dark:text-gray-400 break-all">%AppData%/ml.ludolingua.blackat/ludolingua.db</code>
+          </div>
+          <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <div class="flex items-center gap-2 mb-2">
+              <UIcon name="i-lucide-apple" class="text-gray-600" />
+              <span class="font-medium text-sm">macOS</span>
+            </div>
+            <code class="text-xs text-gray-600 dark:text-gray-400 break-all">~/Library/Application Support/ml.ludolingua.blackat/ludolingua.db</code>
+          </div>
+          <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <div class="flex items-center gap-2 mb-2">
+              <UIcon name="i-lucide-terminal" class="text-orange-600" />
+              <span class="font-medium text-sm">Linux</span>
+            </div>
+            <code class="text-xs text-gray-600 dark:text-gray-400 break-all">~/.local/share/ml.ludolingua.blackat/ludolingua.db</code>
+          </div>
+        </div>
       </div>
-      <div>
-        <span class="font-medium">Character</span>
-        <span class="mx-2">→</span>
-        <UBadge variant="soft" class="mr-1">Characters</UBadge>
-        <UBadge variant="soft" class="mr-1">Essential Terms</UBadge>
-      </div>
-      <div>
-        <span class="font-medium">State / Skill</span>
-        <span class="mx-2">→</span>
-        <UBadge variant="soft" class="mr-1">Status Effects</UBadge>
-        <UBadge variant="soft" class="mr-1">Mechanics</UBadge>
-        <UBadge variant="soft" class="mr-1">Essential Terms</UBadge>
-      </div>
-      <div>
-        <span class="font-medium">Equipment</span>
-        <span class="mx-2">→</span>
-        <UBadge variant="soft" class="mr-1">Mechanics</UBadge>
-        <UBadge variant="soft" class="mr-1">Essential Terms</UBadge>
-      </div>
-      <div>
-        <span class="font-medium">System / Class / Other</span>
-        <span class="mx-2">→</span>
-        <UBadge variant="soft" class="mr-1">Mechanics</UBadge>
-        <UBadge variant="soft" class="mr-1">Essential Terms</UBadge>
-      </div>
-    </div>
+    </UCard>
 
-    <!-- Placeholder guide moved to AboutPlaceholders.vue -->
+    <UCard class="mb-6">
+      <template #header>
+        <div class="flex items-center gap-2">
+          <UIcon name="i-lucide-arrow-right-left" class="text-primary" />
+          <span class="font-medium">Prompt Type Mapping</span>
+        </div>
+      </template>
+      <div class="space-y-4">
+        <div v-for="mapping in promptMappings" :key="mapping.type" class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+          <div class="flex items-center gap-3 mb-3">
+            <UIcon :name="mapping.icon" class="text-primary" />
+            <span class="font-medium">{{ mapping.type }}</span>
+            <UIcon name="i-lucide-arrow-right" class="text-gray-400" />
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <UBadge 
+              v-for="category in mapping.categories" 
+              :key="category" 
+              variant="soft" 
+              :color="getCategoryColor(category)"
+              class="text-xs"
+            >
+              {{ category }}
+            </UBadge>
+          </div>
+        </div>
+      </div>
+    </UCard>
 
-    <UAlert color="warning" variant="soft" icon="i-lucide-triangle-alert" class="mt-3">
+    <UAlert color="warning" variant="soft" icon="i-lucide-triangle-alert" class="mb-6">
       <template #title>Keep glossary entries short</template>
       <template #description>
         <div class="text-sm">
@@ -76,73 +110,135 @@
       </template>
     </UAlert>
 
-    <div class="mt-3 text-sm space-y-2">
-      <p>
-        Add terms under the right <em>Category</em> in the Glossary. Each item renders into the prompt as:
-      </p>
-      <pre class="bg-gray-100 dark:bg-gray-800 p-3 rounded text-xs overflow-auto"><code>### Category
-Input: 源語 / Source term
-Output: 翻訳 / Target term
-</code></pre>
-    </div>
-
-    <!-- Category explanations -->
-    <UCard class="mt-4">
+    <UCard class="mb-6">
       <template #header>
-        <span class="font-medium">Category Guide</span>
+        <div class="flex items-center gap-2">
+          <UIcon name="i-lucide-code" class="text-primary" />
+          <span class="font-medium">Prompt Format</span>
+        </div>
       </template>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-        <div class="flex items-start gap-2">
-          <UBadge variant="soft">Characters</UBadge>
-          <p class="leading-relaxed">
-            Proper names (people, monsters, places as names). Prefer consistent transliteration; avoid translating names unless the game localizes them officially. Exact matches may bypass the LLM.
-          </p>
+      <div class="space-y-3">
+        <p class="text-sm">
+          Add terms under the right <em>Category</em> in the Glossary. Each item renders into the prompt as:
+        </p>
+        <div class="p-4 bg-gray-900 dark:bg-gray-800 rounded-lg">
+          <pre class="text-xs text-green-400 overflow-auto"><code>### Category
+Input: 源語 / Source term
+Output: 翻訳 / Target term</code></pre>
         </div>
-        <div class="flex items-start gap-2">
-          <UBadge variant="soft">Essential Terms</UBadge>
-          <p class="leading-relaxed">
-            Game-specific vocabulary (currencies, factions, items). Single source of truth to keep wording uniform across files.
-          </p>
+      </div>
+    </UCard>
+
+    <UCard>
+      <template #header>
+        <div class="flex items-center gap-2">
+          <UIcon name="i-lucide-bookmark" class="text-primary" />
+          <span class="font-medium">Category Guide</span>
         </div>
-        <div class="flex items-start gap-2">
-          <UBadge variant="soft">Translation Rules</UBadge>
-          <p class="leading-relaxed">
-            Style and constraints (tone, honorifics, punctuation, brackets). These guide the model on how to write.
-          </p>
-        </div>
-        <div class="flex items-start gap-2">
-          <UBadge variant="soft">Locations</UBadge>
-          <p class="leading-relaxed">
-            Place names used as common nouns. Keep canonical spelling; avoid inconsistent suffixes (e.g., “Forest of X”).
-          </p>
-        </div>
-        <div class="flex items-start gap-2">
-          <UBadge variant="soft">Time & Weather</UBadge>
-          <p class="leading-relaxed">
-            Temporal and weather terms (dawn, blizzard). Ensures consistent phrasing in UI and descriptions.
-          </p>
-        </div>
-        <div class="flex items-start gap-2">
-          <UBadge variant="soft">Mechanics</UBadge>
-          <p class="leading-relaxed">
-            Mechanics and system terms (stats, damage types, item rarities). Avoid inventing new terms mid-project.
-          </p>
-        </div>
-        <div class="flex items-start gap-2">
-          <UBadge variant="soft">Status Effects</UBadge>
-          <p class="leading-relaxed">
-            Buffs/debuffs and ailment names (Poison, Stun). Prefer standard localized names used by the genre.
+      </template>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div v-for="category in categories" :key="category.name" class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <UBadge :color="getCategoryColor(category.name)" variant="soft" class="text-xs">
+              {{ category.name }}
+            </UBadge>
+          </div>
+          <p class="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+            {{ category.description }}
           </p>
         </div>
       </div>
       <template #footer>
-        <div class="text-xs text-muted">
-          Tip: Terms are applied only when source/target languages match the current project and the term is enabled.
-          You can add terms directly from the Translation results using the “Add to glossary” button; it auto-picks a Category based on the text unit’s PromptType.
+        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div class="flex items-start gap-2">
+            <UIcon name="i-lucide-lightbulb" class="text-blue-600 dark:text-blue-400 mt-0.5" />
+            <div class="text-xs text-blue-800 dark:text-blue-200">
+              <p class="font-medium mb-1">Pro Tips:</p>
+              <ul class="space-y-1">
+                <li>• Terms are applied only when source/target languages match the current project and the term is enabled</li>
+                <li>• You can add terms directly from the Translation results using the "Add to glossary" button</li>
+                <li>• It auto-picks a Category based on the text unit's PromptType</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </template>
     </UCard>
   </section>
 </template>
+
+<script setup lang="ts">
+const promptMappings = [
+  {
+    type: 'Dialogue',
+    icon: 'i-lucide-message-circle',
+    categories: ['Characters', 'Essential Terms', 'Translation Rules', 'Locations', 'Time & Weather', 'Mechanics']
+  },
+  {
+    type: 'Character',
+    icon: 'i-lucide-user',
+    categories: ['Characters', 'Essential Terms']
+  },
+  {
+    type: 'State / Skill',
+    icon: 'i-lucide-zap',
+    categories: ['Status Effects', 'Mechanics', 'Essential Terms']
+  },
+  {
+    type: 'Equipment',
+    icon: 'i-lucide-sword',
+    categories: ['Mechanics', 'Essential Terms']
+  },
+  {
+    type: 'System / Class / Other',
+    icon: 'i-lucide-settings',
+    categories: ['Mechanics', 'Essential Terms']
+  }
+]
+
+const categories = [
+  {
+    name: 'Characters',
+    description: 'Proper names (people, monsters, places as names). Prefer consistent transliteration; avoid translating names unless the game localizes them officially. Exact matches may bypass the LLM.'
+  },
+  {
+    name: 'Essential Terms',
+    description: 'Game-specific vocabulary (currencies, factions, items). Single source of truth to keep wording uniform across files.'
+  },
+  {
+    name: 'Translation Rules',
+    description: 'Style and constraints (tone, honorifics, punctuation, brackets). These guide the model on how to write.'
+  },
+  {
+    name: 'Locations',
+    description: 'Place names used as common nouns. Keep canonical spelling; avoid inconsistent suffixes (e.g., "Forest of X").'
+  },
+  {
+    name: 'Time & Weather',
+    description: 'Temporal and weather terms (dawn, blizzard). Ensures consistent phrasing in UI and descriptions.'
+  },
+  {
+    name: 'Mechanics',
+    description: 'Mechanics and system terms (stats, damage types, item rarities). Avoid inventing new terms mid-project.'
+  },
+  {
+    name: 'Status Effects',
+    description: 'Buffs/debuffs and ailment names (Poison, Stun). Prefer standard localized names used by the genre.'
+  }
+]
+
+const getCategoryColor = (category: string): 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral' => {
+  const colorMap: Record<string, 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'> = {
+    'Characters': 'primary',
+    'Essential Terms': 'success',
+    'Translation Rules': 'secondary',
+    'Locations': 'warning',
+    'Time & Weather': 'info',
+    'Mechanics': 'error',
+    'Status Effects': 'warning'
+  }
+  return colorMap[category] || 'neutral'
+}
+</script>
 
 

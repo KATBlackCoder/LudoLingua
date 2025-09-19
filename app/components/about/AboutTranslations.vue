@@ -1,14 +1,29 @@
 <template>
   <section>
-    <h3 class="text-lg font-medium mb-4">Translation Management</h3>
+    <div class="flex items-center gap-3 mb-4">
+      <div class="flex items-center gap-2">
+        <UIcon name="i-lucide-languages" class="text-primary" />
+        <h3 class="text-xl font-semibold">Translation Management</h3>
+      </div>
+      <UBadge color="primary" variant="soft" size="sm">
+        <UIcon name="i-lucide-list-checks" class="mr-1" />
+        Complete
+      </UBadge>
+    </div>
     
     <!-- Overview -->
-    <div class="mb-6">
-      <p class="text-muted mb-3">
+    <UCard class="mb-6">
+      <template #header>
+        <div class="flex items-center gap-2">
+          <UIcon name="i-lucide-info" class="text-primary" />
+          <span class="font-medium">Overview</span>
+        </div>
+      </template>
+      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
         LudoLingua provides a comprehensive translation management system that allows you to view, edit, and organize all translations in your projects. 
         Access it through the <strong>Translations</strong> page once you have loaded a project.
       </p>
-    </div>
+    </UCard>
 
     <!-- Translation Workflow -->
     <UCard class="mb-6">
@@ -20,31 +35,39 @@
       </template>
       <div class="space-y-4">
         <div class="flex items-start gap-3">
-          <UBadge color="primary" variant="solid" size="sm">1</UBadge>
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+            <UIcon name="i-lucide-folder-open" class="w-4 h-4 text-primary" />
+          </div>
           <div>
             <div class="font-medium">Load Project</div>
-            <div class="text-sm text-muted">Extract translatable text from RPG Maker files</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">Extract translatable text from RPG Maker files</div>
           </div>
         </div>
         <div class="flex items-start gap-3">
-          <UBadge color="primary" variant="solid" size="sm">2</UBadge>
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+            <UIcon name="i-lucide-sparkles" class="w-4 h-4 text-primary" />
+          </div>
           <div>
             <div class="font-medium">Translate Text</div>
-            <div class="text-sm text-muted">Use AI assistance in the Translator workspace</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">Use AI assistance in the Translator workspace</div>
           </div>
         </div>
         <div class="flex items-start gap-3">
-          <UBadge color="primary" variant="solid" size="sm">3</UBadge>
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+            <UIcon name="i-lucide-list-checks" class="w-4 h-4 text-primary" />
+          </div>
           <div>
             <div class="font-medium">Manage Translations</div>
-            <div class="text-sm text-muted">Review, edit, and organize in the Translations page</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">Review, edit, and organize in the Translations page</div>
           </div>
         </div>
         <div class="flex items-start gap-3">
-          <UBadge color="primary" variant="solid" size="sm">4</UBadge>
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+            <UIcon name="i-lucide-download" class="w-4 h-4 text-primary" />
+          </div>
           <div>
             <div class="font-medium">Export Results</div>
-            <div class="text-sm text-muted">Save translations back to your game files</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">Save translations back to your game files</div>
           </div>
         </div>
       </div>
@@ -58,30 +81,48 @@
           <span class="font-medium">Management Features</span>
         </div>
       </template>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-        <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-table" class="w-4 h-4 text-primary-500" />
-          <span>View all translations in a searchable table</span>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+          <UIcon name="i-lucide-table" class="w-5 h-5 text-primary mt-0.5" />
+          <div>
+            <div class="font-medium text-sm">Searchable Table</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400">View all translations in a comprehensive table</div>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-pencil" class="w-4 h-4 text-primary-500" />
-          <span>Edit translation text and status</span>
+        <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+          <UIcon name="i-lucide-pencil" class="w-5 h-5 text-primary mt-0.5" />
+          <div>
+            <div class="font-medium text-sm">Edit & Update</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400">Edit translation text and status</div>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-filter" class="w-4 h-4 text-primary-500" />
-          <span>Filter by status and prompt type</span>
+        <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+          <UIcon name="i-lucide-filter" class="w-5 h-5 text-primary mt-0.5" />
+          <div>
+            <div class="font-medium text-sm">Smart Filtering</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400">Filter by status and prompt type</div>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-search" class="w-4 h-4 text-primary-500" />
-          <span>Search source and translated text</span>
+        <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+          <UIcon name="i-lucide-search" class="w-5 h-5 text-primary mt-0.5" />
+          <div>
+            <div class="font-medium text-sm">Text Search</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400">Search source and translated text</div>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-check-square" class="w-4 h-4 text-primary-500" />
-          <span>Bulk select and delete operations</span>
+        <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+          <UIcon name="i-lucide-check-square" class="w-5 h-5 text-primary mt-0.5" />
+          <div>
+            <div class="font-medium text-sm">Bulk Operations</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400">Bulk select and delete operations</div>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-folder-x" class="w-4 h-4 text-primary-500" />
-          <span>Project-level deletion and cleanup</span>
+        <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+          <UIcon name="i-lucide-folder-x" class="w-5 h-5 text-primary mt-0.5" />
+          <div>
+            <div class="font-medium text-sm">Project Cleanup</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400">Project-level deletion and cleanup</div>
+          </div>
         </div>
       </div>
     </UCard>
@@ -94,22 +135,34 @@
           <span class="font-medium">Translation Status</span>
         </div>
       </template>
-      <div class="space-y-3">
-        <div class="flex items-center gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
           <UBadge color="neutral" variant="soft" size="sm">Not Translated</UBadge>
-          <span class="text-sm">Text that hasn't been translated yet</span>
+          <div>
+            <div class="text-sm font-medium">Untranslated</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400">Text that hasn't been translated yet</div>
+          </div>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
           <UBadge color="info" variant="soft" size="sm">Machine Translated</UBadge>
-          <span class="text-sm">AI-generated translations ready for review</span>
+          <div>
+            <div class="text-sm font-medium">AI Generated</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400">AI-generated translations ready for review</div>
+          </div>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
           <UBadge color="success" variant="soft" size="sm">Human Reviewed</UBadge>
-          <span class="text-sm">Translations verified and approved by humans</span>
+          <div>
+            <div class="text-sm font-medium">Verified</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400">Translations verified and approved by humans</div>
+          </div>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
           <UBadge color="warning" variant="soft" size="sm">Ignored</UBadge>
-          <span class="text-sm">Text marked to skip during translation</span>
+          <div>
+            <div class="text-sm font-medium">Skipped</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400">Text marked to skip during translation</div>
+          </div>
         </div>
       </div>
     </UCard>

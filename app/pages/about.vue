@@ -1,7 +1,7 @@
 <template>
   <div>
-    <UContainer>
-      <UCard class="max-w-4xl mx-auto">
+    <UContainer class="max-w-6xl">
+      <UCard class="max-w-6xl mx-auto">
         <template #header>
           <div class="flex items-center gap-3">
             <UIcon name="i-lucide-info" class="w-6 h-6 text-primary-500" />

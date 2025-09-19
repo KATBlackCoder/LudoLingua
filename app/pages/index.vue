@@ -1,7 +1,7 @@
 <template>
   <div>
-    <UContainer>
-      <UCard class="max-w-4xl mx-auto">
+    <UContainer class="max-w-6xl">
+      <UCard class="max-w-6xl mx-auto">
         <template #header>
           <div class="flex items-center justify-between gap-2">
             <h2 class="text-xl font-semibold">Welcome to LudoLingua</h2>
