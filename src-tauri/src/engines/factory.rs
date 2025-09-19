@@ -147,36 +147,50 @@ pub async fn export_translated_subset(
     let text_units: Vec<crate::models::translation::TextUnit> = translated_records
         .into_iter()
         .filter_map(|record| {
-            record.translated_text.as_ref().and_then(|translated| {
-                if translated.is_empty() {
-                    None
-                } else {
-                    // Use engine's own ID reconstruction method
-                    match engine.reconstruct_text_unit_id(
-                        &record.field_type,
-                        &record.source_text,
-                        translated,
-                    ) {
-                        Ok(mut text_unit) => {
-                            // Set the correct status from database record
-                            text_unit.status = match record.status.as_str() {
-                                "MachineTranslated" => {
-                                    crate::models::translation::TranslationStatus::MachineTranslated
-                                }
-                                "HumanReviewed" => {
-                                    crate::models::translation::TranslationStatus::HumanReviewed
-                                }
-                                _ => crate::models::translation::TranslationStatus::NotTranslated,
-                            };
-                            Some(text_unit)
-                        }
-                        Err(e) => {
-                            log::warn!("Failed to reconstruct ID for {}: {}", record.field_type, e);
-                            None
-                        }
+            // For ignored text, use source_text as translated_text
+            // For other statuses, use the actual translated_text
+            let final_text = match record.status.as_str() {
+                "Ignored" => {
+                    // Ignored text should use source_text as translated_text
+                    record.source_text.clone()
+                }
+                _ => {
+                    // For MachineTranslated and HumanReviewed, use the actual translated text
+                    record.translated_text.as_ref().cloned().unwrap_or_default()
+                }
+            };
+
+            if final_text.is_empty() {
+                None
+            } else {
+                // Use engine's own ID reconstruction method
+                match engine.reconstruct_text_unit_id(
+                    &record.field_type,
+                    &record.source_text,
+                    &final_text,
+                ) {
+                    Ok(mut text_unit) => {
+                        // Set the correct status from database record
+                        text_unit.status = match record.status.as_str() {
+                            "MachineTranslated" => {
+                                crate::models::translation::TranslationStatus::MachineTranslated
+                            }
+                            "HumanReviewed" => {
+                                crate::models::translation::TranslationStatus::HumanReviewed
+                            }
+                            "Ignored" => {
+                                crate::models::translation::TranslationStatus::Ignored
+                            }
+                            _ => crate::models::translation::TranslationStatus::NotTranslated,
+                        };
+                        Some(text_unit)
+                    }
+                    Err(e) => {
+                        log::warn!("Failed to reconstruct ID for {}: {}", record.field_type, e);
+                        None
                     }
                 }
-            })
+            }
         })
         .collect();
 

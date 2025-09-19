@@ -24,7 +24,9 @@ import { useTranslator } from '~/composables/useTranslator'
 
 const { textUnits } = useTranslator()
 
-const rows = computed(() => textUnits.value.map(u => ({ id: u.id, prompt_type: u.prompt_type, source_text: u.source_text })))
+const rows = computed(() => textUnits.value
+  .filter(u => u.status === 'NotTranslated')
+  .map(u => ({ id: u.id, prompt_type: u.prompt_type, source_text: u.source_text })))
 const page = ref(1)
 const pageSize = ref(25)
 const pageCount = computed(() => Math.max(1, Math.ceil(rows.value.length / pageSize.value)))

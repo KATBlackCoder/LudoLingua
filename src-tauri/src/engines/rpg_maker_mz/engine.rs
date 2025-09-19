@@ -542,4 +542,46 @@ impl Engine for RpgMakerMzEngine {
     fn as_any(&self) -> &dyn Any {
         self
     }
+
+    fn extract_raw_text_units(&self, project_info: &EngineInfo) -> AppResult<Vec<crate::utils::text::pipeline::RawTextUnit>> {
+        // Extract game data files
+        let game_data_files = self.extract_game_data_files(project_info)?;
+
+        // Convert GameDataFile text units to RawTextUnits
+        let mut raw_units = Vec::new();
+        for file in &game_data_files {
+            for text_unit in &file.text_units {
+                raw_units.push(crate::utils::text::pipeline::RawTextUnit {
+                    id: text_unit.id.clone(),
+                    source_text: text_unit.source_text.clone(),
+                    field_type: text_unit.field_type.clone(),
+                    prompt_type: text_unit.prompt_type,
+                });
+            }
+        }
+
+        Ok(raw_units)
+    }
+
+    fn inject_raw_text_units(
+        &self,
+        project_info: &EngineInfo,
+        raw_units: &[crate::utils::text::pipeline::RawTextUnit],
+    ) -> AppResult<()> {
+        // Convert RawTextUnits back to TextUnits for injection
+        let text_units: Vec<TextUnit> = raw_units
+            .iter()
+            .map(|raw_unit| TextUnit {
+                id: raw_unit.id.clone(),
+                source_text: raw_unit.source_text.clone(),
+                translated_text: String::new(), // Will be set during injection
+                field_type: raw_unit.field_type.clone(),
+                status: crate::models::translation::TranslationStatus::NotTranslated,
+                prompt_type: raw_unit.prompt_type,
+            })
+            .collect();
+
+        // Use existing injection logic
+        self.inject_game_data_files(project_info, &text_units)
+    }
 }

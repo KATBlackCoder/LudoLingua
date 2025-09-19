@@ -1,10 +1,6 @@
 use crate::core::error::{AppError, AppResult};
 use crate::models::engine::GameDataFile;
 use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
-use crate::utils::text_processing::{
-    is_technical_content, replace_formatting_codes_for_translation,
-    restore_formatting_codes_after_translation,
-};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -27,13 +23,11 @@ pub fn extract_text_units_for_object(
 ) -> Vec<TextUnit> {
     let mut units = Vec::new();
     for (field, value, prompt_type) in fields {
-        // Skip empty values and technical content
-        if !value.is_empty() && !is_technical_content(value) {
-            // Normalize/placeholder-encode RPG Maker tokens (e.g., %1 -> [ARG_1]) before MT
-            let clean_text = replace_formatting_codes_for_translation(value);
+        // Skip empty values only - text processing will be handled by unified pipeline
+        if !value.is_empty() {
             units.push(TextUnit {
                 id: format!("{}_{}_{}", object_type, object_id, field),
-                source_text: clean_text,
+                source_text: value.to_string(), // Raw text, no processing
                 translated_text: String::new(),
                 field_type: format!("{}:{}:{}", field, file_path, index),
                 status: TranslationStatus::NotTranslated,
@@ -233,15 +227,13 @@ pub fn inject_text_units_for_object(
         if let Some(unit) = text_units.get(&unit_id) {
             log::debug!("Found text unit: {} -> '{}'", unit_id, unit.translated_text);
             if !unit.translated_text.is_empty() {
-                // Restore RPG Maker formatting codes before writing back
-                let restored_text =
-                    restore_formatting_codes_after_translation(&unit.translated_text);
+                // Text processing already handled by unified pipeline
                 log::info!(
                     "Injecting translation: '{}' -> '{}'",
                     field_ref,
-                    restored_text
+                    unit.translated_text
                 );
-                *field_ref = restored_text;
+                *field_ref = unit.translated_text.clone();
             } else {
                 log::debug!("Text unit has empty translation, skipping");
             }
@@ -291,9 +283,9 @@ pub fn extract_text_units_from_event_commands(
                 // Show Text - Message content
                 if let Some(text_param) = command.parameters.get(0) {
                     if let Some(text) = text_param.as_str() {
-                        if !text.is_empty() && !is_technical_content(text) {
-                            // Replace formatting codes with placeholders for cleaner translation
-                            let clean_text = replace_formatting_codes_for_translation(text);
+                        if !text.is_empty() {
+                            // Text validation and processing now handled by unified pipeline
+                            let clean_text = text.to_string();
                             text_units.push(TextUnit {
                                 id: format!(
                                     "{}_{}_message_{}",
@@ -319,10 +311,9 @@ pub fn extract_text_units_from_event_commands(
                     if let Some(choices_array) = choices_param.as_array() {
                         for (choice_index, choice_param) in choices_array.iter().enumerate() {
                             if let Some(choice_text) = choice_param.as_str() {
-                                if !choice_text.is_empty() && !is_technical_content(choice_text) {
-                                    // Replace formatting codes with placeholders for cleaner translation
-                                    let clean_text =
-                                        replace_formatting_codes_for_translation(choice_text);
+                                if !choice_text.is_empty() {
+                                    // Text validation and processing now handled by unified pipeline
+                                    let clean_text = choice_text.to_string();
                                     text_units.push(TextUnit {
                                         id: format!(
                                             "{}_{}_choice_{}_{}",
@@ -402,10 +393,8 @@ pub fn inject_text_units_into_event_commands(
                             );
                             // Only update if translated text is not empty
                             if !text_unit.translated_text.is_empty() {
-                                // Restore formatting codes from placeholders
-                                let restored_text = restore_formatting_codes_after_translation(
-                                    &text_unit.translated_text,
-                                );
+                                // Text processing handled by unified pipeline
+                                let restored_text = text_unit.translated_text.clone();
                                 log::info!(
                                     "Injecting event command translation: '{}' -> '{}'",
                                     text_param.as_str().unwrap(),
@@ -445,11 +434,8 @@ pub fn inject_text_units_into_event_commands(
                                     );
                                     // Only update if translated text is not empty
                                     if !text_unit.translated_text.is_empty() {
-                                        // Restore formatting codes from placeholders
-                                        let restored_text =
-                                            restore_formatting_codes_after_translation(
-                                                &text_unit.translated_text,
-                                            );
+                                        // Text processing handled by unified pipeline
+                                        let restored_text = text_unit.translated_text.clone();
                                         log::info!(
                                             "Injecting choice translation: '{}' -> '{}'",
                                             choice_text,

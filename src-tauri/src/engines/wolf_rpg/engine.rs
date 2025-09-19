@@ -6,6 +6,7 @@ use crate::core::error::{AppError, AppResult};
 use crate::models::engine::{EngineCriteria, EngineInfo, EngineType};
 use crate::models::language::Language;
 use crate::models::translation::TextUnit;
+use crate::utils::text::pipeline::RawTextUnit;
 
 pub struct WolfRpgEngine {
     detection_criteria: EngineCriteria,
@@ -265,11 +266,11 @@ impl Engine for WolfRpgEngine {
         self.detection_criteria.clone()
     }
 
-    fn extract_text_units(&self, project_info: &EngineInfo) -> AppResult<Vec<TextUnit>> {
+    fn extract_raw_text_units(&self, project_info: &EngineInfo) -> AppResult<Vec<RawTextUnit>> {
         let project_path = &project_info.path;
         let dump_dir = self.dump_dir(project_path);
 
-        // Parse dump JSONs → TextUnit (user created dump with WolfTL externally)
+        // Parse dump JSONs → RawTextUnit (user created dump with WolfTL externally)
         if !dump_dir.exists() {
             return Err(AppError::FileSystem(format!(
                 "WolfTL dump directory not found at {}. Please create dump folder using WolfTL first.",
@@ -291,15 +292,24 @@ impl Engine for WolfRpgEngine {
             self.extract_from_db_directory(&mut out, &db_dir, project_path)?;
         }
 
-        // TODO: Add common/ extraction later once MPS and DB are working well
+        // Convert TextUnits to RawTextUnits
+        let raw_units: Vec<RawTextUnit> = out
+            .into_iter()
+            .map(|text_unit| RawTextUnit {
+                id: text_unit.id,
+                source_text: text_unit.source_text,
+                field_type: text_unit.field_type,
+                prompt_type: text_unit.prompt_type,
+            })
+            .collect();
 
-        Ok(out)
+        Ok(raw_units)
     }
 
-    fn inject_text_units(
+    fn inject_raw_text_units(
         &self,
         project_info: &EngineInfo,
-        text_units: &[TextUnit],
+        raw_units: &[RawTextUnit],
     ) -> AppResult<()> {
         let project_path = &project_info.path;
         let dump_dir = self.dump_dir(project_path);
@@ -308,6 +318,19 @@ impl Engine for WolfRpgEngine {
                 "WolfTL dump not found; please create dump folder using WolfTL first".into(),
             ));
         }
+
+        // Convert RawTextUnits back to TextUnits for injection
+        let text_units: Vec<TextUnit> = raw_units
+            .iter()
+            .map(|raw_unit| TextUnit {
+                id: raw_unit.id.clone(),
+                source_text: raw_unit.source_text.clone(),
+                translated_text: String::new(), // Will be set during injection
+                field_type: raw_unit.field_type.clone(),
+                status: crate::models::translation::TranslationStatus::NotTranslated,
+                prompt_type: raw_unit.prompt_type,
+            })
+            .collect();
 
         // Create a map for quick text unit lookup
         let text_unit_map: std::collections::HashMap<String, &TextUnit> = text_units
@@ -326,8 +349,6 @@ impl Engine for WolfRpgEngine {
         if db_dir.exists() {
             self.inject_into_db_directory(&text_unit_map, &db_dir, project_path)?;
         }
-
-        // TODO: Add common/ injection later once MPS and DB are working well
 
         Ok(())
     }

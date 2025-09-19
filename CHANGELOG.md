@@ -8,6 +8,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 5.0: Code Architecture Refinement - COMPLETED ✅**
+  - **Unified Text Processing Pipeline:** Complete `utils/text/` module structure for all engines
+    - Created `utils/text/llm_output.rs` with smart LLM output cleaning and extraction
+    - Created `utils/text/formatting.rs` with universal text handler for all engines
+    - Created `utils/text/validation.rs` with universal validation logic for all engines
+    - Created `utils/text/pipeline.rs` with unified TextProcessor and complete processing pipeline
+    - Created `utils/text/mod.rs` with public API exports and module organization
+    - All 36 placeholder types handled in unified processing pipeline (RPG Maker, Wolf RPG, whitespace)
+    - Engine-agnostic processing: same pipeline works for all current and future engines
+  - **Engine Trait Enhancement:** Automatic text processing integration via core trait defaults
+    - Added default implementations for `extract_text_units()` and `inject_text_units()` in core trait
+    - Automatic engine-specific raw methods + unified text processing integration
+    - Zero manual calls required in engine implementations
+    - Future-proof architecture: any new engine automatically gets text processing capabilities
+    - Clean separation: engines focus on file I/O, pipeline handles all text processing
+  - **Engine Migration & Cleanup:** Complete migration of all engines to new architecture
+    - Migrated RPG Maker MV, MZ, and Wolf RPG engines to new raw methods pattern
+    - Removed 49+ text processing calls across all engine file modules
+    - Updated export and frontend logic for proper `Ignored` status handling
+    - Comprehensive testing and validation of all systems
+    - Performance validation with no regression in processing speed
+- **Translation Management Enhancement - COMPLETED ✅**
+  - **Field Type Column Enhancement:** Added field type column to TranslationTable.vue for better source identification
+    - Added `field_type` column to table displaying exact file location information (e.g., `name:www/data/MapInfos.json:2`)
+    - Enhanced search functionality in `useTranslations.ts` to include field type in search queries
+    - Updated search placeholder from "Search source/translated text…" to "Search source/translated/field text…"
+    - Improved user experience for identifying translation sources and locations within game files
+    - Field type information helps users understand exactly where each translation comes from in the project structure
+    - Enhanced search capabilities allow filtering by file paths, field names, and location details
 - **Phase 4: Cleanup & Modernization - 100% COMPLETED ✅**
   - **Database Schema Fixes & RPG Game Support:** Critical fixes for duplicate text handling
     - Fixed UNIQUE constraint errors that prevented storing duplicate text from RPG games

@@ -44,7 +44,8 @@ export function useTranslations() {
       const searchLower = search.value.toLowerCase()
       filtered = filtered.filter(t => 
         t.source_text.toLowerCase().includes(searchLower) ||
-        (t.translated_text && t.translated_text.toLowerCase().includes(searchLower))
+        (t.translated_text && t.translated_text.toLowerCase().includes(searchLower)) ||
+        (t.field_type && t.field_type.toLowerCase().includes(searchLower))
       )
     }
 

@@ -14,6 +14,7 @@ use crate::engines::rpg_maker_mv::files::{
 use crate::models::engine::{EngineCriteria, EngineInfo, EngineType, GameDataFile};
 use crate::models::language::Language;
 use crate::models::translation::TextUnit;
+use crate::utils::text::pipeline::RawTextUnit;
 
 /// Implementation of the Engine trait for RPG Maker MV games.
 ///
@@ -497,44 +498,6 @@ impl Engine for RpgMakerMvEngine {
         self.detection_criteria.clone()
     }
 
-    fn extract_text_units(&self, project_info: &EngineInfo) -> AppResult<Vec<TextUnit>> {
-        // debug!(
-        //     "Extracting text units from RPG Maker MV project: {}",
-        //     project_info.name
-        // );
-
-        // Extract game data files
-        let game_data_files = self.extract_game_data_files(project_info)?;
-
-        // Flatten all text units into a single list
-        let mut all_text_units = Vec::new();
-        for file in &game_data_files {
-            all_text_units.extend(file.text_units.clone());
-        }
-
-        // info!("Total extracted text units: {}", all_text_units.len());
-        Ok(all_text_units)
-    }
-
-    fn inject_text_units(
-        &self,
-        project_info: &EngineInfo,
-        text_units: &[TextUnit],
-    ) -> AppResult<()> {
-        // debug!(
-        //     "Injecting text units for RPG Maker MV project: {}",
-        //     project_info.name
-        // );
-
-        // Use our inject_game_data_files method to inject translations back to the game files
-        self.inject_game_data_files(project_info, text_units)?;
-
-        // info!(
-        //     "Successfully injected {} text units into project files",
-        //     text_units.len()
-        // );
-        Ok(())
-    }
 
     fn reconstruct_text_unit_id(
         &self,
@@ -699,5 +662,47 @@ impl Engine for RpgMakerMvEngine {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn extract_raw_text_units(&self, project_info: &EngineInfo) -> AppResult<Vec<RawTextUnit>> {
+        // Extract game data files
+        let game_data_files = self.extract_game_data_files(project_info)?;
+
+        // Convert GameDataFile text units to RawTextUnits
+        let mut raw_units = Vec::new();
+        for file in &game_data_files {
+            for text_unit in &file.text_units {
+                raw_units.push(RawTextUnit {
+                    id: text_unit.id.clone(),
+                    source_text: text_unit.source_text.clone(),
+                    field_type: text_unit.field_type.clone(),
+                    prompt_type: text_unit.prompt_type,
+                });
+            }
+        }
+
+        Ok(raw_units)
+    }
+
+    fn inject_raw_text_units(
+        &self,
+        project_info: &EngineInfo,
+        raw_units: &[RawTextUnit],
+    ) -> AppResult<()> {
+        // Convert RawTextUnits back to TextUnits for injection
+        let text_units: Vec<TextUnit> = raw_units
+            .iter()
+            .map(|raw_unit| TextUnit {
+                id: raw_unit.id.clone(),
+                source_text: raw_unit.source_text.clone(),
+                translated_text: String::new(), // Will be set during injection
+                field_type: raw_unit.field_type.clone(),
+                status: crate::models::translation::TranslationStatus::NotTranslated,
+                prompt_type: raw_unit.prompt_type,
+            })
+            .collect();
+
+        // Use existing injection logic
+        self.inject_game_data_files(project_info, &text_units)
     }
 }

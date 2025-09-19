@@ -1,6 +1,4 @@
-use crate::engines::wolf_rpg::files::regex::{
-    is_translatable_wolf_text, wolf_replace_placeholders_for_translation,
-};
+// Text processing now handled by unified pipeline
 use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -90,7 +88,6 @@ fn extract_from_wolf_command(
                     cmd_idx,
                     code,
                     PromptType::Dialogue,
-                    false,
                 );
             }
             210 => {
@@ -104,7 +101,6 @@ fn extract_from_wolf_command(
                     cmd_idx,
                     code,
                     PromptType::Dialogue,
-                    true,
                 );
             }
             150 => {
@@ -118,7 +114,6 @@ fn extract_from_wolf_command(
                     cmd_idx,
                     code,
                     PromptType::Dialogue,
-                    true,
                 );
             }
             122 => {
@@ -132,7 +127,6 @@ fn extract_from_wolf_command(
                     cmd_idx,
                     code,
                     PromptType::Other,
-                    true,
                 );
             }
             _ => {
@@ -152,7 +146,6 @@ fn extract_command_strings(
     cmd_idx: usize,
     code: i64,
     prompt_type: PromptType,
-    skip_files: bool,
 ) {
     if let Some(string_args) = cmd_obj.get("stringArgs").and_then(|v| v.as_array()) {
         for (arg_idx, arg) in string_args.iter().enumerate() {
@@ -162,19 +155,9 @@ fn extract_command_strings(
                     continue;
                 }
 
-                // Use enhanced filtering that skips files if requested
-                if skip_files {
-                    if !is_translatable_wolf_text(arg_text) {
-                        continue;
-                    }
-                } else {
-                    // For Message (101), we're less strict - just check it's not obviously technical
-                    if !is_text_worth_translating(arg_text) {
-                        continue;
-                    }
-                }
+                // Text validation now handled by unified pipeline
 
-                let processed_text = wolf_replace_placeholders_for_translation(arg_text);
+                let processed_text = arg_text.to_string(); // Raw text, no processing
                 let normalized_path = file_path.replace('\\', "/");
                 text_units.push(TextUnit {
                     id: format!(

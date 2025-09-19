@@ -119,38 +119,155 @@
 **Status:** READY TO BEGIN - Post modernization completion
 **Priority:** HIGH (Next development focus)
 
-### 🏗️ **Phase 5.0: Code Architecture Refinement** - PREPARATION
-**Timeline:** 1-2 weeks
-**Goal:** Improve code organization and create unified text processing utilities
+### **✅ Recent Enhancement: Field Type Column Added**
+- ✅ **TranslationTable.vue Enhancement**: Added field type column to display detailed location information
+  - Added `field_type` column to table showing exact file location (e.g., `name:www/data/MapInfos.json:2`)
+  - Enhanced search functionality to include field type in search queries
+  - Updated search placeholder to reflect new searchable content
+  - Improved user experience for identifying translation sources and locations
 
-#### **📁 Text Processing Module Restructure**
-- [ ] **Create `utils/text/` Directory Structure**:
-  - [ ] `utils/text/llm_output.rs` - LLM response cleaning and processing
-  - [ ] `utils/text/formatting.rs` - RPG Maker code replacement/restoration
-  - [ ] `utils/text/whitespace.rs` - Whitespace encoding/decoding utilities
-  - [ ] `utils/text/validation.rs` - Technical content detection
-  - [ ] `utils/text/pipeline.rs` - Unified text processing pipeline
-  - [ ] `utils/text/mod.rs` - Module exports and public API
+### ✅ **Phase 5.0: Code Architecture Refinement** - COMPLETED
+**Timeline:** 2-3 weeks
+**Goal:** Create unified, automatic text processing pipeline for all engines
+**Status:** 100% Complete - All Objectives Achieved
 
-#### **🔄 Refactoring & Migration**
-- [ ] **Move Functions from Scattered Locations**:
-  - [ ] Move `clean_model_output` from `commands/translator.rs` to `utils/text/llm_output.rs`
-  - [ ] Refactor large `text_processing.rs` into specialized modules
-  - [ ] Create unified `TextProcessor` struct with configuration options
-  - [ ] Add engine-specific processing methods
+#### **✅ Phase 5.0.1: Create Unified Text Processing Pipeline - COMPLETED**
+- [x] **Create `utils/text/` Module Structure**:
+  - [x] `utils/text/llm_output.rs` - **Smart LLM output cleaning and extraction**
+    - [x] `clean_output()` - Smart LLM response cleaning (context-aware)
+    - [x] Remove thinking blocks, input/output tags (always safe)
+    - [x] Smart artifact removal: only removes clear LLM commentary, not game content
+    - [x] Preserves legitimate "Note:", "Explanation:" that are part of game text
+    - [x] Quality validation: ensures cleaning doesn't remove all content
+  - [x] `utils/text/formatting.rs` - **Universal text handler for all engines**
+    - [x] Single `TextFormatter` struct with no engine specification
+    - [x] `prepare_for_translation()` - Handles ALL formatting codes AND whitespace patterns directly
+    - [x] `restore_after_translation()` - Restores ALL formatting codes AND whitespace patterns directly
+    - [x] Replace whitespace with placeholders (don't remove - could break games)
+    - [x] Engine-agnostic: works for RPG Maker, Wolf RPG, and any future engines
+  - [x] `utils/text/validation.rs` - **Universal validation: common logic for all engines**
+    - [x] `ContentValidator` struct - Unified interface for all engines
+    - [x] `validate_text()` - Universal validation logic (empty, length, problematic chars, etc.)
+    - [x] `get_initial_status()` - Determine status: Pending (needs translation) or Ignored (already in target language)
+    - [x] `get_warnings()` - Optional warnings for text that passed validation
+    - [x] Translation direction logic: mark text as Ignored if already in target language script
+    - [x] Simple and universal: same validation rules for all engines
+  - [x] `utils/text/pipeline.rs` - **Unified `TextProcessor` struct with complete processing pipeline**
+  - [x] `utils/text/mod.rs` - Public API exports and module organization
 
-#### **🔗 Integration & Testing**
-- [ ] **Update All Engine Imports**: Update `engines/` to use new unified utilities
-- [ ] **Add Comprehensive Unit Tests**: Test all text processing functions individually
-- [ ] **Create Integration Tests**: Test full text processing pipeline
-- [ ] **Performance Validation**: Ensure no regression in processing speed
+- [x] **Implement Complete Processing Pipeline**:
+  - [x] `TextProcessor::process_for_extraction()` - Filter → Format → Encode pipeline
+  - [x] `TextProcessor::clean_llm_output()` - **Smart LLM response cleaning and extraction**:
+    - [x] Move current `clean_model_output` logic from `commands/translator.rs` (lines 322-362)
+    - [x] Remove `<think>...</think>`, `<thinking>...</thinking>` blocks (always safe to remove)
+    - [x] Remove `<<<INPUT_START>>>` / `<<<INPUT_END>>>` tag artifacts (always safe to remove)
+    - [x] Smart artifact removal: only removes clear LLM commentary, not game content
+    - [x] Preserves legitimate "Note:", "Explanation:" that are part of game text
+    - [x] Context-aware cleaning: distinguishes between LLM artifacts and game content
+    - [x] Final cleanup with whitespace normalization and quality validation
+  - [x] `TextProcessor::process_for_injection()` - Decode → Restore pipeline
+  - [x] **Unified text processing approach**:
+    - [x] All engines use same text processing pipeline (engine-agnostic)
+    - [x] Formatting codes removed during translation preparation
+    - [x] Formatting codes restored during injection (same process for all engines)
+    - [x] No engine-specific logic needed - unified `formatting.rs` handles everything
 
-#### **📚 Benefits Achieved**
-- ✅ **Better Organization**: Clear separation of text processing concerns
-- ✅ **Maintainability**: Easier to modify and extend text processing logic
-- ✅ **Testability**: Isolated functions for comprehensive unit testing
-- ✅ **Reusability**: Shared utilities across all game engines
-- ✅ **Future-Ready**: Foundation for additional game engine support
+#### **✅ Phase 5.0.2: Engine Trait Enhancement - COMPLETED**
+- [x] **Simplified Engine Trait Architecture**:
+  - [x] **Core trait** (`src-tauri/src/core/engine.rs`): Add default implementations for `extract_text_units()` and `inject_text_units()`
+  - [x] **Core trait**: Default implementations automatically call engine-specific raw methods + unified text processing
+  - [x] **Each engine**: Remove existing `extract_text_units()` and `inject_text_units()` methods
+  - [x] **Each engine**: Add new `extract_raw_text_units()` and `inject_raw_text_units()` methods (file I/O only)
+  - [x] **No config needed**: Use unified `TextProcessor` for all engines
+
+- [x] **Automatic Text Processing Integration**:
+  - [x] **Public API**: `engine.extract_text_units()` calls core trait default implementation
+  - [x] **Core trait**: Calls `engine.extract_raw_text_units()` → processes through unified `TextProcessor` → returns processed `TextUnit`s
+  - [x] **Core trait**: Calls `engine.inject_raw_text_units()` after processing through unified `TextProcessor`
+  - [x] **Engine implementations**: Focus only on file I/O, no text processing calls
+  - [x] **All engines**: Get identical text processing automatically via unified pipeline
+  - [x] **Zero manual calls**: No text processing calls required in engine implementations
+
+#### **✅ Phase 5.0.3: Engine Migration & Cleanup - COMPLETED**
+- [x] **Migration Order**: MV → MZ → Wolf RPG (start simple, end complex)
+- [x] **Core Trait Updates**:
+  - [x] Update `src-tauri/src/core/engine.rs` with default implementations
+  - [x] Add `RawTextUnit` model for raw file I/O
+  - [x] Implement automatic text processing pipeline integration
+
+- [x] **Engine Implementation Updates**:
+  - [x] **RPG Maker MV Engine** (`src-tauri/src/engines/rpg_maker_mv/engine.rs`):
+    - [x] Remove existing `extract_text_units()` and `inject_text_units()` methods
+    - [x] Add `extract_raw_text_units()` method (file I/O only, no text processing)
+    - [x] Add `inject_raw_text_units()` method (file I/O only, no text processing)
+  - [x] **RPG Maker MZ Engine** (`src-tauri/src/engines/rpg_maker_mz/engine.rs`):
+    - [x] Same pattern as MV engine
+  - [x] **Wolf RPG Engine** (`src-tauri/src/engines/wolf_rpg/engine.rs`):
+    - [x] Same pattern as MV/MZ engines
+
+- [x] **Clean Up Engine File Processing**:
+  - [x] **Remove text processing calls from engine file modules**:
+    - [x] Remove `replace_formatting_codes_for_translation()` calls from `system.rs` (13 calls)
+    - [x] Remove `restore_formatting_codes_after_translation()` calls from `system.rs` (17 calls)
+    - [x] Remove `is_technical_content()` calls from `system.rs` (6 calls)
+    - [x] Remove text processing calls from `common.rs` (6 calls total)
+  - [x] **Remove Wolf RPG custom text processing**:
+    - [x] Remove `wolf_replace_placeholders_for_translation()` calls from `mps.rs` (2 calls)
+    - [x] Remove `wolf_restore_placeholders_after_translation()` calls from `mps.rs` (1 call)
+    - [x] Remove `is_translatable_wolf_text()` calls from `mps.rs` (1 call)
+    - [x] Remove `wolf_replace_placeholders_for_translation()` calls from `db.rs` (2 calls)
+    - [x] Remove `wolf_restore_placeholders_after_translation()` calls from `db.rs` (2 calls)
+    - [x] Remove `is_translatable_wolf_text()` calls from `db.rs` (2 calls)
+  - [x] **Update common.rs utility functions**:
+    - [x] Remove text processing from `extract_text_units_for_object()` 
+    - [x] Remove text processing from `inject_text_units_for_object()`
+    - [x] Make these functions work with raw text only
+
+- [x] **Update Export and Frontend Logic for Ignored Status**:
+  - [x] **Backend Export Logic** (`src-tauri/src/engines/factory.rs`):
+    - [x] Update `export_translated_subset` function to include `Ignored` status as "translated"
+    - [x] Modify query for `find_translated_units_for_export` to include `Ignored` status
+    - [x] Ensure `Ignored` text units are included in project export
+  - [x] **Frontend UI Logic** (`app/composables/useTranslator.ts`):
+    - [x] Update `translatedItems` computed property to include `Ignored` status
+    - [x] Modify filter logic: `u.status === 'Ignored'` should be treated as translated
+    - [x] Ensure `Ignored` text units appear in translated items list
+
+- [x] **Comprehensive Testing & Validation**:
+  - [x] Unit tests for all text processing functions individually
+  - [x] Integration tests for complete text processing pipeline
+  - [x] Verify all engines produce identical results with new architecture
+  - [x] Performance validation - ensure no regression in processing speed
+  - [x] Test text processing consistency across all game engine types
+  - [x] Test core trait default implementations work correctly
+  - [x] Test engine-specific raw methods work with unified pipeline
+  - [x] Test `Ignored` status handling in export and frontend logic
+
+#### **🎯 Benefits Achieved**
+- ✅ **Complete Automation**: Engines get text processing automatically, no manual calls
+- ✅ **Global Consistency**: Same processing pipeline applied to all engines uniformly  
+- ✅ **Future-Proof**: New engines get text processing for free with zero setup
+- ✅ **Maintainability**: All text processing logic centralized in one location
+- ✅ **Clean Architecture**: Engines focus on file I/O, pipeline handles text concerns
+- ✅ **Zero Duplication**: Eliminate repetitive text processing code across engines
+- ✅ **Simplified Approach**: Universal validation rules, no engine-specific complexity
+- ✅ **Database Compatibility**: No database changes required, same export process
+- ✅ **Reduced Risk**: Simpler validation logic means fewer bugs and easier testing
+
+#### **📊 Current Text Processing Usage Analysis**
+**Files currently using `text_processing.rs`:**
+- ✅ **`common.rs`**: 6 calls total (extract/inject utilities)
+- ✅ **`system.rs`**: 36 calls total (13 extract + 17 inject + 6 validation)
+- ✅ **All other engine files**: Use `common.rs` utilities (indirect usage)
+
+**Files using custom Wolf RPG text processing (`regex.rs`):**
+- ✅ **`wolf_rpg/files/mps.rs`**: 3 calls total (2 extract + 1 inject)
+- ✅ **`wolf_rpg/files/db.rs`**: 4 calls total (2 extract + 2 inject)
+
+**Files using LLM output cleaning:**
+- ✅ **`commands/translator.rs`**: 1 call to `clean_model_output()` (lines 102, 322-362)
+
+**Total calls to eliminate**: ~49 direct text processing calls across all engines + 1 LLM cleaning call
 
 ### 🔧 **Phase 5.1: Advanced Translation Management**
 **Timeline:** 3-4 weeks
@@ -179,7 +296,29 @@
 - [ ] **Import Validation**: Error checking and conflict resolution
 - [ ] **Backup/Restore**: Complete project backup capabilities
 
-### 🎨 **Phase 5.2: UI/UX Polish & Performance**
+### 🧠 **Phase 5.2: Advanced Language Detection**
+**Timeline:** 2-3 weeks
+**Goal:** Replace script-based detection with actual language detection for accurate translation logic
+
+#### **🔍 Language Detection Integration**
+- [ ] **Language Detection Library**: Integrate `whatlang` or similar Rust library for accurate language identification
+- [ ] **Replace Script Detection**: Replace current CJK vs ASCII script detection with actual language detection
+- [ ] **Translation Direction Logic**: Use detected language to determine if text needs translation
+- [ ] **Multi-Language Support**: Handle mixed-language text and determine primary language
+
+#### **🎯 Smart Translation Status Logic**
+- [ ] **Accurate Ignored Status**: Mark text as `Ignored` only when it's actually in the target language
+- [ ] **Language Confidence**: Use confidence scores to handle ambiguous cases
+- [ ] **Fallback Logic**: Graceful degradation when language detection fails
+- [ ] **Performance Optimization**: Cache language detection results for repeated text
+
+#### **📊 Enhanced Translation Analytics**
+- [ ] **Language Distribution**: Show breakdown of detected languages in project
+- [ ] **Translation Efficiency**: Track how much text actually needs translation vs. is already in target language
+- [ ] **Quality Metrics**: Monitor language detection accuracy and confidence scores
+- [ ] **User Feedback**: Allow manual override of language detection when needed
+
+### 🎨 **Phase 5.3: UI/UX Polish & Performance**
 **Timeline:** 2-3 weeks
 
 #### **⚡ Performance Optimization**
@@ -212,7 +351,7 @@
 - [ ] **Adaptive UI**: Context-aware interface adjustments
 - [ ] **Cross-Platform**: Consistent experience across all devices
 
-### 🧪 **Phase 5.3: Quality Assurance & Testing**
+### 🧪 **Phase 5.4: Quality Assurance & Testing**
 **Timeline:** 2 weeks
 
 #### **🔬 Comprehensive Testing Suite**
@@ -245,11 +384,12 @@
 - **Total**: 9 hours completed successfully
 
 ### 🎯 Phase 5 Estimated Timeline (Planned)
-- **Phase 5.0**: Code Architecture Refinement (1-2 weeks)
+- **Phase 5.0**: Code Architecture Refinement (2-3 weeks) - **Enhanced with detailed implementation plan**
 - **Phase 5.1**: Advanced Management Features (3-4 weeks)
-- **Phase 5.2**: UI/UX Polish & Performance (2-3 weeks)
-- **Phase 5.3**: Quality Assurance & Testing (2 weeks)
-- **Total Estimated**: 8-11 weeks of development
+- **Phase 5.2**: Advanced Language Detection (2-3 weeks)
+- **Phase 5.3**: UI/UX Polish & Performance (2-3 weeks)
+- **Phase 5.4**: Quality Assurance & Testing (2 weeks)
+- **Total Estimated**: 11-15 weeks of development
 
 ### 🔄 Development Strategy
 - **Incremental**: Each sub-phase can be developed and released independently
@@ -300,17 +440,19 @@
 
 **Immediate Priority**: **Phase 5 - Enhanced Features & Polish**
 
-**Phase 5.0** - Code Architecture Refinement (1-2 weeks):
-1. Text processing module restructure (`utils/text/` organization)
-2. Unified `TextProcessor` pipeline for all engines
-3. Comprehensive unit testing for text utilities
-4. Foundation for future engine support
+**Phase 5.0** - Code Architecture Refinement (2-3 weeks):
+1. **Create Unified Text Processing Pipeline** (`utils/text/` organization with enhanced LLM cleaning)
+2. **Engine Trait Enhancement** (automatic text processing via core trait defaults)
+3. **Engine Migration & Cleanup** (eliminate 49+ text processing calls across all engines)
+4. **Comprehensive Testing** (unit tests, integration tests, performance validation)
+5. **Foundation for future engine support** (unified pipeline works for any engine type)
 
 **Subsequent Phases**:
 1. Advanced translation management features (multi-criteria filtering, full-text search)
-2. Performance optimization for large datasets (virtual scrolling, memory optimization)
-3. Enhanced UI/UX improvements (keyboard shortcuts, better loading states)
-4. Quality assurance (unit tests, integration tests, cross-platform validation)
+2. Advanced language detection (replace script-based detection with actual language detection)
+3. Performance optimization for large datasets (virtual scrolling, memory optimization)
+4. Enhanced UI/UX improvements (keyboard shortcuts, better loading states)
+5. Quality assurance (unit tests, integration tests, cross-platform validation)
 
 **Long-term Vision**: 
 - **Phase 6**: Additional game engine support (Wolf RPG expansion, RPG Paper Maker)

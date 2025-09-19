@@ -2,7 +2,7 @@
   <div class="space-y-4">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold">Results</h3>
-      <UInput v-model="search" icon="i-lucide-search" placeholder="Search source/translated/type…" />
+      <UInput v-model="search" icon="i-lucide-search" placeholder="Search source/translated/type/field…" />
     </div>
     <UTable :data="pagedRows" :columns="columns" class="text-base" />
     <div class="flex items-center justify-between">
@@ -49,12 +49,13 @@ const promptTypeToCategory: Record<string, string> = {
   Other: 'Essential Terms',
 }
 
-type Row = { id: string; source_text: string; translated_text: string; prompt_type: string }
+type Row = { id: string; source_text: string; translated_text: string; prompt_type: string; field_type: string }
 const rows = computed<Row[]>(() => props.items.map(u => ({
   id: u.id,
   prompt_type: u.prompt_type,
   source_text: u.source_text,
-  translated_text: u.translated_text ?? ''
+  translated_text: u.translated_text ?? '',
+  field_type: u.field_type
 })))
 
 const page = ref(1)
@@ -66,7 +67,8 @@ const filteredRows = computed(() => {
   return rows.value.filter(r =>
     r.source_text.toLowerCase().includes(q) ||
     r.translated_text.toLowerCase().includes(q) ||
-    String(r.prompt_type || '').toLowerCase().includes(q)
+    String(r.prompt_type || '').toLowerCase().includes(q) ||
+    String(r.field_type || '').toLowerCase().includes(q)
   )
 })
 const pageCount = computed(() => Math.max(1, Math.ceil(filteredRows.value.length / pageSize.value)))
@@ -77,6 +79,7 @@ const pagedRows = computed(() => {
 
 const columns: TableColumn<Row>[] = [
   { accessorKey: 'prompt_type', header: 'Type', enableSorting: true },
+  { accessorKey: 'field_type', header: 'Field Type', enableSorting: true },
   { accessorKey: 'source_text', header: 'Source', enableSorting: false },
   { accessorKey: 'translated_text', header: 'Translated', enableSorting: false },
   {

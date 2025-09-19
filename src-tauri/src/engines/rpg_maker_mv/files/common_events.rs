@@ -9,44 +9,9 @@ use super::common::{
     extract_text_from_file_with_objects, extract_text_units_for_object,
     extract_text_units_from_event_commands, inject_text_units_for_object,
     inject_text_units_into_event_commands, inject_translations_into_file_with_objects,
-    EventCommand as CommonEventCommand,
+    EventCommand,
 };
 
-/// Represents a single event command in RPG Maker MV CommonEvents.json
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EventCommand {
-    /// Command code (101 = Show Text, 401 = Message, 108 = Comment, etc.)
-    #[serde(default)]
-    pub code: i32,
-
-    /// Indentation level
-    #[serde(default)]
-    pub indent: i32,
-
-    /// Command parameters (array of values)
-    #[serde(default)]
-    pub parameters: Vec<serde_json::Value>,
-}
-
-impl From<EventCommand> for CommonEventCommand {
-    fn from(event_command: EventCommand) -> Self {
-        CommonEventCommand {
-            code: event_command.code,
-            indent: event_command.indent,
-            parameters: event_command.parameters,
-        }
-    }
-}
-
-impl From<CommonEventCommand> for EventCommand {
-    fn from(common_command: CommonEventCommand) -> Self {
-        EventCommand {
-            code: common_command.code,
-            indent: common_command.indent,
-            parameters: common_command.parameters,
-        }
-    }
-}
 
 /// Represents a single common event in RPG Maker MV CommonEvents.json
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -113,15 +78,10 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
             }
 
             // Extract text from event commands using common helper
-            let common_commands: Vec<CommonEventCommand> = common_event
-                .list
-                .iter()
-                .map(|cmd| cmd.clone().into())
-                .collect();
             text_units.extend(extract_text_units_from_event_commands(
                 "common_event",
                 common_event.id,
-                &common_commands,
+                &common_event.list,
                 file_path,
             ));
 
@@ -170,19 +130,12 @@ pub fn inject_translations(
             );
 
             // Update text in event commands using common helper
-            let mut common_commands: Vec<CommonEventCommand> = common_event
-                .list
-                .iter()
-                .map(|cmd| cmd.clone().into())
-                .collect();
             inject_text_units_into_event_commands(
                 "common_event",
                 common_event.id,
-                &mut common_commands,
+                &mut common_event.list,
                 text_unit_map,
             );
-            // Convert back to EventCommand
-            common_event.list = common_commands.into_iter().map(|cmd| cmd.into()).collect();
         };
 
     // Use the common function

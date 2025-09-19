@@ -36,7 +36,7 @@
             <UInput 
               v-model="search" 
               icon="i-lucide-search" 
-              placeholder="Search source/translated text…" 
+              placeholder="Search source/translated/field text…" 
             />
 
             <USelect 
@@ -319,6 +319,7 @@ const columns: TableColumn<TextUnitRecord>[] = [
   { accessorKey: 'translated_text', header: 'Translation' },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'prompt_type', header: 'Type' },
+  { accessorKey: 'field_type', header: 'Field Type' },
   { accessorKey: 'file_path', header: 'File' },
   {
     id: 'actions',

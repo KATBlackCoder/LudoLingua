@@ -53,6 +53,7 @@ export function useTranslator() {
   const translatedItems = computed(() => engineStore.textUnits.filter((u) =>
     u.status === 'MachineTranslated' ||
     u.status === 'HumanReviewed' ||
+    u.status === 'Ignored' ||
     (!!u.translated_text && u.translated_text.trim() !== '')
   ))
   // Use storeToRefs to get reactive refs from the store (state + getters)
@@ -83,7 +84,7 @@ export function useTranslator() {
   // Enhanced auto-switch logic for intelligent workflow routing
   const hasNotTranslated = computed(() => textUnits.value.some(u => u.status === 'NotTranslated'))
   const hasTranslated = computed(() => textUnits.value.some(u =>
-    (u.status === 'MachineTranslated' || u.status === 'HumanReviewed') &&
+    (u.status === 'MachineTranslated' || u.status === 'HumanReviewed' || u.status === 'Ignored') &&
     u.translated_text && u.translated_text.trim() !== ''
   ))
 

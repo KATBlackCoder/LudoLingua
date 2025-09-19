@@ -1,7 +1,4 @@
-use crate::engines::wolf_rpg::files::regex::{
-    is_translatable_wolf_text, wolf_replace_placeholders_for_translation,
-    wolf_restore_placeholders_after_translation,
-};
+// Text processing now handled by unified pipeline
 use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
 use regex::Regex;
 use serde_json::Value;
@@ -48,7 +45,7 @@ fn extract_from_db_data_entry(
     if file_name == "SysDatabase.json" {
         if let Some(name) = data_obj.get("name").and_then(|v| v.as_str()) {
             if is_translatable_sys_db_name(name, data_obj) {
-                let processed_text = wolf_replace_placeholders_for_translation(name);
+                let processed_text = name.to_string(); // Raw text, no processing
                 let normalized_path = file_path.replace('\\', "/");
                 let text_unit = TextUnit {
                     id: format!(
@@ -72,7 +69,7 @@ fn extract_from_db_data_entry(
             for (data_data_idx, data_data_obj) in data_data_array.iter().enumerate() {
                 if let Some(value) = data_data_obj.get("value").and_then(|v| v.as_str()) {
                     if is_translatable_db_value(value) {
-                        let processed_text = wolf_replace_placeholders_for_translation(value);
+                        let processed_text = value.to_string(); // Raw text, no processing
                         let normalized_path = file_path.replace('\\', "/");
                         let text_unit = TextUnit {
                             id: format!(
@@ -115,8 +112,8 @@ fn is_translatable_db_value(value: &str) -> bool {
         return false;
     }
 
-    // Use the general Wolf RPG text filter
-    is_translatable_wolf_text(value)
+    // Text validation now handled by unified pipeline
+    !value.trim().is_empty()
 }
 
 /// Check if a SysDatabase.json name field is translatable
@@ -144,8 +141,8 @@ fn is_translatable_sys_db_name(name: &str, data_obj: &Value) -> bool {
         return false;
     }
 
-    // Rule 3: Use the general Wolf RPG text filter
-    is_translatable_wolf_text(name)
+    // Rule 3: Text validation now handled by unified pipeline
+    !name.trim().is_empty()
 }
 
 /// Inject translated text back into Wolf RPG database JSON
@@ -187,8 +184,7 @@ fn inject_into_db_data_entry(
         );
         if let Some(text_unit) = text_units.get(&name_id) {
             if !text_unit.translated_text.is_empty() {
-                let restored_text =
-                    wolf_restore_placeholders_after_translation(&text_unit.translated_text);
+                let restored_text = text_unit.translated_text.clone(); // Text processing handled by unified pipeline
                 data_obj["name"] = Value::String(restored_text);
             }
         }
@@ -205,8 +201,7 @@ fn inject_into_db_data_entry(
                 );
                 if let Some(text_unit) = text_units.get(&value_id) {
                     if !text_unit.translated_text.is_empty() {
-                        let restored_text =
-                            wolf_restore_placeholders_after_translation(&text_unit.translated_text);
+                        let restored_text = text_unit.translated_text.clone(); // Text processing handled by unified pipeline
                         data_data_obj["value"] = Value::String(restored_text);
                     }
                 }

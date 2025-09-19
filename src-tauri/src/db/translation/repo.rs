@@ -314,6 +314,7 @@ pub async fn get_project_stats(
             COUNT(*) as total_units,
             COUNT(CASE WHEN status = 'MachineTranslated' THEN 1 END) as machine_translated,
             COUNT(CASE WHEN status = 'HumanReviewed' THEN 1 END) as human_reviewed,
+            COUNT(CASE WHEN status = 'Ignored' THEN 1 END) as ignored,
             COUNT(CASE WHEN translated_text IS NOT NULL AND translated_text != '' THEN 1 END) as has_translation
            FROM text_units WHERE project_path = ?"#
     )
@@ -326,6 +327,7 @@ pub async fn get_project_stats(
         "total_units": stats.get::<i64, _>("total_units"),
         "machine_translated": stats.get::<i64, _>("machine_translated"),
         "human_reviewed": stats.get::<i64, _>("human_reviewed"),
+        "ignored": stats.get::<i64, _>("ignored"),
         "has_translation": stats.get::<i64, _>("has_translation")
     }))
 }
@@ -338,6 +340,7 @@ pub async fn get_overall_stats(state: &ManagedTranslationState) -> AppResult<ser
         r#"SELECT
             COUNT(*) as total,
             COUNT(CASE WHEN status = 'NotTranslated' THEN 1 END) as pending,
+            COUNT(CASE WHEN status = 'Ignored' THEN 1 END) as ignored,
             COUNT(CASE WHEN translated_text IS NOT NULL AND translated_text != '' THEN 1 END) as translated
            FROM text_units"#
     )
@@ -348,11 +351,12 @@ pub async fn get_overall_stats(state: &ManagedTranslationState) -> AppResult<ser
     Ok(serde_json::json!({
         "total": stats.get::<i64, _>("total"),
         "pending": stats.get::<i64, _>("pending"),
+        "ignored": stats.get::<i64, _>("ignored"),
         "translated": stats.get::<i64, _>("translated")
     }))
 }
 
-/// Find all translated units for export (MachineTranslated + HumanReviewed)
+/// Find all translated units for export (MachineTranslated + HumanReviewed + Ignored)
 pub async fn find_translated_units_for_export(
     state: &ManagedTranslationState,
     manifest_hash: &str,
@@ -365,7 +369,7 @@ pub async fn find_translated_units_for_export(
                   created_at, updated_at
            FROM text_units
            WHERE manifest_hash = ?
-           AND (status = 'MachineTranslated' OR status = 'HumanReviewed')
+           AND (status = 'MachineTranslated' OR status = 'HumanReviewed' OR status = 'Ignored')
            ORDER BY file_path, field_type"#,
     )
     .bind(manifest_hash)
