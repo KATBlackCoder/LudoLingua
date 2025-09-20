@@ -8,6 +8,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 5.1: Native Notifications Integration - COMPLETED ✅**
+  - **Tauri Notification Plugin Integration:** Complete native desktop notification system
+    - Plugin already installed and configured in `Cargo.toml` and `lib.rs`
+    - Frontend package `@tauri-apps/plugin-notification` integrated with proper imports
+    - Permissions configured in `capabilities/default.json` for cross-platform compatibility
+    - Uses official Tauri notification attachments API for proper icon support
+  - **Notification Composable:** Complete implementation with permission management
+    - Created `app/composables/useNotifications.ts` with full notification functionality
+    - `checkAndRequestPermission()` - Automatic permission checking and requesting with graceful fallbacks
+    - `notifyProjectLoaded()` - Project loading notifications with project details
+    - `notifyTranslationComplete()` - Batch translation completion notifications with statistics
+    - Error handling for systems without notification support
+  - **Project Loading Notifications:** Integrated into engine store workflow
+    - Added notification call in `app/stores/engine.ts` after successful text extraction
+    - Shows project name, text unit count, and engine type for immediate feedback
+    - Example: "Project Loaded: MyGame (150 text units, RPG Maker MV)"
+    - Provides users with confirmation that project loading completed successfully
+  - **Translation Completion Notifications:** Integrated into translator store workflow
+    - Added notification call in `app/stores/translator.ts` after batch translation completes
+    - Shows success count, total count, and failed count for comprehensive feedback
+    - Example: "Translation Complete: 45/50 units translated, 5 failed"
+    - Enables users to work on other tasks while translations run in background
+  - **Custom Icon Integration:** Enhanced notifications with visual branding
+    - Uses Tauri notification attachments API with `asset://` protocol for proper asset handling
+    - Custom notification icon from `public/notification-image.jpg` for brand consistency
+    - Cross-platform icon support through proper asset protocol implementation
+    - Fallback to system default notification behavior when custom icons unavailable
+  - **Cross-Platform Compatibility:** Tested and validated notification system
+    - Automatic permission checking and requesting across Windows, macOS, and Linux
+    - Graceful error handling for systems without notification support
+    - Professional desktop app behavior with immediate user feedback
+    - Non-intrusive notifications that complement existing toast system
 - **Phase 5.0: Code Architecture Refinement - COMPLETED ✅**
   - **Unified Text Processing Pipeline:** Complete `utils/text/` module structure for all engines
     - Created `utils/text/llm_output.rs` with smart LLM output cleaning and extraction

@@ -86,7 +86,7 @@ const advancedSettings = ref({
   base_url: settingsStore.userSettings.base_url || '',
   api_key: '', // Void - not used in UI but kept for backend compatibility
   temperature: settingsStore.userSettings.temperature || 0.3,
-  max_tokens: settingsStore.userSettings.max_tokens || 512,
+  max_tokens: settingsStore.userSettings.max_tokens || 2048,
 })
 
 
@@ -113,7 +113,7 @@ function updateFormFromSettings() {
     base_url: currentSettings.base_url || defaultBase,
     api_key: '', // Void - not used in UI but kept for backend compatibility
     temperature: currentSettings.temperature || 0.3,
-    max_tokens: currentSettings.max_tokens || 512,
+    max_tokens: currentSettings.max_tokens || 2048,
   }
 }
 

@@ -61,9 +61,10 @@ const emit = defineEmits<Emits>()
 
 // Presets for temperature/max_tokens
 const presets = [
-  { id: 'recommended', label: 'Recommended (0.3 · 512)', temperature: 0.3, max_tokens: 512 },
-  { id: 'high', label: 'High (long lines) (0.3 · 1024)', temperature: 0.3, max_tokens: 1024 },
-  { id: 'creative', label: 'Creative (0.7 · 512)', temperature: 0.7, max_tokens: 512 },
+  { id: 'recommended', label: 'Recommended (0.3 · 2048)', temperature: 0.3, max_tokens: 2048 },
+  { id: 'high', label: 'High Quality (0.3 · 4096)', temperature: 0.3, max_tokens: 4096 },
+  { id: 'creative', label: 'Creative (0.7 · 2048)', temperature: 0.7, max_tokens: 2048 },
+  { id: 'maximum', label: 'Maximum Context (0.3 · 8192)', temperature: 0.3, max_tokens: 8192 },
 ]
 const presetItems = computed(() => presets.map(p => ({ label: p.label, value: p.id })))
 const selectedPreset = ref('recommended')

@@ -5,6 +5,7 @@ import type { TextUnit, TranslationResult } from '../types/translation';
 import { useEngineStore } from './engine';
 import { useAppToast } from '~/composables/useAppToast';
 import { useSettingsStore } from './settings';
+import { useNotifications } from '../composables/useNotifications';
 
 /**
  * Translate store
@@ -136,8 +137,13 @@ export const useTranslatorStore = defineStore('translator', () => {
 
       const successCount = translationProgress.value;
       const failedCount = failedTranslations.value.length;
+      const totalCount = translationTotal.value;
 
       showToast('Batch Translation Completed', `Successfully translated ${successCount} units${failedCount > 0 ? `, ${failedCount} failed` : ''}`, failedCount > 0 ? 'warning' : 'success', 1500)
+
+      // Send notification for batch translation completion
+      const { notifyTranslationComplete } = useNotifications();
+      await notifyTranslationComplete(successCount, totalCount, failedCount);
 
     } catch (error) {
       console.error('Batch translation error:', error);

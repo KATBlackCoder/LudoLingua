@@ -4,6 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 import type { EngineInfo, GameDataFile } from '../types/engine';
 import type { TextUnit } from '../types/translation';
 import { useLanguageStore } from './language';
+import { useNotifications } from '../composables/useNotifications';
 
 /**
  * Engine store
@@ -57,6 +58,10 @@ export const useEngineStore = defineStore('engine', () => {
         // Note: Database state is handled automatically on backend
       });
       setTextUnits(extractedUnits);
+
+      // Send notification for successful project loading
+      const { notifyProjectLoaded } = useNotifications();
+      await notifyProjectLoaded(result.name, extractedUnits.length, result.engine_type);
       
       // Get game data files directly from the backend (RPG Maker only)
       try {
