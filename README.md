@@ -21,7 +21,19 @@ A desktop application designed for translating RPG Maker game files. It helps ga
 - **RPG Maker MZ** ✅ Core files support
 - **Wolf RPG** 🧪 Experimental support
 
-## Setup
+## Installation
+
+### Download Pre-built Binaries
+
+Download the latest release from [GitHub Releases](https://github.com/KATBlackCoder/LudoLingua/releases):
+
+- **Windows**: Download `LudoLingua_0.x.x_x64_en-US.msi` and run the installer
+- **Linux**: Download `LudoLingua_0.x.x_amd64.AppImage`, make it executable (`chmod +x LudoLingua_0.x.x_amd64.AppImage`), and run it
+- **macOS**: Download `LudoLingua_0.x.x_aarch64.app.dmg` and install the application
+
+### Development Setup
+
+If you want to build from source:
 
 Install dependencies with pnpm:
 
@@ -29,15 +41,11 @@ Install dependencies with pnpm:
 pnpm install
 ```
 
-## Development Server
-
 Start the development server on `http://localhost:3000`:
 
 ```bash
 pnpm dev
 ```
-
-## Production
 
 Build the application for production:
 
@@ -125,8 +133,8 @@ Glossary terms are automatically injected into LLM prompts based on the text typ
 
 ## Getting Started
 
-1. **Install Dependencies**: Run `pnpm install`
-2. **Start Development Server**: Run `pnpm dev`
+1. **Download & Install**: Download the latest release for your platform from [GitHub Releases](https://github.com/KATBlackCoder/LudoLingua/releases)
+2. **Launch LudoLingua**: Run the application on your system
 3. **Configure AI Provider**: Set up Ollama or RunPod in Settings
 4. **Load RPG Project**: Use "Load Project" to select your RPG Maker game folder
 5. **Extract Text**: The app will automatically extract translatable text
