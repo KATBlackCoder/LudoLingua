@@ -178,9 +178,7 @@ pub async fn export_translated_subset(
                             "HumanReviewed" => {
                                 crate::models::translation::TranslationStatus::HumanReviewed
                             }
-                            "Ignored" => {
-                                crate::models::translation::TranslationStatus::Ignored
-                            }
+                            "Ignored" => crate::models::translation::TranslationStatus::Ignored,
                             _ => crate::models::translation::TranslationStatus::NotTranslated,
                         };
                         Some(text_unit)

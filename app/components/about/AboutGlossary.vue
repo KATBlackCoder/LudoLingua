@@ -24,10 +24,10 @@
           If DB terms exist, they are used (DB-only) for the vocabulary block; otherwise we fall back to the file 
           <code class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">prompts/vocabularies.txt</code>.
         </p>
-        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <div class="p-3 bg-info-50 dark:bg-info-900/20 rounded-lg border border-info-200 dark:border-info-800">
           <div class="flex items-start gap-2">
-            <UIcon name="i-lucide-lightbulb" class="text-blue-600 dark:text-blue-400 mt-0.5" />
-            <p class="text-sm text-blue-800 dark:text-blue-200">
+            <UIcon name="i-lucide-lightbulb" class="text-info-600 dark:text-info-400 mt-0.5" />
+            <p class="text-sm text-info-800 dark:text-info-200">
               <strong>Pro Tip:</strong> For <strong>Character</strong> names, an exact source match in the glossary bypasses the LLM entirely.
             </p>
           </div>
@@ -49,21 +49,21 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
             <div class="flex items-center gap-2 mb-2">
-              <UIcon name="i-lucide-monitor" class="text-blue-600" />
+              <UIcon name="i-lucide-monitor" class="text-info" />
               <span class="font-medium text-sm">Windows</span>
             </div>
             <code class="text-xs text-gray-600 dark:text-gray-400 break-all">%AppData%/ml.ludolingua.blackat/ludolingua.db</code>
           </div>
           <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
             <div class="flex items-center gap-2 mb-2">
-              <UIcon name="i-lucide-apple" class="text-gray-600" />
+              <UIcon name="i-lucide-apple" class="text-neutral" />
               <span class="font-medium text-sm">macOS</span>
             </div>
             <code class="text-xs text-gray-600 dark:text-gray-400 break-all">~/Library/Application Support/ml.ludolingua.blackat/ludolingua.db</code>
           </div>
           <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
             <div class="flex items-center gap-2 mb-2">
-              <UIcon name="i-lucide-terminal" class="text-orange-600" />
+              <UIcon name="i-lucide-terminal" class="text-warning" />
               <span class="font-medium text-sm">Linux</span>
             </div>
             <code class="text-xs text-gray-600 dark:text-gray-400 break-all">~/.local/share/ml.ludolingua.blackat/ludolingua.db</code>
@@ -122,7 +122,7 @@
           Add terms under the right <em>Category</em> in the Glossary. Each item renders into the prompt as:
         </p>
         <div class="p-4 bg-gray-900 dark:bg-gray-800 rounded-lg">
-          <pre class="text-xs text-green-400 overflow-auto"><code>### Category
+          <pre class="text-xs text-success-400 overflow-auto"><code>### Category
 Input: 源語 / Source term
 Output: 翻訳 / Target term</code></pre>
         </div>
@@ -149,10 +149,10 @@ Output: 翻訳 / Target term</code></pre>
         </div>
       </div>
       <template #footer>
-        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+        <div class="p-3 bg-info-50 dark:bg-info-900/20 rounded-lg">
           <div class="flex items-start gap-2">
-            <UIcon name="i-lucide-lightbulb" class="text-blue-600 dark:text-blue-400 mt-0.5" />
-            <div class="text-xs text-blue-800 dark:text-blue-200">
+            <UIcon name="i-lucide-lightbulb" class="text-info-600 dark:text-info-400 mt-0.5" />
+            <div class="text-xs text-info-800 dark:text-info-200">
               <p class="font-medium mb-1">Pro Tips:</p>
               <ul class="space-y-1">
                 <li>• Terms are applied only when source/target languages match the current project and the term is enabled</li>

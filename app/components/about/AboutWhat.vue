@@ -23,6 +23,14 @@
       </p>
     </UCard>
 
+    <UAlert color="info" variant="soft" icon="i-lucide-lightbulb">
+      <template #title>Perfect for Game Localization</template>
+      <template #description>
+        <div class="text-sm">
+          Whether you're a solo developer or part of a localization team, LudoLingua streamlines the entire translation workflow from extraction to final export, making RPG Maker game localization faster and more efficient.
+        </div>
+      </template>
+    </UAlert>
     <UCard class="mb-6">
       <template #header>
         <div class="flex items-center gap-2">
@@ -64,15 +72,59 @@
       </div>
     </UCard>
 
-    <UAlert color="info" variant="soft" icon="i-lucide-lightbulb">
-      <template #title>Perfect for Game Localization</template>
-      <template #description>
-        <div class="text-sm">
-          Whether you're a solo developer or part of a localization team, LudoLingua streamlines the entire translation workflow from extraction to final export, making RPG Maker game localization faster and more efficient.
+    <!-- Referral Links Section -->
+    <UCard>
+      <template #header>
+        <div class="flex items-center gap-2">
+          <UIcon name="i-lucide-heart" class="text-primary" />
+          <span class="font-medium">Support Our Project</span>
         </div>
       </template>
-    </UAlert>
+      <div class="space-y-4">
+        <div class="flex gap-2 flex-wrap">
+          <UButton
+            :variant="activeReferral === 'freebitcoin' ? 'solid' : 'outline'"
+            :color="activeReferral === 'freebitcoin' ? 'warning' : 'neutral'"
+            icon="i-lucide-bitcoin"
+            @click="activeReferral = 'freebitcoin'"
+          >
+            FreeBitcoin
+          </UButton>
+          <UButton
+            :variant="activeReferral === 'runpod' ? 'solid' : 'outline'"
+            :color="activeReferral === 'runpod' ? 'info' : 'neutral'"
+            icon="i-lucide-cloud"
+            @click="activeReferral = 'runpod'"
+          >
+            RunPod
+          </UButton>
+          <UButton
+            :variant="activeReferral === 'nutaku' ? 'solid' : 'outline'"
+            :color="activeReferral === 'nutaku' ? 'secondary' : 'neutral'"
+            icon="i-lucide-gamepad-2"
+            @click="activeReferral = 'nutaku'"
+          >
+            Nutaku (18+)
+          </UButton>
+        </div>
+
+        <!-- Referral Content -->
+        <div>
+          <AboutFreeBitcoin v-if="activeReferral === 'freebitcoin'" />
+          <AboutRunPod v-else-if="activeReferral === 'runpod'" />
+          <AboutNutaku v-else-if="activeReferral === 'nutaku'" />
+        </div>
+      </div>
+    </UCard>
   </section>
 </template>
+
+<script setup lang="ts">
+import AboutFreeBitcoin from '~/components/about/referral/AboutFreeBitcoin.vue'
+import AboutRunPod from '~/components/about/referral/AboutRunPod.vue'
+import AboutNutaku from '~/components/about/referral/AboutNutaku.vue'
+
+const activeReferral = ref<'freebitcoin' | 'runpod' | 'nutaku'>('freebitcoin')
+</script>
 
 

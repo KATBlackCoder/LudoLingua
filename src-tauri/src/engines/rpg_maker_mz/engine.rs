@@ -384,12 +384,15 @@ impl Engine for RpgMakerMzEngine {
     ) -> AppResult<TextUnit> {
         // Parse field_type format - handle both regular format and event command format
         let parts: Vec<&str> = field_type.split(':').collect();
-        
+
         // Handle event command format: "message:file_path:object_id:command_index"
         if parts.len() == 4 && parts[0] == "message" {
             let file_path = parts[1];
             let object_id: i32 = parts[2].parse().map_err(|_| {
-                crate::core::error::AppError::Other(format!("Invalid object_id in field_type: {}", field_type))
+                crate::core::error::AppError::Other(format!(
+                    "Invalid object_id in field_type: {}",
+                    field_type
+                ))
             })?;
             let command_index: i32 = parts[3].parse().map_err(|_| {
                 crate::core::error::AppError::Other(format!(
@@ -397,7 +400,7 @@ impl Engine for RpgMakerMzEngine {
                     field_type
                 ))
             })?;
-            
+
             // Determine object type from file path for event commands
             let object_type = if file_path.contains("Map") && file_path.contains(".json") {
                 // Handle MapXXX.json files - extract map ID and create proper object type
@@ -410,9 +413,10 @@ impl Engine for RpgMakerMzEngine {
             } else {
                 "event".to_string() // fallback
             };
-            
-            let reconstructed_id = format!("{}_{}_message_{}", object_type, object_id, command_index);
-            
+
+            let reconstructed_id =
+                format!("{}_{}_message_{}", object_type, object_id, command_index);
+
             return Ok(TextUnit {
                 id: reconstructed_id,
                 source_text: source_text.to_string(),
@@ -422,12 +426,15 @@ impl Engine for RpgMakerMzEngine {
                 prompt_type: crate::models::translation::PromptType::Dialogue,
             });
         }
-        
+
         // Handle choice command format: "choice:file_path:object_id:command_index:choice_index"
         if parts.len() == 5 && parts[0] == "choice" {
             let file_path = parts[1];
             let object_id: i32 = parts[2].parse().map_err(|_| {
-                crate::core::error::AppError::Other(format!("Invalid object_id in field_type: {}", field_type))
+                crate::core::error::AppError::Other(format!(
+                    "Invalid object_id in field_type: {}",
+                    field_type
+                ))
             })?;
             let command_index: i32 = parts[3].parse().map_err(|_| {
                 crate::core::error::AppError::Other(format!(
@@ -441,7 +448,7 @@ impl Engine for RpgMakerMzEngine {
                     field_type
                 ))
             })?;
-            
+
             // Determine object type from file path for event commands
             let object_type = if file_path.contains("Map") && file_path.contains(".json") {
                 // Handle MapXXX.json files - extract map ID and create proper object type
@@ -454,12 +461,12 @@ impl Engine for RpgMakerMzEngine {
             } else {
                 "event".to_string() // fallback
             };
-            
+
             let reconstructed_id = format!(
                 "{}_{}_choice_{}_{}",
                 object_type, object_id, command_index, choice_index
             );
-            
+
             return Ok(TextUnit {
                 id: reconstructed_id,
                 source_text: source_text.to_string(),
@@ -469,7 +476,7 @@ impl Engine for RpgMakerMzEngine {
                 prompt_type: crate::models::translation::PromptType::Dialogue,
             });
         }
-        
+
         // Handle regular format: "field:file.json:index"
         if parts.len() < 3 {
             return Err(crate::core::error::AppError::Other(format!(
@@ -543,7 +550,10 @@ impl Engine for RpgMakerMzEngine {
         self
     }
 
-    fn extract_raw_text_units(&self, project_info: &EngineInfo) -> AppResult<Vec<crate::utils::text::pipeline::RawTextUnit>> {
+    fn extract_raw_text_units(
+        &self,
+        project_info: &EngineInfo,
+    ) -> AppResult<Vec<crate::utils::text::pipeline::RawTextUnit>> {
         // Extract game data files
         let game_data_files = self.extract_game_data_files(project_info)?;
 

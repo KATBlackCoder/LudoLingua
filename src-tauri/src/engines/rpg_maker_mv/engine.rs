@@ -498,7 +498,6 @@ impl Engine for RpgMakerMvEngine {
         self.detection_criteria.clone()
     }
 
-
     fn reconstruct_text_unit_id(
         &self,
         field_type: &str,

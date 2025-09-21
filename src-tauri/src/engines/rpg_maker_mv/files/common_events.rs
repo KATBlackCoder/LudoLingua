@@ -12,7 +12,6 @@ use super::common::{
     EventCommand,
 };
 
-
 /// Represents a single common event in RPG Maker MV CommonEvents.json
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct CommonEvent {

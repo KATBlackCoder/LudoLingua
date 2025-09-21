@@ -11,17 +11,17 @@ fn to_ascii_digits(s: &str) -> String {
 }
 
 /// Universal text formatter for all engines
-/// 
+///
 /// This struct provides unified text processing that handles ALL placeholder types
 /// from RPG Maker, Wolf RPG, and future engines in a single pipeline.
 pub struct TextFormatter;
 
 impl TextFormatter {
     /// UNIFIED METHOD: Handles ALL placeholders in one pass
-    /// 
+    ///
     /// This method processes text from any engine and converts all formatting codes,
     /// whitespace patterns, and engine-specific codes into unified placeholders.
-    /// 
+    ///
     /// Supported placeholder types:
     /// - RPG Maker codes: \C[n], \N[n], \V[n], etc.
     /// - Wolf RPG codes: \E, \i[n], \f[n], @n, etc.
@@ -43,12 +43,14 @@ impl TextFormatter {
         }
 
         // === RPG MAKER CODES ===
-        
+
         // Color codes: \C[n] -> [COLOR_n] and \c[n] -> [COLOR_n]
         let color_regex = Regex::new(r"\\C\[(\d+)\]").unwrap();
         result = color_regex.replace_all(&result, "[COLOR_$1]").to_string();
         let color_regex_lower = Regex::new(r"\\c\[(\d+)\]").unwrap();
-        result = color_regex_lower.replace_all(&result, "[COLOR_$1]").to_string();
+        result = color_regex_lower
+            .replace_all(&result, "[COLOR_$1]")
+            .to_string();
 
         // Name codes: \N[n] -> [NAME_n]
         let name_regex = Regex::new(r"\\N\[(\d+)\]").unwrap();
@@ -56,7 +58,9 @@ impl TextFormatter {
 
         // Newline codes: \n[n] -> [NEWLINE_n]
         let newline_regex = Regex::new(r"\\n\[(\d+)\]").unwrap();
-        result = newline_regex.replace_all(&result, "[NEWLINE_$1]").to_string();
+        result = newline_regex
+            .replace_all(&result, "[NEWLINE_$1]")
+            .to_string();
 
         // Other RPG Maker codes
         result = result.replace("\\V[", "[VARIABLE_");
@@ -70,41 +74,41 @@ impl TextFormatter {
         result = result.replace("\\$", "[CURRENCY]");
 
         // === WOLF RPG CODES ===
-        
+
         // Wolf RPG specific codes
         result = result.replace("\\E", "[WOLF_END]");
-        
+
         // Icon codes: \i[n] -> [ICON_n]
         let icon_codes = Regex::new(r"\\i\[(\d+)\]").unwrap();
         result = icon_codes.replace_all(&result, "[ICON_$1]").to_string();
-        
+
         // Font codes: \f[n] -> [FONT_n]
         let font_codes = Regex::new(r"\\f\[(\d+)\]").unwrap();
         result = font_codes.replace_all(&result, "[FONT_$1]").to_string();
-        
+
         // Event markers: @n -> [AT_n]
         let at_codes = Regex::new(r"@(\d+)").unwrap();
         result = at_codes.replace_all(&result, "[AT_$1]").to_string();
-        
+
         // Character slots: \s[n] -> [SLOT_n]
         let slot_codes = Regex::new(r"\\s\[(\d+)\]").unwrap();
         result = slot_codes.replace_all(&result, "[SLOT_$1]").to_string();
-        
+
         // Self color codes: \cself[n] -> [CSELF_n]
         let cself_codes = Regex::new(r"\\cself\[(\d+)\]").unwrap();
         result = cself_codes.replace_all(&result, "[CSELF_$1]").to_string();
-        
+
         // Ruby text marker: \r -> [RUBY_START]
         result = result.replace("\\r", "[RUBY_START]");
-        
+
         // Carriage return: \r -> [CARRIAGE_RETURN]
         result = result.replace('\r', "[CARRIAGE_RETURN]");
-        
+
         // Newline character: \n -> [NEWLINE]
         result = result.replace('\n', "[NEWLINE]");
 
         // === UNIVERSAL CODES ===
-        
+
         // Parameter placeholders: handle ASCII and full-width forms
         // "%1" or "％１" -> "[ARG_1]"
         let arg_any = Regex::new(r"[%％]([0-9０-９]+)").unwrap();
@@ -134,7 +138,7 @@ impl TextFormatter {
     }
 
     /// UNIFIED METHOD: Restores ALL placeholders in one pass
-    /// 
+    ///
     /// This method restores all placeholders back to their original formatting codes
     /// regardless of which engine they came from.
     pub fn restore_after_translation(text: &str) -> String {
@@ -145,7 +149,7 @@ impl TextFormatter {
         result = Self::decode_whitespace_placeholders(&result);
 
         // === RPG MAKER CODES ===
-        
+
         // Restore color codes: [COLOR_n] -> \C[n]
         let color_regex = Regex::new(r"\[COLOR_(\d+)\]").unwrap();
         result = color_regex.replace_all(&result, "\\C[$1]").to_string();
@@ -170,41 +174,43 @@ impl TextFormatter {
         result = result.replace("[CURRENCY]", "\\$");
 
         // === WOLF RPG CODES ===
-        
+
         // Restore Wolf RPG specific codes
         result = result.replace("[WOLF_END]", "\\E");
-        
+
         // Restore icon codes: [ICON_n] -> \i[n]
         let icon_restore = Regex::new(r"\[ICON_(\d+)\]").unwrap();
         result = icon_restore.replace_all(&result, "\\i[$1]").to_string();
-        
+
         // Restore font codes: [FONT_n] -> \f[n]
         let font_restore = Regex::new(r"\[FONT_(\d+)\]").unwrap();
         result = font_restore.replace_all(&result, "\\f[$1]").to_string();
-        
+
         // Restore @ codes: [AT_n] -> @n
         let at_restore = Regex::new(r"\[AT_(\d+)\]").unwrap();
         result = at_restore.replace_all(&result, "@$1").to_string();
-        
+
         // Restore slot codes: [SLOT_n] -> \s[n]
         let slot_restore = Regex::new(r"\[SLOT_(\d+)\]").unwrap();
         result = slot_restore.replace_all(&result, "\\s[$1]").to_string();
-        
+
         // Restore cself codes: [CSELF_n] -> \cself[n]
         let cself_restore = Regex::new(r"\[CSELF_(\d+)\]").unwrap();
-        result = cself_restore.replace_all(&result, "\\cself[$1]").to_string();
-        
+        result = cself_restore
+            .replace_all(&result, "\\cself[$1]")
+            .to_string();
+
         // Restore ruby text marker: [RUBY_START] -> \r
         result = result.replace("[RUBY_START]", "\\r");
-        
+
         // Restore carriage return: [CARRIAGE_RETURN] -> \r
         result = result.replace("[CARRIAGE_RETURN]", "\\r");
-        
+
         // Restore newline: [NEWLINE] -> \n
         result = result.replace("[NEWLINE]", "\n");
 
         // === UNIVERSAL CODES ===
-        
+
         // Restore parameter placeholders: [ARG_n] -> %n
         let arg_regex = Regex::new(r"\[ARG_(\d+)\]").unwrap();
         result = arg_regex.replace_all(&result, "%$1").to_string();

@@ -22,20 +22,23 @@ pub trait Engine: Send + Sync {
     fn get_detection_criteria(&self) -> EngineCriteria;
 
     /// Extract all translatable text units from a project
-    /// 
+    ///
     /// This method has a default implementation that automatically processes
     /// raw text units through the unified text processing pipeline.
     fn extract_text_units(&self, project_info: &EngineInfo) -> AppResult<Vec<TextUnit>> {
         // Get raw text units from engine-specific implementation
         let raw_units = self.extract_raw_text_units(project_info)?;
-        
+
         // Process through unified text processing pipeline
         let target_language = &project_info.target_language.id;
-        Ok(TextProcessor::process_for_extraction(raw_units, target_language))
+        Ok(TextProcessor::process_for_extraction(
+            raw_units,
+            target_language,
+        ))
     }
 
     /// Inject translated text units back into the project files
-    /// 
+    ///
     /// This method has a default implementation that automatically processes
     /// text units through the unified text processing pipeline before injection.
     fn inject_text_units(
@@ -45,7 +48,7 @@ pub trait Engine: Send + Sync {
     ) -> AppResult<()> {
         // Process through unified text processing pipeline
         let raw_units = TextProcessor::process_injection_pipeline(text_units);
-        
+
         // Inject raw text units using engine-specific implementation
         self.inject_raw_text_units(project_info, &raw_units)
     }
@@ -63,19 +66,19 @@ pub trait Engine: Send + Sync {
     fn as_any(&self) -> &dyn Any;
 
     /// Extract raw text units from project files (file I/O only, no text processing)
-    /// 
+    ///
     /// This method must be implemented by each engine to handle the specific
     /// file format and structure of that engine's project files.
-    /// 
+    ///
     /// The returned RawTextUnits contain text exactly as it appears in the files,
     /// without any formatting code replacement or validation.
     fn extract_raw_text_units(&self, project_info: &EngineInfo) -> AppResult<Vec<RawTextUnit>>;
 
     /// Inject raw text units back into project files (file I/O only, no text processing)
-    /// 
+    ///
     /// This method must be implemented by each engine to handle the specific
     /// file format and structure of that engine's project files.
-    /// 
+    ///
     /// The RawTextUnits contain text with formatting codes already restored,
     /// ready to be written directly to the files.
     fn inject_raw_text_units(

@@ -84,7 +84,7 @@
         </div>
       </template>
 
-      <div v-if="error" class="text-red-500 text-sm mb-2">{{ error }}</div>
+      <div v-if="error" class="text-error-500 text-sm mb-2">{{ error }}</div>
 
       <UTable 
         ref="table"

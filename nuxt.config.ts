@@ -21,6 +21,19 @@ export default defineNuxtConfig({
   },
   modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxt/ui', '@vueuse/nuxt'],
   css: ['~/assets/css/main.css'],
+  ui: {
+    theme: {
+      colors: [
+        'primary',
+        'secondary', 
+        'tertiary',
+        'info',
+        'success',
+        'warning',
+        'error'
+      ]
+    }
+  },
   app: {
     head: {
       title: 'LudoLingua',

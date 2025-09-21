@@ -15,7 +15,7 @@
         <span class="whitespace-pre-wrap">{{ row.original.target_text }}</span>
       </template>
     </UTable>
-    <div v-if="errors?.length" class="text-sm text-red-600 dark:text-red-400">
+    <div v-if="errors?.length" class="text-sm text-error-600 dark:text-error-400">
       {{ errors.length }} error(s). Check console for details.
     </div>
     <div class="flex items-center justify-between">

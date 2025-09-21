@@ -1,43 +1,48 @@
-
 /// Universal validation: common logic for all engines
-/// 
+///
 /// This struct provides unified validation logic that works for all engines
 /// without engine-specific knowledge.
 pub struct ContentValidator;
 
 impl ContentValidator {
     /// Determine the initial translation status based on content and translation context
-    /// 
+    ///
     /// This method determines if text should be marked as Ignored when translating
     /// from CJK to ASCII and the text is already in ASCII form.
-    pub fn get_initial_status(content: &str, target_language: &str) -> crate::models::translation::TranslationStatus {
+    pub fn get_initial_status(
+        content: &str,
+        target_language: &str,
+    ) -> crate::models::translation::TranslationStatus {
         let content = content.trim();
-        
+
         // Check if we're translating to English/ASCII
-        let is_ascii_target = target_language.to_lowercase() == "en" || target_language.to_lowercase() == "english";
-        
+        let is_ascii_target =
+            target_language.to_lowercase() == "en" || target_language.to_lowercase() == "english";
+
         if is_ascii_target {
             // Check if the text is already in ASCII form
-            let is_ascii_text = content.chars().all(|c| c.is_ascii_alphanumeric() || c.is_ascii_punctuation() || c.is_ascii_whitespace());
-            
+            let is_ascii_text = content.chars().all(|c| {
+                c.is_ascii_alphanumeric() || c.is_ascii_punctuation() || c.is_ascii_whitespace()
+            });
+
             // If text is already ASCII and we're translating to English, ignore it
             // (no need to translate English to English)
             if is_ascii_text && content.chars().any(|c| c.is_alphabetic()) {
                 return crate::models::translation::TranslationStatus::Ignored;
             }
         }
-        
+
         // Default to NotTranslated for all other cases
         crate::models::translation::TranslationStatus::NotTranslated
     }
 
     /// Universal validation logic for text content
-    /// 
+    ///
     /// This method determines if text should be translated based on common
     /// validation rules that apply to all engines.
     pub fn validate_text(content: &str) -> bool {
         let content = content.trim();
-        
+
         // Skip empty or whitespace-only content
         if content.is_empty() {
             return false;
@@ -151,19 +156,19 @@ impl ContentValidator {
 
         // Allow reasonable ASCII text that looks like translatable content
         // (alphabetic characters, reasonable length, not just technical identifiers)
-        if content.chars().any(|c| c.is_alphabetic()) 
-            && content.len() >= 2 
-            && content.len() <= 100 
-            && !content.chars().all(|c| c.is_ascii_digit()) {
+        if content.chars().any(|c| c.is_alphabetic())
+            && content.len() >= 2
+            && content.len() <= 100
+            && !content.chars().all(|c| c.is_ascii_digit())
+        {
             return true;
         }
 
         false
     }
 
-
     /// Optional warnings for text that passed validation
-    /// 
+    ///
     /// This method can provide warnings about text that might need special attention
     /// during translation, such as very long text or unusual formatting.
     pub fn get_warnings(content: &str) -> Vec<String> {
@@ -185,10 +190,10 @@ impl ContentValidator {
             (c >= '\u{4E00}' && c <= '\u{9FFF}') || // CJK Unified Ideographs
             (c >= '\u{3040}' && c <= '\u{309F}') || // Hiragana
             (c >= '\u{30A0}' && c <= '\u{30FF}') || // Katakana
-            (c >= '\u{AC00}' && c <= '\u{D7AF}')    // Hangul Syllables
+            (c >= '\u{AC00}' && c <= '\u{D7AF}') // Hangul Syllables
         });
         let has_ascii = content.chars().any(|c| c.is_ascii_alphanumeric());
-        
+
         if has_cjk && has_ascii {
             warnings.push("Mixed script content - verify translation direction".to_string());
         }

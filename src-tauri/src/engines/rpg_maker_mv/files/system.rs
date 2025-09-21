@@ -367,7 +367,7 @@ pub fn inject_translations(
     if let Some(unit) = text_units_map.get("system_game_title") {
         if !unit.translated_text.is_empty() {
             let restored = unit.translated_text.clone(); // Text processing handled by unified pipeline
-            // Add LudoLingua signature to the translated title
+                                                         // Add LudoLingua signature to the translated title
             system.game_title = format!("{} - LudoLingua", restored);
         }
     }

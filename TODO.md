@@ -7,37 +7,20 @@ All Phase 4 objectives have been successfully achieved! The application now has 
 ---
 
 ### ✅ **Phase 4.1: File Renaming for Consistency** - COMPLETED
-
-**Goal:** Eliminate confusion between translation workflow vs translation management
-
 - [x] **Directory Rename**: `app/components/translation/` → `app/components/translator/`
 - [x] **Page Rename**: `app/pages/translation.vue` → `app/pages/translator.vue`
 - [x] **Navigation Updates**: Updated all route references from `/translation` to `/translator`
 - [x] **Import Updates**: Fixed all import statements across components
 - [x] **Clear Naming**: Translator (workflow) vs Translations (management)
 
-**Result:** Clean, consistent naming convention with no confusion.
-
----
-
 ### ✅ **Phase 4.2: Nuxt 4.1 Upgrade** - COMPLETED
-
-**Goal:** Upgrade from Nuxt 4.0 to 4.1 with latest features
-
 - [x] Update `package.json` dependencies to Nuxt 4.1.1
 - [x] Run `pnpm install` and test build process
 - [x] Update `nuxt.config.ts` for new features
 - [x] Test all existing functionality
 - [x] Verify enhanced chunk stability and performance improvements
 
-**Result:** Modern Nuxt 4.1.1 with enhanced performance and stability.
-
----
-
 ### ✅ **Phase 4.3: Nuxt UI v4 Migration** - COMPLETED
-
-**Goal:** Migrate from Nuxt UI v3 to v4
-
 - [x] Update `package.json`: `"@nuxt/ui": "4.0.0-alpha.1"`
 - [x] Review and implement breaking changes from migration guide
 - [x] Update component usage across all pages and components
@@ -46,70 +29,56 @@ All Phase 4 objectives have been successfully achieved! The application now has 
 - [x] Verify TypeScript compatibility
 - [x] Migrate all icons from Heroicons to Lucide for consistency
 
-**Result:** Latest Nuxt UI v4 with improved components and unified design system.
-
----
-
 ### ✅ **Phase 4.4: Rebuild Translation Management** - COMPLETED
+- [x] **Backend**: Created `src-tauri/src/commands/translations.rs` (CRUD commands)
+- [x] **Backend**: Enhanced `src-tauri/src/db/translation/repo.rs` (database operations)
+- [x] **Backend**: Added project management commands in `src-tauri/src/commands/engine.rs`
+- [x] **Backend**: Fixed database schema constraints for legitimate duplicate text storage
+- [x] **Backend**: Registered all commands in `src-tauri/src/commands/handler.rs`
+- [x] **Frontend**: Created `app/stores/translations.ts` (state management)
+- [x] **Frontend**: Created `app/composables/useTranslations.ts` (UI logic)
+- [x] **Frontend**: Built `TranslationTable.vue` with full functionality
+- [x] **Frontend**: Built `TranslationForm.vue` for editing
+- [x] **Frontend**: Created `app/pages/translations.vue` page
+- [x] **Frontend**: Added navigation integration to `AppHeader.vue`
+- [x] **Advanced Features**: Fixed table width, implemented actions column, native dialogs
+- [x] **Advanced Features**: Row selection, bulk operations, project management
+- [x] **Database**: Fixed critical `UNIQUE constraint failed` error
+- [x] **Database**: Created migration `0004_fix_text_units_uniqueness.sql`
 
-**Goal:** Create simple, working translation management using proven glossary patterns
-
-**✅ Backend Implementation (Complete):**
-1. ✅ Created `src-tauri/src/commands/translations.rs` (CRUD commands)
-2. ✅ Enhanced `src-tauri/src/db/translation/repo.rs` (database operations)
-3. ✅ Added project management commands in `src-tauri/src/commands/engine.rs`
-4. ✅ Fixed database schema constraints for legitimate duplicate text storage
-5. ✅ Registered all commands in `src-tauri/src/commands/handler.rs`
-
-**✅ Frontend Implementation (Complete):**
-6. ✅ Created `app/stores/translations.ts` (state management)
-7. ✅ Created `app/composables/useTranslations.ts` (UI logic)
-8. ✅ Created `app/components/translations/` directory
-9. ✅ Built `TranslationTable.vue` with full functionality
-10. ✅ Built `TranslationForm.vue` for editing
-11. ✅ Created `app/pages/translations.vue` page
-12. ✅ Added navigation integration to `AppHeader.vue`
-
-**✅ Advanced Features (Complete):**
-13. ✅ Fixed table width using `UContainer max-w-full`
-14. ✅ Implemented working actions column with edit/delete buttons
-15. ✅ Fixed native Tauri dialog confirmations for reliable operations
-16. ✅ Updated all icons from Heroicons to Lucide for consistency
-17. ✅ Implemented row selection with checkboxes and bulk operations
-18. ✅ Added project selection dropdown and delete project functionality
-19. ✅ Enhanced about page with comprehensive translation management information
-20. ✅ Fixed navigation flow (translations page routes to home, not translator)
-21. ✅ Added conditional translator link visibility (only when project loaded)
-
-**✅ Database & Infrastructure (Complete):**
-22. ✅ Fixed critical `UNIQUE constraint failed` error affecting text storage
-23. ✅ Created migration `0004_fix_text_units_uniqueness.sql` to remove restrictive constraints
-24. ✅ Updated repository code to allow legitimate duplicate text storage
-25. ✅ Verified all project loading and text extraction works correctly
-
-**Result:** Complete, production-ready translation management system with advanced features!
+### ✅ **Phase 4.5: Color Scheme Migration** - COMPLETED
+- [x] **Updated app.config.ts**: Defined semantic color palette (primary: blue, secondary: purple, etc.)
+- [x] **Updated nuxt.config.ts**: Configured Nuxt UI to use custom colors
+- [x] **Updated Components**: Migrated all hardcoded colors to semantic colors across:
+  - [x] `app/components/about/referral/` (AboutNutaku.vue, AboutRunPod.vue, AboutFreeBitcoin.vue)
+  - [x] `app/components/about/AboutGlossary.vue`
+  - [x] `app/pages/translations.vue` (stats cards)
+  - [x] `app/components/translator/TranslationProcess.vue`
+  - [x] `app/components/translations/TranslationTable.vue`
+  - [x] `app/components/glossaries/GlossaryTable.vue`
+- [x] **Verified**: All other components already using semantic colors
+- [x] **Result**: Consistent, maintainable color scheme across entire application
 
 ---
 
-## 🚀 **What's Next?**
+## 🚀 **Phase 5: Enhanced Features & Polish**
 
-Phase 4 is **100% complete**! The application now has:
-- ✅ **Consistent naming** (translator vs translations)
-- ✅ **Modern framework** (Nuxt 4.1.1 + UI v4)
-- ✅ **Full translation management** (CRUD interface with advanced features)
-- ✅ **Fixed database constraints** (proper text storage for RPG games)
-- ✅ **Complete icon consistency** (all Lucide icons)
-- ✅ **Enhanced about page** (comprehensive feature documentation)
-- ✅ **Improved navigation** (conditional links and proper routing)
+### ✅ **Phase 5.0: Code Architecture Refinement** - COMPLETED
+- [x] **Unified Text Processing Pipeline**: Created `utils/text/` module with universal text handling
+- [x] **Engine Trait Enhancement**: Automatic text processing via core trait defaults
+- [x] **Engine Migration**: Eliminated 49+ text processing calls across all engines
+- [x] **LLM Output Cleaning**: Enhanced smart cleaning with context-aware artifact removal
+- [x] **Comprehensive Testing**: Unit tests, integration tests, performance validation
 
----
+### ✅ **Phase 5.1: Native Notifications Integration** - COMPLETED
+- [x] **Tauri Notification Plugin**: Installed and configured notification system
+- [x] **Core Notification Logic**: Created `useNotifications.ts` composable
+- [x] **Project Loading Notifications**: Automatic notifications for successful project loads
+- [x] **Translation Completion Notifications**: Batch translation completion alerts
+- [x] **Cross-Platform Testing**: Verified compatibility across platforms
 
-## 🎯 **Ready for Phase 5: Enhanced Features & Polish**
-
-The solid foundation is now complete. Ready to begin **Phase 5** development with:
-
-### **✅ Recent Enhancement: Field Type Column Added**
-- ✅ **TranslationTable.vue Enhancement**: Added field type column to display detailed location information
+### ✅ **Recent Enhancement: Field Type Column Added**
+- [x] **TranslationTable.vue Enhancement**: Added field type column to display detailed location information
   - Added `field_type` column to table showing exact file location (e.g., `name:www/data/MapInfos.json:2`)
   - Enhanced search functionality to include field type in search queries
   - Updated search placeholder to reflect new searchable content
@@ -361,59 +330,82 @@ The solid foundation is now complete. Ready to begin **Phase 5** development wit
 - ✅ **Simplified Approach**: Uses only basic `sendNotification` method, no complex features
 - ✅ **No Settings Required**: Direct implementation without user preference complexity
 
-### **🔧 Advanced Translation Management** (Planned)
+---
+
+## 🎯 **Next Priority: GitHub Actions Cross-Platform Build**
+
+### **🔧 Phase 5.2: GitHub Actions Cross-Platform Build Setup** - IN PROGRESS
+**Goal:** Set up automated builds for Linux (AppImage) and Windows (EXE) using GitHub Actions
+**Note:** Starting with unsigned builds to solve immediate CachyOS compatibility issue
+
+#### **📦 Phase 5.2.1: GitHub Actions Workflow Setup** - PENDING
+- [ ] **Create Workflow File**: Create `.github/workflows/build-cross-platform.yml`
+- [ ] **Linux Build (AppImage)**: Ubuntu 20.04 runner with `pnpm tauri build --bundles appimage`
+- [ ] **Windows Build (EXE)**: Windows runner with `pnpm tauri build` (creates NSIS installer)
+- [ ] **Dependencies Setup**: Install Node.js, Rust, and system dependencies for both platforms
+- [ ] **Build Configuration**: Configure pnpm and Tauri build process for both targets
+- [ ] **Artifact Upload**: Upload AppImage and EXE for download
+- [ ] **Technical Verification**: Confirm both bundle formats work with current Tauri configuration
+
+#### **🔧 Phase 5.2.1.1: Technical Implementation Details** - PENDING
+- [ ] **Linux AppImage**: Uses `--bundles appimage` flag, creates portable executable (no signing needed)
+- [ ] **Windows NSIS**: Uses default `pnpm tauri build`, creates installer (unsigned - will show security warnings)
+- [ ] **Current Config**: Verify `tauri.conf.json` with `"targets": "all"` supports both formats
+- [ ] **Build Commands**: Test each platform-specific build command locally
+- [ ] **Artifact Paths**: Confirm output paths for AppImage and NSIS bundle formats
+- [ ] **Unsigned Strategy**: Confirm that unsigned builds work for both platforms (with expected warnings)
+
+#### **🚀 Phase 5.2.2: Release Integration** - PENDING
+- [ ] **Automatic Releases**: Create releases on version tags
+- [ ] **Cross-Platform Distribution**: Include AppImage and EXE in release assets
+- [ ] **Platform Detection**: Ensure compatibility across Linux distributions and Windows versions
+
+#### **🎯 Benefits**
+- ✅ **Solves CachyOS Issue**: Ubuntu 18.04 provides compatible glibc for Linux
+- ✅ **Windows Support**: Native NSIS installer (EXE) for Windows users (unsigned - shows security warnings)
+- ✅ **Free Builds**: GitHub Actions free for public repositories
+- ✅ **Automated**: No manual build process needed for either platform
+- ✅ **Cross-Platform**: Works on Linux and Windows desktop platforms
+- ✅ **Cost-Effective**: No upfront costs for code signing certificates
+- ✅ **Official Support**: Both formats officially supported by Tauri distribution system
+- ✅ **Proven Approach**: Based on official Tauri documentation and community best practices
+- ✅ **Iterative**: Can add macOS and code signing later if needed
+
+---
+
+## 🔮 **Future Enhancements** (Planned)
+
+### **🍎 macOS Support & Code Signing** (Future)
+- [ ] **macOS Build Support**: Add macOS runner to GitHub Actions workflow
+- [ ] **macOS DMG Generation**: Implement `pnpm tauri build --bundles dmg` for macOS
+- [ ] **Windows Code Signing**: Get code signing certificate to eliminate security warnings
+- [ ] **macOS Code Signing**: Get Apple Developer account for notarization and professional distribution
+- [ ] **GitHub Actions Integration**: Add signing steps to automated build workflow
+- [ ] **Professional Distribution**: Eliminate security warnings for better user experience
+- [ ] **App Store Distribution**: Enable Microsoft Store and Mac App Store distribution
+
+### **🔧 Advanced Translation Management**
 - [ ] Multi-criteria filtering system (status + type + project + date)
 - [ ] Full-text search across source and translated text
 - [ ] Advanced statistics dashboard with visual analytics
 - [ ] Export/Import capabilities (JSON, CSV, Excel)
 - [ ] Bulk operations and batch processing enhancements
 
-### **🌍 Phase 5.2: Advanced Language Detection** (Future Enhancement)
-**Goal:** Replace script-based detection with actual language detection for accurate translation direction logic
+### **🌍 Advanced Language Detection**
+- [ ] Replace script-based detection with actual language detection
+- [ ] Integrate language detection library (e.g., `whatlang`, `langdetect`)
+- [ ] Support detection of multiple languages (EN, FR, DE, ES, IT, PT, JP, CN, KR)
+- [ ] Handle mixed-language text and confidence scores
+- [ ] Enhanced translation direction logic
 
-#### **📊 Phase 5.2.1: Language Detection Integration** (Future)
-- [ ] **Replace Script Detection with Language Detection**:
-  - [ ] Integrate language detection library (e.g., `whatlang`, `langdetect`)
-  - [ ] Replace `detect_script()` with `detect_language()` in `validation.rs`
-  - [ ] Support detection of: English, French, German, Spanish, Italian, Portuguese, Japanese, Chinese, Korean
-  - [ ] Handle mixed-language text and confidence scores
-
-- [ ] **Enhanced Translation Direction Logic**:
-  - [ ] **Current**: Script-based (CJK vs ASCII) - too simplistic
-  - [ ] **Future**: Language-based (JP vs EN vs FR vs DE vs ES, etc.)
-  - [ ] **Example**: JP→EN translation
-    - [ ] Japanese text → Status: Pending (needs translation)
-    - [ ] English text → Status: Ignored (already in target language)
-    - [ ] French text "OUI" → Status: Pending (needs translation, not English)
-    - [ ] German text "JA" → Status: Pending (needs translation, not English)
-
-- [ ] **Language Detection Configuration**:
-  - [ ] Add language detection settings to user preferences
-  - [ ] Allow users to configure detection confidence thresholds
-  - [ ] Support manual language override for ambiguous cases
-  - [ ] Add language detection results to translation management UI
-
-#### **🎯 Benefits of Language Detection**
-- ✅ **Accurate Direction Logic**: Properly handles all language combinations
-- ✅ **Real-World Scenarios**: Works with mixed-language game content
-- ✅ **User Control**: Manual override for edge cases
-- ✅ **Better UX**: Clear indication of why text was ignored/translated
-- ✅ **Future-Proof**: Supports any language pair combination
-
-#### **⚠️ Current Workaround**
-Until Phase 5.2 is implemented, users may need to manually review and adjust translation status for:
-- Non-English ASCII text in JP→EN translations
-- Mixed-language content
-- Ambiguous script detection cases
-
-### **🎨 UI/UX Polish & Performance** (Planned)
+### **🎨 UI/UX Polish & Performance**
 - [ ] Virtual scrolling for large datasets (10,000+ translations)
 - [ ] Keyboard shortcuts for power users
 - [ ] Enhanced loading states and skeleton screens
 - [ ] Improved error handling and user feedback
 - [ ] Mobile-responsive design and touch support
 
-### **🧪 Quality Assurance & Testing** (Planned)
+### **🧪 Quality Assurance & Testing**
 - [ ] Unit tests for components and composables
 - [ ] Integration tests for end-to-end workflows
 - [ ] Performance testing with large datasets

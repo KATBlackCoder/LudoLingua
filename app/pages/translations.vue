@@ -25,8 +25,8 @@
       <div v-if="stats" class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <UCard>
           <div class="flex items-center gap-3">
-            <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <Icon name="i-lucide-file-text" class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div class="p-2 bg-info-100 dark:bg-info-900 rounded-lg">
+              <Icon name="i-lucide-file-text" class="h-5 w-5 text-info-600 dark:text-info-400" />
             </div>
             <div>
               <p class="text-sm text-muted-foreground">Total</p>
@@ -37,8 +37,8 @@
 
         <UCard>
           <div class="flex items-center gap-3">
-            <div class="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-              <Icon name="i-lucide-check-circle" class="h-5 w-5 text-green-600 dark:text-green-400" />
+            <div class="p-2 bg-success-100 dark:bg-success-900 rounded-lg">
+              <Icon name="i-lucide-check-circle" class="h-5 w-5 text-success-600 dark:text-success-400" />
             </div>
             <div>
               <p class="text-sm text-muted-foreground">Translated</p>
@@ -49,8 +49,8 @@
 
         <UCard>
           <div class="flex items-center gap-3">
-            <div class="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
-              <Icon name="i-lucide-clock" class="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+            <div class="p-2 bg-warning-100 dark:bg-warning-900 rounded-lg">
+              <Icon name="i-lucide-clock" class="h-5 w-5 text-warning-600 dark:text-warning-400" />
             </div>
             <div>
               <p class="text-sm text-muted-foreground">Pending</p>
@@ -61,8 +61,8 @@
 
         <UCard>
           <div class="flex items-center gap-3">
-            <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-              <Icon name="i-lucide-bar-chart" class="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            <div class="p-2 bg-secondary-100 dark:bg-secondary-900 rounded-lg">
+              <Icon name="i-lucide-bar-chart" class="h-5 w-5 text-secondary-600 dark:text-secondary-400" />
             </div>
             <div>
               <p class="text-sm text-muted-foreground">Progress</p>

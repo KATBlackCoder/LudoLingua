@@ -1,7 +1,7 @@
 use regex::Regex;
 
 /// Smart LLM output cleaning and extraction
-/// 
+///
 /// This function removes LLM thinking blocks, input/output tags, and other artifacts
 /// while preserving legitimate game content that might contain similar patterns.
 pub fn clean_llm_output(content: &str) -> String {
@@ -44,98 +44,24 @@ pub fn clean_llm_output(content: &str) -> String {
         }
     }
 
-    // Remove trailing artifacts that are clearly LLM commentary
-    // Only remove these if they appear at the end of the text
-    let trailing_artifacts = [
-        "Note:",
-        "P.S.:",
-        "Explanation:",
-        "Note:",
-        "P.S.:",
-        "Explanation:",
-        "Note:",
-        "P.S.:",
-        "Explanation:",
+    // Remove parenthetical notes like "(Note: ...)" first
+    let parenthetical_note = Regex::new(r"\([^)]*[Nn]ote:[^)]*\)").unwrap();
+    cleaned = parenthetical_note.replace_all(&cleaned, "").to_string();
+
+    // Remove LLM commentary artifacts (case-insensitive)
+    let commentary_patterns = [
+        r"(?i)note:\s*.*$",
+        r"(?i)p\.s\.:\s*.*$",
+        r"(?i)explanation:\s*.*$",
+        r"(?i)comment:\s*.*$",
     ];
-    
-    for artifact in &trailing_artifacts {
-        if cleaned.ends_with(artifact) {
-            cleaned = cleaned.trim_end_matches(artifact).trim().to_string();
-        }
+
+    for pattern in &commentary_patterns {
+        let regex = Regex::new(pattern).unwrap();
+        cleaned = regex.replace_all(&cleaned, "").to_string();
     }
 
     // Clean up any remaining whitespace and newlines
-    cleaned = cleaned
-        .lines()
-        .map(|line| line.trim())
-        .filter(|line| !line.is_empty())
-        .collect::<Vec<_>>()
-        .join(" ")
-        .trim()
-        .to_string();
-
-    // Quality validation: ensure cleaning doesn't remove all content
-    if cleaned.is_empty() {
-        content.to_string()
-    } else {
-        cleaned
-    }
-}
-
-/// Enhanced LLM output cleaning with support for multiple structured tag patterns
-/// 
-/// This function handles different LLM provider formats and removes various
-/// structured tags while preserving game content.
-pub fn clean_llm_output_advanced(content: &str) -> String {
-    let mut cleaned = content.to_string();
-
-    // Remove various thinking/processing tags from different LLM providers
-    let thinking_patterns = [
-        (r"<think>.*?</think>", ""),
-        (r"<thinking>.*?</thinking>", ""),
-        (r"<reasoning>.*?</reasoning>", ""),
-        (r"<analysis>.*?</analysis>", ""),
-        (r"<process>.*?</process>", ""),
-    ];
-
-    for (pattern, replacement) in &thinking_patterns {
-        let regex = Regex::new(pattern).unwrap();
-        cleaned = regex.replace_all(&cleaned, *replacement).to_string();
-    }
-
-    // Remove input/output markers
-    let io_patterns = [
-        "<<<INPUT_START>>>",
-        "<<<INPUT_END>>>",
-        "<<<OUTPUT_START>>>",
-        "<<<OUTPUT_END>>>",
-        "```input",
-        "```output",
-        "```translation",
-    ];
-
-    for pattern in &io_patterns {
-        cleaned = cleaned.replace(pattern, "");
-    }
-
-    // Remove trailing commentary artifacts
-    let trailing_patterns = [
-        r"Note:.*$",
-        r"P\.S\..*$",
-        r"Explanation:.*$",
-        r"Comment:.*$",
-        r"Note:.*$",
-        r"P\.S\..*$",
-        r"Explanation:.*$",
-        r"Comment:.*$",
-    ];
-
-    for pattern in &trailing_patterns {
-        let regex = Regex::new(pattern).unwrap();
-        cleaned = regex.replace(&cleaned, "").to_string();
-    }
-
-    // Final cleanup with whitespace normalization
     cleaned = cleaned
         .lines()
         .map(|line| line.trim())

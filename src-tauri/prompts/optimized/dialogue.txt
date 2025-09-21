@@ -31,3 +31,12 @@ Output: It seems like [VARIABLE_0] is having a hard time with you.
 
 Input: [COLOR_18]―――――――――――[CTRL_DOT][CTRL_DOT]お前は死ぬ[CTRL_WAIT][CTRL_INSTANT]
 Output: [COLOR_18]―――――――――――[CTRL_DOT][CTRL_DOT]You will die[CTRL_WAIT][CTRL_INSTANT]
+
+Input: 「お兄ちゃん、見ないで...」
+Output: "Onii-chan, don't look..."
+
+Input: 「気持ちいい...」
+Output: "It feels good..."
+
+Input: 「私のものになって...」
+Output: "Become mine..."
