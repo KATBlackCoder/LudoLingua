@@ -12,7 +12,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        platform: [ubuntu-20.04, windows-latest]
+        platform: [ubuntu-22.04, windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout code
@@ -24,7 +24,7 @@ jobs:
           node-version: '20'
 
       - name: Install system dependencies (Ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
