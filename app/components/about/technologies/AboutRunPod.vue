@@ -119,12 +119,12 @@
         <USeparator />
 
         <div>
-          <div class="font-medium mb-2">4. Get Your Pod URL</div>
-          <div class="text-muted mb-2">Your RunPod endpoint will be:</div>
+          <div class="font-medium mb-2">4. Get Your Pod ID</div>
+          <div class="text-muted mb-2">Find your pod ID in the RunPod dashboard. It looks like:</div>
           <UCard class="bg-gray-50 dark:bg-gray-800">
-            <code class="text-sm">https://{POD_ID}-11434.proxy.runpod.net</code>
+            <code class="text-sm">abc123def456</code>
           </UCard>
-          <div class="text-muted mt-1">Replace <code>{POD_ID}</code> with your actual pod ID from RunPod dashboard.</div>
+          <div class="text-muted mt-1">This is the unique identifier for your pod (usually 12+ characters).</div>
         </div>
 
         <USeparator />
@@ -134,9 +134,15 @@
           <div class="text-muted mb-2">In Settings, set:</div>
           <ul class="list-disc pl-5 space-y-1">
             <li><strong>Provider:</strong> RunPod</li>
-            <li><strong>Base URL:</strong> <code>https://{POD_ID}-11434.proxy.runpod.net</code></li>
+            <li><strong>Pod ID:</strong> <code>abc123def456</code> (just the pod ID, not the full URL)</li>
             <li><strong>Model:</strong> Select from available models (Qwen2.5 14B or qwen3 14b)</li>
           </ul>
+          <UAlert color="info" variant="soft" icon="i-lucide-info" class="mt-2">
+            <template #title>Automatic URL Formatting</template>
+            <template #description>
+              LudoLingua automatically converts your pod ID to the full RunPod URL: <code>https://abc123def456-11434.proxy.runpod.net</code>
+            </template>
+          </UAlert>
         </div>
       </div>
     </UCard>
@@ -211,8 +217,9 @@
           <div class="font-medium">Connection Issues</div>
           <ul class="list-disc pl-5 space-y-1 mt-1">
             <li>Ensure your pod is running and Ollama is started</li>
-            <li>Check that the proxy URL is correct (replace {POD_ID})</li>
+            <li>Check that the pod ID is correct (just the ID, not the full URL)</li>
             <li>Wait 2-3 minutes after pod startup for Ollama to fully initialize</li>
+            <li>Verify the pod ID matches exactly what's shown in RunPod dashboard</li>
           </ul>
         </div>
         <USeparator />

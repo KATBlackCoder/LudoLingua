@@ -71,10 +71,8 @@ pub struct OllamaService {
 impl OllamaService {
     /// Create a new Ollama service with the given configuration
     pub fn new(config: LlmConfig) -> AppResult<Self> {
-        let base_url = config
-            .base_url
-            .clone()
-            .unwrap_or_else(|| "http://localhost:11434".to_string());
+        // Always use localhost for Ollama - no need for user configuration
+        let base_url = "http://localhost:11434".to_string();
 
         // Create Ollama client using llm crate's builder pattern
         let client = LLMBuilder::new()
@@ -170,12 +168,8 @@ impl OllamaService {
 
     /// Generate text with usage information using direct Ollama API
     async fn do_generate_with_usage(&self, prompt: &str) -> AppResult<GenerationResponse> {
-        let base_url = self
-            .config
-            .base_url
-            .as_ref()
-            .cloned()
-            .unwrap_or_else(|| "http://localhost:11434".to_string());
+        // Always use localhost for Ollama - no need for user configuration
+        let base_url = "http://localhost:11434".to_string();
 
         let request = OllamaChatRequest {
             model: self.config.model.model_name.clone(),
@@ -266,9 +260,9 @@ impl OllamaService {
     /// Check if the internal config matches another config
     pub fn config_matches(&self, other: &LlmConfig) -> bool {
         self.config.model == other.model
-            && self.config.base_url == other.base_url
             && (self.config.temperature - other.temperature).abs() < f32::EPSILON
             && self.config.max_tokens == other.max_tokens
+            // base_url is always localhost for Ollama, so no need to compare
     }
 }
 

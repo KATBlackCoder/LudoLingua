@@ -7,11 +7,46 @@
       <UFormField label="Preset" name="preset" description="Quick apply recommended values">
         <USelect v-model="selectedPreset" :items="presetItems" @update:model-value="applyPreset" />
       </UFormField>
-      <UFormField label="Base URL" name="base_url" description="Provider API endpoint">
+      
+      <!-- RunPod Pod ID field - only show for RunPod provider -->
+      <UFormField 
+        v-if="currentProvider === 'RunPod'" 
+        label="Pod ID" 
+        name="pod_id" 
+        description="Your RunPod pod identifier"
+      >
+        <UInput 
+          :model-value="advancedSettings.base_url" 
+          placeholder="your-pod-id"
+          @update:model-value="updateField('base_url', $event)" 
+        />
+      </UFormField>
+
+      <!-- Base URL field - only show for other providers (if any) -->
+      <UFormField 
+        v-else-if="currentProvider !== 'Ollama'" 
+        label="Base URL" 
+        name="base_url" 
+        description="Provider API endpoint"
+      >
         <UInput 
           :model-value="advancedSettings.base_url" 
           placeholder="http://localhost:11434"
           @update:model-value="updateField('base_url', $event)" 
+        />
+      </UFormField>
+
+      <!-- Ollama info - show for Ollama provider -->
+      <UFormField 
+        v-if="currentProvider === 'Ollama'" 
+        label="Endpoint" 
+        name="endpoint_info" 
+        description="Ollama local endpoint"
+      >
+        <UInput 
+          value="http://localhost:11434" 
+          readonly 
+          disabled
         />
       </UFormField>
 
@@ -37,7 +72,17 @@
       </UFormField>
     </div>
     <template #footer>
-      <div class="text-xs text-muted">Changes are saved locally using Tauri Store.</div>
+      <div class="text-xs text-muted">
+        <span v-if="currentProvider === 'Ollama'">
+          Ollama uses local endpoint automatically.
+        </span>
+        <span v-else-if="currentProvider === 'RunPod'">
+          Enter your RunPod pod ID (e.g., "abc123"). The app will format the URL automatically.
+        </span>
+        <span v-else>
+          Changes are saved locally using Tauri Store.
+        </span>
+      </div>
     </template>
   </UCard>
 </template>
@@ -50,6 +95,7 @@ interface Props {
     temperature: number
     max_tokens: number
   }
+  currentProvider: 'Ollama' | 'RunPod'
 }
 
 interface Emits {

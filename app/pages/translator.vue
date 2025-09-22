@@ -117,7 +117,7 @@
       </div>
 
       <div v-else-if="mode === 'result'">
-        <TranslationResult :items="translatedItems" @save="saveEdit" />
+        <TranslationResult :items="translatedItems" @save="saveEdit" @retranslate-selected="handleBulkRetranslation" />
         <!-- Show raw items summary in mixed state -->
         <div v-if="hasNotTranslated" class="mt-4 p-4 bg-warning-50 dark:bg-warning-950 rounded-lg">
           <div class="flex items-center justify-between">
@@ -132,7 +132,7 @@
       </div>
 
       <!-- Auto-navigation helpers -->
-      <div v-if="!hasNotTranslated && hasTranslated && mode !== 'result'" class="mt-4 p-4 bg-success-50 dark:bg-success-950 rounded-lg">
+      <div v-if="!hasNotTranslated && hasTranslated && mode !== 'result' && !isBusy" class="mt-4 p-4 bg-success-50 dark:bg-success-950 rounded-lg">
         <div class="flex items-center justify-between">
           <span class="text-sm font-medium text-success-700 dark:text-success-300">
             All items translated! 🎉
@@ -166,6 +166,7 @@ const {
   failedCount,
   hasNotTranslated,
   startProcess,
+  startBulkRetranslation,
   reset,
   saveEdit,
 } = useTranslator()
@@ -214,6 +215,11 @@ async function exportSubset() {
   } finally {
     isExportingSubset.value = false
   }
+}
+
+// Handle bulk retranslation from selected rows
+async function handleBulkRetranslation(selectedRows: { id: string; source_text: string; translated_text: string; prompt_type: string; field_type: string }[]) {
+  await startBulkRetranslation(selectedRows)
 }
 
 if (!engineStore.hasProject) {

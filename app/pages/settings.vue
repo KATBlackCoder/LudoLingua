@@ -55,6 +55,7 @@
           <!-- Advanced (spans full on lg via col-span-2) -->
           <AdvancedSettings 
             v-model:advanced-settings="advancedSettings"
+            :current-provider="providerStore.selectedProvider"
           />
         </div>
       </div>
@@ -107,10 +108,13 @@ onMounted(async () => {
 // Update form from store settings
 function updateFormFromSettings() {
   const currentSettings = settingsStore.userSettings
-  const defaultBase = (currentSettings.provider === 'Ollama') ? 'http://localhost:11434' : ''
+  
+  // For Ollama, don't show base_url in UI (always uses localhost)
+  // For RunPod, show the pod ID (stored in base_url)
+  const displayBaseUrl = currentSettings.provider === 'Ollama' ? '' : (currentSettings.base_url || '')
   
   advancedSettings.value = {
-    base_url: currentSettings.base_url || defaultBase,
+    base_url: displayBaseUrl,
     api_key: '', // Void - not used in UI but kept for backend compatibility
     temperature: currentSettings.temperature || 0.3,
     max_tokens: currentSettings.max_tokens || 2048,
@@ -121,11 +125,12 @@ function updateFormFromSettings() {
 watch(
   () => providerStore.selectedProvider,
   (newProvider) => {
-    // Only update if the form hasn't been manually modified
-    if (newProvider === 'Ollama' && !advancedSettings.value.base_url) {
-      advancedSettings.value.base_url = 'http://localhost:11434'
+    // For Ollama, clear the base_url field (always uses localhost)
+    // For RunPod, clear the field to let user input their pod ID
+    if (newProvider === 'Ollama') {
+      advancedSettings.value.base_url = ''
     } else if (newProvider === 'RunPod') {
-      // Clear base_url for RunPod to let user input their custom endpoint
+      // Clear pod ID field for RunPod to let user input their pod ID
       advancedSettings.value.base_url = ''
     }
   }
@@ -140,7 +145,9 @@ const saveSettings = async () => {
       model: providerStore.selectedModel || settingsStore.userSettings.model,
       source_language: languageStore.getLanguage.source_language as Language,
       target_language: languageStore.getLanguage.target_language as Language,
-      base_url: advancedSettings.value.base_url,
+      // For Ollama, always use localhost (backend handles this)
+      // For RunPod, store the pod ID as base_url
+      base_url: providerStore.selectedProvider === 'Ollama' ? 'http://localhost:11434' : advancedSettings.value.base_url,
       api_key: undefined, // Void - not used in UI but kept for backend compatibility
       temperature: advancedSettings.value.temperature,
       max_tokens: advancedSettings.value.max_tokens,

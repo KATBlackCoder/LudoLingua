@@ -161,6 +161,43 @@ export function useTranslator() {
     return updated
   }
 
+  // Start bulk retranslation process with selected rows (similar to startProcess but for specific items)
+  const startBulkRetranslation = async (selectedRows: { id: string; source_text: string; translated_text: string; prompt_type: string; field_type: string }[]) => {
+    if (!selectedRows.length) return
+
+    // Convert selected rows to ProcessRow format
+    processRows.value = selectedRows.map((row): ProcessRow => ({ 
+      id: row.id, 
+      source_text: row.source_text, 
+      target_text: '', 
+      status: 'pending' 
+    }))
+    
+    mode.value = 'process'
+    if (processRows.value.length) {
+      processRows.value[0]!.status = 'processing'
+    }
+    
+    startTimer()
+    
+    // Get the actual text units for translation
+    const unitsToTranslate = selectedRows.map(row => engineStore.getTextUnitById(row.id)).filter((unit): unit is NonNullable<typeof unit> => unit !== null && unit !== undefined)
+    
+    await translatorStore.startBatchTranslation(unitsToTranslate, (translatedUnit) => {
+      const currentIndex = processRows.value.findIndex(r => r.status === 'processing')
+      const rowIndex = processRows.value.findIndex(r => r.id === translatedUnit.id)
+      if (rowIndex !== -1) {
+        processRows.value[rowIndex]!.status = 'done'
+        processRows.value[rowIndex]!.target_text = translatedUnit.translated_text ?? ''
+        const nextIndex = currentIndex >= 0 ? currentIndex + 1 : rowIndex + 1
+        if (processRows.value[nextIndex]) processRows.value[nextIndex]!.status = 'processing'
+      }
+    })
+    
+    stopTimer()
+    mode.value = 'result'
+  }
+
   const reset = async () => {
     engineStore.textUnits.forEach((u) => { u.translated_text = ''; u.status = TranslationStatus.NotTranslated })
   }
@@ -194,6 +231,7 @@ export function useTranslator() {
     startProcess,
     translateOne,
     retranslate,
+    startBulkRetranslation,
     reset,
     saveEdit,
 

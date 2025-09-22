@@ -3,21 +3,50 @@
     <h3 class="text-lg font-medium mb-4">Ollama Configuration</h3>
     
     <UAlert
-      color="error"
+      color="info"
       variant="soft"
-      icon="i-lucide-triangle-alert"
+      icon="i-lucide-check-circle"
       class="mb-4"
-      title="Model requirement"
+      title="Simplified Configuration"
     >
       <template #description>
         <div class="text-sm">
-          You need an Ollama endpoint to translate. Either install Ollama locally and use
-          <code>http://localhost:11434</code> (<a class="underline" href="https://ollama.com/" target="_blank" rel="noreferrer">ollama.com</a>),
-          or point to a remote Ollama-compatible URL (e.g., a hosted instance).
-          Configure it under <strong>Settings</strong>.
+          LudoLingua automatically uses <code>http://localhost:11434</code> for Ollama. 
+          Just install Ollama locally (<a class="underline" href="https://ollama.com/" target="_blank" rel="noreferrer">ollama.com</a>)
+          and select your model in <strong>Settings</strong>. No URL configuration needed!
         </div>
       </template>
     </UAlert>
+
+    <UCard class="mb-4">
+      <template #header>
+        <div class="font-medium">Quick Setup</div>
+      </template>
+      <div class="space-y-3 text-sm">
+        <div>
+          <div class="font-medium">1. Install Ollama</div>
+          <div class="text-muted">Download and install Ollama from <a class="underline" href="https://ollama.com/" target="_blank" rel="noreferrer">ollama.com</a></div>
+        </div>
+        <USeparator />
+        <div>
+          <div class="font-medium">2. Pull a Model</div>
+          <div class="text-muted mb-2">Install a model for translation:</div>
+          <UCard class="bg-gray-50 dark:bg-gray-800">
+            <code class="text-sm">ollama pull qwen2.5:14b-instruct-q5_K_M</code>
+          </UCard>
+        </div>
+        <USeparator />
+        <div>
+          <div class="font-medium">3. Configure in LudoLingua</div>
+          <div class="text-muted">In Settings, select:</div>
+          <ul class="list-disc pl-5 space-y-1 mt-1">
+            <li><strong>Provider:</strong> Ollama</li>
+            <li><strong>Model:</strong> Select your installed model</li>
+            <li><strong>Endpoint:</strong> Automatically set to localhost</li>
+          </ul>
+        </div>
+      </div>
+    </UCard>
 
     <UCard class="mb-4">
       <template #header>

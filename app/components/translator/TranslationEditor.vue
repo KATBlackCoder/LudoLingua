@@ -111,6 +111,7 @@ import type { PromptType, TextUnit } from '~/types/translation'
 import { useTranslator } from '~/composables/useTranslator'
 import type { SelectItem } from '#ui/types'
 import { useEngineStore } from '~/stores/engine'
+import { useNotifications } from '~/composables/useNotifications'
 
 const props = defineProps<{ open: boolean; item: TextUnit | null }>()
 const emit = defineEmits<{ (e: 'update:open', v: boolean): void; (e: 'save', payload: { id: string; translated_text: string; prompt_type?: string }): void }>()
@@ -122,6 +123,7 @@ const isRetranslating = ref(false)
 const isSaving = ref(false)
 const lastSaved = ref<string | null>(null)
 const { retranslate: retranslateOne } = useTranslator()
+const { notify } = useNotifications()
 const open = computed({
   get: () => props.open,
   set: (v: boolean) => emit('update:open', v)
@@ -203,6 +205,8 @@ async function retranslate() {
     const updated = await retranslateOne(props.item.id)
     if (updated) {
       draft.value = updated.translated_text || ''
+      // Notify when retranslation is complete
+      await notify('Translation Complete', 'Re-translation completed successfully')
     }
   } catch {
     // errors are already toasted in the store

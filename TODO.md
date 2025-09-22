@@ -1,67 +1,6 @@
 # LudoLingua Development TODO
 
-## 🎉 **Phase 4: Cleanup & Modernization - COMPLETED**
-
-All Phase 4 objectives have been successfully achieved! The application now has a modern, consistent, and fully functional foundation.
-
----
-
-### ✅ **Phase 4.1: File Renaming for Consistency** - COMPLETED
-- [x] **Directory Rename**: `app/components/translation/` → `app/components/translator/`
-- [x] **Page Rename**: `app/pages/translation.vue` → `app/pages/translator.vue`
-- [x] **Navigation Updates**: Updated all route references from `/translation` to `/translator`
-- [x] **Import Updates**: Fixed all import statements across components
-- [x] **Clear Naming**: Translator (workflow) vs Translations (management)
-
-### ✅ **Phase 4.2: Nuxt 4.1 Upgrade** - COMPLETED
-- [x] Update `package.json` dependencies to Nuxt 4.1.1
-- [x] Run `pnpm install` and test build process
-- [x] Update `nuxt.config.ts` for new features
-- [x] Test all existing functionality
-- [x] Verify enhanced chunk stability and performance improvements
-
-### ✅ **Phase 4.3: Nuxt UI v4 Migration** - COMPLETED
-- [x] Update `package.json`: `"@nuxt/ui": "4.0.0-alpha.1"`
-- [x] Review and implement breaking changes from migration guide
-- [x] Update component usage across all pages and components
-- [x] Test glossary functionality (reference implementation)
-- [x] Update custom styling and theming
-- [x] Verify TypeScript compatibility
-- [x] Migrate all icons from Heroicons to Lucide for consistency
-
-### ✅ **Phase 4.4: Rebuild Translation Management** - COMPLETED
-- [x] **Backend**: Created `src-tauri/src/commands/translations.rs` (CRUD commands)
-- [x] **Backend**: Enhanced `src-tauri/src/db/translation/repo.rs` (database operations)
-- [x] **Backend**: Added project management commands in `src-tauri/src/commands/engine.rs`
-- [x] **Backend**: Fixed database schema constraints for legitimate duplicate text storage
-- [x] **Backend**: Registered all commands in `src-tauri/src/commands/handler.rs`
-- [x] **Frontend**: Created `app/stores/translations.ts` (state management)
-- [x] **Frontend**: Created `app/composables/useTranslations.ts` (UI logic)
-- [x] **Frontend**: Built `TranslationTable.vue` with full functionality
-- [x] **Frontend**: Built `TranslationForm.vue` for editing
-- [x] **Frontend**: Created `app/pages/translations.vue` page
-- [x] **Frontend**: Added navigation integration to `AppHeader.vue`
-- [x] **Advanced Features**: Fixed table width, implemented actions column, native dialogs
-- [x] **Advanced Features**: Row selection, bulk operations, project management
-- [x] **Database**: Fixed critical `UNIQUE constraint failed` error
-- [x] **Database**: Created migration `0004_fix_text_units_uniqueness.sql`
-
-### ✅ **Phase 4.5: Color Scheme Migration** - COMPLETED
-- [x] **Updated app.config.ts**: Defined semantic color palette (primary: blue, secondary: purple, etc.)
-- [x] **Updated nuxt.config.ts**: Configured Nuxt UI to use custom colors
-- [x] **Updated Components**: Migrated all hardcoded colors to semantic colors across:
-  - [x] `app/components/about/referral/` (AboutNutaku.vue, AboutRunPod.vue, AboutFreeBitcoin.vue)
-  - [x] `app/components/about/AboutGlossary.vue`
-  - [x] `app/pages/translations.vue` (stats cards)
-  - [x] `app/components/translator/TranslationProcess.vue`
-  - [x] `app/components/translations/TranslationTable.vue`
-  - [x] `app/components/glossaries/GlossaryTable.vue`
-- [x] **Verified**: All other components already using semantic colors
-- [x] **Result**: Consistent, maintainable color scheme across entire application
-
----
-
-## 🚀 **Phase 5: Enhanced Features & Polish**
+## 🎉 **Phase 5: Enhanced Features & Polish - IN PROGRESS**
 
 ### ✅ **Phase 5.0: Code Architecture Refinement** - COMPLETED
 - [x] **Unified Text Processing Pipeline**: Created `utils/text/` module with universal text handling
@@ -77,300 +16,218 @@ All Phase 4 objectives have been successfully achieved! The application now has 
 - [x] **Translation Completion Notifications**: Batch translation completion alerts
 - [x] **Cross-Platform Testing**: Verified compatibility across platforms
 
-### ✅ **Recent Enhancement: Field Type Column Added**
-- [x] **TranslationTable.vue Enhancement**: Added field type column to display detailed location information
-  - Added `field_type` column to table showing exact file location (e.g., `name:www/data/MapInfos.json:2`)
-  - Enhanced search functionality to include field type in search queries
-  - Updated search placeholder to reflect new searchable content
-  - Improved user experience for identifying translation sources and locations
+### ✅ **Phase 5.2: GitHub Actions Cross-Platform Build Setup** - COMPLETED
+- [x] **GitHub Actions Workflow**: Created `.github/workflows/build-cross-platform.yml`
+- [x] **Cross-Platform Build**: Uses official `tauri-apps/tauri-action@v0.5.23`
+- [x] **Matrix Strategy**: Builds on Linux (Ubuntu 22.04) and Windows in parallel
+- [x] **Automatic Releases**: Creates GitHub releases with all platform artifacts
+- [x] **Technical Verification**: Uses official action tested by 10.6k+ repositories
+- [x] **Update Artifacts**: Already configured with `includeUpdaterJson: true`
 
-### **✅ Phase 5.0: Code Architecture Refinement - COMPLETED**
-**Goal:** Create unified, automatic text processing utility for all current and future engines
+### ✅ **Phase 5.2.1: Provider Configuration Simplification** - COMPLETED
+**Goal:** Simplify provider configuration by removing unnecessary user input requirements
+**Timeline:** 1 day
 **Status:** 100% Complete - All Objectives Achieved
 
-#### **✅ Phase 5.0.1: Create Unified Text Processing Pipeline - COMPLETED**
-- [x] **Create `utils/text/` Module Structure**:
-  - [x] `utils/text/llm_output.rs` - **Smart LLM output cleaning and extraction**
-    - [x] `clean_output()` - Smart LLM response cleaning (context-aware)
-    - [x] Remove thinking blocks, input/output tags (always safe)
-    - [x] Smart artifact removal: only removes clear LLM commentary, not game content
-    - [x] Preserves legitimate "Note:", "Explanation:" that are part of game text
-    - [x] Quality validation: ensures cleaning doesn't remove all content
-  - [x] `utils/text/formatting.rs` - **Universal text handler for all engines**
-    - [x] Single `TextFormatter` struct with no engine specification
-    - [x] `prepare_for_translation()` - **UNIFIED METHOD**: Handles ALL placeholders in one pass
-      - [x] RPG Maker codes → placeholders
-      - [x] Wolf RPG codes → placeholders  
-      - [x] Whitespace patterns → placeholders
-      - [x] All engines use same unified processing pipeline
-    - [x] `restore_after_translation()` - **UNIFIED METHOD**: Restores ALL placeholders in one pass
-      - [x] All placeholders → original codes
-      - [x] No separate whitespace or engine-specific methods
-      - [x] Single restore pipeline for all engines
-    - [x] **Complete Unified Placeholder System** - ALL placeholders handled together:
-      - [x] **All 36 Placeholder Types**: `[COLOR_n]`, `[NAME_n]`, `[NEWLINE_n]`, `[VARIABLE_n]`, `[variable_n]`, `[SWITCH_n]`, `[ITEM_n]`, `[WEAPON_n]`, `[ARMOR_n]`, `[ACTOR_n]`, `[GOLD]`, `[CURRENCY]`, `[ARG_n]`, `[NUM_PREFIX_n]`, `[CTRL_DOT]`, `[CTRL_WAIT]`, `[CTRL_INSTANT]`, `[CTRL_INPUT]`, `[CONDITIONAL_vn>n]`, `[WOLF_END]`, `[ICON_n]`, `[FONT_n]`, `[AT_n]`, `[SLOT_n]`, `[CSELF_n]`, `[RUBY_START]`, `[CARRIAGE_RETURN]`, `[NEWLINE]`, `[FWSPC_n]`, `[SPC_n]`, `[TAB_n]`
-      - [x] **No Separate Methods**: All placeholders processed in same replace/restore pipeline
-      - [x] **Engine Agnostic**: Same processing for RPG Maker, Wolf RPG, and future engines
-  - [x] `utils/text/validation.rs` - **Universal validation: common logic for all engines**
-    - [x] `ContentValidator` struct - Unified interface for all engines
-    - [x] `validate_text()` - Universal validation logic (empty, length, problematic chars, etc.)
-    - [x] `get_initial_status()` - Determine status: Pending (needs translation) or Ignored (already in target language)
-    - [x] `get_warnings()` - Optional warnings for text that passed validation
-    - [x] Translation direction logic: mark text as Ignored if already in target language script
-    - [x] Simple and universal: same validation rules for all engines
-  - [x] `utils/text/pipeline.rs` - **Unified `TextProcessor` struct with complete processing pipeline**
-  - [x] `utils/text/mod.rs` - Public API exports and module organization
+### ✅ **Phase 5.2.3: Bulk Retranslation & Row Selection Enhancement** - COMPLETED
+**Goal:** Implement row selection and bulk retranslation functionality with native notifications
+**Timeline:** 1 day
+**Status:** 100% Complete - All Objectives Achieved
 
-- [x] **Implement Complete Processing Pipeline**:
-  - [x] `TextProcessor::process_for_extraction()` - Filter → **UNIFIED FORMAT** → Encode pipeline
-  - [x] `TextProcessor::clean_llm_output()` - **Enhanced LLM response cleaning and extraction**:
-    - [x] Move current `clean_model_output` logic from `commands/translator.rs` (lines 322-362)
-    - [x] Remove `<think>...</think>`, `<thinking>...</thinking>` blocks (current + new patterns)
-    - [x] Remove `<<<INPUT_START>>>` / `<<<INPUT_END>>>` tag artifacts directly from translation text
-    - [x] Remove trailing artifacts: "Note:", "P.S.:", "Explanation:" suffixes
-    - [x] Support multiple structured tag patterns for different LLM providers
-    - [x] Final cleanup with whitespace normalization and quality validation
-  - [x] `TextProcessor::process_for_injection()` - **UNIFIED RESTORE** → Decode pipeline
-  - [x] **Unified text processing approach**:
-    - [x] **Single Unified Method**: `prepare_for_translation()` handles ALL 36 placeholder types
-    - [x] **Single Unified Method**: `restore_after_translation()` restores ALL 36 placeholder types
-    - [x] **No Separate Methods**: No whitespace-specific or engine-specific processing methods
-    - [x] **All Engines**: RPG Maker, Wolf RPG, and future engines use identical processing
-    - [x] **Same Pipeline**: All formatting codes, whitespace, and engine codes → unified placeholders
-    - [x] **Same Restoration**: All placeholders → original codes via single restore method
+### ✅ **Phase 5.2.4: Text Length Filter Enhancement** - COMPLETED
+**Goal:** Add text length filtering using Nuxt UI v4 Slider component for enhanced translation management
+**Timeline:** 1 day
+**Status:** 100% Complete - All Objectives Achieved
 
-#### **✅ Phase 5.0.2: Engine Trait Enhancement - COMPLETED**
-- [x] **Simplified Engine Trait Architecture**:
-  - [x] **Core trait** (`src-tauri/src/core/engine.rs`): Add default implementations for `extract_text_units()` and `inject_text_units()`
-  - [x] **Core trait**: Default implementations automatically call engine-specific raw methods + unified text processing
-  - [x] **Each engine**: Remove existing `extract_text_units()` and `inject_text_units()` methods
-  - [x] **Each engine**: Add new `extract_raw_text_units()` and `inject_raw_text_units()` methods (file I/O only)
-  - [x] **No config needed**: Use unified `TextProcessor` for all engines
+#### **✅ Row Selection Implementation - COMPLETED**
+- [x] **TranslationResult.vue Enhancement**:
+  - [x] Added row selection using official Nuxt UI v4 table patterns
+  - [x] Implemented `v-model:row-selection` with proper table API integration
+  - [x] Added select-all checkbox in table header using `table.getIsAllPageRowsSelected()`
+  - [x] Added individual row checkboxes using `row.getIsSelected()` and `row.toggleSelected()`
+  - [x] Created selection counter showing "X of Y row(s) selected" in table footer
+  - [x] Used proper TypeScript types and `useTemplateRef` for table API access
+  - [x] Fixed row selection counting issue by using `table.tableApi.getFilteredSelectedRowModel()`
+- [x] **Bulk Actions UI**:
+  - [x] Added bulk actions bar that appears when rows are selected
+  - [x] Shows selection count with info badge
+  - [x] "Re-translate Selected" button appears only when 2+ rows selected
+  - [x] "Clear Selection" button for easy selection reset
+  - [x] Proper loading states and disabled states during bulk operations
 
-  - [x] **Automatic Text Processing Integration**:
-    - [x] **Public API**: `engine.extract_text_units()` calls core trait default implementation
-    - [x] **Core trait**: Calls `engine.extract_raw_text_units()` → processes through unified `TextProcessor` → returns processed `TextUnit`s
-    - [x] **Core trait**: Calls `engine.inject_raw_text_units()` after processing through unified `TextProcessor`
-    - [x] **Engine implementations**: Focus only on file I/O, no text processing calls
-    - [x] **All engines**: Get identical text processing automatically via unified utility
-    - [x] **Zero manual calls**: No text processing calls required in engine implementations
-    - [x] **Future-proof**: Any new engine automatically gets text processing capabilities
+#### **✅ Bulk Retranslation Workflow - COMPLETED**
+- [x] **Enhanced useTranslator.ts**:
+  - [x] Added `startBulkRetranslation()` function for selected rows processing
+  - [x] Converts selected rows to ProcessRow format for translation workflow
+  - [x] Uses same batch translation system as regular translation process
+  - [x] Integrates with existing timer and progress tracking
+  - [x] Automatically switches to process view during bulk retranslation
+- [x] **TranslationResult.vue Integration**:
+  - [x] Modified `onBulkRetranslate()` to emit selected rows to parent
+  - [x] Added `retranslate-selected` emit event for parent communication
+  - [x] Clears selection after emitting data to parent
+- [x] **translator.vue Integration**:
+  - [x] Added `handleBulkRetranslation()` function to receive selected rows
+  - [x] Connected event handler to `TranslationResult` component
+  - [x] Passes selected rows to `startBulkRetranslation()` in composable
 
-#### **✅ Phase 5.0.3: Engine Migration & Cleanup - COMPLETED**
-- [x] **Migration Order**: MV → MZ → Wolf RPG (start simple, end complex)
-- [x] **Core Trait Updates**:
-  - [x] Update `src-tauri/src/core/engine.rs` with default implementations
-  - [x] Add `RawTextUnit` model for raw file I/O
-  - [x] Implement automatic text processing pipeline integration
+#### **✅ Native Notifications Integration - COMPLETED**
+- [x] **Single Translation Notifications**:
+  - [x] Added native notifications to `TranslationResult.vue` for single retranslations
+  - [x] Added native notifications to `TranslationEditor.vue` for editor retranslations
+  - [x] Shows "Translation Complete" notification after successful single retranslation
+- [x] **Bulk Translation Notifications**:
+  - [x] Added native notification after bulk retranslation completion
+  - [x] Shows success count, total count, and failed count in notification
+  - [x] Example: "Bulk Translation Complete: 45/50 translations completed, 5 failed"
+  - [x] Integrated with existing `useNotifications` composable
 
-- [x] **Engine Implementation Updates**:
-  - [x] **RPG Maker MV Engine** (`src-tauri/src/engines/rpg_maker_mv/engine.rs`):
-    - [x] Remove existing `extract_text_units()` and `inject_text_units()` methods
-    - [x] Add `extract_raw_text_units()` method (file I/O only, no text processing)
-    - [x] Add `inject_raw_text_units()` method (file I/O only, no text processing)
-  - [x] **RPG Maker MZ Engine** (`src-tauri/src/engines/rpg_maker_mz/engine.rs`):
-    - [x] Same pattern as MV engine
-  - [x] **Wolf RPG Engine** (`src-tauri/src/engines/wolf_rpg/engine.rs`):
-    - [x] Same pattern as MV/MZ engines
-
-- [x] **Clean Up Engine File Processing**:
-  - [x] **Remove text processing calls from engine file modules**:
-    - [x] Remove `replace_formatting_codes_for_translation()` calls from `system.rs` (13 calls)
-    - [x] Remove `restore_formatting_codes_after_translation()` calls from `system.rs` (17 calls)
-    - [x] Remove `is_technical_content()` calls from `system.rs` (6 calls)
-    - [x] Remove text processing calls from `common.rs` (6 calls total)
-  - [x] **Remove Wolf RPG custom text processing**:
-    - [x] Remove `wolf_replace_placeholders_for_translation()` calls from `mps.rs` (2 calls)
-    - [x] Remove `wolf_restore_placeholders_after_translation()` calls from `mps.rs` (1 call)
-    - [x] Remove `is_translatable_wolf_text()` calls from `mps.rs` (1 call)
-    - [x] Remove `wolf_replace_placeholders_for_translation()` calls from `db.rs` (2 calls)
-    - [x] Remove `wolf_restore_placeholders_after_translation()` calls from `db.rs` (2 calls)
-    - [x] Remove `is_translatable_wolf_text()` calls from `db.rs` (2 calls)
-  - [x] **Update common.rs utility functions**:
-    - [x] Remove text processing from `extract_text_units_for_object()` 
-    - [x] Remove text processing from `inject_text_units_for_object()`
-    - [x] Make these functions work with raw text only
-
-- [x] **Database & Migration Strategy**:
-  - [x] **No database changes needed** - same `TextUnitRecord` structure
-  - [x] Same `field_type` format maintained for compatibility
-  - [x] Same export process works with cleaner text processing
-  - [x] Verify existing database records work with new pipeline
-
-- [x] **Update Export and Frontend Logic for Ignored Status**:
-  - [x] **Backend**: Update `factory.rs` export logic to include `Ignored` status as "translated"
-  - [x] **Frontend**: Update `useTranslator.ts` to include `Ignored` status in `translatedItems` computed
-  - [x] **Logic**: Text with `Ignored` status should be considered "translated" (already in target language)
-  - [x] **Export**: Include ignored text units in export process (they're already "translated")
-  - [x] **UI**: Show ignored text as completed/translated in the interface
-
-- [x] **Comprehensive Testing & Validation**:
-  - [x] Unit tests for all text processing functions individually
-  - [x] Integration tests for complete text processing pipeline
-  - [x] Verify all engines produce identical results with new architecture
-  - [x] Performance validation - ensure no regression in processing speed
-  - [x] Test text processing consistency across all game engine types
-  - [x] Test core trait default implementations work correctly
-  - [x] Test engine-specific raw methods work with unified pipeline
+#### **✅ Auto-Navigation Helpers Control - COMPLETED**
+- [x] **Simplified Auto-Navigation Logic**:
+  - [x] Added `!isBusy` condition to existing "Regular completion message"
+  - [x] Auto-navigation helpers now hide during any translation (regular or bulk)
+  - [x] Auto-navigation helpers appear after translation completion
+  - [x] Works seamlessly for both regular translation and bulk retranslation
+  - [x] Uses existing `isBusy` state instead of complex tracking logic
 
 #### **🎯 Benefits Achieved**
-- ✅ **Complete Automation**: Engines get text processing automatically, no manual calls
-- ✅ **Global Consistency**: Same processing utility applied to all engines uniformly  
-- ✅ **Future-Proof**: New engines get text processing for free with zero setup
-- ✅ **Maintainability**: All text processing logic centralized in one location
-- ✅ **Clean Architecture**: Engines focus on file I/O, utility handles text concerns
-- ✅ **Zero Duplication**: Eliminate repetitive text processing code across engines
-- ✅ **Simplified Approach**: No complex enums or new data structures needed
-- ✅ **Database Compatibility**: No database changes required, same export process
-- ✅ **Engine Agnostic**: Works for all current and future engines without modification
+- ✅ **Enhanced User Experience**: Row selection with visual feedback and bulk operations
+- ✅ **Consistent Workflow**: Bulk retranslation uses same process view as regular translation
+- ✅ **Visual Progress**: Users can see translation progress in real-time during bulk operations
+- ✅ **Native Notifications**: Desktop notifications for all translation completion events
+- ✅ **Simplified Navigation**: Auto-navigation helpers hide during translation, show when complete
+- ✅ **Official UI Patterns**: Uses Nuxt UI v4 official table selection patterns for reliability
+- ✅ **Integrated Experience**: Bulk retranslation fits naturally into existing translation workflow
+- ✅ **Error Handling**: Proper error tracking and notification for failed bulk translations
 
-#### **📊 Complete Placeholder Reference for Unified Text Processing**
-
-**🎯 RPG Maker Placeholders (from `text_processing.rs`):**
-- `[COLOR_n]` - Color codes: `\C[n]` / `\c[n]` → `[COLOR_n]`
-- `[NAME_n]` - Name codes: `\N[n]` → `[NAME_n]`
-- `[NEWLINE_n]` - Newline codes: `\n[n]` → `[NEWLINE_n]`
-- `[VARIABLE_n]` - Variable codes: `\V[n]` → `[VARIABLE_n]`
-- `[variable_n]` - Variable codes: `\v[n]` → `[variable_n]`
-- `[SWITCH_n]` - Switch codes: `\S[n]` → `[SWITCH_n]`
-- `[ITEM_n]` - Item codes: `\I[n]` → `[ITEM_n]`
-- `[WEAPON_n]` - Weapon codes: `\W[n]` → `[WEAPON_n]`
-- `[ARMOR_n]` - Armor codes: `\A[n]` → `[ARMOR_n]`
-- `[ACTOR_n]` - Actor codes: `\P[n]` → `[ACTOR_n]`
-- `[GOLD]` - Gold code: `\G` → `[GOLD]`
-- `[CURRENCY]` - Currency code: `\$` → `[CURRENCY]`
-- `[ARG_n]` - Parameter placeholders: `%n` / `％n` → `[ARG_n]`
-- `[NUM_PREFIX_n]` - Numeric prefixes: `nnn＿` → `[NUM_PREFIX_n]`
-- `[CTRL_DOT]` - Control dot: `\.` → `[CTRL_DOT]`
-- `[CTRL_WAIT]` - Control wait: `\|` → `[CTRL_WAIT]`
-- `[CTRL_INSTANT]` - Control instant: `\^` → `[CTRL_INSTANT]`
-- `[CTRL_INPUT]` - Control input: `\!` → `[CTRL_INPUT]`
-- `[CONDITIONAL_vn>n]` - Conditional expressions: `en(v[n]>n)` → `[CONDITIONAL_vn>n]`
-
-**🐺 Wolf RPG Placeholders (from `regex.rs`):**
-- `[WOLF_END]` - End formatting: `\E` → `[WOLF_END]`
-- `[ICON_n]` - Icon codes: `\i[n]` → `[ICON_n]`
-- `[FONT_n]` - Font codes: `\f[n]` → `[FONT_n]`
-- `[AT_n]` - Event markers: `@n` → `[AT_n]`
-- `[SLOT_n]` - Character slots: `\s[n]` → `[SLOT_n]`
-- `[CSELF_n]` - Self color codes: `\cself[n]` → `[CSELF_n]`
-- `[RUBY_START]` - Ruby text marker: `\r` → `[RUBY_START]`
-- `[CARRIAGE_RETURN]` - Carriage return: `\r` → `[CARRIAGE_RETURN]`
-- `[NEWLINE]` - Newline character: `\n` → `[NEWLINE]`
-
-**🌐 Universal Whitespace Placeholders (both files):**
-- `[FWSPC_n]` - Full-width spaces: `　` (n times) → `[FWSPC_n]`
-- `[SPC_n]` - ASCII spaces: ` ` (n times) → `[SPC_n]`
-- `[TAB_n]` - Tab characters: `\t` (n times) → `[TAB_n]`
-
-**🔄 Shared Placeholders (used by both engines):**
-- `[COLOR_n]` - Color codes (RPG Maker: `\C[n]`, Wolf RPG: `\c[n]`)
-- `[ARG_n]` - Parameter placeholders (`%n` / `％n`)
-- `[CTRL_DOT]`, `[CTRL_WAIT]`, `[CTRL_INSTANT]`, `[CTRL_INPUT]` - Control codes
-
-**📊 Current Text Processing Usage Analysis**
-**Files currently using `text_processing.rs`:**
-- ✅ **`common.rs`**: 6 calls total (extract/inject utilities)
-- ✅ **`system.rs`**: 36 calls total (13 extract + 17 inject + 6 validation)
-- ✅ **All other engine files**: Use `common.rs` utilities (indirect usage)
-
-**Files using custom Wolf RPG text processing (`regex.rs`):**
-- ✅ **`wolf_rpg/files/mps.rs`**: 3 calls total (2 extract + 1 inject)
-- ✅ **`wolf_rpg/files/db.rs`**: 4 calls total (2 extract + 2 inject)
-
-**Files using LLM output cleaning:**
-- ✅ **`commands/translator.rs`**: 1 call to `clean_model_output()` (lines 102, 322-362)
-
-**Total calls to eliminate**: ~49 direct text processing calls across all engines + 1 LLM cleaning call
-
-### **🔔 Phase 5.1: Native Notifications Integration**
-**Goal:** Add native desktop notifications for key user actions using [Tauri Notification Plugin](https://tauri.app/plugin/notification/) - simplified implementation with basic `sendNotification` method only
-
-#### **📱 Phase 5.1.1: Tauri Notification Plugin Setup** (Week 1) - ✅ COMPLETED
-- [x] **Install Tauri Notification Plugin**:
-  - [x] Run `pnpm tauri add notification` in project root
-  - [x] Verify plugin installation in `Cargo.toml` and `lib.rs`
-  - [x] Install frontend package: `pnpm add @tauri-apps/plugin-notification`
-  - [x] ✅ **Permissions already configured** in `capabilities/default.json` (lines 15-16)
-- [x] ⚠️ **Note**: `@tauri-apps/api` package needs to be installed: `pnpm add @tauri-apps/api`
-
-#### **🔔 Phase 5.1.2: Core Notification Logic** (Week 1) - ✅ COMPLETED
-- [x] **Create Notification Composable**:
-  - [x] **File**: `app/composables/useNotifications.ts`
-  - [x] **Functions**: `checkAndRequestPermission()`, `notifyProjectLoaded()`, `notifyTranslationComplete()`
-  - [x] **API**: Uses only `isPermissionGranted`, `requestPermission`, `sendNotification` from plugin
-  - [x] **Permission Management**: Automatic permission checking and requesting
-
-- [x] **Project Loading Notifications**:
-  - [x] **Integration Point**: `app/stores/engine.ts` - `loadProject()` function (line 64)
-  - [x] **Trigger**: After successful text extraction (`setTextUnits(extractedUnits)`)
-  - [x] **Data**: Project name, total text units found, engine type
-  - [x] **Notification**: "Project Loaded: {name} ({count} text units, {engine})"
-
-- [x] **Translation Completion Notifications**:
-  - [x] **Integration Point**: `app/stores/translator.ts` - `startBatchTranslation()` function (line 146)
-  - [x] **Trigger**: After batch translation completes (alongside existing toast)
-  - [x] **Data**: Success count, failed count, total count
-  - [x] **Notification**: "Translation Complete: {success}/{total} units translated{failed > 0 ? ', {failed} failed' : ''}"
-
-#### **⚙️ Phase 5.1.3: Cross-Platform Testing** (Week 1) - ✅ COMPLETED
-- [x] **Cross-Platform Compatibility**:
-  - [x] Notification permission handling with graceful fallbacks
-  - [x] Error handling for systems without notification support
-  - [x] Automatic permission checking and requesting
+#### **✅ Text Length Filter Implementation - COMPLETED**
+- [x] **TranslationResult.vue Enhancement**:
+  - [x] Added text length range slider using Nuxt UI v4 `USlider` component
+  - [x] Implemented dual-thumb slider for min/max character count filtering
+  - [x] Added dynamic maximum calculation based on actual text lengths in dataset
+  - [x] Created live display of current range (e.g., "25-150 chars")
+  - [x] Positioned filter next to search input for easy access
+  - [x] Added tooltips showing current values when dragging slider thumbs
+- [x] **Smart Filtering Logic**:
+  - [x] Filters by both source text length AND translated text length
+  - [x] Shows translations where either source or translated text falls within range
+  - [x] Works in combination with existing search filter for comprehensive filtering
+  - [x] Auto-resets pagination when filters change for better UX
+- [x] **Dynamic Range Calculation**:
+  - [x] Automatically calculates maximum text length from all translations
+  - [x] Updates slider range based on actual data (source and translated text)
+  - [x] Minimum of 200 characters, scales up if longer texts exist
+  - [x] Auto-adjusts range when data changes to maintain usability
+- [x] **Enhanced User Experience**:
+  - [x] Step size of 5 characters for precise control
+  - [x] Smooth interaction with existing bulk selection functionality
+  - [x] Clean layout with "Text Length:" label for clarity
+  - [x] Responsive design that fits well in header section
 
 #### **🎯 Benefits Achieved**
-- ✅ **Better User Experience**: Users get immediate feedback on long-running operations
-- ✅ **Multi-tasking Support**: Users can work on other things while translations run
-- ✅ **Error Awareness**: Immediate notification of translation failures or issues
-- ✅ **Progress Tracking**: Clear indication when operations complete successfully
-- ✅ **Professional Feel**: Desktop app behaves like native applications
-- ✅ **Simple Integration**: Only 2 notification points, minimal complexity
-- ✅ **Existing Infrastructure**: Leverages current toast system
-- ✅ **Simplified Approach**: Uses only basic `sendNotification` method, no complex features
-- ✅ **No Settings Required**: Direct implementation without user preference complexity
+- ✅ **Enhanced Translation Management**: Users can filter by text length for specific use cases
+- ✅ **Quality Control**: Filter short translations (character names, status effects) or long translations (dialogue, descriptions)
+- ✅ **Bulk Operations**: Select and retranslate all texts of specific length ranges
+- ✅ **Content Analysis**: Understand distribution of text lengths in projects
+- ✅ **Visual Control**: Intuitive slider interface with tooltips and live feedback
+- ✅ **Dynamic Adaptation**: Automatically adapts to project's text length distribution
+- ✅ **Combined Filtering**: Works seamlessly with search and other filters
+- ✅ **Performance**: Efficient filtering with proper reactive updates
+- ✅ **Accessibility**: Proper ARIA labels and keyboard navigation support
 
----
+#### **✅ Ollama Provider Simplification - COMPLETED**
+- [x] **Backend Service Update** (`src-tauri/src/llm/services/ollama.rs`):
+  - [x] Always use `http://localhost:11434` without requiring user configuration
+  - [x] Remove base_url dependency from Ollama service constructor
+  - [x] Update `config_matches()` to not compare base_url (always same)
+  - [x] Update `do_generate_with_usage()` to use hardcoded localhost URL
+- [x] **Frontend UI Update** (`app/components/settings/AdvancedSettings.vue`):
+  - [x] Hide base_url field for Ollama provider
+  - [x] Show read-only "Endpoint" field with localhost URL
+  - [x] Add helpful footer text explaining automatic localhost usage
+- [x] **Settings Logic Update** (`app/pages/settings.vue`):
+  - [x] Always save `http://localhost:11434` as base_url for Ollama
+  - [x] Clear base_url field in UI for Ollama (not shown to user)
+  - [x] Update provider change watcher to handle simplified logic
 
-## 🎯 **Next Priority: GitHub Actions Cross-Platform Build**
+#### **✅ RunPod Provider Simplification - COMPLETED**
+- [x] **Backend Service Update** (`src-tauri/src/llm/services/runpod.rs`):
+  - [x] Accept only pod ID in base_url field (e.g., "abc123")
+  - [x] Auto-format pod ID to full RunPod URL (`https://abc123-11434.proxy.runpod.net`)
+  - [x] Handle multiple URL formats: pod ID, partial URL, or full URL
+  - [x] Improved error messages for empty or invalid pod IDs
+- [x] **Frontend UI Update** (`app/components/settings/AdvancedSettings.vue`):
+  - [x] Show "Pod ID" field instead of "Base URL" for RunPod provider
+  - [x] Update placeholder text to show pod ID example ("your-pod-id")
+  - [x] Add helpful footer text explaining automatic URL formatting
+- [x] **Settings Logic Update** (`app/pages/settings.vue`):
+  - [x] Store pod ID in base_url field for RunPod
+  - [x] Clear pod ID field when switching to RunPod provider
+  - [x] Update provider change watcher for simplified pod ID handling
 
-### **✅ Phase 5.2: GitHub Actions Cross-Platform Build Setup** - COMPLETED
-**Goal:** Set up automated builds for Linux (AppImage) and Windows (EXE) using GitHub Actions
-**Note:** Using official Tauri GitHub Action for robust cross-platform builds
+#### **✅ Type Definitions Update - COMPLETED**
+- [x] **Provider Types Update** (`app/types/provider.ts`):
+  - [x] Update documentation for `defaultOllamaConfig` explaining automatic localhost
+  - [x] Update documentation for `defaultRunPodConfig` explaining pod ID usage
+  - [x] Clarify that backend handles URL formatting automatically
 
-#### **✅ Phase 5.2.1: GitHub Actions Workflow Setup** - COMPLETED
-- [x] **Create Workflow File**: Created `.github/workflows/build-cross-platform.yml`
-- [x] **Cross-Platform Build**: Uses official `tauri-apps/tauri-action@v0.5.23`
-- [x] **Matrix Strategy**: Builds on macOS, Linux (Ubuntu 20.04), and Windows in parallel
-- [x] **Automatic Releases**: Creates GitHub releases with all platform artifacts
-- [x] **Dependencies Setup**: Official action handles Node.js, Rust, and system dependencies
-- [x] **Build Configuration**: Simplified workflow using proven Tauri action
-- [x] **Artifact Upload**: Automatic upload to GitHub releases
-- [x] **Technical Verification**: Uses official action tested by 10.6k+ repositories
+#### **🎯 Benefits Achieved**
+- ✅ **Simplified User Experience**: No need to configure localhost for Ollama
+- ✅ **Reduced Configuration Errors**: Users only enter pod ID for RunPod, not full URLs
+- ✅ **Automatic URL Formatting**: Backend handles URL construction automatically
+- ✅ **Cleaner UI**: Provider-specific fields shown only when relevant
+- ✅ **Better Error Messages**: Clear guidance on what to enter for each provider
+- ✅ **Backward Compatibility**: Existing configurations continue to work
+- ✅ **Improved Developer Experience**: Less configuration complexity in code
 
-#### **🔧 Phase 5.2.1.1: Technical Implementation Details** - PENDING
-- [ ] **Linux AppImage**: Uses `--bundles appimage` flag, creates portable executable (no signing needed)
-- [ ] **Windows NSIS**: Uses default `pnpm tauri build`, creates installer (unsigned - will show security warnings)
-- [ ] **Current Config**: Verify `tauri.conf.json` with `"targets": "all"` supports both formats
-- [ ] **Build Commands**: Test each platform-specific build command locally
-- [ ] **Artifact Paths**: Confirm output paths for AppImage and NSIS bundle formats
-- [ ] **Unsigned Strategy**: Confirm that unsigned builds work for both platforms (with expected warnings)
+### **🔧 Phase 5.3: Automatic Updates Integration** - PENDING
+**Goal:** Add automatic update functionality using [Tauri Updater Plugin](https://tauri.app/plugin/updater/)
+**Timeline:** 1-2 weeks
+**Status:** PENDING - Next development priority
 
-#### **🚀 Phase 5.2.2: Release Integration** - PENDING
-- [ ] **Automatic Releases**: Create releases on version tags
-- [ ] **Cross-Platform Distribution**: Include AppImage and EXE in release assets
-- [ ] **Platform Detection**: Ensure compatibility across Linux distributions and Windows versions
+#### **📦 Phase 5.3.1: Tauri Updater Plugin Setup** - PENDING
+- [ ] **Install Tauri Updater Plugin**:
+  - [ ] Run `pnpm tauri add updater` in project root
+  - [ ] Verify plugin installation in `Cargo.toml` and `lib.rs`
+  - [ ] Install frontend package: `pnpm add @tauri-apps/plugin-updater`
+  - [ ] Configure permissions in `capabilities/default.json`
+
+#### **🔐 Phase 5.3.2: Signing Keys Generation** - PENDING
+- [ ] **Generate Signing Keys**:
+  - [ ] Run `pnpm tauri signer generate -w ~/.tauri/ludolingua.key`
+  - [ ] Store private key securely (never share)
+  - [ ] Add public key to `tauri.conf.json` configuration
+  - [ ] Document key management and backup procedures
+
+#### **⚙️ Phase 5.3.3: Update Server Configuration** - PENDING
+- [ ] **Update Server Setup**:
+  - [ ] Configure update endpoints in `tauri.conf.json` (use GitHub API or custom server)
+  - [ ] Set up GitHub API endpoint for automatic updates from releases
+  - [ ] Configure version comparison and update checking logic
+  - [ ] Test update flow with development builds on Windows and Linux
+
+#### **🎨 Phase 5.3.4: Frontend Update UI** - PENDING
+- [ ] **Update Notification UI**:
+  - [ ] Create update notification component
+  - [ ] Add update check functionality to settings
+  - [ ] Implement download progress indicators
+  - [ ] Add manual update check option
+
+#### **🚀 Phase 5.3.5: Release Integration** - PENDING
+- [ ] **Automated Update Releases**:
+  - [ ] Verify GitHub Actions workflow already generates update artifacts (`includeUpdaterJson: true`)
+  - [ ] Test update artifacts are properly uploaded to GitHub releases
+  - [ ] Test complete update flow from check to install on Windows and Linux
+  - [ ] Validate update process works with existing build workflow
 
 #### **🎯 Benefits**
-- ✅ **Solves CachyOS Issue**: Ubuntu 18.04 provides compatible glibc for Linux
-- ✅ **Windows Support**: Native NSIS installer (EXE) for Windows users (unsigned - shows security warnings)
-- ✅ **Free Builds**: GitHub Actions free for public repositories
-- ✅ **Automated**: No manual build process needed for either platform
-- ✅ **Cross-Platform**: Works on Linux and Windows desktop platforms
-- ✅ **Cost-Effective**: No upfront costs for code signing certificates
-- ✅ **Official Support**: Both formats officially supported by Tauri distribution system
-- ✅ **Proven Approach**: Based on official Tauri documentation and community best practices
-- ✅ **Iterative**: Can add macOS and code signing later if needed
+- ✅ **Automatic Updates**: Users get latest features and bug fixes automatically
+- ✅ **Security**: Signed updates ensure authenticity and prevent tampering
+- ✅ **User Experience**: Seamless update process without manual downloads
+- ✅ **Professional Distribution**: Enterprise-grade update management
+- ✅ **Cross-Platform**: Works on Windows and Linux (macOS support can be added later)
+- ✅ **Flexible**: Support for multiple release channels (stable, beta)
+- ✅ **GitHub Integration**: Leverages existing GitHub releases and API
 
 ---
 
@@ -379,6 +236,7 @@ All Phase 4 objectives have been successfully achieved! The application now has 
 ### **🍎 macOS Support & Code Signing** (Future)
 - [ ] **macOS Build Support**: Add macOS runner to GitHub Actions workflow
 - [ ] **macOS DMG Generation**: Implement `pnpm tauri build --bundles dmg` for macOS
+- [ ] **macOS Update Support**: Extend updater configuration to include macOS
 - [ ] **Windows Code Signing**: Get code signing certificate to eliminate security warnings
 - [ ] **macOS Code Signing**: Get Apple Developer account for notarization and professional distribution
 - [ ] **GitHub Actions Integration**: Add signing steps to automated build workflow
@@ -422,7 +280,7 @@ All Phase 4 objectives have been successfully achieved! The application now has 
 - **State Management**: Pinia stores + composables + components architecture
 - **Icon System**: Lucide icons for Nuxt UI v4 consistency
 - **Database Design**: Flexible schema allowing legitimate duplicates in RPG game text
-- **Text Processing**: Unified `utils/text/` utility with automatic Engine trait integration (Phase 5.0 target)
+- **Text Processing**: Unified `utils/text/` utility with automatic Engine trait integration
   - **Automatic Processing**: Engines get text processing for free via trait default implementations
   - **Global Consistency**: Same utility applied to all engines without manual calls
   - **Future-Proof**: New engines inherit text processing capabilities automatically
@@ -436,8 +294,8 @@ All Phase 4 objectives have been successfully achieved! The application now has 
 - ✅ Modern UI patterns and best practices
 
 ### **Ready for Next Phase:**
-With Phase 4 complete, the application has a solid, modern foundation ready for advanced feature development in Phase 5.
+With Phase 5.0-5.2 complete, the application has a solid foundation with automated builds ready for automatic updates in Phase 5.3.
 
 ---
 
-**🏆 Status**: Phase 4 complete, ready for Phase 5 development!
+**🏆 Status**: Phase 5.0-5.2.4 complete, ready for Phase 5.3 automatic updates!

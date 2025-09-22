@@ -81,24 +81,29 @@ impl RunPodService {
 
     /// Convert RunPod pod ID to proper API endpoint URL
     fn format_runpod_url(config: &LlmConfig) -> AppResult<String> {
-        let base_url = config
+        let pod_id = config
             .base_url
             .as_ref()
-            .ok_or_else(|| AppError::Llm("RunPod requires base_url with pod ID".into()))?;
+            .ok_or_else(|| AppError::Llm("RunPod requires pod ID".into()))?
+            .trim();
 
-        // Handle different RunPod URL formats
-        let formatted_url = if base_url.contains("runpod.net") {
-            // Already a full RunPod URL
-            base_url.clone()
-        } else if base_url.contains("-11434.proxy.runpod.net") {
-            // Already formatted proxy URL
-            format!("https://{}", base_url)
-        } else {
-            // Assume it's a pod ID and format accordingly
-            let pod_id = base_url.trim();
-            if pod_id.is_empty() {
-                return Err(AppError::Llm("Empty RunPod pod ID".into()));
+        if pod_id.is_empty() {
+            return Err(AppError::Llm("Empty RunPod pod ID".into()));
+        }
+
+        // Auto-format pod ID to proper RunPod URL
+        let formatted_url = if pod_id.contains("runpod.net") {
+            // Already a full RunPod URL - use as is
+            pod_id.to_string()
+        } else if pod_id.contains("-11434.proxy.runpod.net") {
+            // Already formatted proxy URL - add https if missing
+            if pod_id.starts_with("https://") {
+                pod_id.to_string()
+            } else {
+                format!("https://{}", pod_id)
             }
+        } else {
+            // Pure pod ID - format to full URL
             format!("https://{}-11434.proxy.runpod.net", pod_id)
         };
 
@@ -233,7 +238,7 @@ impl RunPodService {
     /// Check if the internal config matches another config
     pub fn config_matches(&self, other: &LlmConfig) -> bool {
         self.config.model == other.model
-            && self.config.base_url == other.base_url
+            && self.config.base_url == other.base_url  // Compare pod IDs
             && (self.config.temperature - other.temperature).abs() < f32::EPSILON
             && self.config.max_tokens == other.max_tokens
     }

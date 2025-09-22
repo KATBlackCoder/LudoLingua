@@ -31,6 +31,7 @@ export interface TranslationSettings {
 
 /**
  * Default provider configuration for Ollama (can be used as a template for other providers).
+ * Note: base_url is always 'http://localhost:11434' for Ollama - backend handles this automatically.
  */
 export const defaultOllamaConfig: LlmConfig = {
   model: {
@@ -46,7 +47,7 @@ export const defaultOllamaConfig: LlmConfig = {
     context_window: 32768,
     enabled: true
   },
-  base_url: 'http://localhost:11434',
+  base_url: 'http://localhost:11434', // Always localhost for Ollama
   api_key: undefined,
   temperature: 0.3,
   max_tokens: 512,
@@ -54,6 +55,8 @@ export const defaultOllamaConfig: LlmConfig = {
 
 /**
  * Default provider configuration for RunPod (uses Ollama models on GPU).
+ * Note: base_url should contain the user's pod ID (e.g., "abc123"). 
+ * The backend automatically formats this to "https://abc123-11434.proxy.runpod.net".
  */
 export const defaultRunPodConfig: LlmConfig = {
   model: {
@@ -69,7 +72,7 @@ export const defaultRunPodConfig: LlmConfig = {
     context_window: 131072,
     enabled: true
   },
-  base_url: '', // User needs to enter their pod ID
+  base_url: '', // User needs to enter their pod ID (e.g., "abc123")
   api_key: undefined,
   temperature: 0.3,
   max_tokens: 1000,
