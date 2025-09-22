@@ -10,6 +10,8 @@
     "dialog:default",
     "store:default",
     "fs:default",
+    "process:default",
+    "updater:default",
     "notification:default",
     "notification:allow-is-permission-granted",
     "opener:allow-default-urls",
