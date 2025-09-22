@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "LudoLingua",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "identifier": "ml.ludolingua.blackat",
   "build": {
     "frontendDist": "../dist",
@@ -43,7 +43,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNFNDdGQ0I5MjRGMTgzQzUKUldURmcvRWt1ZnhIUHVLRVVIdVBlTW84U1JxOHdCdEJ0KzZSQlY4eVNTK29za2cyU0owTXhnKysK",
       "endpoints": [
-        "https://api.github.com/repos/blackat/ludolingua/releases/latest"
+        "https://github.com/KATBlackCoder/ludolingua/releases/download/v{{current_version}}/latest.json"
       ]
     }
   }

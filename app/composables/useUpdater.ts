@@ -48,11 +48,17 @@ export const useUpdater = () => {
         }
       }
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to check for updates'
+      const errorMessage = err instanceof Error ? err.message : 'Failed to check for updates'
+      error.value = errorMessage
       console.error('Update check failed:', err)
+      console.error('Error details:', {
+        message: errorMessage,
+        stack: err instanceof Error ? err.stack : 'No stack trace',
+        type: typeof err
+      })
       
       if (!silent) {
-        await notify('Update Check Failed', error.value)
+        await notify('Update Check Failed', errorMessage)
       }
     } finally {
       isChecking.value = false

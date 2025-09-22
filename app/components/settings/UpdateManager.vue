@@ -32,7 +32,7 @@
       </div>
 
       <!-- Update Status -->
-      <div v-if="!hasUpdate && !isChecking" class="text-center py-4">
+      <div v-if="!hasUpdate && !isChecking && !error" class="text-center py-4">
         <UIcon name="i-lucide-check-circle" class="text-green-500 text-2xl mx-auto mb-2" />
         <p class="text-sm text-gray-600 dark:text-gray-400">
           You are running the latest version
@@ -70,22 +70,6 @@
         </UButton>
       </div>
 
-      <!-- Auto-Update Settings -->
-      <div class="border-t pt-4">
-        <h4 class="text-sm font-medium mb-3">Update Preferences</h4>
-        <div class="space-y-3">
-          <UCheckbox
-            v-model="autoCheckEnabled"
-            label="Automatically check for updates on startup"
-            :disabled="isBusy"
-          />
-          <UCheckbox
-            v-model="showUpdateNotifications"
-            label="Show notifications for available updates"
-            :disabled="isBusy"
-          />
-        </div>
-      </div>
 
       <!-- Manual Update Actions -->
       <div class="border-t pt-4">
@@ -136,17 +120,9 @@ const {
 const { getAppInfo } = useAppInfo()
 const currentVersion = ref('')
 
-// Auto-update settings
-const autoCheckEnabled = ref(true)
-const showUpdateNotifications = ref(true)
-
-// Check for updates on component mount if auto-check is enabled
+// Initialize current version on component mount
 onMounted(async () => {
   const appInfo = await getAppInfo()
   currentVersion.value = appInfo.version
-  
-  if (autoCheckEnabled.value) {
-    await checkForUpdates(true) // Silent check
-  }
 })
 </script>
