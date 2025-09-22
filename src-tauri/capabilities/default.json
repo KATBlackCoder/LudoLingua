@@ -12,6 +12,7 @@
     "fs:default",
     "notification:default",
     "notification:allow-is-permission-granted",
+    "opener:allow-default-urls",
     {
       "identifier": "opener:allow-open-url",
       "allow": [
@@ -23,6 +24,12 @@
         },
         {
           "url": "https://www.nutaku.net/fr/signup/invite/id/1563308/"
+        },
+        {
+          "url": "https://*"
+        },
+        {
+          "url": "http://*"
         }
       ]
     }

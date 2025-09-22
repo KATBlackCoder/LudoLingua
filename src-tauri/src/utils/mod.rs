@@ -3,4 +3,3 @@
 
 pub mod prompts;
 pub mod text;
-pub mod text_processing;

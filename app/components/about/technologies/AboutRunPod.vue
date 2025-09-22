@@ -23,7 +23,15 @@
       <div class="space-y-4 text-sm">
         <div>
           <div class="font-medium mb-2">1. Create a RunPod Instance</div>
-          <div class="text-muted mb-2">Choose a GPU instance with sufficient VRAM for your model:</div>
+          <div class="text-muted mb-2">Choose a GPU instance with sufficient VRAM and storage for the models:</div>
+          <UAlert color="warning" variant="soft" icon="i-lucide-hard-drive" class="mb-3">
+            <template #title>Storage Requirements</template>
+            <template #description>
+              <strong>Minimum 50GB storage</strong> required for both models (qwen2.5:14b ~20GB + qwen3:14b ~20GB + system overhead). 
+              <br><br>
+              <strong>Storage optimization:</strong> If you only need one model, you can remove one line from the container command and use <strong>30GB storage</strong> instead (single model ~20GB + system overhead).
+            </template>
+          </UAlert>
           <UAlert color="error" variant="soft" icon="i-lucide-info" class="mb-3">
             <template #title>These are suggestions, not requirements</template>
             <template #description>
@@ -41,7 +49,7 @@
 
         <div>
           <div class="font-medium mb-2">2. Container Start Command</div>
-          <div class="text-muted mb-2">Use this command to automatically install and configure Ollama:</div>
+          <div class="text-muted mb-2">Use this command to automatically install and configure Ollama with the required models:</div>
           <UCard class="bg-gray-50 dark:bg-gray-800">
             <div class="flex items-start justify-between gap-2">
               <pre class="text-xs overflow-x-auto flex-1"><code>{{ containerCommand }}</code></pre>
@@ -57,10 +65,12 @@
               </UTooltip>
             </div>
           </UCard>
-          <UAlert color="error" variant="soft" icon="i-lucide-info" class="mt-2">
-            <template #title>Model choice is entirely up to you</template>
+          <UAlert color="info" variant="soft" icon="i-lucide-info" class="mt-2">
+            <template #title>Pre-configured Models</template>
             <template #description>
-              Replace <code>qwen2.5:14b</code> with any model you prefer (e.g., <code>qwen2.5:7b</code>, <code>llama3.1:8b</code>, <code>mistral:7b</code>). This is just an example - choose whatever model works best for your translation needs and fits your pod's VRAM.
+              This command installs the models that LudoLingua supports: <code>qwen2.5:14b</code> and <code>qwen3:14b</code>. You'll select from these models in the LudoLingua settings.
+              <br><br>
+              <strong>Single model option:</strong> To save storage space, you can remove either <code>ollama pull qwen2.5:14b &&</code> or <code>ollama pull qwen3:14b &&</code> from the command above. This reduces storage requirement to 30GB.
             </template>
           </UAlert>
         </div>
@@ -68,7 +78,48 @@
         <USeparator />
 
         <div>
-          <div class="font-medium mb-2">3. Get Your Pod URL</div>
+          <div class="font-medium mb-2">3. Single Model Setup (Optional)</div>
+          <div class="text-muted mb-2">If you only need one model to save storage space, use one of these modified commands:</div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <UCard class="bg-gray-50 dark:bg-gray-800">
+              <div class="text-xs font-medium mb-2">Qwen2.5:14b only (30GB storage)</div>
+              <div class="flex items-start justify-between gap-2">
+                <pre class="text-xs overflow-x-auto flex-1"><code>{{ singleModelCommandQwen25 }}</code></pre>
+                <UTooltip text="Copy to clipboard" :content="{ side: 'left' }">
+                  <UButton
+                    :color="copiedQwen25 ? 'success' : 'neutral'"
+                    variant="link"
+                    size="sm"
+                    :icon="copiedQwen25 ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                    aria-label="Copy to clipboard"
+                    @click="copyQwen25(singleModelCommandQwen25)"
+                  />
+                </UTooltip>
+              </div>
+            </UCard>
+            <UCard class="bg-gray-50 dark:bg-gray-800">
+              <div class="text-xs font-medium mb-2">Qwen3:14b only (30GB storage)</div>
+              <div class="flex items-start justify-between gap-2">
+                <pre class="text-xs overflow-x-auto flex-1"><code>{{ singleModelCommandQwen3 }}</code></pre>
+                <UTooltip text="Copy to clipboard" :content="{ side: 'left' }">
+                  <UButton
+                    :color="copiedQwen3 ? 'success' : 'neutral'"
+                    variant="link"
+                    size="sm"
+                    :icon="copiedQwen3 ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                    aria-label="Copy to clipboard"
+                    @click="copyQwen3(singleModelCommandQwen3)"
+                  />
+                </UTooltip>
+              </div>
+            </UCard>
+          </div>
+        </div>
+
+        <USeparator />
+
+        <div>
+          <div class="font-medium mb-2">4. Get Your Pod URL</div>
           <div class="text-muted mb-2">Your RunPod endpoint will be:</div>
           <UCard class="bg-gray-50 dark:bg-gray-800">
             <code class="text-sm">https://{POD_ID}-11434.proxy.runpod.net</code>
@@ -79,12 +130,12 @@
         <USeparator />
 
         <div>
-          <div class="font-medium mb-2">4. Configure in LudoLingua</div>
+          <div class="font-medium mb-2">5. Configure in LudoLingua</div>
           <div class="text-muted mb-2">In Settings, set:</div>
           <ul class="list-disc pl-5 space-y-1">
             <li><strong>Provider:</strong> RunPod</li>
             <li><strong>Base URL:</strong> <code>https://{POD_ID}-11434.proxy.runpod.net</code></li>
-            <li><strong>Model:</strong> Select the model you pulled (e.g., qwen2.5:14b)</li>
+            <li><strong>Model:</strong> Select from available models (Qwen2.5 14B or qwen3 14b)</li>
           </ul>
         </div>
       </div>
@@ -105,7 +156,8 @@
             </template>
             <div class="space-y-2">
               <div><strong>VRAM:</strong> 24GB</div>
-              <div><strong>Models:</strong> 13B+ models, Qwen2.5:14b, Llama3.1:70b</div>
+              <div><strong>Storage:</strong> 50GB+ (recommended)</div>
+              <div><strong>Models:</strong> Qwen2.5:14b, qwen3:14b</div>
               <div><strong>Cost:</strong> ~$0.79/hour</div>
               <div><strong>Best for:</strong> Large projects, high-quality translations</div>
             </div>
@@ -119,7 +171,8 @@
             </template>
             <div class="space-y-2">
               <div><strong>VRAM:</strong> 12GB</div>
-              <div><strong>Models:</strong> 7B-8B models, Qwen2.5:7b, Llama3.1:8b</div>
+              <div><strong>Storage:</strong> 50GB+ (minimum)</div>
+              <div><strong>Models:</strong> Qwen2.5:14b, qwen3:14b (may require quantization)</div>
               <div><strong>Cost:</strong> ~$0.34/hour</div>
               <div><strong>Best for:</strong> Most translation tasks, cost-effective</div>
             </div>
@@ -137,6 +190,7 @@
           <li><strong>Use spot instances:</strong> Save up to 80% on costs with RunPod spot pricing</li>
           <li><strong>Auto-shutdown:</strong> Configure auto-shutdown after inactivity to avoid unnecessary charges</li>
           <li><strong>Right-size your instance:</strong> Choose the minimum VRAM needed for your model</li>
+          <li><strong>Storage optimization:</strong> Use exactly 50GB for both models or 30GB for single model to minimize costs</li>
           <li><strong>Batch processing:</strong> Process multiple translations in one session to maximize efficiency</li>
         </ul>
         <UAlert color="info" variant="soft" icon="i-lucide-info">
@@ -165,9 +219,9 @@
         <div>
           <div class="font-medium">Model Issues</div>
           <ul class="list-disc pl-5 space-y-1 mt-1">
-            <li>Check if the model was successfully pulled (check logs)</li>
+            <li>Check if both models (qwen2.5:14b and qwen3:14b) were successfully pulled</li>
             <li>Ensure the model name matches exactly in LudoLingua settings</li>
-            <li>Try pulling a smaller model if you're running out of VRAM</li>
+            <li>Both models should be available in the LudoLingua model dropdown</li>
           </ul>
         </div>
       </div>
@@ -177,13 +231,34 @@
 
 <script setup lang="ts">
 const { copy, copied } = useClipboard()
+const { copy: copyQwen25, copied: copiedQwen25 } = useClipboard()
+const { copy: copyQwen3, copied: copiedQwen3 } = useClipboard()
 
 const containerCommand = ref(`bash -c "
 apt update && apt install -y curl lshw &&
 curl -fsSL https://ollama.com/install.sh | sh &&
 nohup ollama serve > /root/ollama.log 2>&1 &
 sleep 60 &&
-ollama pull qwen2.5:14b &&
+ollama pull qwen2.5:14b-instruct-q5_K_M &&
+ollama pull qwen3:14b-q4_K_M &&
+sleep infinity
+"`)
+
+const singleModelCommandQwen25 = ref(`bash -c "
+apt update && apt install -y curl lshw &&
+curl -fsSL https://ollama.com/install.sh | sh &&
+nohup ollama serve > /root/ollama.log 2>&1 &
+sleep 60 &&
+ollama pull qwen2.5:14b-instruct-q5_K_M &&
+sleep infinity
+"`)
+
+const singleModelCommandQwen3 = ref(`bash -c "
+apt update && apt install -y curl lshw &&
+curl -fsSL https://ollama.com/install.sh | sh &&
+nohup ollama serve > /root/ollama.log 2>&1 &
+sleep 60 &&
+ollama pull qwen3:14b-q4_K_M &&
 sleep infinity
 "`)
 </script>

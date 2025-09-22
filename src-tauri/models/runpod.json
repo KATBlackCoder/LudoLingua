@@ -1,10 +1,23 @@
 {
     "models": [
         {
-            "display_name": "Qwen2.5 14B (Ollama's Best)",
-            "model_name": "qwen2.5:14b",
+            "display_name": "Qwen2.5 14B",
+            "model_name": "qwen2.5:14b-instruct-q5_K_M",
             "provider": "RunPod",
             "description": "Qwen2.5 14B - Ollama's latest model with 128K context, 140+ languages support, and excellent translation quality. Perfect for complex RPG texts",
+            "pricing": {
+                "input_price_per_1k": 0.0,
+                "output_price_per_1k": 0.0,
+                "currency": "USD"
+            },
+            "context_window": 131072,
+            "enabled": true
+        },
+        {
+            "display_name": "qwen3 14b",
+            "model_name": "qwen3:14b-q4_K_M",
+            "provider": "RunPod",
+            "description": "Qwen3 14B - Ollama's latest model with 128K context, 140+ languages support, and excellent translation quality. Perfect for complex RPG texts",
             "pricing": {
                 "input_price_per_1k": 0.0,
                 "output_price_per_1k": 0.0,
