@@ -26,6 +26,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "createUpdaterArtifacts": true,
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -37,5 +38,13 @@
       "prompts",
       "models"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNFNDdGQ0I5MjRGMTgzQzUKUldURmcvRWt1ZnhIUHVLRVVIdVBlTW84U1JxOHdCdEJ0KzZSQlY4eVNTK29za2cyU0owTXhnKysK",
+      "endpoints": [
+        "https://api.github.com/repos/blackat/ludolingua/releases/latest"
+      ]
+    }
   }
 }

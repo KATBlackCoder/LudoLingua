@@ -262,7 +262,7 @@ impl OllamaService {
         self.config.model == other.model
             && (self.config.temperature - other.temperature).abs() < f32::EPSILON
             && self.config.max_tokens == other.max_tokens
-            // base_url is always localhost for Ollama, so no need to compare
+        // base_url is always localhost for Ollama, so no need to compare
     }
 }
 
