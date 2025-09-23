@@ -4,9 +4,9 @@ This document tracks the completed milestones and current status of the LudoLing
 
 ---
 
-## 🎯 **Current Status: Phase 5.3 - Automatic Updates Integration (100% Complete)**
+## 🎯 **Current Status: Phase 5.5 - Text Filtering Enhancement (100% Complete)**
 
-**Latest Achievement:** Successfully completed Phase 5.3 with automatic updates integration. Users now have professional-grade update management with signed updates, automatic checking on startup, native notifications, and seamless download/install workflow.
+**Latest Achievement:** Successfully completed Phase 5.5 with comprehensive text filtering enhancement. Added pipe character filtering to skip coordinate/positioning data (e.g., `はい|262|380`, `戻る|492|380`) and implemented raw text revert functionality with database persistence.
 
 **Next Priority:** Phase 6 - Advanced Features & Polish for enhanced translation management and performance optimization.
 
@@ -24,6 +24,8 @@ Phase 5.1 (Completed): Native Notifications Integration [███████�
 Phase 5.2.3 (Completed): Bulk Retranslation & Row Selection [████████████] 100%
 Phase 5.2.4 (Completed): Text Length Filter Enhancement     [████████████] 100%
 Phase 5.3 (Completed): Automatic Updates Integration         [████████████] 100%
+Phase 5.4 (Completed): JSON Formatting Preservation Fix     [████████████] 100%
+Phase 5.5 (Completed): Text Filtering Enhancement           [████████████] 100%
 Phase 6 (Next): Advanced Features & Polish                  [░░░░░░░░░░░░]   0%
 ```
 
@@ -292,6 +294,49 @@ Phase 6 (Next): Advanced Features & Polish                  [░░░░░░�
   - ✅ Tested complete update flow from check to install on Windows and Linux
   - ✅ Validated update process works with existing build workflow
 
+**5.4 JSON Formatting Preservation Fix - COMPLETED**
+- ✅ **Export Formatting Issue Resolution**: Fixed JSON formatting preservation during translation injection
+  - **Root Cause Analysis**: Identified that `inject_raw_text_units()` was setting `translated_text` to empty string instead of processed text
+  - **Text Processing Pipeline Fix**: Updated `inject_raw_text_units()` in `rpg_maker_mv/engine.rs` to use `raw_unit.source_text.clone()` for `translated_text` field
+  - **JSON Serialization Consistency**: Ensured all injection methods use `serde_json::to_string()` for compact format preservation
+  - **Cross-Engine Compatibility**: Applied fix to all engine implementations (RPG Maker MV, MZ, Wolf RPG)
+  - **File Integrity**: Original JSON formatting (compact or pretty-printed) now preserved during translation injection
+- ✅ **Translation Injection Validation**: Verified complete translation workflow functionality
+  - **Text Replacement**: Confirmed that `"name":"ボラス"` correctly becomes `"name":"Bolas"` during export
+  - **Formatting Preservation**: JSON files maintain original structure and formatting after translation injection
+  - **Pipeline Integration**: Text processing pipeline correctly converts placeholders back to RPG Maker codes
+  - **Database Integration**: Translated text from database properly flows through injection pipeline
+- ✅ **Benefits Achieved**: Professional-grade export functionality
+  - **File Integrity**: Original project files maintain their exact formatting and structure
+  - **Translation Accuracy**: All translated text properly injected into game files
+  - **User Experience**: Export process now works correctly without formatting corruption
+  - **Professional Quality**: Game files remain in their original, expected format after translation
+  - **Cross-Platform**: Fix applies to all supported engines and platforms
+
+**5.5 Text Filtering Enhancement - COMPLETED**
+- ✅ **Pipe Character Filtering**: Enhanced text validation to skip coordinate/positioning data
+  - **Universal Filtering**: Added filtering for ANY text containing pipe characters (`|`) in `ContentValidator::validate_text()`
+  - **Coordinate Data Detection**: Automatically skips text like `はい|262|380`, `戻る|492|380` that contain positioning data
+  - **Unified Processing**: Applied through unified text processing pipeline to all RPG Maker MV file types
+  - **Comprehensive Coverage**: Affects all text extraction from Actors, Items, Skills, Weapons, Armors, Classes, System, States, Enemies, CommonEvents, Troops, MapInfos, and MapXXX files
+  - **Test Coverage**: Added comprehensive unit tests to verify filtering works correctly for coordinate patterns while preserving legitimate text
+- ✅ **Raw Text Revert Functionality**: Enhanced TranslationResult.vue with revert capabilities
+  - **Raw Text Column**: Added new column with individual "Revert" buttons for each text unit
+  - **Bulk Revert Action**: Added "Revert to Raw" button in bulk actions for selected rows
+  - **User Experience**: Clear visual feedback with toast notifications and proper loading states
+  - **Selection Management**: Works with existing row selection system and clears selection after bulk operations
+- ✅ **Database Persistence**: Updated saveEdit function to persist changes to database
+  - **Backend Integration**: Enhanced `useTranslator.ts` to call `update_translation_cmd` for database persistence
+  - **UI Responsiveness**: Updates in-memory store immediately for responsive UI, then persists to database
+  - **Error Handling**: Graceful error handling with fallbacks for database operations
+  - **Async Operations**: Proper async/await handling for all save operations
+- ✅ **Benefits Achieved**: Enhanced translation management and data quality
+  - **Data Quality**: Prevents coordinate/positioning data from being sent for translation
+  - **User Control**: Users can easily revert translations back to source text when needed
+  - **Workflow Efficiency**: Bulk revert operations for managing multiple translations
+  - **Data Integrity**: All changes properly persisted to database for consistency
+  - **Professional Quality**: Clean translation data without technical artifacts
+
 **Benefits Achieved:**
 - ✅ **Automatic Updates**: Users get latest features and bug fixes automatically
 - ✅ **Security**: Signed updates ensure authenticity and prevent tampering
@@ -403,4 +448,4 @@ LudoLingua has evolved into a **mature, production-ready desktop application** w
 - **Clean Codebase** with 33% function reduction and comprehensive cleanup
 - **Professional Architecture** following domain-driven design principles
 
-**Phase 5.3 Complete!** - Automatic updates integration with professional-grade update management, signed updates, automatic checking on startup, native notifications, and seamless download/install workflow for enterprise-grade application distribution.
+**Phase 5.5 Complete!** - Text filtering enhancement with pipe character filtering to skip coordinate/positioning data and raw text revert functionality with database persistence for enhanced translation management and data quality.

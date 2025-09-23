@@ -185,6 +185,11 @@
 **Timeline:** 1-2 weeks
 **Status:** 100% Complete - All Objectives Achieved
 
+### 🔄 **Phase 5.4: Sugoi Provider Integration** - IN PROGRESS
+**Goal:** Add multilingual sugoi server as a third provider option for offline multilingual translation
+**Timeline:** 1-2 weeks
+**Status:** IN PROGRESS - Backend service implementation started
+
 #### **✅ Phase 5.3.1: Tauri Updater Plugin Setup** - COMPLETED
 - [x] **Install Tauri Updater Plugin**:
   - [x] Run `pnpm tauri add updater` in project root
@@ -231,6 +236,125 @@
 - ✅ **Cross-Platform**: Works on Windows and Linux (macOS support can be added later)
 - ✅ **Flexible**: Support for multiple release channels (stable, beta)
 - ✅ **GitHub Integration**: Leverages existing GitHub releases and API
+
+#### **🔄 Phase 5.4.1: Sugoi Provider Backend Service** - IN PROGRESS
+- [x] **System Compatibility Verification**:
+  - [x] Confirmed GTX 1660 Super (6GB VRAM) + 16GB RAM is perfect for all Sugoi models
+  - [x] Verified CUDA 13.0 support for GPU acceleration
+  - [x] Confirmed 8GB available RAM and 5.7GB available VRAM for optimal performance
+  - [x] System ready for optimal Sugoi configuration: m2m100_418M (recommended) or nllb-200-distilled-600M (high quality)
+  - [x] **Recommended settings for GTX 1660 Super + 16GB RAM:**
+    - [x] **Primary Model**: m2m100_418M (1.8GB VRAM + 2.25GB RAM = 4.05GB total)
+    - [x] **Quality Model**: nllb-200-distilled-600M (2.3GB VRAM + 3GB RAM = 5.3GB total)
+    - [x] **Speed Model**: small100 (1.2GB VRAM + 1.5GB RAM = 2.7GB total)
+    - [x] **GPU Acceleration**: CUDA 13.0 support confirmed for 3-5x speed boost
+    - [x] **Memory Headroom**: 8GB available RAM + 5.7GB available VRAM for optimal performance
+- [ ] **Create Sugoi Service** (`src-tauri/src/llm/services/sugoi.rs`):
+  - [ ] Implement `LlmService` trait for Sugoi provider
+  - [ ] HTTP client for `http://localhost:14366` (default Sugoi port)
+  - [ ] Handle Sugoi API format with `source_language` and `target_language` parameters
+  - [ ] Model selection and language code mapping
+  - [ ] Connection testing and error handling
+- [ ] **Add Provider Support**:
+  - [ ] Add `Sugoi` variant to `ProviderKind` enum in `src-tauri/src/core/provider.rs`
+  - [ ] Update factory in `src-tauri/src/llm/factory.rs` to create Sugoi service
+  - [ ] Add Sugoi service to `src-tauri/src/llm/services/mod.rs`
+- [ ] **Update Backend Commands** (`src-tauri/src/commands/provider.rs`):
+  - [ ] Add Sugoi provider support to `get_models()` function
+  - [ ] Update model loading logic for Sugoi models
+  - [ ] Add Sugoi-specific model handling
+
+#### **🔄 Phase 5.4.2: Sugoi Models Configuration** - PENDING
+- [ ] **Create Models Configuration** (`src-tauri/models/sugoi.json`):
+  - [ ] **m2m100_418M (RECOMMENDED for GTX 1660 Super)**: 1.8GB VRAM + 2.25GB RAM = 4.05GB total, high quality, balanced performance
+  - [ ] **nllb-200-distilled-600M (HIGH QUALITY for GTX 1660 Super)**: 2.3GB VRAM + 3GB RAM = 5.3GB total, best quality, moderate speed
+  - [ ] **small100 (FASTEST for GTX 1660 Super)**: 1.2GB VRAM + 1.5GB RAM = 2.7GB total, good quality, fastest speed
+  - [ ] Model metadata: size, memory usage, language support, performance characteristics
+  - [ ] Language code mappings for each model type
+  - [ ] Model descriptions and recommendations for GTX 1660 Super + 16GB RAM
+- [ ] **Language Code Management**:
+  - [ ] small100/m2m100 language codes (ja, en, es, fr, de, ru, etc.)
+  - [ ] nllb-200 language codes (eng_Latn, rus_Cyrl, etc.)
+  - [ ] Automatic language code detection and validation
+  - [ ] Default configuration: m2m100_418M with ja→en language pair (optimized for GTX 1660 Super + 16GB RAM)
+
+#### **🔄 Phase 5.4.3: Frontend Configuration UI** - PENDING
+- [ ] **Provider Types Update** (`app/types/provider.ts`):
+  - [ ] Add `Sugoi` to `Provider` type union
+  - [ ] Create `defaultSugoiConfig` with m2m100_418M as default model
+  - [ ] Add Sugoi-specific configuration documentation
+  - [ ] Update provider type definitions for Sugoi support
+- [ ] **Settings Page Update** (`app/pages/settings.vue`):
+  - [ ] Add Sugoi provider support to provider change watcher
+  - [ ] Update base_url handling for Sugoi (localhost:14366)
+  - [ ] Add Sugoi-specific settings validation
+  - [ ] Update save/reset logic for Sugoi configuration
+- [ ] **Provider Selection**:
+  - [ ] Add Sugoi option to provider selector in settings
+  - [ ] Provider-specific configuration fields
+  - [ ] Model selection dropdown with descriptions (m2m100_418M, nllb-200-distilled-600M, small100)
+  - [ ] Language pair configuration with automatic code mapping
+  - [ ] Default model recommendation: m2m100_418M for GTX 1660 Super + 16GB RAM systems
+  - [ ] Performance indicators showing memory usage for each model
+- [ ] **Setup Wizard Component**:
+  - [ ] Create `SugoiSetupWizard.vue` component
+  - [ ] Platform-specific installation instructions
+  - [ ] Model download guidance with specific recommendations for GTX 1660 Super + 16GB RAM
+  - [ ] Server status detection and validation
+  - [ ] Model selection guidance: start with m2m100_418M (4.05GB total), upgrade to nllb-200-distilled-600M (5.3GB total) for quality
+  - [ ] Memory usage warnings and recommendations based on available system resources
+- [ ] **Settings Integration**:
+  - [ ] Update `AdvancedSettings.vue` for Sugoi configuration
+  - [ ] Add Sugoi-specific fields and validation
+  - [ ] Connection testing and status indicators
+
+#### **🔄 Phase 5.4.4: User Experience Enhancements** - PENDING
+- [ ] **About Page Updates** (`app/components/about/AboutTechnology.vue`):
+  - [ ] Add Sugoi provider tab to provider selection
+  - [ ] Update provider buttons to include Sugoi option
+  - [ ] Add Sugoi-specific technology information
+- [ ] **About Technology Components** (`app/components/about/technologies/`):
+  - [ ] Create `AboutSugoi.vue` component with setup instructions
+  - [ ] Add Sugoi-specific features and benefits
+  - [ ] Include GTX 1660 Super + 16GB RAM optimization details
+  - [ ] Add model comparison and recommendations
+- [ ] **About What Updates** (`app/components/about/AboutWhat.vue`):
+  - [ ] Add Sugoi to key capabilities (Local AI section)
+  - [ ] Update technology stack to include Sugoi
+  - [ ] Add multilingual translation capabilities
+- [ ] **Referral Components** (`app/components/about/referral/`):
+  - [ ] Create `AboutSugoi.vue` referral component
+  - [ ] Direct users to [Codeberg Sugoi Repository](https://codeberg.org/entai2965/translation_tools/src/branch/main/multilingual_sugoi) for setup
+  - [ ] Add Sugoi setup and installation guidance
+  - [ ] Include performance optimization tips for GTX 1660 Super + 16GB RAM
+  - [ ] Provide direct download links for server files and requirements
+- [ ] **Setup Documentation**:
+  - [ ] Comprehensive setup guides for Windows/Linux/macOS
+  - [ ] Python installation and dependency management
+  - [ ] Model download and server startup instructions
+  - [ ] Troubleshooting guide for common issues
+  - [ ] Reference to [Codeberg Sugoi Repository](https://codeberg.org/entai2965/translation_tools/src/branch/main/multilingual_sugoi) for official setup
+  - [ ] Direct links to download `multilingual_sugoi_compatible_server_ctranslate2.py` and `requirements.txt`
+- [ ] **Status Indicators**:
+  - [ ] Server connection status in settings
+  - [ ] Available models detection
+  - [ ] Language pair validation
+  - [ ] Real-time server health monitoring
+- [ ] **Error Handling**:
+  - [ ] Clear error messages for connection failures
+  - [ ] Guidance for server setup issues
+  - [ ] Fallback options when Sugoi is unavailable
+
+#### **🎯 Expected Benefits**
+- ✅ **Multilingual Support**: 100+ language pairs vs. current LLM limitations
+- ✅ **Offline Translation**: No internet required after initial setup
+- ✅ **Faster Translation**: NMT models typically 3-5x faster than LLMs
+- ✅ **Lower Resource Usage**: Smaller memory footprint than full LLMs
+- ✅ **Cost Effective**: No API costs, just local compute
+- ✅ **User Choice**: Speed (small100) vs. quality (nllb-200) options
+- ✅ **Modular Architecture**: Separate installation keeps LudoLingua lightweight
+- ✅ **GPU Acceleration**: GTX 1660 Super provides 3-5x speed boost over CPU-only
+- ✅ **Optimal Performance**: 16GB RAM + 6GB VRAM handles any Sugoi model efficiently
 
 ---
 
@@ -301,4 +425,4 @@ With Phase 5.0-5.2 complete, the application has a solid foundation with automat
 
 ---
 
-**🏆 Status**: Phase 5.0-5.3 complete, automatic updates fully integrated!
+**🏆 Status**: Phase 5.0-5.3 complete, automatic updates fully integrated! Phase 5.4 Sugoi provider integration in progress.

@@ -108,6 +108,11 @@ impl ContentValidator {
             return false;
         }
 
+        // Skip any text with pipe characters (e.g., "はい|262|380", "戻る|492|380", "text|more|text")
+        if content.contains('|') {
+            return false;
+        }
+
         // Skip sound effect-like short ASCII words only when embedded in CJK-looking content
         if looks_cjk && content.chars().all(|c| c.is_ascii_alphabetic()) && content.len() <= 20 {
             return false;
@@ -220,5 +225,50 @@ impl ContentValidator {
             || content.contains('。')
             || content.contains('・')
             || content.contains('…')
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_pipe_separated_coordinates_filtering() {
+        // Test cases for any text with pipe characters that should be filtered out
+        let pipe_texts = vec![
+            "はい|262|380",
+            "戻る|492|380", 
+            "text|123|456",
+            "日本語|999|888",
+            "abc|1|2|3",
+            "test|0|0",
+            "text|more|text", // Pipe with non-numeric parts
+            "abc|def|ghi", // All non-numeric
+            "test|123abc|456", // Mixed numeric and alphabetic
+        ];
+
+        println!("Testing texts with pipes (should be filtered out):");
+        for text in pipe_texts {
+            let result = ContentValidator::validate_text(text);
+            println!("  '{}' -> {}", text, if result { "PASSED (should be filtered)" } else { "FILTERED (correct)" });
+            assert!(!result, 
+                "Text '{}' should be filtered out because it contains pipe characters", text);
+        }
+
+        // Test cases for legitimate text that should NOT be filtered out
+        let legitimate_texts = vec![
+            "はい", // Just Japanese text
+            "戻る", // Just Japanese text
+            "hello world", // Regular text
+            "日本語のテキスト", // Japanese text
+        ];
+
+        println!("\nTesting legitimate texts (should NOT be filtered out):");
+        for text in legitimate_texts {
+            let result = ContentValidator::validate_text(text);
+            println!("  '{}' -> {}", text, if result { "PASSED (correct)" } else { "FILTERED (should not be)" });
+            assert!(result, 
+                "Text '{}' should NOT be filtered out", text);
+        }
     }
 }

@@ -202,11 +202,32 @@ export function useTranslator() {
     engineStore.textUnits.forEach((u) => { u.translated_text = ''; u.status = TranslationStatus.NotTranslated })
   }
 
-  const saveEdit = (payload: { id: string; translated_text: string }) => {
+  const saveEdit = async (payload: { id: string; translated_text: string }) => {
     const unit = engineStore.getTextUnitById(payload.id)
     if (!unit) return
+    
+    // Update in-memory store immediately for UI responsiveness
     unit.translated_text = payload.translated_text
     unit.status = TranslationStatus.HumanReviewed
+    
+    // Also persist to database
+    try {
+      // Convert string ID to number for database (assuming the ID is numeric)
+      const numericId = parseInt(payload.id, 10)
+      if (!isNaN(numericId)) {
+        // Use dynamic import to avoid build-time dependency issues
+        const { invoke } = await import('@tauri-apps/api/core')
+        await invoke('update_translation_cmd', {
+          id: numericId,
+          translatedText: payload.translated_text,
+          status: 'HumanReviewed'
+        })
+      }
+    } catch (error) {
+      console.error('Failed to save translation to database:', error)
+      // Note: We don't revert the in-memory change since the user expects it to be saved
+      // The database will be synced on next project load
+    }
   }
 
 

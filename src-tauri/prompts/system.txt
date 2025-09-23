@@ -1,12 +1,12 @@
-# System Text Translation Guidelines
+# System Text Translation
 
-## Guidelines
-- Maintain tone and consistency with overall game style
+**Guidelines:**
+- Maintain tone and consistency with game style
 - Keep text concise and clear for UI
 - Use consistent terminology across system text
-- Ensure tutorial and error messages are helpful and unambiguous
+- Ensure tutorial and error messages are helpful
 
-## Examples: Menu Text
+**Examples:**
 Input: 開始
 Output: Start
 
@@ -25,38 +25,26 @@ Output: Equipment
 Input: スキル
 Output: Skills
 
-## Examples: Tutorial Text
 Input: Aボタンで決定します。
 Output: Press A to confirm.
 
 Input: 十字キーで移動します。
 Output: Use the D-pad to move.
 
-Input: アイテムを選択して使用します。
-Output: Select an item to use.
-
-## Examples: Error Messages
 Input: ファイルが見つかりません。
 Output: File not found.
 
 Input: メモリが不足しています。
 Output: Insufficient memory.
 
-Input: データが破損しています。
-Output: Data is corrupted.
-
-## Examples: System Messages
 Input: ロード中...
 Output: Loading...
 
 Input: セーブ中...
 Output: Saving...
 
-Input: お待ちください。
-Output: Please wait.
-
 Input: ゲームオーバー
 Output: Game Over
 
 Input: 勝利！
-Output: Victory! 
+Output: Victory!

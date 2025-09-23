@@ -1,12 +1,12 @@
-# Other Text Translation Guidelines
+# Other Text Translation
 
-## Guidelines
-- Maintain tone and style appropriate to the content
+**Guidelines:**
+- Maintain tone and style appropriate to content
 - Keep technical accuracy for metadata/configuration
 - Preserve structure and clarity; fit UI constraints
-- Maintain consistency with similar text across the game
+- Maintain consistency with similar text across game
 
-## Examples: Notes
+**Examples:**
 Input: Developer comment: This item is rare.
 Output: Developer comment: This item is rare.
 
@@ -16,29 +16,20 @@ Output: Special event trigger condition.
 Input: このスキルは特定の条件下でのみ使用可能。
 Output: This skill can only be used under specific conditions.
 
-## Examples: Metadata
 Input: ID: 1001, Type: Weapon
 Output: ID: 1001, Type: Weapon
 
 Input: Reference: Map_001, Event_005
 Output: Reference: Map_001, Event_005
 
-Input: System: Battle_Trigger_01
-Output: System: Battle_Trigger_01
-
-## Examples: Misc
 Input: Debug: Testing new feature.
 Output: Debug: Testing new feature.
 
 Input: Placeholder: Add description here.
 Output: Placeholder: Add description here.
 
-Input: Experimental: New game mechanic.
-Output: Experimental: New game mechanic.
-
-## Examples: Configuration
 Input: Config: { "enabled": true, "value": 100 }
 Output: Config: { "enabled": true, "value": 100 }
 
 Input: Settings: AutoSave=true, Difficulty=Normal
-Output: Settings: AutoSave=true, Difficulty=Normal 
+Output: Settings: AutoSave=true, Difficulty=Normal

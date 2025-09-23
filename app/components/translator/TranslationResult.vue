@@ -16,6 +16,12 @@
           />
           <span class="text-xs text-muted">{{ textLengthRange[0] }}-{{ textLengthRange[1] }} chars</span>
         </div>
+        <USelect 
+          v-model="placeholderFilter" 
+          :items="placeholderOptions" 
+          placeholder="Filter by placeholder type"
+          class="w-48"
+        />
         <UInput v-model="search" icon="i-lucide-search" placeholder="Search source/translated/type/field…" />
       </div>
     </div>
@@ -36,6 +42,17 @@
           @click="onBulkRetranslate"
         >
           Re-translate Selected ({{ selectedRows.length }})
+        </UButton>
+        <UButton
+          v-if="selectedRows.length >= 1"
+          color="warning"
+          variant="soft"
+          icon="i-lucide-undo"
+          :loading="isBulkReverting"
+          :disabled="isBusy"
+          @click="onBulkRevert"
+        >
+          Revert to Raw ({{ selectedRows.length }})
         </UButton>
       </div>
       <UButton
@@ -103,6 +120,7 @@ const { notify } = useNotifications()
 // Row selection state
 const rowSelection = ref<Record<string, boolean>>({})
 const isBulkRetranslating = ref(false)
+const isBulkReverting = ref(false)
 
 const promptTypeToCategory: Record<string, string> = {
   Character: 'Characters',
@@ -127,6 +145,7 @@ const rows = computed<Row[]>(() => props.items.map(u => ({
 const page = ref(1)
 const pageSize = ref(25)
 const search = ref('')
+const placeholderFilter = ref('all')
 
 // Calculate max text length dynamically
 const maxTextLength = computed(() => {
@@ -138,9 +157,62 @@ const maxTextLength = computed(() => {
 
 const textLengthRange = ref([0, 200])
 
+// Predefined placeholder types based on documentation
+const placeholderOptions = computed(() => {
+  // Get all unique placeholder types that actually exist in the current data
+  const existingPlaceholders = new Set<string>()
+  
+  // Scan all text units for placeholder patterns
+  rows.value.forEach(row => {
+    const text = `${row.source_text} ${row.translated_text}`
+    // Match patterns like [NEWLINE_1], [COLOR_6], [VARIABLE_16], etc.
+    const matches = text.match(/\[([A-Z_]+)_\d+\]/g)
+    if (matches) {
+      matches.forEach(match => {
+        const placeholderType = match.replace(/\[|\]/g, '').replace(/_\d+$/, '')
+        existingPlaceholders.add(placeholderType)
+      })
+    }
+  })
+  
+  // Comprehensive list of all possible placeholder types from documentation
+  const allPlaceholderTypes = [
+    // Common placeholders
+    'ARG', 'NUM_PREFIX', 'FWSPC', 'SPC', 'TAB', 'NEWLINE', 'CARRIAGE_RETURN',
+    'CTRL_DOT', 'CTRL_WAIT', 'CTRL_INSTANT', 'CTRL_INPUT',
+    
+    // RPG Maker placeholders
+    'COLOR', 'NAME', 'VARIABLE', 'variable', 'SWITCH', 'ITEM', 'WEAPON', 
+    'ARMOR', 'ACTOR', 'GOLD', 'CURRENCY', 'CONDITIONAL',
+    
+    // Wolf RPG placeholders
+    'ICON', 'FONT', 'WOLF_END', 'RUBY_START', 'AT', 'SLOT', 'CSELF',
+    
+    // Additional patterns found in your data
+    'AWSPC', 'BACKGROUND', 'BASE', 'BONE_CREAK', 'IWSPC', 'I_FSPC'
+  ]
+  
+  // Filter to only show placeholders that exist in current data
+  const availablePlaceholders = allPlaceholderTypes.filter(type => 
+    existingPlaceholders.has(type)
+  )
+  
+  // Convert to select options format
+  const options = [
+    { label: 'All placeholders', value: 'all' },
+    ...availablePlaceholders.sort().map(placeholder => ({
+      label: `[${placeholder}_*]`,
+      value: placeholder
+    }))
+  ]
+  
+  return options
+})
+
 const filteredRows = computed(() => {
   const q = search.value.trim().toLowerCase()
   const [minLength, maxLength] = textLengthRange.value
+  const placeholderType = placeholderFilter.value
   
   let filtered = rows.value
   
@@ -152,6 +224,16 @@ const filteredRows = computed(() => {
     return (sourceLength >= minLength! && sourceLength <= maxLength!) ||
            (translatedLength >= minLength! && translatedLength <= maxLength!)
   })
+  
+  // Apply placeholder filter
+  if (placeholderType && placeholderType !== 'all') {
+    filtered = filtered.filter(r => {
+      const text = `${r.source_text} ${r.translated_text}`
+      // Check if text contains the selected placeholder type
+      const placeholderPattern = new RegExp(`\\[${placeholderType}_\\d+\\]`, 'g')
+      return placeholderPattern.test(text)
+    })
+  }
   
   // Apply search filter
   if (q) {
@@ -167,7 +249,7 @@ const filteredRows = computed(() => {
 })
 
 // Reset page when filters change
-watch([search, textLengthRange], () => {
+watch([search, textLengthRange, placeholderFilter], () => {
   page.value = 1
 }, { deep: true })
 
@@ -220,6 +302,22 @@ const columns: TableColumn<Row>[] = [
   { accessorKey: 'field_type', header: 'Field Type', enableSorting: true },
   { accessorKey: 'source_text', header: 'Source', enableSorting: false },
   { accessorKey: 'translated_text', header: 'Translated', enableSorting: false },
+  { 
+    id: 'raw_text',
+    header: 'Raw Text',
+    enableSorting: false,
+    cell: ({ row }) => {
+      const UButton = resolveComponent('UButton') as Component
+      return h(UButton, {
+        size: 'xs',
+        color: 'neutral',
+        variant: 'soft',
+        icon: 'i-lucide-undo',
+        disabled: isBusy.value,
+        onClick: () => onRevertToRaw(row.original.id)
+      }, { default: () => 'Revert' })
+    }
+  },
   {
     id: 'actions',
     header: 'Actions',
@@ -272,9 +370,9 @@ const openEditor = (id: string) => {
   editorOpen.value = !!unit
 }
 
-function onSave(payload: { id: string; translated_text: string }) {
+async function onSave(payload: { id: string; translated_text: string }) {
   // Forward to store immediately and also emit for parent listeners
-  saveEdit({ id: payload.id, translated_text: payload.translated_text })
+  await saveEdit({ id: payload.id, translated_text: payload.translated_text })
   emit('save', payload)
   editorOpen.value = false
 }
@@ -335,6 +433,43 @@ async function onBulkRetranslate() {
     
   } finally {
     isBulkRetranslating.value = false
+  }
+}
+
+// Revert single text unit to raw (source text)
+async function onRevertToRaw(id: string) {
+  const unit = props.items.find(u => u.id === id)
+  if (!unit) return
+  
+  // Update the translated text to be the same as source text
+  const payload = { id, translated_text: unit.source_text }
+  await saveEdit(payload)
+  emit('save', payload)
+  
+  showToast('Reverted to raw', `Text reverted to source: "${unit.source_text}"`, 'warning', 2000, 'i-lucide-undo')
+}
+
+// Bulk revert selected rows to raw (source text)
+async function onBulkRevert() {
+  if (selectedRows.value.length === 0) return
+  
+  try {
+    isBulkReverting.value = true
+    
+    // Revert each selected row to its source text
+    for (const row of selectedRows.value) {
+      const payload = { id: row.id, translated_text: row.source_text }
+      await saveEdit(payload)
+      emit('save', payload)
+    }
+    
+    // Clear selection
+    clearSelection()
+    
+    showToast('Bulk revert complete', `Reverted ${selectedRows.value.length} items to raw text`, 'warning', 3000, 'i-lucide-undo')
+    
+  } finally {
+    isBulkReverting.value = false
   }
 }
 </script>

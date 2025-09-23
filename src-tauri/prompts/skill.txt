@@ -1,12 +1,12 @@
-# Skill Translation Guidelines
+# Skill Translation
 
-## Guidelines
+**Guidelines:**
 - Keep names impactful and clear about effect/power
-- Preserve combat/magical terminology and consistency
-- Ensure descriptions convey damage/effects/conditions precisely
+- Preserve combat/magical terminology consistency
+- Ensure descriptions convey damage/effects precisely
 - Fit UI constraints and maintain game tone
 
-## Examples: Skill Names
+**Examples:**
 Input: ファイアボール
 Output: Fireball
 
@@ -22,22 +22,13 @@ Output: Sanity Drain
 Input: 催眠術
 Output: Hypnosis
 
-## Examples: Descriptions
 Input: Deals fire damage to all enemies.[NEWLINE_1][Damage: 150%]
 Output: Deals fire damage to all enemies.[NEWLINE_1][Damage: 150%]
 
 Input: Recovers HP for all allies.[NEWLINE_1][Recovery: 200 HP]
 Output: Recovers HP for all allies.[NEWLINE_1][Recovery: 200 HP]
 
-Input: Increases attack power for 3 turns.[NEWLINE_1][Attack +50%]
-Output: Increases attack power for 3 turns.[NEWLINE_1][Attack +50%]
-
 Input: 相手の理性を奪う。[NEWLINE_1][Sanity -30]
 Output: Drains the opponent's sanity.[NEWLINE_1][Sanity -30]
 
-## Examples: Categories
-- Attack: Damage dealing abilities
-- Healing: Recovery abilities
-- Buff: Positive enhancements
-- Debuff: Negative impairments
-- Special/Ultimate: Unique or most powerful abilities 
+**Categories:** Attack (damage), Healing (recovery), Buff (enhancements), Debuff (impairments), Special/Ultimate (unique/powerful)

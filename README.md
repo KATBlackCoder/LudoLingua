@@ -1,108 +1,167 @@
 # LudoLingua
 
-A desktop application designed for translating RPG Maker game files. It helps game developers and translators manage and translate game text using AI assistance.
+<div align="center">
 
-## Features
+**Professional RPG Game Translation Platform**
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
+*Transform your RPG Maker games with AI-powered translation and intelligent text management*
 
-- 📁 **Load and parse RPG Maker MV projects**
-- 📄 **Extract translatable text**
-- 📚 **Organize by file and type**
-- ✨ **AI-assisted translation**
-- 📖 **Glossary / termbase with prompts**
-- 💾 **Inject translations back to files**
+[![Latest Release](https://img.shields.io/github/v/release/KATBlackCoder/LudoLingua?style=for-the-badge&logo=github)](https://github.com/KATBlackCoder/LudoLingua/releases)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-blue?style=for-the-badge)](https://github.com/KATBlackCoder/LudoLingua/releases)
+[![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)](LICENSE)
 
 </div>
 
-## Supported Engines
+## 🚀 **What is LudoLingua?**
 
-- **RPG Maker MV** ✅ Core files support
-- **RPG Maker MZ** ✅ Core files support
-- **Wolf RPG** 🧪 Experimental support
+LudoLingua is a **professional desktop application** that revolutionizes RPG game translation. Built with modern technologies (Rust + Nuxt 4), it provides game developers and translators with powerful AI-assisted translation tools, intelligent text management, and seamless project integration.
 
-## Installation
+### **Key Capabilities**
 
-### Download Pre-built Binaries
+- 🤖 **AI-Powered Translation** - Ollama (local) & RunPod (cloud) integration
+- 📁 **Smart Project Loading** - Automatic RPG Maker MV/MZ detection & parsing
+- 🎯 **Intelligent Text Extraction** - 12+ file types with context-aware processing
+- 📚 **Advanced Glossary System** - Database-backed terminology management
+- 🔄 **Bulk Operations** - Row selection, retranslation, and batch processing
+- 📊 **Translation Management** - Full CRUD interface with filtering & search
+- 💾 **Seamless Export** - Direct injection back to game files
+- 🔔 **Native Notifications** - Desktop notifications for all operations
+- 🔄 **Auto-Updates** - Professional update management with signed releases
 
-Download the latest release from [GitHub Releases](https://github.com/KATBlackCoder/LudoLingua/releases):
+## 🎮 **Supported Game Engines**
 
-- **Windows**: Download `LudoLingua_0.x.x_x64_en-US.msi` and run the installer
-- **Linux**: Download `LudoLingua_0.x.x_amd64.AppImage`, make it executable (`chmod +x LudoLingua_0.x.x_amd64.AppImage`), and run it
-- **macOS**: Download `LudoLingua_0.x.x_aarch64.app.dmg` and install the application
+| Engine | Status | File Support | Notes |
+|--------|--------|--------------|-------|
+| **RPG Maker MV** | ✅ **Full Support** | 12+ file types | Complete implementation |
+| **RPG Maker MZ** | ✅ **Full Support** | 12+ file types | Uses MV modules with `data/` paths |
+| **Wolf RPG** | 🧪 **Experimental** | Core files | Basic support, expanding |
 
-### Development Setup
+### **Supported File Types**
+- **Core Data**: Actors, Items, Skills, Weapons, Armors, Classes, System, States, Enemies
+- **Events**: CommonEvents, MapInfos, MapXXX files
+- **Advanced**: All RPG Maker JSON data structures with intelligent parsing
 
-If you want to build from source:
+## 📥 **Installation**
 
-Install dependencies with pnpm:
+### **Quick Start - Download & Run**
+
+**Windows**
+```bash
+# Download from GitHub Releases
+LudoLingua_0.x.x_x64_en-US.msi
+# Run installer → Done!
+```
+
+**Linux**
+```bash
+# Download AppImage
+LudoLingua_0.x.x_amd64.AppImage
+# Make executable & run
+chmod +x LudoLingua_0.x.x_amd64.AppImage
+./LudoLingua_0.x.x_amd64.AppImage
+```
+
+**🔗 [Download Latest Release](https://github.com/KATBlackCoder/LudoLingua/releases)**
+
+### **Development Setup**
+
+For contributors and advanced users:
 
 ```bash
+# Clone repository
+git clone https://github.com/KATBlackCoder/LudoLingua.git
+cd LudoLingua
+
+# Install dependencies
 pnpm install
+
+# Start development server
+pnpm tauri dev
+
+# For non-Ubuntu 22 Linux users (if you have display issues)
+WEBKIT_DISABLE_COMPOSITING_MODE=1 GDK_BACKEND=x11 pnpm tauri dev
+
+# Build for production
+pnpm tauri build
+
+# For non-Ubuntu 22 Linux users (no AppImage will be generated)
+WEBKIT_DISABLE_COMPOSITING_MODE=1 GDK_BACKEND=x11 pnpm tauri build
 ```
 
-Start the development server on `http://localhost:3000`:
+## 🛠️ **Technology Stack**
 
+**Frontend**
+- **Framework**: Nuxt 4.1.1 SPA with TypeScript
+- **UI Library**: Nuxt UI v4.0.0-alpha.1 (Pro components)
+- **State Management**: Pinia with Composition API
+- **Styling**: Tailwind CSS with responsive design
+
+**Backend**
+- **Core**: Rust with Tokio async runtime
+- **Desktop**: Tauri for cross-platform desktop apps
+- **Database**: SQLite with manifest-based project tracking
+- **AI Integration**: Unified LLM service layer
+
+**AI Providers**
+- **Ollama**: Local AI models (recommended)
+- **RunPod**: Cloud GPU instances
+- **Future**: Sugoi multilingual server support
+
+## 🤖 **AI Translation Setup**
+
+### **Option 1: Ollama (Recommended)**
 ```bash
-pnpm dev
+# Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Pull the recommended model
+ollama pull qwen2.5:latest
+
+# Start Ollama server
+ollama serve
 ```
+*LudoLingua automatically connects to `http://localhost:11434`*
 
-Build the application for production:
+**Recommended Model**: `qwen2.5:latest` - Superior multilingual capabilities, especially strong for Asian languages and technical translation
 
-```bash
-pnpm build
-```
+### **Option 2: RunPod**
+1. Create account at [RunPod](https://runpod.io/)
+2. Deploy a GPU pod with one of these models:
+   - `qwen2.5:14b-instruct-q5_K_M` (Recommended)
+   - `qwen3:14b-q4_K_M`
+3. Copy the pod ID to LudoLingua settings
+4. *LudoLingua automatically formats the URL*
 
-Locally preview production build:
+**Recommended Models**: Qwen2.5 14B or Qwen3 14B - 128K context, 140+ languages support, excellent for complex RPG texts
 
-```bash
-pnpm preview
-```
+**⚙️ Configure in Settings → AI Provider**
 
-## Technology Stack
+## 📚 **Advanced Glossary System**
 
-- **Frontend**: Nuxt 4 SPA with Nuxt UI components and TypeScript
-- **Backend**: Rust with Tauri for desktop functionality
-- **AI Providers**: Ollama, RunPod
-- **Database**: SQLite for glossary and translation persistence
-- **Styling**: Tailwind CSS with Nuxt UI design system
+LudoLingua features a **database-backed glossary system** that ensures translation consistency across your entire project.
 
-### LLM Requirements
+### **Smart Term Management**
 
-You need an AI provider endpoint to translate. Either:
-- Install Ollama locally and use `http://localhost:11434` ([ollama.com](https://ollama.com/))
-- Use RunPod with your API key
-- Point to a remote Ollama-compatible URL
+**Database Storage**
+- **Location**: `ludolingua.db` in OS app data directory
+- **Windows**: `%AppData%/ml.ludolingua.blackat/`
+- **macOS**: `~/Library/Application Support/ml.ludolingua.blackat/`
+- **Linux**: `~/.local/share/ml.ludolingua.blackat/`
 
-Configure it under **Settings**.
+**Term Categories**
+- **Characters**: Proper names (people, monsters, places)
+- **Essential Terms**: Game-specific vocabulary & currencies
+- **Translation Rules**: Style guidelines & constraints
+- **Locations**: Place names as common nouns
+- **Time & Weather**: Temporal & weather terms
+- **Mechanics**: System terms & game mechanics
+- **Status Effects**: Buffs/debuffs & ailment names
 
-## Glossary System
-
-LudoLingua includes a comprehensive glossary system for ensuring translation consistency across your project.
-
-### Database Location
-
-The glossary database is stored per user in the OS app data directory as `ludolingua.db`:
-
-- **Windows**: `%AppData%/LudoLingua/ludolingua.db`
-- **macOS**: `~/Library/Application Support/LudoLingua/ludolingua.db`
-- **Linux**: `~/.local/share/LudoLingua/ludolingua.db`
-
-### Glossary Categories
-
-Terms are organized by category and applied based on the text unit's PromptType:
-
-- **Characters**: Proper names (people, monsters, places as names)
-- **Essential Terms**: Game-specific vocabulary and currencies
-- **Translation Rules**: Style guidelines and constraints
-- **Locations**: Place names used as common nouns
-- **Time & Weather**: Temporal and weather terms
-- **Mechanics**: System terms and game mechanics
-- **Status Effects**: Buffs/debuffs and ailment names
-
-### Prompt Integration
-
-Glossary terms are automatically injected into LLM prompts based on the text type, ensuring consistent translations throughout your project.
+### **Automatic Integration**
+- **Context-Aware**: Terms automatically injected based on text type
+- **Smart Filtering**: Only relevant terms included per translation
+- **Consistent Results**: Same terminology across all translations
+- **Easy Management**: Full CRUD interface with search & filtering
 
 ## Placeholders Reference
 
@@ -131,65 +190,118 @@ Glossary terms are automatically injected into LLM prompts based on the text typ
 - `[ARG_n]` → `%n` (argument placeholder)
 - `[FWSPC_n]`/`[SPC_n]`/`[TAB_n]` → n full-width spaces / n ASCII spaces / n tabs
 
-## Getting Started
+## 🚀 **Quick Start Guide**
 
-1. **Download & Install**: Download the latest release for your platform from [GitHub Releases](https://github.com/KATBlackCoder/LudoLingua/releases)
-2. **Launch LudoLingua**: Run the application on your system
-3. **Configure AI Provider**: Set up Ollama or RunPod in Settings
-4. **Load RPG Project**: Use "Load Project" to select your RPG Maker game folder
-5. **Extract Text**: The app will automatically extract translatable text
-6. **Translate**: Use AI translation or manual editing
-7. **Export**: Export translated files back to your game
+### **1. Download & Install**
+Download the latest release for your platform from [GitHub Releases](https://github.com/KATBlackCoder/LudoLingua/releases)
 
-## Project Status
+### **2. Configure AI Provider**
+- **Ollama**: Install locally, LudoLingua auto-connects
+- **RunPod**: Enter pod ID, LudoLingua formats URL automatically
 
-- ✅ **RPG Maker MV**: Full support
-- ✅ **RPG Maker MZ**: Full support
-- ✅ **Wolf RPG**: Experimental support
-- ✅ **AI Translation**: Ollama, RunPod
-- ✅ **Glossary System**: Database-backed term management
-- ✅ **Export Functionality**: Direct injection to game files
+### **3. Load Your RPG Project**
+- Click "Load Project" → Select your RPG Maker game folder
+- LudoLingua automatically detects engine type (MV/MZ)
+- Text extraction happens automatically
+
+### **4. Translate & Manage**
+- **AI Translation**: Bulk translate with context-aware prompts
+- **Manual Editing**: Fine-tune translations in the editor
+- **Glossary Management**: Add terms for consistency
+- **Bulk Operations**: Select rows, retranslate, filter by length
+
+### **5. Export Back to Game**
+- Click "Export" → Translations injected directly to game files
+- Files saved to `project/ludolingua/` folder
+- Original files preserved with backup
+
+## 📊 **Current Status**
+
+**✅ Core Features**
+- RPG Maker MV/MZ support
+- AI translation (Ollama/RunPod)
+- Database-backed glossary
+- Smart text extraction
+- Direct file export
+
+**✅ Advanced Features**
+- Bulk operations & row selection
+- Text length filtering
+- Native notifications
+- Auto-updates with signing
+- Translation management
+
+**🧪 Experimental**
+- Wolf RPG support
+- Sugoi provider (planned)
+
+## 🔧 **Advanced Configuration**
+
+### **Prompt System**
+LudoLingua uses intelligent prompt templates that adapt based on text type:
+
+- **Development**: Templates loaded from filesystem for instant editing
+- **Production**: Templates embedded at compile time for reliability
+- **Context-Aware**: Different prompts for dialogue, system text, character names, etc.
+
+### **Vocabulary Filtering**
+Smart filtering ensures only relevant glossary terms are included:
+
+- **Character/Dialogue**: Character names + essential terms
+- **Skills/States**: Status effects + mechanics + essential terms  
+- **Equipment**: Mechanics + essential terms
+- **System/Class**: Mechanics + essential terms
+
+### **Customization**
+- **Add Sections**: Modify filtering arrays in `PromptBuilder::filter_vocabulary_sections`
+- **New Prompt Types**: Add variants to `PromptType` enum and create template files
+- **Vocabulary Management**: Edit `prompts/vocabularies.txt` with exact header matching
 
 ---
 
-### Prompt loading and vocabulary filtering
+## 🤝 **Contributing**
 
-- Dev vs Prod loading:
-  - Dev builds read prompt templates from `src-tauri/prompts/` via filesystem for instant editing.
-  - Prod builds embed the same files at compile time (`include_str!`) to avoid path issues in the bundle.
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-- Vocabulary filtering:
-  - `src-tauri/src/utils/prompts/builder.rs` filters `prompts/vocabularies.txt` to include only sections relevant to each `PromptType`.
-  - Sections are detected by headers that start with `### ` (e.g., `### Mechanics`). The header text must match exactly.
-  - Current whitelist per type:
+### **Development Setup**
+```bash
+git clone https://github.com/KATBlackCoder/LudoLingua.git
+cd LudoLingua
+pnpm install
+pnpm tauri dev
 
-```rust
-// In PromptBuilder::filter_vocabulary_sections
-let wanted_sections: &[&str] = match prompt_type {
-    PromptType::Dialogue | PromptType::Character => &[
-        "### Characters",
-        "### Essential Terms",
-    ],
-    PromptType::State | PromptType::Skill => &[
-        "### Status Effects",
-        "### Mechanics",
-        "### Essential Terms",
-    ],
-    PromptType::Equipment => &[
-        "### Mechanics",
-        "### Essential Terms",
-    ],
-    PromptType::System | PromptType::Class | PromptType::Other => &[
-        "### Mechanics",
-        "### Essential Terms",
-    ],
-};
+# For non-Ubuntu 22 Linux users (if you have display issues)
+WEBKIT_DISABLE_COMPOSITING_MODE=1 GDK_BACKEND=x11 pnpm tauri dev
 ```
 
-- Customize filtering:
-  - To include another section (e.g., `### Locations`) for a type, add it to the corresponding array above.
-  - Or, change headings/text inside `prompts/vocabularies.txt` (ensure exact header match).
+### **Reporting Issues**
+Found a bug? Please [open an issue](https://github.com/KATBlackCoder/LudoLingua/issues) with:
+- Your operating system
+- LudoLingua version
+- Steps to reproduce
+- Expected vs actual behavior
 
-- Add a new prompt type:
-  - Add a variant to `PromptType` and its template file under `src-tauri/prompts/`.
-  - Map it by implementing/using `PromptType::template_path()` (already provided in `src-tauri/src/models/translation.rs`).
+---
+
+## 📄 **License**
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 **Acknowledgments**
+
+- **RPG Maker Community** for inspiration and feedback
+- **Tauri Team** for the excellent desktop framework
+- **Nuxt Team** for the modern web framework
+- **OpenAI & Ollama** for AI translation capabilities
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the RPG translation community**
+
+[⭐ Star this repo](https://github.com/KATBlackCoder/LudoLingua) • [🐛 Report Bug](https://github.com/KATBlackCoder/LudoLingua/issues) • [💡 Request Feature](https://github.com/KATBlackCoder/LudoLingua/issues)
+
+</div>

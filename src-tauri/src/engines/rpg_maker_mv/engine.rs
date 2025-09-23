@@ -694,7 +694,7 @@ impl Engine for RpgMakerMvEngine {
             .map(|raw_unit| TextUnit {
                 id: raw_unit.id.clone(),
                 source_text: raw_unit.source_text.clone(),
-                translated_text: String::new(), // Will be set during injection
+                translated_text: raw_unit.source_text.clone(), // Use processed translated text
                 field_type: raw_unit.field_type.clone(),
                 status: crate::models::translation::TranslationStatus::NotTranslated,
                 prompt_type: raw_unit.prompt_type,

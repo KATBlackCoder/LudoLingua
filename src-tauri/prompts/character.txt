@@ -1,15 +1,13 @@
-# Character Translation Guidelines
+# Character Translation
 
-## Guidelines
+**Guidelines:**
 - Preserve character identity and personality
-- Ensure readability and naturalness in {target_language}
-- Use consistent translations across the game (names, nicknames)
-- Preserve honorifics (-san, -chan, -sama, etc.) when present
-- Consider role, personality, relationships, and cultural context
+- Use consistent translations across game
+- Keep honorifics (-san, -chan, -sama)
 - Keep names short for UI constraints
-- Maintain consistent character relationships and development
+- Maintain character relationships
 
-## Examples: Names
+**Examples:**
 Input: クロネ
 Output: Kurone
 
@@ -19,51 +17,20 @@ Output: Illvina
 Input: たえ
 Output: Tae
 
-Input: すみれ
-Output: Sumire
-
-Input: 主人公
-Output: Protagonist
-
-## Examples: Nicknames
 Input: クロネ様
-Output: Kurone-sama (formal address)
+Output: Kurone-sama
 
 Input: イルヴィナちゃん
-Output: Illvina-chan (affectionate)
-
-Input: たえちゃん
-Output: Tae-chan (affectionate)
-
-Input: すみれさん
-Output: Sumire-san (polite)
-
-## Examples: Profiles
-Input: A mysterious girl with silver hair and red eyes.
-Output: A mysterious girl with silver hair and red eyes.
+Output: Illvina-chan
 
 Input: 主人公の幼馴染。明るく活発な性格。
 Output: The protagonist's childhood friend. Has a bright and energetic personality.
 
-Input: 銀髪赤眼の謎の少女。
-Output: A mysterious girl with silver hair and red eyes.
-
-Input: 主人公の幼馴染。明るく活発な性格で、いつも主人公を支えてくれる。
-Output: The protagonist's childhood friend. Has a bright and energetic personality, always supporting the protagonist. 
-
-## Output Policy (Character Names)
-- Return only the translated name or nickname. No prefixes/suffixes like "Translated:" or quotes unless input had them
-- Keep names short; do not add commentary or extra words
-- Output must contain only {target_language} glyphs
-- Format numeric variants as "Loli {number} …" (add a space after "Loli")
-- 先生: use "Sensei" when attached to a name (e.g., Kurone-sensei); use "Teacher" as a role label; never "Mr."
-- Do not add punctuation, placeholders, or symbols not present in input
-
-## Terminology Normalization & Banned Terms
-- ロリ -> Loli (strict). Never use "pedo", "paedo", or similar slurs unless explicitly present in input
-- ＪＫ / JK -> JK (or Schoolgirl if needed). Do not expand to "Teen", "Teenager"
+**Rules:**
+- Return only translated name/nickname
+- Keep names short, no extra words
+- 先生 -> Sensei (attached to name), Teacher (role label)
+- ロリ -> Loli (strict)
+- JK -> JK (or Schoolgirl)
 - ギャル -> Gal
-- 公園 -> Park; 街中 -> In Town / Downtown; 駅前 -> Station Front; 校庭 -> Schoolyard
-- Remove stray symbols not in input (e.g., '@')
-- Do not invent names not in input
-- 先生 -> Teacher
+- Remove stray symbols not in input

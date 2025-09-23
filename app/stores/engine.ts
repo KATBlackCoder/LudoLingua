@@ -117,6 +117,10 @@ export const useEngineStore = defineStore('engine', () => {
         // Database state is handled automatically on backend
       });
 
+      // Send notification for successful export
+      const { notifyExportComplete } = useNotifications();
+      await notifyExportComplete(exportedPath);
+
       return exportedPath;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to export translation data';

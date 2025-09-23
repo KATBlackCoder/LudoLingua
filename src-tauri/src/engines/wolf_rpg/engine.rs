@@ -226,7 +226,7 @@ impl WolfRpgEngine {
             super::files::db::inject_text_units_into_db(&mut json, text_unit_map, &rel_path);
 
             // Write the updated JSON back to file
-            let updated_content = serde_json::to_string_pretty(&json)
+            let updated_content = serde_json::to_string(&json)
                 .map_err(|e| AppError::Parsing(format!("Failed to serialize JSON: {}", e)))?;
 
             std::fs::write(&db_path, updated_content).map_err(|e| {

@@ -388,6 +388,12 @@
 **Status:** 100% Complete - All Objectives Achieved
 **Note:** Professional-grade update management with signed updates
 
+### 🔄 **Phase 5.4: Sugoi Provider Integration** - IN PROGRESS
+**Timeline:** 1-2 weeks
+**Goal:** Add multilingual sugoi server as a third provider option for offline multilingual translation
+**Status:** IN PROGRESS - Backend service implementation started
+**Approach:** Separate installation (user manages Sugoi server independently)
+
 #### **✅ Phase 5.3.1: Tauri Updater Plugin Setup** - COMPLETED
 - [x] **Install Tauri Updater Plugin**:
   - [x] Run `pnpm tauri add updater` in project root
@@ -433,6 +439,78 @@
 - ✅ **Professional Distribution**: Enterprise-grade update management
 - ✅ **Cross-Platform**: Works on all supported platforms (Windows, macOS, Linux)
 - ✅ **Flexible**: Support for multiple release channels (stable, beta)
+
+#### **🔄 Phase 5.4.1: Sugoi Provider Backend Service** - IN PROGRESS
+**Goal:** Implement Sugoi provider backend service with HTTP client and API integration
+
+- [ ] **Create Sugoi Service** (`src-tauri/src/llm/services/sugoi.rs`):
+  - [ ] Implement `LlmService` trait for Sugoi provider
+  - [ ] HTTP client for `http://localhost:14366` (default Sugoi port)
+  - [ ] Handle Sugoi API format with `source_language` and `target_language` parameters
+  - [ ] Model selection and language code mapping
+  - [ ] Connection testing and error handling
+- [ ] **Add Provider Support**:
+  - [ ] Add `Sugoi` variant to `ProviderKind` enum in `src-tauri/src/core/provider.rs`
+  - [ ] Update factory in `src-tauri/src/llm/factory.rs` to create Sugoi service
+  - [ ] Add Sugoi service to `src-tauri/src/llm/services/mod.rs`
+
+#### **🔄 Phase 5.4.2: Sugoi Models Configuration** - PENDING
+**Goal:** Create comprehensive models configuration and language code management
+
+- [ ] **Create Models Configuration** (`src-tauri/models/sugoi.json`):
+  - [ ] Define available models: small100, m2m100, nllb-200
+  - [ ] Model metadata: size, memory usage, language support
+  - [ ] Language code mappings for each model type
+  - [ ] Model descriptions and recommendations
+- [ ] **Language Code Management**:
+  - [ ] small100/m2m100 language codes (ja, en, es, fr, de, ru, etc.)
+  - [ ] nllb-200 language codes (eng_Latn, rus_Cyrl, etc.)
+  - [ ] Automatic language code detection and validation
+
+#### **🔄 Phase 5.4.3: Frontend Configuration UI** - PENDING
+**Goal:** Create user-friendly configuration interface and setup wizard
+
+- [ ] **Provider Selection**:
+  - [ ] Add Sugoi option to provider selector in settings
+  - [ ] Provider-specific configuration fields
+  - [ ] Model selection dropdown with descriptions
+  - [ ] Language pair configuration
+- [ ] **Setup Wizard Component**:
+  - [ ] Create `SugoiSetupWizard.vue` component
+  - [ ] Platform-specific installation instructions
+  - [ ] Model download guidance
+  - [ ] Server status detection and validation
+- [ ] **Settings Integration**:
+  - [ ] Update `AdvancedSettings.vue` for Sugoi configuration
+  - [ ] Add Sugoi-specific fields and validation
+  - [ ] Connection testing and status indicators
+
+#### **🔄 Phase 5.4.4: User Experience Enhancements** - PENDING
+**Goal:** Provide comprehensive documentation and error handling
+
+- [ ] **Setup Documentation**:
+  - [ ] Comprehensive setup guides for Windows/Linux/macOS
+  - [ ] Python installation and dependency management
+  - [ ] Model download and server startup instructions
+  - [ ] Troubleshooting guide for common issues
+- [ ] **Status Indicators**:
+  - [ ] Server connection status in settings
+  - [ ] Available models detection
+  - [ ] Language pair validation
+  - [ ] Real-time server health monitoring
+- [ ] **Error Handling**:
+  - [ ] Clear error messages for connection failures
+  - [ ] Guidance for server setup issues
+  - [ ] Fallback options when Sugoi is unavailable
+
+#### **🎯 Expected Benefits**
+- ✅ **Multilingual Support**: 100+ language pairs vs. current LLM limitations
+- ✅ **Offline Translation**: No internet required after initial setup
+- ✅ **Faster Translation**: NMT models typically 3-5x faster than LLMs
+- ✅ **Lower Resource Usage**: Smaller memory footprint than full LLMs
+- ✅ **Cost Effective**: No API costs, just local compute
+- ✅ **User Choice**: Speed (small100) vs. quality (nllb-200) options
+- ✅ **Modular Architecture**: Separate installation keeps LudoLingua lightweight
 
 ---
 
@@ -491,6 +569,7 @@
 - **✅ Phase 5.2.3**: Bulk Retranslation & Row Selection Enhancement (1 day) - **COMPLETED**
 - **✅ Phase 5.2.4**: Text Length Filter Enhancement (1 day) - **COMPLETED**
 - **✅ Phase 5.3**: Automatic Updates Integration (1-2 weeks) - **COMPLETED**
+- **🔄 Phase 5.4**: Sugoi Provider Integration (1-2 weeks) - **IN PROGRESS**
 - **Future Phases**: Advanced Management Features, Language Detection, UI/UX Polish, Testing
 - **Total Completed**: 5-6 weeks of development
 
@@ -541,7 +620,9 @@
 
 **Phase 5.0-5.3 Complete!** 🎉 Core architecture, notifications, automated builds, provider simplification, bulk retranslation, text length filtering, and automatic updates achieved successfully.
 
-**Immediate Priority**: **Phase 6 - Advanced Features & Polish**
+**Current Priority**: **Phase 5.4 - Sugoi Provider Integration** (IN PROGRESS)
+
+**Next Priority**: **Phase 6 - Advanced Features & Polish**
 
 **Phase 6** - Advanced Features & Polish (2-3 weeks):
 1. **Advanced Translation Management** (multi-criteria filtering, full-text search, analytics dashboard)
@@ -587,4 +668,4 @@
 - **Extensibility**: Clean architecture for future enhancements
 - **Cross-Platform**: Desktop application for Windows, macOS, and Linux
 
-With the solid, modern foundation now established through Phase 4, LudoLingua is ready for advanced feature development and professional-grade polish in Phase 5.
+With the solid, modern foundation now established through Phase 4, LudoLingua has achieved professional-grade polish in Phase 5.0-5.3 and is now expanding its translation capabilities with the Sugoi provider integration in Phase 5.4.

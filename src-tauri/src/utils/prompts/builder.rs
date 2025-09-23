@@ -49,7 +49,7 @@ impl PromptBuilder {
             terms.len(),
             text_unit.prompt_type
         );
-        let basic_template = match Self::load_prompt_template("prompts/optimized/basic.txt") {
+        let basic_template = match Self::load_prompt_template("prompts/basic.txt") {
             Ok(template) => template,
             Err(_e) => return Self::build_fallback_prompt(text_unit, engine_info),
         };
@@ -104,7 +104,7 @@ impl PromptBuilder {
             text_unit.prompt_type
         );
         // Load basic template
-        let basic_template = match Self::load_prompt_template("prompts/optimized/basic.txt") {
+        let basic_template = match Self::load_prompt_template("prompts/basic.txt") {
             Ok(template) => template,
             Err(e) => {
                 error!("Failed to load basic template: {}", e);
@@ -114,7 +114,7 @@ impl PromptBuilder {
 
         // Load vocabulary template and filter by prompt type to reduce token usage
         let vocabulary_template =
-            match Self::load_prompt_template("prompts/optimized/vocabularies.txt") {
+            match Self::load_prompt_template("prompts/vocabularies.txt") {
                 Ok(template) => Self::filter_vocabulary_sections(&template, text_unit.prompt_type),
                 Err(e) => {
                     error!("Failed to load vocabulary template: {}", e);
@@ -247,24 +247,24 @@ impl PromptBuilder {
     #[cfg(not(debug_assertions))]
     fn load_prompt_template(template_path: &str) -> AppResult<String> {
         let content: &'static str = match template_path {
-            "prompts/optimized/basic.txt" => include_str!("../../../prompts/optimized/basic.txt"),
-            "prompts/optimized/vocabularies.txt" => {
-                include_str!("../../../prompts/optimized/vocabularies.txt")
+            "prompts/basic.txt" => include_str!("../../../prompts/basic.txt"),
+            "prompts/vocabularies.txt" => {
+                include_str!("../../../prompts/vocabularies.txt")
             }
-            "prompts/optimized/character.txt" => {
-                include_str!("../../../prompts/optimized/character.txt")
+            "prompts/character.txt" => {
+                include_str!("../../../prompts/character.txt")
             }
-            "prompts/optimized/state.txt" => include_str!("../../../prompts/optimized/state.txt"),
-            "prompts/optimized/dialogue.txt" => {
-                include_str!("../../../prompts/optimized/dialogue.txt")
+            "prompts/state.txt" => include_str!("../../../prompts/state.txt"),
+            "prompts/dialogue.txt" => {
+                include_str!("../../../prompts/dialogue.txt")
             }
-            "prompts/optimized/equipment.txt" => {
-                include_str!("../../../prompts/optimized/equipment.txt")
+            "prompts/equipment.txt" => {
+                include_str!("../../../prompts/equipment.txt")
             }
-            "prompts/optimized/skill.txt" => include_str!("../../../prompts/optimized/skill.txt"),
-            "prompts/optimized/class.txt" => include_str!("../../../prompts/optimized/class.txt"),
-            "prompts/optimized/system.txt" => include_str!("../../../prompts/optimized/system.txt"),
-            "prompts/optimized/other.txt" => include_str!("../../../prompts/optimized/other.txt"),
+            "prompts/skill.txt" => include_str!("../../../prompts/skill.txt"),
+            "prompts/class.txt" => include_str!("../../../prompts/class.txt"),
+            "prompts/system.txt" => include_str!("../../../prompts/system.txt"),
+            "prompts/other.txt" => include_str!("../../../prompts/other.txt"),
             _ => {
                 return Err(AppError::FileSystem(format!(
                     "Unknown prompt template path: {}",

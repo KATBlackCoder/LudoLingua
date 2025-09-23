@@ -26,7 +26,7 @@
       </template>
 
       <div class="flex flex-wrap items-center gap-3 mb-3">
-        <UButtonGroup>
+        <UFieldGroup>
           <UButton
             icon="i-lucide-play"
             :loading="isBusy"
@@ -53,7 +53,7 @@
           >
             Reset
           </UButton>
-        </UButtonGroup>
+        </UFieldGroup>
 
         <!-- Enhanced mode indicators -->
         <div class="flex items-center gap-2 ml-auto">
@@ -64,7 +64,7 @@
             {{ translatedItems.length }} translated
           </UBadge>
 
-          <UButtonGroup>
+          <UFieldGroup>
             <UButton
               size="xs"
               variant="soft"
@@ -92,7 +92,7 @@
             >
               Result
             </UButton>
-          </UButtonGroup>
+          </UFieldGroup>
         </div>
       </div>
 

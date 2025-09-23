@@ -59,10 +59,21 @@ export const useNotifications = () => {
     )
   }
 
+  /**
+   * Notify when export completes successfully
+   */
+  const notifyExportComplete = async (exportedPath: string): Promise<void> => {
+    await notify(
+      'Export Complete',
+      `Translations exported to: ${exportedPath}`
+    )
+  }
+
   return {
     checkAndRequestPermission,
     notify,
     notifyProjectLoaded,
-    notifyTranslationComplete
+    notifyTranslationComplete,
+    notifyExportComplete
   }
 }
