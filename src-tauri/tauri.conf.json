@@ -41,7 +41,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IHJzaWduIGVuY3J5cHRlZCBzZWNyZXQga2V5ClJXUlRZMEl5MHN4YUV3b1BJYWN6VXROTGhVMldaamt6RGNQdTI3YUlwRFo1U0pQZ05yY0FBQkFBQUFBQUFBQUFBQUlBQUFBQUNiZUtrVXdCSVFOUFJ4NWJndWZUVURrRXA1MHRQVGRTbzFvQzBIeERVZGt5b1VIMEI2STJTb2ZjVmtjTFl3czVQK3BCeVVTUWgzOE45VFZiWDdlc1dNTUJmY3VzbTRVbFF4MWhZRVBrWVcvaHhydDNabVZhNVU4R0lhdzlsQ0t5cVZtTlJrU3I0N0E9Cg==",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNFNDdGQ0I5MjRGMTgzQzUKUldURmcvRWt1ZnhIUHVLRVVIdVBlTW84U1JxOHdCdEJ0KzZSQlY4eVNTK29za2cyU0owTXhnKysK",
       "endpoints": [
         "https://github.com/KATBlackCoder/LudoLingua/releases/latest/download/latest.json"
       ]
