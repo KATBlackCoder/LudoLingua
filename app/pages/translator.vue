@@ -1,6 +1,6 @@
 <template>
-  <UContainer>
-    <div class="max-w-6xl mx-auto">
+  <UContainer class="w-full max-w-none">
+    <div class="w-full">
       <div class="flex items-center justify-between gap-3 mb-3">
         <h2 class="text-xl font-semibold">Translation Workspace</h2>
       </div>
@@ -9,7 +9,7 @@
     </div>
 
     <!-- Translations card -->
-    <UCard class="max-w-8xl mx-auto mt-4">
+    <UCard class="w-full mt-4">
       <template #header>
         <div class="flex items-center gap-3 w-full">
           <h3 class="text-lg font-semibold">Translations</h3>

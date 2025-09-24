@@ -26,7 +26,7 @@
       </div>
     </div>
     
-    <!-- Bulk Actions -->
+    <!-- Bulk Actions Header-->
     <div v-if="selectedRows.length > 0" class="flex items-center justify-between p-3 bg-success/10 rounded-lg border border-primary/20">
       <div class="flex items-center gap-3">
         <UBadge color="info" variant="soft">
@@ -66,15 +66,62 @@
       </UButton>
     </div>
 
+    <!-- Pagination Header-->
+    <div class="flex items-center justify-between">
+      <span class="text-xs text-muted">Page {{ page }} / {{ pageCount }}</span>
+      <UPagination v-model:page="page" :total="filteredRows.length" :items-per-page="pageSize" />
+    </div>
+
     <UTable 
       ref="table"
       v-model:row-selection="rowSelection"
+      v-model:sorting="sorting"
       :data="pagedRows" 
       :columns="columns" 
-      class="text-base" 
+      class="text-base w-full" 
       @select="onSelect"
     />
     
+        <!-- Bulk Actions Footer-->
+        <div v-if="selectedRows.length > 0" class="flex items-center justify-between p-3 bg-success/10 rounded-lg border border-primary/20">
+      <div class="flex items-center gap-3">
+        <UBadge color="info" variant="soft">
+          {{ selectedRows.length }} row(s) selected
+        </UBadge>
+        <UButton
+          v-if="selectedRows.length >= 2"
+          color="info"
+          variant="soft"
+          icon="i-lucide-refresh-cw"
+          :loading="isBulkRetranslating"
+          :disabled="isBusy"
+          @click="onBulkRetranslate"
+        >
+          Re-translate Selected ({{ selectedRows.length }})
+        </UButton>
+        <UButton
+          v-if="selectedRows.length >= 1"
+          color="warning"
+          variant="soft"
+          icon="i-lucide-undo"
+          :loading="isBulkReverting"
+          :disabled="isBusy"
+          @click="onBulkRevert"
+        >
+          Revert to Raw ({{ selectedRows.length }})
+        </UButton>
+      </div>
+      <UButton
+        color="error"
+        variant="ghost"
+        size="sm"
+        icon="i-lucide-x"
+        @click="clearSelection"
+      >
+        Clear Selection
+      </UButton>
+    </div>
+
     <!-- Selection summary -->
     <div class="px-4 py-3.5 border-t border-accented text-sm text-muted">
       {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }} of
@@ -121,6 +168,14 @@ const { notify } = useNotifications()
 const rowSelection = ref<Record<string, boolean>>({})
 const isBulkRetranslating = ref(false)
 const isBulkReverting = ref(false)
+
+// Sorting state
+const sorting = ref([
+  {
+    id: 'prompt_type',
+    desc: false
+  }
+])
 
 const promptTypeToCategory: Record<string, string> = {
   Character: 'Characters',
@@ -298,8 +353,46 @@ const columns: TableColumn<Row>[] = [
       })
     }
   },
-  { accessorKey: 'prompt_type', header: 'Type', enableSorting: true },
-  { accessorKey: 'field_type', header: 'Field Type', enableSorting: true },
+  { 
+    accessorKey: 'prompt_type', 
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted()
+      const UButton = resolveComponent('UButton') as Component
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'ghost',
+        label: 'Type',
+        icon: isSorted
+          ? isSorted === 'asc'
+            ? 'i-lucide-arrow-up-narrow-wide'
+            : 'i-lucide-arrow-down-wide-narrow'
+          : 'i-lucide-arrow-up-down',
+        class: '-mx-2.5',
+        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+      })
+    },
+    enableSorting: true 
+  },
+  { 
+    accessorKey: 'field_type', 
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted()
+      const UButton = resolveComponent('UButton') as Component
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'ghost',
+        label: 'Field Type',
+        icon: isSorted
+          ? isSorted === 'asc'
+            ? 'i-lucide-arrow-up-narrow-wide'
+            : 'i-lucide-arrow-down-wide-narrow'
+          : 'i-lucide-arrow-up-down',
+        class: '-mx-2.5',
+        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+      })
+    },
+    enableSorting: true 
+  },
   { accessorKey: 'source_text', header: 'Source', enableSorting: false },
   { accessorKey: 'translated_text', header: 'Translated', enableSorting: false },
   { 
