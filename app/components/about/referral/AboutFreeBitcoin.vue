@@ -1,62 +1,81 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-6">
+    <!-- Header Section -->
     <UCard>
       <template #header>
-        <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-bitcoin" class="text-warning" />
-          <span class="font-medium">FreeBitcoin</span>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-warning-50 dark:bg-warning-900/20 rounded-lg">
+              <UIcon name="i-lucide-bitcoin" class="text-warning w-5 h-5" />
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">FreeBitcoin</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Cryptocurrency earning platform</p>
+            </div>
+          </div>
           <UBadge color="warning" variant="soft" size="sm">
-            <UIcon name="i-lucide-coins" class="mr-1" />
+            <UIcon name="i-lucide-coins" class="w-3 h-3 mr-1" />
             Cryptocurrency
           </UBadge>
         </div>
       </template>
-      
-      <div class="space-y-4">
-        <p class="text-sm text-gray-600 dark:text-gray-400">
+
+      <div class="space-y-6">
+        <!-- Description -->
+        <div class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
           FreeBitcoin is a legitimate cryptocurrency earning platform where you can win free Bitcoin every hour through provably fair games and earn interest on your deposits.
-        </p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="p-4 bg-warning-50 dark:bg-warning-900/20 rounded-lg border border-warning-200 dark:border-warning-800">
-            <div class="flex items-center gap-2 mb-2">
-              <UIcon name="i-lucide-gift" class="text-warning" />
-              <span class="font-medium text-warning-800 dark:text-warning-200">Free Bitcoin Hourly</span>
-            </div>
-            <p class="text-xs text-warning-700 dark:text-warning-300">
-              Win up to $200 in free Bitcoin every hour with our free-to-play game
-            </p>
-          </div>
-          
-          <div class="p-4 bg-warning-50 dark:bg-warning-900/20 rounded-lg border border-warning-200 dark:border-warning-800">
-            <div class="flex items-center gap-2 mb-2">
-              <UIcon name="i-lucide-trending-up" class="text-warning" />
-              <span class="font-medium text-warning-800 dark:text-warning-200">4.08% Annual Interest</span>
-            </div>
-            <p class="text-xs text-warning-700 dark:text-warning-300">
-              Earn daily compounded interest on your Bitcoin deposits
-            </p>
-          </div>
         </div>
-        
-        <UAlert color="info" variant="soft" icon="i-lucide-info">
-          <template #title>Referral Benefits</template>
-          <template #description>
-            <div class="text-sm">
-              By using our referral link, you'll get a bonus when you sign up and start earning Bitcoin. We both benefit from the referral program!
+
+        <!-- Features Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <UCard class="p-4 bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-800">
+            <div class="flex items-start gap-3">
+              <div class="p-2 bg-warning-100 dark:bg-warning-900/30 rounded-lg">
+                <UIcon name="i-lucide-gift" class="text-warning w-4 h-4" />
+              </div>
+              <div class="flex-1">
+                <h4 class="font-semibold text-warning-800 dark:text-warning-200 mb-1">Free Bitcoin Hourly</h4>
+                <p class="text-xs text-warning-700 dark:text-warning-300">
+                  Win up to $200 in free Bitcoin every hour with our free-to-play game
+                </p>
+              </div>
             </div>
-          </template>
-        </UAlert>
+          </UCard>
+          
+          <UCard class="p-4 bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-800">
+            <div class="flex items-start gap-3">
+              <div class="p-2 bg-warning-100 dark:bg-warning-900/30 rounded-lg">
+                <UIcon name="i-lucide-trending-up" class="text-warning w-4 h-4" />
+              </div>
+              <div class="flex-1">
+                <h4 class="font-semibold text-warning-800 dark:text-warning-200 mb-1">4.08% Annual Interest</h4>
+                <p class="text-xs text-warning-700 dark:text-warning-300">
+                  Earn daily compounded interest on your Bitcoin deposits
+                </p>
+              </div>
+            </div>
+          </UCard>
+        </div>
+
+        <!-- Referral Benefits Alert -->
+        <UAlert 
+          color="info" 
+          variant="soft" 
+          icon="i-lucide-info"
+          title="Referral Benefits"
+          description="By using our referral link, you'll get a bonus when you sign up and start earning Bitcoin. We both benefit from the referral program!"
+        />
         
+        <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row gap-3">
           <UButton
             color="warning"
             variant="solid"
             size="lg"
             icon="i-lucide-external-link"
-            :loading="isLoading"
             class="flex-1"
-            @click="openFreeBitcoin"
+            :to="referralUrl"
+            target="_blank"
           >
             Visit FreeBitcoin
           </UButton>
@@ -66,15 +85,18 @@
             variant="outline"
             size="lg"
             icon="i-lucide-copy"
-            :disabled="isLoading"
             @click="copyReferralLink"
           >
             Copy Link
           </UButton>
         </div>
         
-        <div class="text-xs text-gray-500 dark:text-gray-400 text-center">
-          Referral ID: 10431332
+        <!-- Referral ID -->
+        <div class="text-center">
+          <div class="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">
+            <UIcon name="i-lucide-hash" class="text-gray-500 w-3 h-3" />
+            <span class="text-xs text-gray-500 dark:text-gray-400 font-mono">Referral ID: 10431332</span>
+          </div>
         </div>
       </div>
     </UCard>
@@ -82,26 +104,8 @@
 </template>
 
 <script setup lang="ts">
-import { openUrl } from '@tauri-apps/plugin-opener'
-
 const { showToast } = useAppToast()
-const isLoading = ref(false)
 const referralUrl = 'https://freebitco.in/?r=10431332'
-
-const openFreeBitcoin = async () => {
-  try {
-    isLoading.value = true
-    await openUrl(referralUrl)
-    showToast('Success', 'FreeBitcoin opened in your default browser', 'success', 3000, 'i-lucide-external-link')
-  } catch (error) {
-    console.error('Failed to open FreeBitcoin:', error)
-    // Fallback to window.open if Tauri opener fails
-    window.open(referralUrl, '_blank')
-    showToast('Opened', 'FreeBitcoin opened in new browser tab', 'info', 3000, 'i-lucide-external-link')
-  } finally {
-    isLoading.value = false
-  }
-}
 
 const copyReferralLink = async () => {
   try {

@@ -1,115 +1,217 @@
 <template>
-  <UContainer class="w-full max-w-none">
-    <div class="w-full">
-      <div class="flex items-center justify-between gap-3 mb-3">
-        <h2 class="text-xl font-semibold">Translation Workspace</h2>
+  <div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+          <UIcon name="i-lucide-languages" class="text-primary w-5 h-5" />
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Translation Workspace</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Translate your RPG Maker game with AI assistance</p>
+        </div>
       </div>
-      <!-- Stats uses its own UCard internally -->
-      <ProjectStats />
+      <div class="flex items-center gap-2">
+        <UButton
+          variant="outline"
+          icon="i-lucide-arrow-left"
+          to="/"
+        >
+          Back to Home
+        </UButton>
+      </div>
     </div>
 
-    <!-- Translations card -->
-    <UCard class="w-full mt-4">
+    <!-- Project Stats -->
+    <ProjectStats />
+
+    <!-- Translation Controls -->
+    <UCard>
       <template #header>
-        <div class="flex items-center gap-3 w-full">
-          <h3 class="text-lg font-semibold">Translations</h3>
-          <UBadge v-if="failedCount" color="warning" variant="soft">{{ failedCount }} failed</UBadge>
-          <div v-if="isBusy" class="flex items-center gap-2 ml-auto">
-            <UProgress :value="progressPercent" />
-            <span class="text-xs text-muted">{{ translationProgress }}/{{ translationTotal }}</span>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <UIcon name="i-lucide-play" class="text-blue-500 w-5 h-5" />
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Translation Controls</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Manage your translation workflow</p>
+            </div>
           </div>
-          <div v-else-if="isExportingSubset" class="flex items-center gap-2 ml-auto text-muted">
-            <UIcon name="i-lucide-loader-2" class="w-4 h-4 animate-spin" />
-            <span class="text-xs">Exporting minimal copy…</span>
+          <div class="flex items-center gap-2">
+            <UBadge v-if="failedCount" color="warning" variant="soft" size="lg">
+              <UIcon name="i-lucide-alert-triangle" class="w-3 h-3 mr-1" />
+              {{ failedCount }} failed
+            </UBadge>
+            <UBadge v-if="hasNotTranslated" color="warning" variant="soft" size="lg">
+              {{ engineStore.textUnits.filter(u => u.status === 'NotTranslated').length }} raw
+            </UBadge>
+            <UBadge v-if="hasTranslated" color="success" variant="soft" size="lg">
+              {{ translatedItems.length }} translated
+            </UBadge>
           </div>
         </div>
       </template>
 
-      <div class="flex flex-wrap items-center gap-3 mb-3">
-        <UFieldGroup>
+      <!-- Progress Indicator -->
+      <div v-if="isBusy" class="mb-6">
+        <UAlert
+          color="info"
+          variant="soft"
+          icon="i-lucide-loader-2"
+          title="Translation in Progress"
+          :description="`Processing ${translationProgress} of ${translationTotal} items`"
+          class="p-4"
+        >
+          <template #default>
+            <div class="space-y-3 mt-3">
+              <UProgress :value="progressPercent" size="lg" />
+            </div>
+          </template>
+        </UAlert>
+      </div>
+
+      <!-- Export Progress -->
+      <div v-if="isExportingSubset" class="mb-6">
+        <UAlert
+          color="success"
+          variant="soft"
+          icon="i-lucide-loader-2"
+          title="Exporting Translations"
+          description="Creating minimal copy of your project with translations..."
+          class="p-4"
+        />
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="grid grid-cols-1 gap-4 mb-6" :class="hasNotTranslated ? 'md:grid-cols-3' : 'md:grid-cols-2'">
+        <div v-if="hasNotTranslated" class="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg border border-primary-200 dark:border-primary-800">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
+              <UIcon name="i-lucide-play" class="text-primary w-5 h-5" />
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-900 dark:text-white">Start Translation</h4>
+              <p class="text-xs text-gray-600 dark:text-gray-400">Begin AI translation process</p>
+            </div>
+          </div>
           <UButton
-            icon="i-lucide-play"
+            size="lg"
+            color="primary"
             :loading="isBusy"
             :disabled="isExportingSubset || !hasNotTranslated"
+            class="w-full"
             @click="startProcess"
           >
+            <UIcon name="i-lucide-play" class="w-4 h-4 mr-2" />
             Translate All
           </UButton>
+        </div>
+
+        <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <UIcon name="i-lucide-folder" class="text-green-500 w-5 h-5" />
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-900 dark:text-white">Export Translations</h4>
+              <p class="text-xs text-gray-600 dark:text-gray-400">Save to project files</p>
+            </div>
+          </div>
           <UButton
-            icon="i-lucide-folder"
+            size="lg"
             color="success"
-            variant="soft"
+            variant="outline"
             :loading="isExportingSubset"
             :disabled="!hasTranslated || isBusy"
+            class="w-full"
             @click="exportSubset"
           >
-            Export data
+            <UIcon name="i-lucide-folder" class="w-4 h-4 mr-2" />
+            Export Data
           </UButton>
+        </div>
+
+        <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <UIcon name="i-lucide-refresh-cw" class="text-gray-600 dark:text-gray-400 w-5 h-5" />
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-900 dark:text-white">Reset All</h4>
+              <p class="text-xs text-gray-600 dark:text-gray-400">Clear all translations</p>
+            </div>
+          </div>
           <UButton
-            icon="i-lucide-refresh-cw"
+            size="lg"
             color="neutral"
+            variant="outline"
             :disabled="isBusy || isExportingSubset || !hasTranslated"
+            class="w-full"
             @click="reset"
           >
+            <UIcon name="i-lucide-refresh-cw" class="w-4 h-4 mr-2" />
             Reset
           </UButton>
-        </UFieldGroup>
-
-        <!-- Enhanced mode indicators -->
-        <div class="flex items-center gap-2 ml-auto">
-          <UBadge v-if="hasNotTranslated" color="warning" variant="soft">
-            {{ engineStore.textUnits.filter(u => u.status === 'NotTranslated').length }} raw
-          </UBadge>
-          <UBadge v-if="hasTranslated" color="success" variant="soft">
-            {{ translatedItems.length }} translated
-          </UBadge>
-
-          <UFieldGroup>
-            <UButton
-              size="xs"
-              variant="soft"
-              :color="mode === 'raw' ? 'secondary' : 'neutral'"
-              :disabled="!hasNotTranslated && mode !== 'raw'"
-              @click="mode = 'raw'"
-            >
-              Raw
-            </UButton>
-            <UButton
-              size="xs"
-              variant="soft"
-              :color="mode === 'process' ? 'warning' : 'neutral'"
-              :disabled="isBusy"
-              @click="mode = 'process'"
-            >
-              Process
-            </UButton>
-            <UButton
-              size="xs"
-              variant="soft"
-              :color="mode === 'result' ? 'primary' : 'neutral'"
-              :disabled="!hasTranslated && mode !== 'result'"
-              @click="mode = 'result'"
-            >
-              Result
-            </UButton>
-          </UFieldGroup>
         </div>
       </div>
 
-      <!-- Enhanced content display with mixed state support -->
+      <!-- Mode Selector -->
+      <div class="flex items-center justify-between mb-6">
+        <h4 class="text-sm font-semibold text-gray-900 dark:text-white">View Mode</h4>
+        <UFieldGroup>
+          <UButton
+            size="sm"
+            variant="soft"
+            :color="mode === 'raw' ? 'primary' : 'neutral'"
+            :disabled="!hasNotTranslated && mode !== 'raw'"
+            @click="mode = 'raw'"
+          >
+            <UIcon name="i-lucide-file-text" class="w-4 h-4 mr-2" />
+            Raw Text
+          </UButton>
+          <UButton
+            size="sm"
+            variant="soft"
+            :color="mode === 'process' ? 'warning' : 'neutral'"
+            :disabled="isBusy"
+            @click="mode = 'process'"
+          >
+            <UIcon name="i-lucide-cog" class="w-4 h-4 mr-2" />
+            Processing
+          </UButton>
+          <UButton
+            size="sm"
+            variant="soft"
+            :color="mode === 'result' ? 'success' : 'neutral'"
+            :disabled="!hasTranslated && mode !== 'result'"
+            @click="mode = 'result'"
+          >
+            <UIcon name="i-lucide-check-circle" class="w-4 h-4 mr-2" />
+            Results
+          </UButton>
+        </UFieldGroup>
+      </div>
+
+      <!-- Content Display -->
       <div v-if="mode === 'raw'">
         <TranslationRaw />
-        <!-- Show translated items summary in mixed state -->
-        <div v-if="hasTranslated" class="mt-4 p-4 bg-primary-50 dark:bg-primary-950 rounded-lg">
-          <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-primary-700 dark:text-primary-300">
-              {{ translatedItems.length }} items already translated
-            </span>
-            <UButton size="xs" variant="soft" @click="mode = 'result'">
+        <!-- Mixed state notification -->
+        <UAlert
+          v-if="hasTranslated"
+          color="info"
+          variant="soft"
+          icon="i-lucide-info"
+          title="Partial Translation Complete"
+          :description="`${translatedItems.length} items already translated`"
+          class="mt-4"
+        >
+          <template #actions>
+            <UButton size="sm" color="primary" @click="mode = 'result'">
               View Results
             </UButton>
-          </div>
-        </div>
+          </template>
+        </UAlert>
       </div>
 
       <div v-else-if="mode === 'process'">
@@ -118,32 +220,42 @@
 
       <div v-else-if="mode === 'result'">
         <TranslationResult :items="translatedItems" @save="saveEdit" @retranslate-selected="handleBulkRetranslation" />
-        <!-- Show raw items summary in mixed state -->
-        <div v-if="hasNotTranslated" class="mt-4 p-4 bg-warning-50 dark:bg-warning-950 rounded-lg">
-          <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-warning-700 dark:text-warning-300">
-              {{ engineStore.textUnits.filter(u => u.status === 'NotTranslated').length }} items still need translation
-            </span>
-            <UButton size="xs" variant="soft" @click="mode = 'raw'">
+        <!-- Mixed state notification -->
+        <UAlert
+          v-if="hasNotTranslated"
+          color="warning"
+          variant="soft"
+          icon="i-lucide-clock"
+          title="Translation Incomplete"
+          :description="`${engineStore.textUnits.filter(u => u.status === 'NotTranslated').length} items still need translation`"
+          class="mt-4"
+        >
+          <template #actions>
+            <UButton size="sm" color="warning" @click="mode = 'raw'">
               Continue Translating
             </UButton>
-          </div>
-        </div>
+          </template>
+        </UAlert>
       </div>
 
-      <!-- Auto-navigation helpers -->
-      <div v-if="!hasNotTranslated && hasTranslated && mode !== 'result' && !isBusy" class="mt-4 p-4 bg-success-50 dark:bg-success-950 rounded-lg">
-        <div class="flex items-center justify-between">
-          <span class="text-sm font-medium text-success-700 dark:text-success-300">
-            All items translated! 🎉
-          </span>
-          <UButton size="xs" color="primary" @click="mode = 'result'">
+      <!-- Completion notification -->
+      <UAlert
+        v-if="!hasNotTranslated && hasTranslated && mode !== 'result' && !isBusy"
+        color="success"
+        variant="soft"
+        icon="i-lucide-check-circle"
+        title="Translation Complete! 🎉"
+        description="All items have been successfully translated."
+        class="mt-4"
+      >
+        <template #actions>
+          <UButton size="sm" color="success" @click="mode = 'result'">
             View All Results
           </UButton>
-        </div>
-      </div>
+        </template>
+      </UAlert>
     </UCard>
-  </UContainer>
+  </div>
 </template>
 
 <script setup lang="ts">

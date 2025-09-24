@@ -1,90 +1,163 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-6">
+    <!-- Filters Section -->
     <UCard>
       <template #header>
-        <div class="flex flex-col gap-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <h2 class="text-xl font-semibold">Translations</h2>
-              <UBadge variant="soft">{{ filteredTranslations.length }} translations</UBadge>
-            </div>
-            <div class="flex gap-2">
-              <UButton 
-                v-if="selectedRowsCount > 0" 
-                color="error" 
-                icon="i-lucide-trash" 
-                @click="handleBulkDelete"
-              >
-                Delete {{ selectedRowsCount }}
-              </UButton>
-              <UButton 
-                v-if="selectedRowsCount > 0" 
-                color="neutral" 
-                variant="soft"
-                icon="i-lucide-x" 
-                @click="clearSelection"
-              >
-                Clear Selection
-              </UButton>
-              <UButton color="primary" icon="i-lucide-refresh-cw" :loading="isLoading" @click="() => loadTranslations()">
-                Reload
-              </UButton>
-            </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <UIcon name="i-lucide-filter" class="text-gray-500 w-4 h-4" />
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Filters & Search</span>
           </div>
+          <div class="flex items-center gap-2">
+            <UBadge color="primary" variant="soft" size="sm">
+              {{ filteredTranslations.length }} translations
+            </UBadge>
+          </div>
+        </div>
+      </template>
 
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <!-- Search Filter -->
+          <UFormField label="Search">
             <UInput 
               v-model="search" 
               icon="i-lucide-search" 
-              placeholder="Search source/translated/field text…" 
+              placeholder="Search translations..."
+              size="sm"
             />
+          </UFormField>
 
+          <!-- Status Filter -->
+          <UFormField label="Status">
             <USelect 
               v-model="statusFilter" 
               :items="statusOptions" 
-              placeholder="All statuses" 
+              placeholder="All statuses"
+              size="sm"
+              class="w-full"
             />
+          </UFormField>
 
+          <!-- Type Filter -->
+          <UFormField label="Type">
             <USelect 
               v-model="promptTypeFilter" 
               :items="promptTypeOptions" 
-              placeholder="All types" 
+              placeholder="All types"
+              size="sm"
+              class="w-full"
             />
+          </UFormField>
 
+          <!-- Clear Filters -->
+          <UFormField label="Actions">
             <UButton 
               variant="soft" 
               icon="i-lucide-x" 
+              size="sm"
               @click="clearFilters"
             >
               Clear Filters
             </UButton>
-          </div>
+          </UFormField>
+        </div>
+      </div>
+    </UCard>
 
-          <!-- Project Management Section -->
-          <div class="flex items-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-            <USelect 
-              v-model="selectedProject" 
-              :items="projectOptions" 
-              placeholder="Select a project to manage…"
-              icon="i-lucide-folder"
-              class="flex-1"
-            />
-            
+    <!-- Bulk Actions -->
+    <UAlert
+      v-if="selectedRowsCount > 0"
+      color="warning"
+      variant="soft"
+      icon="i-lucide-alert-triangle"
+      :title="`${selectedRowsCount} item(s) selected`"
+      class="p-4"
+    >
+      <template #default>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
             <UButton 
-              v-if="selectedProject && selectedProject !== 'none'" 
               color="error" 
               variant="soft"
-              icon="i-lucide-trash-2" 
-              :loading="isDeletingProject"
-              @click="handleDeleteProject"
+              icon="i-lucide-trash" 
+              size="sm"
+              @click="handleBulkDelete"
             >
-              Delete Project
+              Delete {{ selectedRowsCount }}
+            </UButton>
+          </div>
+          <UButton 
+            color="neutral" 
+            variant="ghost" 
+            size="sm"
+            icon="i-lucide-x" 
+            @click="clearSelection"
+          >
+            Clear Selection
+          </UButton>
+        </div>
+      </template>
+    </UAlert>
+
+    <!-- Project Management Section -->
+    <UCard>
+      <template #header>
+        <div class="flex items-center gap-3">
+          <UIcon name="i-lucide-folder" class="text-gray-500 w-4 h-4" />
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Project Management</span>
+        </div>
+      </template>
+
+      <div class="flex items-center gap-3">
+        <USelect 
+          v-model="selectedProject" 
+          :items="projectOptions" 
+          placeholder="Select a project to manage..."
+          icon="i-lucide-folder"
+          class="flex-1"
+          size="sm"
+        />
+        
+        <UButton 
+          v-if="selectedProject && selectedProject !== 'none'" 
+          color="error" 
+          variant="soft"
+          icon="i-lucide-trash-2" 
+          :loading="isDeletingProject"
+          size="sm"
+          @click="handleDeleteProject"
+        >
+          Delete Project
+        </UButton>
+      </div>
+    </UCard>
+
+    <!-- Translations Table -->
+    <UCard>
+      <template #header>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <UIcon name="i-lucide-table" class="text-gray-500 w-4 h-4" />
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Translation Records</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <UButton 
+              color="primary" 
+              icon="i-lucide-refresh-cw" 
+              :loading="isLoading" 
+              size="sm"
+              @click="() => loadTranslations()"
+            >
+              Reload
             </UButton>
           </div>
         </div>
       </template>
 
-      <div v-if="error" class="text-error-500 text-sm mb-2">{{ error }}</div>
+      <div v-if="error" class="mb-4">
+        <UAlert color="error" variant="soft" :title="error" />
+      </div>
 
       <UTable 
         ref="table"
@@ -92,7 +165,7 @@
         :data="pagedTranslations" 
         :columns="columns" 
         :loading="isLoading" 
-        class="text-base"
+        class="text-sm"
         :empty-state="{ 
           icon: 'i-lucide-file-text', 
           label: 'No translations found', 
@@ -117,23 +190,21 @@
             {{ getStatusLabel(row.original.status) }}
           </UBadge>
         </template>
-
-        <!-- Actions column now uses render function approach in columns definition -->
       </UTable>
 
       <template #footer>
         <div class="flex items-center justify-between w-full">
           <div class="flex items-center gap-4">
-            <span class="text-xs text-muted">
+            <span class="text-xs text-gray-500 dark:text-gray-400">
               Showing {{ pagedTranslations.length }} of {{ filteredTranslations.length }} translations
             </span>
-            <span class="text-xs text-muted">
+            <span class="text-xs text-gray-500 dark:text-gray-400">
               {{ selectedRowsCount }} of {{ pagedTranslations.length }} row(s) selected
             </span>
           </div>
           <div class="flex items-center gap-3">
-            <span class="text-xs text-muted">Page {{ page }} / {{ pageCount }}</span>
-            <UPagination v-model:page="page" :total="filteredTranslations.length" :items-per-page="pageSize" />
+            <span class="text-xs text-gray-500 dark:text-gray-400">Page {{ page }} / {{ pageCount }}</span>
+            <UPagination v-model:page="page" :total="filteredTranslations.length" :items-per-page="pageSize" size="sm" />
           </div>
         </div>
       </template>
@@ -214,7 +285,7 @@ function clearSelection() {
 const selectedProject = ref<string>('')
 const isDeletingProject = ref(false)
 const projectOptions = ref([
-  { label: 'No project selected', value: 'none' }
+  { label: 'All Projects', value: 'none' }
 ])
 
 // Load available projects
@@ -225,7 +296,7 @@ async function loadAvailableProjects() {
     const projects = await invoke('get_available_projects') as { name: string; path: string; hash: string }[]
     
     projectOptions.value = [
-      { label: 'No project selected', value: 'none' },
+      { label: 'All Projects', value: 'none' },
       ...projects.map(project => ({
         label: project.name || project.path.split('/').pop() || 'Unknown Project',
         value: project.hash
@@ -235,7 +306,7 @@ async function loadAvailableProjects() {
     console.error('Error loading projects:', error)
     // Fallback to empty list if command doesn't exist yet
     projectOptions.value = [
-      { label: 'No project selected', value: 'none' }
+      { label: 'All Projects', value: 'none' }
     ]
   }
 }

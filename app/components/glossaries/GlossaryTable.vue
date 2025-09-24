@@ -1,55 +1,156 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-6">
+    <!-- Filters Section -->
     <UCard>
       <template #header>
-        <div class="flex flex-col gap-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <h2 class="text-xl font-semibold">Glossary</h2>
-              <UBadge variant="soft">{{ rows.length }} terms</UBadge>
-            </div>
-            <div class="flex gap-2">
-              <UButton color="primary" icon="i-lucide-plus" @click="openAdd">Add</UButton>
-              <UButton color="neutral" icon="i-lucide-refresh-cw" :loading="isLoading" @click="reload">Reload</UButton>
-            </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <UIcon name="i-lucide-filter" class="text-gray-500 w-4 h-4" />
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Filters & Search</span>
           </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-            <UInput v-model="search" icon="i-lucide-search" placeholder="Search input/output…" />
-
-            <USelect v-model="categoryFilter" :items="categoryItems" placeholder="All categories" />
-
-            <USelect v-model="sourceFilter" :items="languageItems" placeholder="Source language" />
-
-            <USelect v-model="targetFilter" :items="languageItems" placeholder="Target language" />
-
-            <div class="flex items-center gap-2">
-              <USwitch v-model="onlyEnabled" />
-              <span class="text-sm">Only enabled</span>
-            </div>
+          <div class="flex items-center gap-2">
+            <UBadge color="primary" variant="soft" size="sm">
+              {{ rows.length }} terms
+            </UBadge>
           </div>
         </div>
       </template>
 
-      <div v-if="error" class="text-error-500 text-sm mb-2">{{ error }}</div>
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <!-- Search Filter -->
+          <UFormField label="Search">
+            <UInput 
+              v-model="search" 
+              icon="i-lucide-search" 
+              placeholder="Search terms..."
+              size="sm"
+            />
+          </UFormField>
 
-      <UTable :data="pagedRows" :columns="columns" :loading="isLoading" class="text-base">
+          <!-- Category Filter -->
+          <UFormField label="Category">
+            <USelect 
+              v-model="categoryFilter" 
+              :items="categoryItems" 
+              placeholder="All categories"
+              size="sm"
+              class="w-full"
+            />
+          </UFormField>
+
+          <!-- Source Language Filter -->
+          <UFormField label="Source Language">
+            <USelect 
+              v-model="sourceFilter" 
+              :items="languageItems" 
+              placeholder="Source language"
+              size="sm"
+              class="w-full"
+            />
+          </UFormField>
+
+          <!-- Target Language Filter -->
+          <UFormField label="Target Language">
+            <USelect 
+              v-model="targetFilter" 
+              :items="languageItems" 
+              placeholder="Target language"
+              size="sm"
+              class="w-full"
+            />
+          </UFormField>
+
+          <!-- Enabled Filter -->
+          <UFormField label="Status">
+            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+              <USwitch v-model="onlyEnabled" size="sm" />
+              <span class="text-sm text-gray-600 dark:text-gray-400">Only enabled</span>
+            </div>
+          </UFormField>
+        </div>
+      </div>
+    </UCard>
+
+    <!-- Glossary Table -->
+    <UCard>
+      <template #header>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <UIcon name="i-lucide-table" class="text-gray-500 w-4 h-4" />
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Glossary Terms</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <UButton 
+              color="primary" 
+              icon="i-lucide-plus" 
+              size="sm"
+              @click="openAdd"
+            >
+              Add Term
+            </UButton>
+            <UButton 
+              color="neutral" 
+              icon="i-lucide-refresh-cw" 
+              :loading="isLoading" 
+              size="sm"
+              @click="reload"
+            >
+              Reload
+            </UButton>
+          </div>
+        </div>
+      </template>
+
+      <div v-if="error" class="mb-4">
+        <UAlert color="error" variant="soft" :title="error" />
+      </div>
+
+      <UTable :data="pagedRows" :columns="columns" :loading="isLoading" class="text-sm">
         <template #enabled-data="{ row }">
-          <USwitch :model-value="row.original.enabled" @update:model-value="(v:boolean) => toggleEnabled(row.original._id, v)" />
+          <USwitch 
+            :model-value="row.original.enabled" 
+            size="sm"
+            @update:model-value="(v:boolean) => toggleEnabled(row.original._id, v)" 
+          />
+        </template>
+        <template #category-data="{ row }">
+          <UBadge color="neutral" variant="soft" size="sm">
+            {{ row.original.category }}
+          </UBadge>
         </template>
       </UTable>
 
       <template #footer>
-            <div class="flex items-center justify-between w-full">
-              <div class="flex items-center gap-2">
-                <UButton size="xs" variant="soft" icon="i-lucide-download" @click="exportJson">Export JSON</UButton>
-                <UButton size="xs" variant="soft" icon="i-lucide-upload" @click="importJson">Import JSON</UButton>
-              </div>
-              <div class="flex items-center gap-3">
-                <span class="text-xs text-muted">Page {{ page }} / {{ pageCount }}</span>
-                <UPagination v-model:page="page" :total="rows.length" :items-per-page="pageSize" />
-              </div>
+        <div class="flex items-center justify-between w-full">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <UButton 
+                size="xs" 
+                variant="soft" 
+                icon="i-lucide-download" 
+                @click="exportJson"
+              >
+                Export JSON
+              </UButton>
+              <UButton 
+                size="xs" 
+                variant="soft" 
+                icon="i-lucide-upload" 
+                @click="importJson"
+              >
+                Import JSON
+              </UButton>
             </div>
+            <span class="text-xs text-gray-500 dark:text-gray-400">
+              Showing {{ pagedRows.length }} of {{ rows.length }} terms
+            </span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Page {{ page }} / {{ pageCount }}</span>
+            <UPagination v-model:page="page" :total="rows.length" :items-per-page="pageSize" size="sm" />
+          </div>
+        </div>
       </template>
     </UCard>
 

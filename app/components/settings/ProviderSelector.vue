@@ -1,29 +1,66 @@
 <template>
-  <div class="flex flex-col gap-4">
-    <div class="flex items-center gap-4">
-      <UFormField label="Provider" name="provider" description="Choose an LLM provider">
-        <USelect
-          v-model="selectedProvider"
-          :items="providerOptions"
-          placeholder="Select a provider"
-          class="w-64"
-          @update:model-value="onProviderChange"
-        />
-      </UFormField>
-      <UFormField label="Model" name="model" description="Model to use for translation">
-        <USelect
-          v-model="selectedModelName"
-          :items="modelOptions"
-          placeholder="Select a model"
-          class="w-64"
-        />
-      </UFormField>
-    </div>
+  <UCard>
+    <template #header>
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+          <UIcon name="i-lucide-brain" class="text-purple-500 w-5 h-5" />
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">AI Provider</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Choose your AI provider and model for translation</p>
+        </div>
+      </div>
+    </template>
 
-    <div v-if="selectedDisplay" class="text-xs text-muted">
-      Selected: <UBadge color="neutral" variant="soft">{{ selectedDisplay }}</UBadge>
+    <div class="space-y-6">
+      <!-- Provider and Model Selection -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <UFormField label="Provider" description="Choose an LLM provider">
+          <USelect
+            v-model="selectedProvider"
+            :items="providerOptions"
+            placeholder="Select a provider"
+            class="w-full"
+            icon="i-lucide-server"
+            @update:model-value="onProviderChange"
+          />
+        </UFormField>
+        
+        <UFormField label="Model" description="Model to use for translation">
+          <USelect
+            v-model="selectedModelName"
+            :items="modelOptions"
+            placeholder="Select a model"
+            class="w-full"
+            icon="i-lucide-cpu"
+          />
+        </UFormField>
+      </div>
+
+      <!-- Current Selection Display -->
+      <div v-if="selectedDisplay" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+        <UIcon name="i-lucide-check-circle" class="text-green-500 w-4 h-4" />
+        <div class="flex-1">
+          <div class="text-sm font-medium text-gray-900 dark:text-white">Selected Configuration</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            {{ selectedProvider }} • {{ selectedDisplay }}
+          </div>
+        </div>
+        <UBadge color="success" variant="soft" size="sm">
+          {{ selectedDisplay }}
+        </UBadge>
+      </div>
+
+      <!-- Provider Info -->
+      <UAlert 
+        color="info" 
+        variant="soft" 
+        icon="i-lucide-info"
+        title="Provider Setup"
+        description="After selecting your provider, configure the settings in the Provider Configuration section below."
+      />
     </div>
-  </div>
+  </UCard>
 </template>
 
 <script setup lang="ts">

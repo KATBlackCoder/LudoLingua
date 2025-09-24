@@ -1,137 +1,162 @@
 <template>
-  <div class="space-y-4">
-    <div class="flex items-center justify-between">
-      <h3 class="text-lg font-semibold">Results</h3>
-      <div class="flex items-center gap-4">
-        <div class="flex items-center gap-2">
-          <span class="text-sm text-muted">Text Length:</span>
-          <USlider 
-            v-model="textLengthRange" 
-            :min="0" 
-            :max="maxTextLength" 
-            :step="5"
-            :default-value="[0, maxTextLength]"
-            class="w-32"
-            tooltip
-          />
-          <span class="text-xs text-muted">{{ textLengthRange[0] }}-{{ textLengthRange[1] }} chars</span>
+  <div class="space-y-6">
+    <!-- Header Section -->
+    <UCard>
+      <template #header>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+              <UIcon name="i-lucide-list-checks" class="text-primary w-5 h-5" />
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Translation Results</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Manage and review your translations</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <UBadge :color="hasTranslated ? 'success' : 'neutral'" variant="soft" size="sm">
+              {{ filteredRows.length }} items
+            </UBadge>
+          </div>
         </div>
-        <USelect 
-          v-model="placeholderFilter" 
-          :items="placeholderOptions" 
-          placeholder="Filter by placeholder type"
-          class="w-48"
-        />
-        <UInput v-model="search" icon="i-lucide-search" placeholder="Search source/translated/type/field…" />
-      </div>
-    </div>
-    
-    <!-- Bulk Actions Header-->
-    <div v-if="selectedRows.length > 0" class="flex items-center justify-between p-3 bg-success/10 rounded-lg border border-primary/20">
-      <div class="flex items-center gap-3">
-        <UBadge color="info" variant="soft">
-          {{ selectedRows.length }} row(s) selected
-        </UBadge>
-        <UButton
-          v-if="selectedRows.length >= 2"
-          color="info"
-          variant="soft"
-          icon="i-lucide-refresh-cw"
-          :loading="isBulkRetranslating"
-          :disabled="isBusy"
-          @click="onBulkRetranslate"
-        >
-          Re-translate Selected ({{ selectedRows.length }})
-        </UButton>
-        <UButton
-          v-if="selectedRows.length >= 1"
-          color="warning"
-          variant="soft"
-          icon="i-lucide-undo"
-          :loading="isBulkReverting"
-          :disabled="isBusy"
-          @click="onBulkRevert"
-        >
-          Revert to Raw ({{ selectedRows.length }})
-        </UButton>
-      </div>
-      <UButton
-        color="error"
-        variant="ghost"
-        size="sm"
-        icon="i-lucide-x"
-        @click="clearSelection"
-      >
-        Clear Selection
-      </UButton>
-    </div>
+      </template>
 
-    <!-- Pagination Header-->
-    <div class="flex items-center justify-between">
-      <span class="text-xs text-muted">Page {{ page }} / {{ pageCount }}</span>
-      <UPagination v-model:page="page" :total="filteredRows.length" :items-per-page="pageSize" />
-    </div>
+      <!-- Filters Section -->
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Search Filter -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Search</label>
+            <UInput 
+              v-model="search" 
+              icon="i-lucide-search" 
+              placeholder="Search translations..."
+              size="sm"
+            />
+          </div>
 
-    <UTable 
-      ref="table"
-      v-model:row-selection="rowSelection"
-      v-model:sorting="sorting"
-      :data="pagedRows" 
-      :columns="columns" 
-      class="text-base w-full" 
-      @select="onSelect"
-    />
-    
-        <!-- Bulk Actions Footer-->
-        <div v-if="selectedRows.length > 0" class="flex items-center justify-between p-3 bg-success/10 rounded-lg border border-primary/20">
-      <div class="flex items-center gap-3">
-        <UBadge color="info" variant="soft">
-          {{ selectedRows.length }} row(s) selected
-        </UBadge>
-        <UButton
-          v-if="selectedRows.length >= 2"
-          color="info"
-          variant="soft"
-          icon="i-lucide-refresh-cw"
-          :loading="isBulkRetranslating"
-          :disabled="isBusy"
-          @click="onBulkRetranslate"
-        >
-          Re-translate Selected ({{ selectedRows.length }})
-        </UButton>
-        <UButton
-          v-if="selectedRows.length >= 1"
-          color="warning"
-          variant="soft"
-          icon="i-lucide-undo"
-          :loading="isBulkReverting"
-          :disabled="isBusy"
-          @click="onBulkRevert"
-        >
-          Revert to Raw ({{ selectedRows.length }})
-        </UButton>
+          <!-- Placeholder Filter -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Placeholder Type</label>
+            <USelect 
+              v-model="placeholderFilter" 
+              :items="placeholderOptions" 
+              placeholder="All placeholders"
+              size="sm"
+            />
+          </div>
+
+          <!-- Text Length Filter -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Text Length: {{ textLengthRange[0] }}-{{ textLengthRange[1] }} chars
+            </label>
+            <USlider 
+              v-model="textLengthRange" 
+              :min="0" 
+              :max="maxTextLength" 
+              :step="5"
+              size="sm"
+            />
+          </div>
+        </div>
       </div>
-      <UButton
-        color="error"
-        variant="ghost"
-        size="sm"
-        icon="i-lucide-x"
-        @click="clearSelection"
-      >
-        Clear Selection
-      </UButton>
-    </div>
+    </UCard>
 
-    <!-- Selection summary -->
-    <div class="px-4 py-3.5 border-t border-accented text-sm text-muted">
-      {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }} of
-      {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s) selected.
-    </div>
-    
-    <div class="flex items-center justify-between">
-      <span class="text-xs text-muted">Page {{ page }} / {{ pageCount }}</span>
-      <UPagination v-model:page="page" :total="filteredRows.length" :items-per-page="pageSize" />
-    </div>
+    <!-- Bulk Actions -->
+    <UAlert
+      v-if="selectedRows.length > 0"
+      color="info"
+      variant="soft"
+      icon="i-lucide-check-square"
+      :title="`${selectedRows.length} item(s) selected`"
+      class="p-4"
+    >
+      <template #default>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <UButton
+              v-if="selectedRows.length >= 2"
+              color="primary"
+              variant="soft"
+              icon="i-lucide-refresh-cw"
+              :loading="isBulkRetranslating"
+              :disabled="isBusy"
+              size="sm"
+              @click="onBulkRetranslate"
+            >
+              Re-translate Selected ({{ selectedRows.length }})
+            </UButton>
+            <UButton
+              v-if="selectedRows.length >= 1"
+              color="warning"
+              variant="soft"
+              icon="i-lucide-undo"
+              :loading="isBulkReverting"
+              :disabled="isBusy"
+              size="sm"
+              @click="onBulkRevert"
+            >
+              Revert to Raw ({{ selectedRows.length }})
+            </UButton>
+          </div>
+          <UButton
+            color="error"
+            variant="ghost"
+            size="sm"
+            icon="i-lucide-x"
+            @click="clearSelection"
+          >
+            Clear Selection
+          </UButton>
+        </div>
+      </template>
+    </UAlert>
+
+    <!-- Results Table -->
+    <UCard>
+      <template #header>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <UIcon name="i-lucide-table" class="text-gray-500 w-4 h-4" />
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Translation Results</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-gray-500 dark:text-gray-400">
+              Page {{ page }} of {{ pageCount }}
+            </span>
+            <UPagination 
+              v-model:page="page" 
+              :total="filteredRows.length" 
+              :items-per-page="pageSize"
+              size="sm"
+            />
+          </div>
+        </div>
+      </template>
+
+      <UTable 
+        ref="table"
+        v-model:row-selection="rowSelection"
+        v-model:sorting="sorting"
+        :data="pagedRows" 
+        :columns="columns" 
+        class="text-sm" 
+        @select="onSelect"
+      />
+
+      <template #footer>
+        <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+          <span>
+            {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }} of
+            {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s) selected
+          </span>
+          <span>
+            Showing {{ pagedRows.length }} of {{ filteredRows.length }} results
+          </span>
+        </div>
+      </template>
+    </UCard>
 
     <TranslationEditor v-model:open="editorOpen" :item="editingItem" @save="onSave" />
   </div>
@@ -320,6 +345,8 @@ const pagedRows = computed(() => {
   const start = (page.value - 1) * pageSize.value
   return filteredRows.value.slice(start, start + pageSize.value)
 })
+
+const hasTranslated = computed(() => filteredRows.value.some(row => row.translated_text && row.translated_text.trim() !== ''))
 
 // Table ref
 const table = useTemplateRef('table')

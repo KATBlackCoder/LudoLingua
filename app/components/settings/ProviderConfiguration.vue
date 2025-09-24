@@ -12,7 +12,7 @@
       </div>
     </template>
 
-    <div class="space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Preset Selection -->
       <UCard>
         <template #header>
@@ -36,7 +36,7 @@
         <template #header>
           <div class="flex items-center gap-2">
             <UIcon name="i-lucide-server" class="text-gray-500 w-4 h-4" />
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Provider Configuration</span>
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Provider Settings</span>
           </div>
         </template>
         
@@ -94,7 +94,7 @@
           </div>
         </template>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 gap-4">
           <UFormField label="Temperature" description="0.0 – 1.0 (randomness)">
             <UInput 
               :model-value="advancedSettings.temperature" 

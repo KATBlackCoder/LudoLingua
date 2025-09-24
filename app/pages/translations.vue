@@ -1,81 +1,92 @@
 <template>
-  <UContainer class="max-w-full">
-    <div class="space-y-6 p-6">
-      <!-- Page Header -->
-      <div class="space-y-2">
-        <UBreadcrumb :links="breadcrumbLinks" />
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-3xl font-bold">Translation Management</h1>
-            <p class="text-muted-foreground">
-              View and manage all translations in your project database
-            </p>
-          </div>
-          <UButton 
-            variant="outline" 
-            icon="i-lucide-arrow-left" 
-            to="/"
-          >
-            Back to Home
-          </UButton>
+  <div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+          <UIcon name="i-lucide-database" class="text-primary w-5 h-5" />
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Translation Management</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400">View and manage all translations in your project database</p>
         </div>
       </div>
-
-      <!-- Stats Cards -->
-      <div v-if="stats" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <UCard>
-          <div class="flex items-center gap-3">
-            <div class="p-2 bg-info-100 dark:bg-info-900 rounded-lg">
-              <Icon name="i-lucide-file-text" class="h-5 w-5 text-info-600 dark:text-info-400" />
-            </div>
-            <div>
-              <p class="text-sm text-muted-foreground">Total</p>
-              <p class="text-2xl font-bold">{{ stats.total || 0 }}</p>
-            </div>
-          </div>
-        </UCard>
-
-        <UCard>
-          <div class="flex items-center gap-3">
-            <div class="p-2 bg-success-100 dark:bg-success-900 rounded-lg">
-              <Icon name="i-lucide-check-circle" class="h-5 w-5 text-success-600 dark:text-success-400" />
-            </div>
-            <div>
-              <p class="text-sm text-muted-foreground">Translated</p>
-              <p class="text-2xl font-bold">{{ stats.translated || 0 }}</p>
-            </div>
-          </div>
-        </UCard>
-
-        <UCard>
-          <div class="flex items-center gap-3">
-            <div class="p-2 bg-warning-100 dark:bg-warning-900 rounded-lg">
-              <Icon name="i-lucide-clock" class="h-5 w-5 text-warning-600 dark:text-warning-400" />
-            </div>
-            <div>
-              <p class="text-sm text-muted-foreground">Pending</p>
-              <p class="text-2xl font-bold">{{ stats.pending || 0 }}</p>
-            </div>
-          </div>
-        </UCard>
-
-        <UCard>
-          <div class="flex items-center gap-3">
-            <div class="p-2 bg-secondary-100 dark:bg-secondary-900 rounded-lg">
-              <Icon name="i-lucide-bar-chart" class="h-5 w-5 text-secondary-600 dark:text-secondary-400" />
-            </div>
-            <div>
-              <p class="text-sm text-muted-foreground">Progress</p>
-              <p class="text-2xl font-bold">{{ progressPercentage }}%</p>
-            </div>
-          </div>
-        </UCard>
+      <div class="flex items-center gap-2">
+        <UButton
+          variant="outline"
+          icon="i-lucide-arrow-left"
+          to="/"
+        >
+          Back to Home
+        </UButton>
       </div>
-
-      <!-- Main Table -->
-      <TranslationTable />
     </div>
-  </UContainer>
+
+    <!-- Stats Overview -->
+    <div v-if="stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <UCard>
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <UIcon name="i-lucide-file-text" class="text-blue-500 w-5 h-5" />
+            </div>
+            <div>
+              <h3 class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Items</h3>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total || 0 }}</p>
+            </div>
+          </div>
+        </div>
+      </UCard>
+
+      <UCard>
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <UIcon name="i-lucide-check-circle" class="text-green-500 w-5 h-5" />
+            </div>
+            <div>
+              <h3 class="text-sm font-medium text-gray-600 dark:text-gray-400">Translated</h3>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.translated || 0 }}</p>
+            </div>
+          </div>
+        </div>
+      </UCard>
+
+      <UCard>
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+              <UIcon name="i-lucide-clock" class="text-orange-500 w-5 h-5" />
+            </div>
+            <div>
+              <h3 class="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</h3>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.pending || 0 }}</p>
+            </div>
+          </div>
+        </div>
+      </UCard>
+
+      <UCard>
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <UIcon name="i-lucide-bar-chart-3" class="text-purple-500 w-5 h-5" />
+            </div>
+            <div>
+              <h3 class="text-sm font-medium text-gray-600 dark:text-gray-400">Progress</h3>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ progressPercentage }}%</p>
+            </div>
+          </div>
+          <UProgress :value="progressPercentage" size="sm" class="mt-2" />
+        </div>
+      </UCard>
+    </div>
+
+    <!-- Translation Table -->
+    <UCard>
+      <TranslationTable />
+    </UCard>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -89,12 +100,6 @@ definePageMeta({
 })
 
 const { stats, loadTranslations } = useTranslations()
-
-// Breadcrumb navigation
-const breadcrumbLinks = [
-  { label: 'Home', to: '/' },
-  { label: 'Translation Management' }
-]
 
 // Computed progress percentage
 const progressPercentage = computed(() => {

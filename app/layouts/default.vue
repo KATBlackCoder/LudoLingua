@@ -2,13 +2,15 @@
   <div class="min-h-dvh flex flex-col bg-gray-50 dark:bg-gray-900">
     <AppHeader />
 
-    <main class="flex-1 py-6">
-      <slot />
-    </main>
+    <UMain class="flex-1">
+      <UContainer class="py-8">
+        <slot />
+      </UContainer>
+    </UMain>
 
     <AppFooter />
   </div>
- </template>
+</template>
 
 <script setup lang="ts">
 import AppHeader from '~/components/layout/AppHeader.vue';

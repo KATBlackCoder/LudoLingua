@@ -2,17 +2,22 @@
   <UModal
     v-model:open="open_"
     :dismissible="false"
-    :ui="{ content: 'max-w-4xl' }"
+    :ui="{ content: 'max-w-5xl' }"
   >
     <template #title>
-      Edit Translation
-    </template>
-    <template #description>
-      Update the translation and status
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+          <UIcon name="i-lucide-edit-3" class="text-primary w-5 h-5" />
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Edit Translation</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Update the translation and status</p>
+        </div>
+      </div>
     </template>
     <template #actions>
       <div class="flex items-center gap-2">
-        <UBadge variant="soft">{{ local.prompt_type }}</UBadge>
+        <UBadge color="neutral" variant="soft" size="sm">{{ local.prompt_type }}</UBadge>
         <UBadge :color="getStatusColor(local.status) as any" size="sm">
           {{ getStatusLabel(local.status) }}
         </UBadge>
@@ -20,39 +25,50 @@
     </template>
 
     <template #body>
-      <div class="space-y-4">
-        <div class="grid gap-4 sm:grid-cols-2">
-          <!-- Source Text (Read-only) -->
-          <UCard class="overflow-hidden">
+      <div class="space-y-6">
+        <!-- Two-column layout -->
+        <div class="grid gap-6 lg:grid-cols-2">
+          <!-- Source Text Card -->
+          <UCard>
             <template #header>
               <div class="flex items-center justify-between">
-                <span class="font-medium">Source Text</span>
-                <div class="text-xs text-muted">{{ sourceCharCount }} chars</div>
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-file-text" class="text-gray-500 w-4 h-4" />
+                  <span class="font-medium text-gray-900 dark:text-white">Source Text</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <UBadge color="neutral" variant="soft" size="sm">{{ sourceCharCount }} chars</UBadge>
+                </div>
               </div>
             </template>
             <UFormField label="Original text">
               <UTextarea
                 :model-value="local.source_text"
                 readonly
-                :rows="4"
+                :rows="6"
                 placeholder="Source text..."
-                class="bg-gray-50 dark:bg-gray-800"
+                class="bg-gray-50 dark:bg-gray-800/50"
               />
             </UFormField>
           </UCard>
 
-          <!-- Translation (Editable) -->
+          <!-- Translation Card -->
           <UCard>
             <template #header>
               <div class="flex items-center justify-between">
-                <span class="font-medium">Translation</span>
-                <div class="text-xs text-muted">{{ translationCharCount }} chars</div>
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-languages" class="text-primary w-4 h-4" />
+                  <span class="font-medium text-gray-900 dark:text-white">Translation</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <UBadge color="primary" variant="soft" size="sm">{{ translationCharCount }} chars</UBadge>
+                </div>
               </div>
             </template>
             <UFormField label="Translated text">
               <UTextarea
                 v-model="local.translated_text"
-                :rows="4"
+                :rows="6"
                 placeholder="Enter translation..."
                 @keydown.ctrl.enter.prevent="onSave"
                 @keydown.meta.enter.prevent="onSave"
@@ -61,43 +77,73 @@
           </UCard>
         </div>
 
-        <!-- Metadata -->
-        <div class="grid gap-4 sm:grid-cols-3">
-          <UFormField label="Status">
-            <USelect
-              v-model="local.status"
-              :items="statusOptions.filter(s => s !== 'All')"
-              placeholder="Select status"
-            />
-          </UFormField>
+        <!-- Metadata Section -->
+        <UCard>
+          <template #header>
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-info" class="text-gray-500 w-4 h-4" />
+              <span class="font-medium text-gray-900 dark:text-white">Translation Metadata</span>
+            </div>
+          </template>
+          
+          <div class="grid gap-4 sm:grid-cols-3">
+            <UFormField label="Status">
+              <USelect
+                v-model="local.status"
+                :items="statusOptions.filter(s => s !== 'All')"
+                placeholder="Select status"
+                size="sm"
+              />
+            </UFormField>
 
-          <UFormField label="File Path">
-            <UInput
-              :model-value="local.file_path"
-              readonly
-              class="bg-gray-50 dark:bg-gray-800"
-            />
-          </UFormField>
+            <UFormField label="File Path">
+              <UInput
+                :model-value="local.file_path"
+                readonly
+                class="bg-gray-50 dark:bg-gray-800/50"
+                size="sm"
+              />
+            </UFormField>
 
-          <UFormField label="Field Type">
-            <UInput
-              :model-value="local.field_type"
-              readonly
-              class="bg-gray-50 dark:bg-gray-800"
-            />
-          </UFormField>
-        </div>
+            <UFormField label="Field Type">
+              <UInput
+                :model-value="local.field_type"
+                readonly
+                class="bg-gray-50 dark:bg-gray-800/50"
+                size="sm"
+              />
+            </UFormField>
+          </div>
+        </UCard>
       </div>
     </template>
 
     <template #footer>
-      <div class="flex items-center justify-between w-full">
-        <div class="text-xs text-muted">
-          ID: {{ local.id || 'New' }} • {{ local.source_lang }} → {{ local.target_lang }}
+      <div class="flex items-center justify-between w-full gap-4">
+        <div class="flex items-center gap-3">
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            ID: {{ local.id || 'New' }} • {{ local.source_lang }} → {{ local.target_lang }}
+          </div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            Ctrl/Cmd + Enter to save
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <UButton color="neutral" variant="soft" @click="onCancel">Cancel</UButton>
-          <UButton color="primary" @click="onSave" :disabled="!isValid">Save</UButton>
+        <div class="flex items-center gap-3">
+          <UButton 
+            color="neutral" 
+            variant="outline" 
+            @click="onCancel"
+          >
+            Cancel
+          </UButton>
+          <UButton 
+            color="primary" 
+            @click="onSave" 
+            :disabled="!isValid"
+          >
+            <UIcon name="i-lucide-check" class="w-4 h-4 mr-2" />
+            Save Translation
+          </UButton>
         </div>
       </div>
     </template>
