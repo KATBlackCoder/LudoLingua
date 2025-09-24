@@ -1,3 +1,4 @@
+pub mod engines;
 pub mod formatting;
 pub mod llm_output;
 pub mod pipeline;

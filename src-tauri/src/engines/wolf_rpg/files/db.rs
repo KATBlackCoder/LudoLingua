@@ -1,5 +1,6 @@
 // Text processing now handled by unified pipeline
 use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
+use crate::utils::text::formatting::TextFormatter;
 use regex::Regex;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -184,7 +185,7 @@ fn inject_into_db_data_entry(
         );
         if let Some(text_unit) = text_units.get(&name_id) {
             if !text_unit.translated_text.is_empty() {
-                let restored_text = text_unit.translated_text.clone(); // Text processing handled by unified pipeline
+                let restored_text = TextFormatter::restore_after_translation(&text_unit.translated_text);
                 data_obj["name"] = Value::String(restored_text);
             }
         }
@@ -201,7 +202,7 @@ fn inject_into_db_data_entry(
                 );
                 if let Some(text_unit) = text_units.get(&value_id) {
                     if !text_unit.translated_text.is_empty() {
-                        let restored_text = text_unit.translated_text.clone(); // Text processing handled by unified pipeline
+                        let restored_text = TextFormatter::restore_after_translation(&text_unit.translated_text);
                         data_data_obj["value"] = Value::String(restored_text);
                     }
                 }

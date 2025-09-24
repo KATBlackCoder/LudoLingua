@@ -1,5 +1,6 @@
 // Text processing now handled by unified pipeline
 use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
+use crate::utils::text::formatting::TextFormatter;
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -178,14 +179,6 @@ fn extract_command_strings(
     }
 }
 
-/// Basic check for text worth translating (less strict than is_translatable_wolf_text)
-fn is_text_worth_translating(text: &str) -> bool {
-    let text = text.trim();
-    // Skip empty or very short strings
-    text.len() >= 2 && 
-    // Must contain some alphabetic characters (any language)
-    text.chars().any(|c| c.is_alphabetic())
-}
 
 /// Inject translated text back into Wolf RPG MPS structures
 pub fn inject_text_units_into_mps(
@@ -262,7 +255,7 @@ fn inject_into_wolf_command(
                 );
                 if let Some(text_unit) = text_units.get(&unit_id) {
                     if !text_unit.translated_text.is_empty() {
-                        let restored_text = crate::engines::wolf_rpg::files::regex::wolf_restore_placeholders_after_translation(&text_unit.translated_text);
+                        let restored_text = TextFormatter::restore_after_translation(&text_unit.translated_text);
                         *arg = Value::String(restored_text);
                     }
                 }

@@ -8,6 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 5.6: Text Processing Architecture Enhancement - COMPLETED ✅**
+  - **Wolf RPG Engine Migration:** Complete migration to unified text processing pipeline
+    - **Unified Pipeline Integration:** Updated `mps.rs` and `db.rs` to use `TextFormatter::restore_after_translation()` instead of obsolete regex functions
+    - **Consistent Processing:** All engines now use the same text processing pipeline for consistent behavior
+    - **Code Cleanup:** Removed 49+ manual text processing calls across Wolf RPG engine files
+    - **Future-Proof Architecture:** Wolf RPG engine automatically benefits from unified pipeline improvements
+  - **Engine-Specific Formatting Structure:** Created flexible architecture for special cases
+    - **New Directory Structure:** Created `src-tauri/src/utils/text/engines/` for engine-specific formatting functions
+    - **Wolf RPG Functions Preserved:** Moved `wolf_replace_placeholders_for_translation()` and `wolf_restore_placeholders_after_translation()` to `engines/wolf_rpg.rs`
+    - **Modular Organization:** Engine-specific functions available for special cases while maintaining unified pipeline as default
+    - **Clean Separation:** Removed obsolete `regex.rs` file and updated module references
+  - **Architecture Benefits:** Enhanced maintainability and flexibility
+    - **Unified Processing:** All engines use consistent text processing with same placeholder handling
+    - **Engine Flexibility:** Special cases can use engine-specific functions when needed
+    - **Clean Codebase:** Eliminated duplicate functionality and obsolete code
+    - **Future-Ready:** Easy to add more engine-specific functions (RPG Maker, etc.) as needed
+    - **Professional Quality:** Clean architecture with clear separation of concerns
 - **Phase 5.5: Text Filtering Enhancement - COMPLETED ✅**
   - **Pipe Character Filtering:** Enhanced text validation to skip coordinate/positioning data
     - **Universal Filtering:** Added filtering for ANY text containing pipe characters (`|`) in `ContentValidator::validate_text()`

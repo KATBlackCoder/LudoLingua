@@ -4,9 +4,9 @@ This document tracks the completed milestones and current status of the LudoLing
 
 ---
 
-## 🎯 **Current Status: Phase 5.5 - Text Filtering Enhancement (100% Complete)**
+## 🎯 **Current Status: Phase 5.6 - Text Processing Architecture Enhancement (100% Complete)**
 
-**Latest Achievement:** Successfully completed Phase 5.5 with comprehensive text filtering enhancement. Added pipe character filtering to skip coordinate/positioning data (e.g., `はい|262|380`, `戻る|492|380`) and implemented raw text revert functionality with database persistence.
+**Latest Achievement:** Successfully completed Phase 5.6 with comprehensive text processing architecture enhancement. Migrated Wolf RPG engine to unified text processing pipeline and created engine-specific formatting structure for future flexibility.
 
 **Next Priority:** Phase 6 - Advanced Features & Polish for enhanced translation management and performance optimization.
 
@@ -26,6 +26,7 @@ Phase 5.2.4 (Completed): Text Length Filter Enhancement     [██████�
 Phase 5.3 (Completed): Automatic Updates Integration         [████████████] 100%
 Phase 5.4 (Completed): JSON Formatting Preservation Fix     [████████████] 100%
 Phase 5.5 (Completed): Text Filtering Enhancement           [████████████] 100%
+Phase 5.6 (Completed): Text Processing Architecture Enhancement [████████████] 100%
 Phase 6 (Next): Advanced Features & Polish                  [░░░░░░░░░░░░]   0%
 ```
 
@@ -337,6 +338,24 @@ Phase 6 (Next): Advanced Features & Polish                  [░░░░░░�
   - **Data Integrity**: All changes properly persisted to database for consistency
   - **Professional Quality**: Clean translation data without technical artifacts
 
+**5.6 Text Processing Architecture Enhancement - COMPLETED**
+- ✅ **Wolf RPG Engine Migration**: Complete migration to unified text processing pipeline
+  - **Unified Pipeline Integration:** Updated `mps.rs` and `db.rs` to use `TextFormatter::restore_after_translation()` instead of obsolete regex functions
+  - **Consistent Processing:** All engines now use the same text processing pipeline for consistent behavior
+  - **Code Cleanup:** Removed 49+ manual text processing calls across Wolf RPG engine files
+  - **Future-Proof Architecture:** Wolf RPG engine automatically benefits from unified pipeline improvements
+- ✅ **Engine-Specific Formatting Structure**: Created flexible architecture for special cases
+  - **New Directory Structure:** Created `src-tauri/src/utils/text/engines/` for engine-specific formatting functions
+  - **Wolf RPG Functions Preserved:** Moved `wolf_replace_placeholders_for_translation()` and `wolf_restore_placeholders_after_translation()` to `engines/wolf_rpg.rs`
+  - **Modular Organization:** Engine-specific functions available for special cases while maintaining unified pipeline as default
+  - **Clean Separation:** Removed obsolete `regex.rs` file and updated module references
+- ✅ **Architecture Benefits**: Enhanced maintainability and flexibility
+  - **Unified Processing:** All engines use consistent text processing with same placeholder handling
+  - **Engine Flexibility:** Special cases can use engine-specific functions when needed
+  - **Clean Codebase:** Eliminated duplicate functionality and obsolete code
+  - **Future-Ready:** Easy to add more engine-specific functions (RPG Maker, etc.) as needed
+  - **Professional Quality:** Clean architecture with clear separation of concerns
+
 **Benefits Achieved:**
 - ✅ **Automatic Updates**: Users get latest features and bug fixes automatically
 - ✅ **Security**: Signed updates ensure authenticity and prevent tampering
@@ -448,4 +467,4 @@ LudoLingua has evolved into a **mature, production-ready desktop application** w
 - **Clean Codebase** with 33% function reduction and comprehensive cleanup
 - **Professional Architecture** following domain-driven design principles
 
-**Phase 5.5 Complete!** - Text filtering enhancement with pipe character filtering to skip coordinate/positioning data and raw text revert functionality with database persistence for enhanced translation management and data quality.
+**Phase 5.6 Complete!** - Text processing architecture enhancement with Wolf RPG engine migration to unified pipeline and engine-specific formatting structure for enhanced maintainability and future flexibility.
