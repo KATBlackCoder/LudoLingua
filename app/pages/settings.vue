@@ -32,8 +32,6 @@
           </template>
         </UAlert>
 
-        <!-- Update Notification (if available) -->
-        <UpdateNotification />
 
         <!-- Content grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -61,8 +59,10 @@
             :current-provider="providerStore.selectedProvider"
           />
 
-          <!-- Updates -->
-          <UpdateManager />
+          <!-- Updates (spans full width) -->
+          <div class="col-span-2">
+            <UpdateManager />
+          </div>
         </div>
       </div>
     </UContainer>
@@ -74,7 +74,6 @@ import ConnectionTester from '~/components/settings/ConnectionTester.vue'
 import LanguageSelector from '~/components/settings/LanguageSelector.vue'
 import ProviderSelector from '~/components/settings/ProviderSelector.vue'
 import AdvancedSettings from '~/components/settings/AdvancedSettings.vue'
-import UpdateNotification from '~/components/settings/UpdateNotification.vue'
 import UpdateManager from '~/components/settings/UpdateManager.vue'
 import { useSettingsStore } from '~/stores/settings'
 import { useProviderStore } from '~/stores/provider'

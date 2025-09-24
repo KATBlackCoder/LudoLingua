@@ -2,9 +2,14 @@
   <UCard>
     <template #header>
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-refresh-cw" class="text-primary" />
-          <h3 class="text-lg font-semibold">Updates</h3>
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+            <UIcon name="i-lucide-refresh-cw" class="text-primary w-5 h-5" />
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Updates</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Keep your app up to date</p>
+          </div>
         </div>
         <UButton
           :loading="isChecking"
@@ -13,90 +18,153 @@
           size="sm"
           @click="() => checkForUpdates()"
         >
-          <UIcon name="i-lucide-refresh-cw" class="mr-1" />
+          <UIcon name="i-lucide-refresh-cw" class="w-4 h-4 mr-2" />
           Check for Updates
         </UButton>
       </div>
     </template>
 
-    <div class="space-y-4">
-      <!-- Current Version Info -->
-      <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <div>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Current Version</p>
-          <p class="font-medium">{{ currentVersion }}</p>
+    <div class="space-y-6">
+      <!-- Version Info Card -->
+      <UCard 
+        :ui="{ body: 'p-0' }"
+        :class="hasUpdate 
+          ? 'ring-2 ring-primary-200 dark:ring-primary-800' 
+          : ''"
+      >
+        <div class="p-6">
+          <div class="flex items-center justify-between">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <UIcon 
+                  :name="hasUpdate ? 'i-lucide-arrow-up-circle' : 'i-lucide-check-circle'" 
+                  :class="hasUpdate ? 'text-primary' : 'text-green-500'"
+                  class="w-5 h-5"
+                />
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  {{ hasUpdate ? 'Available Version' : 'Current Version' }}
+                </p>
+              </div>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                {{ hasUpdate ? updateInfo?.version : currentVersion }}
+              </p>
+            </div>
+            <UBadge 
+              :color="hasUpdate ? 'primary' : 'success'" 
+              variant="soft"
+              size="lg"
+              class="text-sm font-medium"
+            >
+              {{ hasUpdate ? 'New' : 'Installed' }}
+            </UBadge>
+          </div>
         </div>
-        <UBadge color="neutral" variant="soft">
-          Installed
-        </UBadge>
-      </div>
+      </UCard>
 
-      <!-- Update Status -->
-      <div v-if="!hasUpdate && !isChecking && !error" class="text-center py-4">
-        <UIcon name="i-lucide-check-circle" class="text-green-500 text-2xl mx-auto mb-2" />
+      <!-- Status Messages -->
+      <div v-if="!hasUpdate && !isChecking && !error" class="text-center py-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full mb-4">
+          <UIcon name="i-lucide-check-circle" class="text-green-500 w-8 h-8" />
+        </div>
+        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">You're up to date!</h4>
         <p class="text-sm text-gray-600 dark:text-gray-400">
           You are running the latest version
         </p>
       </div>
 
-      <!-- Checking Status -->
-      <div v-if="isChecking" class="text-center py-4">
-        <UIcon name="i-lucide-refresh-cw" class="text-primary text-2xl mx-auto mb-2 animate-spin" />
+      <div v-if="isChecking" class="text-center py-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-100 dark:bg-primary-900/20 rounded-full mb-4">
+          <UIcon name="i-lucide-refresh-cw" class="text-primary w-8 h-8 animate-spin" />
+        </div>
+        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Checking for updates...</h4>
         <p class="text-sm text-gray-600 dark:text-gray-400">
-          Checking for updates...
+          Please wait while we check for the latest version
         </p>
       </div>
 
-      <!-- Error State -->
-      <div v-if="error && !isChecking" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-        <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-alert-triangle" class="text-red-500" />
-          <div>
-            <p class="text-sm font-medium text-red-700 dark:text-red-300">
-              Update Check Failed
-            </p>
-            <p class="text-xs text-red-600 dark:text-red-400">
-              {{ error }}
-            </p>
+      <!-- Download Progress -->
+      <UAlert
+        v-if="isDownloading"
+        color="info"
+        variant="soft"
+        icon="i-lucide-download"
+        title="Downloading Update"
+        :description="downloadStatus"
+        class="p-4"
+      >
+        <template #default>
+          <div class="space-y-3">
+            <UProgress 
+              :model-value="null"
+              color="info"
+              size="lg"
+              animation="swing"
+            />
           </div>
-        </div>
-        <UButton
-          variant="ghost"
-          size="xs"
-          class="mt-2"
-          @click="() => checkForUpdates()"
-        >
-          Try Again
-        </UButton>
-      </div>
+        </template>
+      </UAlert>
 
+      <!-- Installation Progress -->
+      <UAlert
+        v-if="isInstalling"
+        color="success"
+        variant="soft"
+        icon="i-lucide-refresh-cw"
+        title="Installing Update"
+        description="The update is being installed. The app will restart automatically."
+        class="p-4"
+      >
+        <template #default>
+          <div class="space-y-3">
+            <UProgress 
+              :model-value="null"
+              color="success"
+              size="lg"
+              animation="swing"
+            />
+          </div>
+        </template>
+      </UAlert>
 
-      <!-- Manual Update Actions -->
-      <div class="border-t pt-4">
-        <h4 class="text-sm font-medium mb-3">Manual Actions</h4>
-        <div class="flex gap-2">
+      <!-- Error State -->
+      <UAlert
+        v-if="error && !isChecking"
+        color="error"
+        variant="soft"
+        icon="i-lucide-alert-triangle"
+        title="Update Check Failed"
+        :description="error"
+        class="p-4"
+      >
+        <template #actions>
           <UButton
-            :loading="isChecking"
-            :disabled="isBusy"
-            variant="outline"
+            variant="ghost"
             size="sm"
             @click="() => checkForUpdates()"
           >
-            <UIcon name="i-lucide-refresh-cw" class="mr-1" />
-            Check Now
+            <UIcon name="i-lucide-refresh-cw" class="w-4 h-4 mr-2" />
+            Try Again
           </UButton>
-          
-          <UButton
-            v-if="hasUpdate"
-            :loading="isBusy"
-            :disabled="isBusy"
-            color="primary"
-            size="sm"
-            @click="downloadAndInstall"
-          >
-            <UIcon name="i-lucide-download" class="mr-1" />
-            Download Update
-          </UButton>
+        </template>
+      </UAlert>
+
+      <!-- Update Actions -->
+      <div v-if="hasUpdate && !isDownloading && !isInstalling" class="space-y-4">
+        <div class="border-t pt-6">
+          <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-4">Update Actions</h4>
+          <div class="flex gap-3">
+            <UButton
+              v-if="!isDownloading && !isInstalling"
+              :loading="isBusy"
+              :disabled="isBusy"
+              color="primary"
+              size="lg"
+              @click="downloadAndInstall"
+            >
+              <UIcon name="i-lucide-download" class="w-4 h-4 mr-2" />
+              Download & Install Update
+            </UButton>
+          </div>
         </div>
       </div>
     </div>
@@ -110,19 +178,27 @@ import { useAppInfo } from '~/composables/useAppInfo'
 
 const {
   hasUpdate,
+  updateInfo,
   error,
   isChecking,
   isBusy,
+  isDownloading,
+  isInstalling,
+  downloadStatus,
   checkForUpdates,
-  downloadAndInstall
+  downloadAndInstall,
+  initializeUpdater
 } = useUpdater()
 
 const { getAppInfo } = useAppInfo()
 const currentVersion = ref('')
 
-// Initialize current version on component mount
+// Initialize current version and check for updates on component mount
 onMounted(async () => {
   const appInfo = await getAppInfo()
   currentVersion.value = appInfo.version
+  
+  // Auto-check for updates when component mounts
+  await initializeUpdater()
 })
 </script>

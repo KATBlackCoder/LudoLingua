@@ -7,6 +7,7 @@ export interface UpdateInfo {
   version: string
   date?: string
   body?: string
+  size?: number
 }
 
 export const useUpdater = () => {
@@ -17,9 +18,21 @@ export const useUpdater = () => {
   const isInstalling = ref(false)
   const updateInfo = ref<UpdateInfo | null>(null)
   const error = ref<string | null>(null)
+  const downloadProgress = ref(0)
+  const downloadStatus = ref('')
+  const totalDownloaded = ref(0)
 
   const hasUpdate = computed(() => updateInfo.value !== null)
   const isBusy = computed(() => isChecking.value || isDownloading.value || isInstalling.value)
+
+  // Auto-check for updates on initialization
+  const initializeUpdater = async () => {
+    try {
+      await checkForUpdates(true) // Silent check on init
+    } catch (err) {
+      console.warn('Auto-update check failed:', err)
+    }
+  }
 
   const checkForUpdates = async (silent = false) => {
     if (isBusy.value) return
@@ -28,9 +41,12 @@ export const useUpdater = () => {
       isChecking.value = true
       error.value = null
 
+      console.log('🔍 Checking for updates...')
       const update = await check()
+      console.log('📦 Update check result:', update)
       
       if (update) {
+        console.log('✅ Update available:', update.version)
         updateInfo.value = {
           version: update.version,
           date: update.date,
@@ -42,6 +58,7 @@ export const useUpdater = () => {
           await notify('Update Available', `Version ${update.version} is available for download`)
         }
       } else {
+        console.log('ℹ️ No updates available')
         updateInfo.value = null
         if (!silent) {
           await notify('No Updates', 'You are running the latest version')
@@ -79,8 +96,29 @@ export const useUpdater = () => {
 
       // Download the update
       await update.downloadAndInstall((event) => {
-        console.log('Download progress:', event)
-        // You can emit progress events here if needed
+        // Log only safe progress info, not the entire event object
+        if (event.event === 'Progress') {
+          console.log('Download progress:', event.event, 'chunk:', event.data.chunkLength)
+        } else {
+          console.log('Download event:', event.event)
+        }
+        
+        if (event.event === 'Progress') {
+          const { chunkLength } = event.data
+          // Accumulate total downloaded bytes
+          totalDownloaded.value += chunkLength
+          
+          // Show only downloaded size
+          const downloadedMB = Math.round(totalDownloaded.value / 1024 / 1024)
+          downloadStatus.value = `Downloading... ${downloadedMB}MB`
+        } else if (event.event === 'Started') {
+          downloadStatus.value = 'Starting download...'
+          downloadProgress.value = 0
+          totalDownloaded.value = 0 // Reset counter
+        } else if (event.event === 'Finished') {
+          downloadStatus.value = 'Download completed!'
+          downloadProgress.value = 100
+        }
       })
 
       isDownloading.value = false
@@ -105,15 +143,21 @@ export const useUpdater = () => {
   const dismissUpdate = () => {
     updateInfo.value = null
     error.value = null
+    downloadProgress.value = 0
+    downloadStatus.value = ''
+    totalDownloaded.value = 0
   }
 
-  return {
+    return {
     // State
     isChecking,
     isDownloading,
     isInstalling,
     updateInfo,
     error,
+    downloadProgress,
+    downloadStatus,
+    totalDownloaded,
     
     // Computed
     hasUpdate,
@@ -122,6 +166,7 @@ export const useUpdater = () => {
     // Actions
     checkForUpdates,
     downloadAndInstall,
-    dismissUpdate
+    dismissUpdate,
+    initializeUpdater
   }
 }
