@@ -71,47 +71,37 @@
       icon="i-lucide-check-square"
       :title="`${selectedRows.length} item(s) selected`"
       class="p-4"
-    >
-      <template #default>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <UButton
-              v-if="selectedRows.length >= 2"
-              color="primary"
-              variant="soft"
-              icon="i-lucide-refresh-cw"
-              :loading="isBulkRetranslating"
-              :disabled="isBusy"
-              size="sm"
-              @click="onBulkRetranslate"
-            >
-              Re-translate Selected ({{ selectedRows.length }})
-            </UButton>
-            <UButton
-              v-if="selectedRows.length >= 1"
-              color="warning"
-              variant="soft"
-              icon="i-lucide-undo"
-              :loading="isBulkReverting"
-              :disabled="isBusy"
-              size="sm"
-              @click="onBulkRevert"
-            >
-              Revert to Raw ({{ selectedRows.length }})
-            </UButton>
-          </div>
-          <UButton
-            color="error"
-            variant="ghost"
-            size="sm"
-            icon="i-lucide-x"
-            @click="clearSelection"
-          >
-            Clear Selection
-          </UButton>
-        </div>
-      </template>
-    </UAlert>
+      :actions="[
+        {
+          label: selectedRows.length >= 2 ? `Re-translate Selected (${selectedRows.length})` : undefined,
+          color: 'primary' as const,
+          variant: 'soft' as const,
+          icon: 'i-lucide-refresh-cw',
+          loading: isBulkRetranslating,
+          disabled: isBusy,
+          size: 'sm' as const,
+          onClick: selectedRows.length >= 2 ? onBulkRetranslate : undefined
+        },
+        {
+          label: selectedRows.length >= 2 ? `Revert to Raw (${selectedRows.length})` : undefined,
+          color: 'warning' as const,
+          variant: 'soft' as const,
+          icon: 'i-lucide-undo',
+          loading: isBulkReverting,
+          disabled: isBusy,
+          size: 'sm' as const,
+          onClick: selectedRows.length >= 2 ? onBulkRevert : undefined
+        },
+        {
+          label: selectedRows.length >= 2 ? 'Clear Selection' : undefined,
+          color: 'error' as const,
+          variant: 'solid' as const,
+          size: 'sm' as const,
+          icon: 'i-lucide-x',
+          onClick: clearSelection
+        }
+      ].filter(action => action.label)"
+    />
 
     <!-- Results Table -->
     <UCard>
