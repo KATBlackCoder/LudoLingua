@@ -22,6 +22,7 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_os::init())
         .manage(crate::llm::state::LlmState::new(1)) // Single request at a time to prevent rate limits
         .setup(|app| {
             // Resolve per-OS app data directory and create the DB there
@@ -71,7 +72,10 @@ pub fn run() {
             commands::handler::update_translation_cmd,
             commands::handler::delete_translation_cmd,
             commands::handler::bulk_delete_translations_cmd,
-            commands::handler::get_translation_stats_cmd
+            commands::handler::get_translation_stats_cmd,
+            // Updater commands
+            commands::handler::rename_appimage_with_version,
+            commands::handler::cleanup_old_executable_backups
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

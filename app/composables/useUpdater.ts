@@ -1,6 +1,8 @@
 import { ref, computed } from 'vue'
 import { check } from '@tauri-apps/plugin-updater'
 import { relaunch } from '@tauri-apps/plugin-process'
+import { invoke } from '@tauri-apps/api/core'
+import { platform } from '@tauri-apps/plugin-os'
 import { useNotifications } from './useNotifications'
 
 export interface UpdateInfo {
@@ -94,7 +96,9 @@ export const useUpdater = () => {
         throw new Error('No update available')
       }
 
-      // Download the update
+      console.log('🚀 Starting download and install with custom AppImage renaming...')
+
+      // Download the update with custom post-install hook
       await update.downloadAndInstall((event) => {
         // Log only safe progress info, not the entire event object
         if (event.event === 'Progress') {
@@ -124,8 +128,33 @@ export const useUpdater = () => {
       isDownloading.value = false
       isInstalling.value = true
 
+      // Custom file renaming logic for Linux and Windows
+      try {
+        const currentPlatform = platform()
+        console.log('🖥️ Current platform:', currentPlatform)
+        
+        if (currentPlatform === 'linux' || currentPlatform === 'windows') {
+          downloadStatus.value = `Renaming ${currentPlatform === 'linux' ? 'AppImage' : 'executable'} with version...`
+          
+          const newPath = await invoke<string>('rename_appimage_with_version', {
+            currentPath: 'auto-detect',
+            newVersion: update.version
+          })
+          
+          console.log(`✅ ${currentPlatform === 'linux' ? 'AppImage' : 'Executable'} renamed successfully to:`, newPath)
+          downloadStatus.value = `${currentPlatform === 'linux' ? 'AppImage' : 'Executable'} renamed successfully!`
+        } else {
+          console.log('ℹ️ File renaming skipped (not supported on this platform)')
+          downloadStatus.value = 'Update completed'
+        }
+      } catch (renameError) {
+        console.warn('⚠️ AppImage renaming failed (non-critical):', renameError)
+        // Don't fail the entire update process if renaming fails
+        downloadStatus.value = 'Update completed (renaming skipped)'
+      }
+
       // Show completion notification
-      await notify('Update Downloaded', 'The update has been downloaded and will be installed on restart')
+      await notify('Update Downloaded', 'The update has been downloaded and installed successfully')
 
       // Restart the application
       await relaunch()

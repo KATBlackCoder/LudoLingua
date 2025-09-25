@@ -15,7 +15,7 @@ use tauri::State;
 
 // Internal command modules
 use crate::commands::{
-    engine, glossary as glossary_cmd, languages, provider, translations, translator,
+    engine, glossary as glossary_cmd, languages, provider, translations, translator, updater,
 };
 
 // Database types
@@ -330,4 +330,25 @@ pub async fn get_translation_stats_cmd(
     translations::get_translation_stats(&translation, project_path)
         .await
         .map_err(|e| e.to_string())
+}
+
+// ============================================================================
+// UPDATER COMMANDS
+// ============================================================================
+
+/// Rename AppImage with version number (Linux only)
+#[tauri::command]
+pub async fn rename_appimage_with_version(
+    current_path: String,
+    new_version: String,
+) -> Result<String, String> {
+    debug!("Command: rename_appimage_with_version - {}", new_version);
+    updater::rename_appimage_with_version(current_path, new_version).await
+}
+
+/// Cleanup old executable backup files
+#[tauri::command]
+pub async fn cleanup_old_executable_backups() -> Result<String, String> {
+    debug!("Command: cleanup_old_executable_backups");
+    updater::cleanup_old_executable_backups().await
 }

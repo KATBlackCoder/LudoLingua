@@ -111,7 +111,7 @@
         variant="soft"
         icon="i-lucide-refresh-cw"
         title="Installing Update"
-        description="The update is being installed. The app will restart automatically."
+        :description="downloadStatus || 'The update is being installed. The app will restart automatically.'"
         class="p-4"
       >
         <template #default>

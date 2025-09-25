@@ -8,6 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 5.9: Cross-Platform Update Enhancement - COMPLETED ✅**
+  - **Cross-Platform File Renaming:** Implemented intelligent file renaming for both Linux and Windows during updates
+    - **Linux AppImage Support:** Automatic renaming of AppImage files with version numbers during update process
+    - **Windows Executable Support:** Automatic renaming of Windows .exe files with version numbers during update process
+    - **OS Plugin Integration:** Uses [Tauri OS plugin](https://tauri.app/plugin/os-info/) for runtime platform detection instead of compile-time conditionals
+    - **Safe Backup System:** Creates `.old` backup files for rollback capability (e.g., `LudoLingua.AppImage.old`, `LudoLingua.exe.old`)
+  - **Architecture Compliance:** Refactored to follow project's established patterns
+    - **Command Handler Pattern:** Moved `#[tauri::command]` attributes from `updater.rs` to `handler.rs` following project architecture
+    - **Pure Business Logic:** `updater.rs` now contains pure business logic without Tauri command attributes
+    - **Clean Separation:** Maintains separation between command handlers and business logic as per project guidelines
+    - **Centralized Commands:** All command handlers centralized in `handler.rs` for consistency
+  - **Smart File Detection:** Intelligent file discovery and renaming logic
+    - **Auto-Detection:** Automatically detects current executable path using `std::env::current_exe()`
+    - **Version-Based Naming:** Files are renamed with version numbers during update process (e.g., `LudoLingua-v1.2.3.AppImage`)
+    - **Fallback Logic:** Robust fallback mechanisms for different file naming scenarios
+    - **Permission Handling:** Ensures proper executable permissions on Linux after renaming
+  - **Enhanced User Experience:** Improved update process with better feedback and error handling
+    - **Platform-Specific Messages:** Shows appropriate status messages for Linux ("AppImage") vs Windows ("executable")
+    - **Non-Critical Failures:** Renaming failures don't prevent successful updates from completing
+    - **Clear Feedback:** Console logging and status updates for debugging and user awareness
+    - **Graceful Degradation:** Update process continues even if file renaming encounters issues
 - **Phase 5.8: UI Component Enhancement - COMPLETED ✅**
   - **Alert Component Structure Fix:** Fixed Project Loading Indicator to follow proper Nuxt UI Alert API structure
     - **Proper Slot Usage:** Replaced custom `#default` template with correct `#description` slot usage following [Nuxt UI Alert documentation](https://ui.nuxt.com/docs/components/alert)

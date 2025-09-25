@@ -4,9 +4,9 @@ This document tracks the completed milestones and current status of the LudoLing
 
 ---
 
-## 🎯 **Current Status: Phase 5.8 - UI Component Enhancement (100% Complete)**
+## 🎯 **Current Status: Phase 5.9 - Cross-Platform Update Enhancement (100% Complete)**
 
-**Latest Achievement:** Successfully completed Phase 5.8 with Alert component structure fix. Fixed Project Loading Indicator to follow proper Nuxt UI Alert API structure, ensuring progress bars display correctly within Alert components.
+**Latest Achievement:** Successfully completed Phase 5.9 with cross-platform AppImage/executable renaming functionality. Implemented intelligent file renaming for both Linux AppImages and Windows executables during updates, with proper OS detection using Tauri OS plugin.
 
 **Next Priority:** Phase 6 - Advanced Features & Polish for enhanced translation management and performance optimization.
 
@@ -29,6 +29,7 @@ Phase 5.5 (Completed): Text Filtering Enhancement           [██████�
 Phase 5.6 (Completed): Text Processing Architecture Enhancement [████████████] 100%
 Phase 5.7 (Completed): Update System Enhancement              [████████████] 100%
 Phase 5.8 (Completed): UI Component Enhancement              [████████████] 100%
+Phase 5.9 (Completed): Cross-Platform Update Enhancement     [████████████] 100%
 Phase 6 (Next): Advanced Features & Polish                  [░░░░░░░░░░░░]   0%
 ```
 
@@ -391,6 +392,28 @@ Phase 6 (Next): Advanced Features & Polish                  [░░░░░░�
   - **Visual Consistency:** Progress bars now display correctly with proper spacing and layout
   - **Future-Proof:** Follows official patterns for easy maintenance and updates
 
+**5.9 Cross-Platform Update Enhancement - COMPLETED**
+- ✅ **Cross-Platform File Renaming**: Implemented intelligent file renaming for both Linux and Windows during updates
+  - **Linux AppImage Support:** Automatic renaming of AppImage files with version numbers during update process
+  - **Windows Executable Support:** Automatic renaming of Windows .exe files with version numbers during update process
+  - **OS Plugin Integration:** Uses [Tauri OS plugin](https://tauri.app/plugin/os-info/) for runtime platform detection instead of compile-time conditionals
+  - **Safe Backup System:** Creates `.old` backup files for rollback capability (e.g., `LudoLingua.AppImage.old`, `LudoLingua.exe.old`)
+- ✅ **Architecture Compliance**: Refactored to follow project's established patterns
+  - **Command Handler Pattern:** Moved `#[tauri::command]` attributes from `updater.rs` to `handler.rs` following project architecture
+  - **Pure Business Logic:** `updater.rs` now contains pure business logic without Tauri command attributes
+  - **Clean Separation:** Maintains separation between command handlers and business logic as per project guidelines
+  - **Centralized Commands:** All command handlers centralized in `handler.rs` for consistency
+- ✅ **Smart File Detection**: Intelligent file discovery and renaming logic
+  - **Auto-Detection:** Automatically detects current executable path using `std::env::current_exe()`
+  - **Version-Based Naming:** Files are renamed with version numbers during update process (e.g., `LudoLingua-v1.2.3.AppImage`)
+  - **Fallback Logic:** Robust fallback mechanisms for different file naming scenarios
+  - **Permission Handling:** Ensures proper executable permissions on Linux after renaming
+- ✅ **Enhanced User Experience**: Improved update process with better feedback and error handling
+  - **Platform-Specific Messages:** Shows appropriate status messages for Linux ("AppImage") vs Windows ("executable")
+  - **Non-Critical Failures:** Renaming failures don't prevent successful updates from completing
+  - **Clear Feedback:** Console logging and status updates for debugging and user awareness
+  - **Graceful Degradation:** Update process continues even if file renaming encounters issues
+
 **Benefits Achieved:**
 - ✅ **Automatic Updates**: Users get latest features and bug fixes automatically
 - ✅ **Security**: Signed updates ensure authenticity and prevent tampering
@@ -502,4 +525,4 @@ LudoLingua has evolved into a **mature, production-ready desktop application** w
 - **Clean Codebase** with 33% function reduction and comprehensive cleanup
 - **Professional Architecture** following domain-driven design principles
 
-**Phase 5.8 Complete!** - UI component enhancement with Alert structure fix, proper Nuxt UI compliance, and improved progress bar display for better user experience.
+**Phase 5.9 Complete!** - Cross-platform update enhancement with intelligent file renaming for both Linux AppImages and Windows executables, proper OS detection, and enhanced user experience with graceful error handling.

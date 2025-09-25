@@ -12,3 +12,4 @@ pub mod languages;
 pub mod provider;
 pub mod translations;
 pub mod translator;
+pub mod updater;
