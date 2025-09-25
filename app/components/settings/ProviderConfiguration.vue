@@ -156,12 +156,37 @@ interface Props {
 defineProps<Props>()
 const settingsStore = useSettingsStore()
 
-// Advanced settings form
+// Advanced settings form - initialize from store
 const advancedSettings = ref({
   base_url: settingsStore.userSettings.base_url || '',
   api_key: '', // Void - not used in UI but kept for backend compatibility
   temperature: settingsStore.userSettings.temperature || 0.3,
   max_tokens: settingsStore.userSettings.max_tokens || 2048,
+})
+
+// Update settings when store changes
+watch(() => settingsStore.userSettings, (newSettings) => {
+  advancedSettings.value = {
+    base_url: newSettings.base_url || '',
+    api_key: '', // Void - not used in UI but kept for backend compatibility
+    temperature: newSettings.temperature || 0.3,
+    max_tokens: newSettings.max_tokens || 2048,
+  }
+}, { deep: true })
+
+// Emit current settings for parent components to access
+const emit = defineEmits<{
+  'settings-updated': [settings: typeof advancedSettings.value]
+}>()
+
+// Watch for changes and emit them
+watch(advancedSettings, (newSettings) => {
+  emit('settings-updated', newSettings)
+}, { deep: true })
+
+// Also emit initial settings
+onMounted(() => {
+  emit('settings-updated', advancedSettings.value)
 })
 
 // Presets for temperature/max_tokens

@@ -57,26 +57,47 @@ import { computed, onMounted, ref } from 'vue'
 import { useProviderStore } from '~/stores/provider'
 import { useSettingsStore } from '~/stores/settings'
 import { useLanguageStore } from '~/stores/language'
+import { useAppToast } from '~/composables/useAppToast'
 import type { Language } from '~/types/language'
+
+interface Props {
+  providerSettings?: {
+    base_url: string
+    api_key: string
+    temperature: number
+    max_tokens: number
+  }
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  providerSettings: () => ({
+    base_url: '',
+    api_key: '',
+    temperature: 0.3,
+    max_tokens: 2048,
+  })
+})
 
 // Use provider store for connection testing
 const providerStore = useProviderStore()
 const settingsStore = useSettingsStore()
 const languageStore = useLanguageStore()
+const { showToast } = useAppToast()
 const ready = ref(true)
 
-// Advanced settings form - get from current settings
+// Use provider settings from props, fallback to store settings
 const advancedSettings = computed(() => ({
-  base_url: settingsStore.userSettings.base_url || '',
-  api_key: '', // Void - not used in UI but kept for backend compatibility
-  temperature: settingsStore.userSettings.temperature || 0.3,
-  max_tokens: settingsStore.userSettings.max_tokens || 2048,
+  base_url: props.providerSettings.base_url || settingsStore.userSettings.base_url || '',
+  api_key: props.providerSettings.api_key || '', // Void - not used in UI but kept for backend compatibility
+  temperature: props.providerSettings.temperature || settingsStore.userSettings.temperature || 0.3,
+  max_tokens: props.providerSettings.max_tokens || settingsStore.userSettings.max_tokens || 2048,
 }))
 
 // Methods
 const testConnection = async () => {
   if (!ready.value) return
   await providerStore.testConnection(settingsStore.providerConfig, { silent: false })
+  console.log(settingsStore.providerConfig)
 }
 
 const saveSettings = async () => {
@@ -97,16 +118,21 @@ const saveSettings = async () => {
 
     // Save to persistent storage
     await settingsStore.saveUserSettings(currentSettings)
+    showToast('Settings Saved', 'Your settings have been saved successfully', 'success', 3000, 'i-lucide-check-circle')
   } catch (error) {
     console.error('Failed to save settings:', error)
+    showToast('Save Failed', 'Failed to save settings. Please try again.', 'error', 4000, 'i-lucide-alert-triangle')
   }
 }
 
 const resetSettings = async () => {
   try {
     await settingsStore.resetUserSettings()
+    showToast('Settings Reset', 'Settings have been reset to defaults', 'warning', 3000, 'i-lucide-refresh-cw')
+    console.log(settingsStore.userSettings)
   } catch (error) {
     console.error('Failed to reset settings:', error)
+    showToast('Reset Failed', 'Failed to reset settings. Please try again.', 'error', 4000, 'i-lucide-alert-triangle')
   }
 }
 

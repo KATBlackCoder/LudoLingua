@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <ConnectionTester />
+        <ConnectionTester :provider-settings="currentProviderSettings" />
       </div>
     </div>
 
@@ -54,6 +54,7 @@
       <div class="space-y-6">
         <ProviderConfiguration 
           :current-provider="providerStore.selectedProvider"
+          @settings-updated="onProviderSettingsUpdated"
         />
       </div>
 
@@ -81,7 +82,17 @@ const providerStore = useProviderStore()
 // Reactive state
 const showSuccessMessage = ref(false)
 const hasSettings = ref(true)
+const currentProviderSettings = ref({
+  base_url: '',
+  api_key: '',
+  temperature: 0.3,
+  max_tokens: 2048,
+})
 
+// Handle provider settings updates
+const onProviderSettingsUpdated = (settings: typeof currentProviderSettings.value) => {
+  currentProviderSettings.value = { ...settings }
+}
 
 // Initialize settings when component mounts
 onMounted(async () => {
