@@ -8,6 +8,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 9: Row Selection Pagination Fix - COMPLETED ✅**
+  - **TanStack Table Pagination Implementation:** Complete migration from manual pagination to TanStack Table's built-in pagination
+    - **getPaginationRowModel Integration:** Added proper import and configuration for TanStack Table pagination with @ts-expect-error for TypeScript compatibility
+    - **Pagination State Management:** Created pagination ref with pageIndex and pageSize for proper state handling
+    - **UTable Configuration:** Updated UTable with v-model:pagination and pagination-options props
+    - **Manual Pagination Removal:** Eliminated manual page, pageSize, and pagedRows computed properties
+  - **Row Selection Persistence:** Fixed row selection not persisting across page changes
+    - **Cross-Page Selection:** Row selection now persists when changing pages using TanStack Table's built-in selection state
+    - **Proper State Management:** Uses TanStack Table's selection API for reliable state handling
+    - **Better UX:** Users can select items across multiple pages without losing selection
+  - **Pagination Synchronization:** Fixed header and footer pagination controls to stay synchronized
+    - **Two-Way Binding:** Implemented v-model:page binding for proper reactive updates between controls
+    - **Computed Property:** Created currentPage computed property for synchronized pagination state
+    - **Consistent UX:** Both header and footer pagination controls reflect the same state
+    - **Nuxt UI v4 Compliance:** Follows official Nuxt UI v4 pagination patterns from [documentation](https://ui.nuxt.com/docs/components/table#with-pagination)
+  - **Code Quality & Architecture:** Enhanced maintainability and performance
+    - **Clean Implementation:** Removed duplicate pagination logic and unused variables
+    - **Type Safety:** Proper TypeScript types with @ts-expect-error for TanStack Table import
+    - **Performance:** Optimized pagination with built-in TanStack Table features
+    - **Future-Proof:** Uses standard table patterns for easy maintenance and updates
+  - **Benefits Achieved:** Professional-grade table pagination functionality
+    - **Row Selection Persistence:** Cross-page selection with proper state management
+    - **Pagination Synchronization:** Header and footer controls stay in sync with two-way binding
+    - **Code Simplification:** Removed manual pagination logic, use TanStack Table APIs
+    - **Nuxt UI v4 Compliance:** Follows official pagination patterns for reliability
 - **Phase 5.9: Cross-Platform Update Enhancement - COMPLETED ✅**
   - **Cross-Platform File Renaming:** Implemented intelligent file renaming for both Linux and Windows during updates
     - **Linux AppImage Support:** Automatic renaming of AppImage files with version numbers during update process

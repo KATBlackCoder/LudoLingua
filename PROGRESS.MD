@@ -4,11 +4,11 @@ This document tracks the completed milestones and current status of the LudoLing
 
 ---
 
-## 🎯 **Current Status: Phase 5.9 - Cross-Platform Update Enhancement (100% Complete)**
+## 🎯 **Current Status: Phase 9 - Row Selection Pagination Fix (100% Complete)**
 
-**Latest Achievement:** Successfully completed Phase 5.9 with cross-platform AppImage/executable renaming functionality. Implemented intelligent file renaming for both Linux AppImages and Windows executables during updates, with proper OS detection using Tauri OS plugin.
+**Latest Achievement:** Successfully completed Phase 9 with row selection pagination fix. Implemented proper TanStack Table pagination with persistent row selection across page changes and synchronized header/footer pagination controls using v-model:page binding.
 
-**Next Priority:** Phase 6 - Advanced Features & Polish for enhanced translation management and performance optimization.
+**Next Priority:** Phase 10 - Advanced Features & Polish for enhanced translation management and performance optimization.
 
 ---
 
@@ -30,7 +30,8 @@ Phase 5.6 (Completed): Text Processing Architecture Enhancement [█████
 Phase 5.7 (Completed): Update System Enhancement              [████████████] 100%
 Phase 5.8 (Completed): UI Component Enhancement              [████████████] 100%
 Phase 5.9 (Completed): Cross-Platform Update Enhancement     [████████████] 100%
-Phase 6 (Next): Advanced Features & Polish                  [░░░░░░░░░░░░]   0%
+Phase 9 (Completed): Row Selection Pagination Fix            [████████████] 100%
+Phase 10 (Next): Advanced Features & Polish                  [░░░░░░░░░░░░]   0%
 ```
 
 ---
@@ -414,6 +415,27 @@ Phase 6 (Next): Advanced Features & Polish                  [░░░░░░�
   - **Clear Feedback:** Console logging and status updates for debugging and user awareness
   - **Graceful Degradation:** Update process continues even if file renaming encounters issues
 
+**Phase 9: Row Selection Pagination Fix - COMPLETED**
+- ✅ **TanStack Table Pagination Implementation**: Complete migration from manual pagination to TanStack Table's built-in pagination
+  - **getPaginationRowModel Integration:** Added proper import and configuration for TanStack Table pagination
+  - **Pagination State Management:** Created pagination ref with pageIndex and pageSize for proper state handling
+  - **UTable Configuration:** Updated UTable with v-model:pagination and pagination-options props
+  - **Manual Pagination Removal:** Eliminated manual page, pageSize, and pagedRows computed properties
+- ✅ **Row Selection Persistence**: Fixed row selection not persisting across page changes
+  - **Cross-Page Selection:** Row selection now persists when changing pages using TanStack Table's built-in selection state
+  - **Proper State Management:** Uses TanStack Table's selection API for reliable state handling
+  - **Better UX:** Users can select items across multiple pages without losing selection
+- ✅ **Pagination Synchronization**: Fixed header and footer pagination controls to stay synchronized
+  - **Two-Way Binding:** Implemented v-model:page binding for proper reactive updates between controls
+  - **Computed Property:** Created currentPage computed property for synchronized pagination state
+  - **Consistent UX:** Both header and footer pagination controls reflect the same state
+  - **Nuxt UI v4 Compliance:** Follows official Nuxt UI v4 pagination patterns from documentation
+- ✅ **Code Quality & Architecture**: Enhanced maintainability and performance
+  - **Clean Implementation:** Removed duplicate pagination logic and unused variables
+  - **Type Safety:** Proper TypeScript types with @ts-expect-error for TanStack Table import
+  - **Performance:** Optimized pagination with built-in TanStack Table features
+  - **Future-Proof:** Uses standard table patterns for easy maintenance and updates
+
 **Benefits Achieved:**
 - ✅ **Automatic Updates**: Users get latest features and bug fixes automatically
 - ✅ **Security**: Signed updates ensure authenticity and prevent tampering
@@ -480,10 +502,10 @@ Phase 6 (Next): Advanced Features & Polish                  [░░░░░░�
 
 ## 🚀 **Next Steps**
 
-### **Phase 5.3 Complete!** 🎉
-Automatic updates integration successfully implemented with professional-grade update management, signed updates, automatic checking on startup, native notifications, and seamless download/install workflow.
+### **Phase 9 Complete!** 🎉
+Row selection pagination fix successfully implemented with proper TanStack Table pagination, persistent row selection across page changes, and synchronized header/footer pagination controls.
 
-### **Immediate Priority (Phase 6)**
+### **Immediate Priority (Phase 10)**
 1. **Advanced Translation Management Features**
    - Multi-criteria filtering (status, type, project, date)
    - Full-text search across source and translated text
@@ -507,9 +529,9 @@ Automatic updates integration successfully implemented with professional-grade u
    - Cross-platform compatibility validation
 
 ### **Future Phases**
-- **Phase 7**: Cross-platform optimization and deployment automation
-- **Phase 8**: Community features and plugin system
-- **Phase 9**: Professional distribution and app store integration
+- **Phase 11**: Cross-platform optimization and deployment automation
+- **Phase 12**: Community features and plugin system
+- **Phase 13**: Professional distribution and app store integration
 
 ---
 
@@ -525,4 +547,4 @@ LudoLingua has evolved into a **mature, production-ready desktop application** w
 - **Clean Codebase** with 33% function reduction and comprehensive cleanup
 - **Professional Architecture** following domain-driven design principles
 
-**Phase 5.9 Complete!** - Cross-platform update enhancement with intelligent file renaming for both Linux AppImages and Windows executables, proper OS detection, and enhanced user experience with graceful error handling.
+**Phase 9 Complete!** - Row selection pagination fix with proper TanStack Table pagination, persistent row selection across page changes, and synchronized header/footer pagination controls using v-model:page binding.

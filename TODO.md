@@ -385,64 +385,59 @@ The shared architecture is now ready for the next phase where we can create a un
 - **✅ Type Safety**: Proper TypeScript types with TableRow for row selection events
 - **✅ Performance Optimized**: Clean code with no unused variables
 - **✅ Backward Compatible**: Existing usage patterns continue to work
-- **✅ Ready for Migration**: Prepared for Phase 9: TranslationTable.vue migration
+- **✅ Ready for Fix**: Prepared for Phase 9: Row selection pagination fix
 
 ---
 
-## 🎯 **Phase 9: TranslationTable.vue Migration** - IN PROGRESS
-**Goal:** Migrate TranslationTable.vue to use enhanced BaseTable.vue with custom processors
-**Timeline:** 1-2 days
-**Status:** 🔄 IN PROGRESS - Migration tasks created and ready to start
+## ✅ **Phase 9: Row Selection Pagination Fix** - COMPLETED
+**Goal:** Fix TranslationResult.vue row selection not persisting across page changes
+**Timeline:** 1 day
+**Status:** ✅ COMPLETED - All objectives achieved
 
-### **🎯 Phase 9 Objectives**
-- [ ] **Replace UTable with BaseTable**: Replace direct UTable usage with enhanced BaseTable component
-- [ ] **Remove Duplicate State Management**: Remove local state management that conflicts with BaseTable's enhanced state
-- [ ] **Leverage Enhanced Features**: Enable display mode toggle, statistics, and reset capabilities
-- [ ] **Update Props Interface**: Use enhanced props interface from BaseTable.vue
-- [ ] **Simplify Event Handling**: Update event handling to use BaseTable's standardized approach
-- [ ] **Test Migration**: Verify all existing functionality works with enhanced BaseTable
-- [ ] **Code Reduction**: Eliminate ~200 lines of duplicate table logic
+### **✅ Phase 9 Objectives - COMPLETED**
+- ✅ **Fix Row Selection Pagination Issue**: Fixed TranslationResult.vue row selection not persisting across page changes by implementing proper TanStack Table pagination with getPaginationRowModel()
+- ✅ **Remove Manual Pagination**: Removed manual pagination logic and use TanStack Table's built-in pagination
+- ✅ **Update UTable Props**: Updated to use v-model:pagination and pagination-options props
+- ✅ **Test Row Selection**: Verified row selection persists across page changes
+- ✅ **Code Cleanup**: Removed duplicate pagination logic
 
-### **🎯 Migration Benefits**
+### **🎯 Fix Benefits**
 
-#### **Enhanced Features Gained:**
-- **Display Mode Toggle**: Switch between paginated and all data views
-- **Table Statistics**: Real-time statistics display
-- **Enhanced Filtering**: Domain-specific filtering with custom processors
-- **Reset Functionality**: Enhanced reset with auto-reset on data change
-- **Performance**: Optimized table rendering with virtualization
-- **Accessibility**: Built-in WAI-ARIA compliance
-- **Responsive Design**: Mobile-first approach with consistent breakpoints
+#### **Row Selection Persistence:**
+- **Cross-page selection**: Row selection persists when changing pages
+- **Proper state management**: Uses TanStack Table's built-in selection state
+- **Better UX**: Users can select items across multiple pages
 
-#### **Code Reduction:**
-- **Remove ~200 lines** of duplicate table logic
-- **Eliminate custom filtering** implementation
+#### **Pagination Synchronization:**
+- **Synchronized controls**: Header and footer pagination controls stay in sync
+- **Two-way binding**: Uses `v-model:page` for proper reactive updates
+- **Consistent UX**: Both pagination controls reflect the same state
+- **Nuxt UI v4 compliance**: Follows official pagination patterns
+
+#### **Code Simplification:**
 - **Remove manual pagination** logic
-- **Simplify state management**
-
-#### **Maintainability:**
-- **Single source of truth** for table functionality
-- **Consistent UX** across all table components
-- **Easier testing** with standardized table behavior
-- **Future-proof** with enhanced table features
+- **Use TanStack Table APIs** for pagination control
+- **Eliminate duplicate state** management
+- **Cleaner implementation** with proper table patterns
 
 ### **🎯 Implementation Steps:**
-1. [ ] **Replace UTable with BaseTable**: Update template to use BaseTable component
-2. [ ] **Remove Duplicate State**: Remove local state management that conflicts with BaseTable
-3. [ ] **Update Props**: Configure BaseTable with enhanced features
-4. [ ] **Update Event Handlers**: Simplify event handling to use BaseTable's approach
-5. [ ] **Test Migration**: Verify all existing functionality works
-6. [ ] **Leverage Enhanced Features**: Enable statistics, display mode toggle
-7. [ ] **Code Cleanup**: Remove duplicate table logic and unused code
+1. [ ] **Import getPaginationRowModel**: Add import from @tanstack/vue-table
+2. [ ] **Add pagination state**: Create pagination ref with pageIndex and pageSize
+3. [ ] **Update UTable props**: Add v-model:pagination and pagination-options
+4. [ ] **Remove manual pagination**: Remove page, pageSize, pagedRows computed
+5. [ ] **Update UPagination**: Use table API for pagination control
+6. [ ] **Test row selection**: Verify selection persists across page changes
+7. [ ] **Code cleanup**: Remove unused pagination variables and methods
 
-### **🎯 Migration Tasks Created:**
-- ✅ **Task 1**: Replace UTable with BaseTable component in TranslationTable.vue
-- ✅ **Task 2**: Remove duplicate state management (search, statusFilter, promptTypeFilter, page, pageSize)
-- ✅ **Task 3**: Update props interface to use BaseTable enhanced features
-- ✅ **Task 4**: Simplify event handling to use BaseTable standardized approach
-- ✅ **Task 5**: Enable enhanced features (display mode toggle, statistics, export)
-- ✅ **Task 6**: Test migration and verify all existing functionality works
-- ✅ **Task 7**: Remove ~200 lines of duplicate table logic and cleanup code
+### **✅ Fix Tasks Completed:**
+- ✅ **Task 1**: Import getPaginationRowModel from @tanstack/vue-table
+- ✅ **Task 2**: Add pagination state with pageIndex and pageSize
+- ✅ **Task 3**: Update UTable with v-model:pagination and pagination-options props
+- ✅ **Task 4**: Remove manual pagination logic (page, pageSize, pagedRows)
+- ✅ **Task 5**: Update UPagination to use table API for pagination control
+- ✅ **Task 6**: Test row selection persistence across page changes
+- ✅ **Task 7**: Clean up unused pagination variables and methods
+- ✅ **Task 8**: Fix pagination synchronization between header and footer controls
 
 ---
 
@@ -488,4 +483,4 @@ The shared architecture is now ready for the next phase where we can create a un
 
 ---
 
-**🏆 Status**: Phase 8 complete! All enhanced universal table architecture objectives achieved. Ready for Phase 9: TranslationTable.vue migration to enhanced BaseTable.vue.
+**🏆 Status**: Phase 9 complete! All row selection pagination fix objectives achieved. TranslationResult.vue now uses proper TanStack Table pagination with persistent row selection across page changes and synchronized header/footer pagination controls.

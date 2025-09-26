@@ -130,12 +130,12 @@
           </div>
           <div class="flex items-center gap-2">
             <span class="text-xs text-gray-500 dark:text-gray-400">
-              Page {{ page }} of {{ pageCount }}
+              Page {{ (table?.tableApi?.getState().pagination.pageIndex || 0) + 1 }} of {{ Math.ceil((table?.tableApi?.getFilteredRowModel().rows.length || 0) / (table?.tableApi?.getState().pagination.pageSize || 25)) }}
             </span>
             <UPagination
-              v-model:page="page"
-              :total="filteredRows.length"
-              :items-per-page="pageSize"
+              v-model:page="currentPage"
+              :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+              :total="table?.tableApi?.getFilteredRowModel().rows.length"
               size="sm"
             />
           </div>
@@ -146,8 +146,12 @@
         ref="table"
         v-model:row-selection="rowSelection"
         v-model:sorting="sorting"
-        :data="pagedRows"
+        v-model:pagination="pagination"
+        :data="filteredRows"
         :columns="columns"
+        :pagination-options="{
+          getPaginationRowModel: getPaginationRowModel()
+        }"
         class="text-sm"
         @select="onSelect"
       />
@@ -165,12 +169,12 @@
             selected
           </span>
           <span>
-            Showing {{ pagedRows.length }} of {{ filteredRows.length }} results
+            Showing {{ table?.tableApi?.getRowModel().rows.length || 0 }} of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} results
           </span>
           <UPagination
-            v-model:page="page"
-            :total="filteredRows.length"
-            :items-per-page="pageSize"
+            v-model:page="currentPage"
+            :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+            :total="table?.tableApi?.getFilteredRowModel().rows.length"
             size="sm"
           />
         </div>
@@ -238,6 +242,8 @@ import { useLanguageStore } from "~/stores/language";
 import { useAppToast } from "~/composables/useAppToast";
 import { useEngineStore } from "~/stores/engine";
 import { useNotifications } from "~/composables/useNotifications";
+// @ts-expect-error - TanStack Table import
+import { getPaginationRowModel } from '@tanstack/vue-table'
 
 const props = defineProps<{ items: TextUnit[] }>();
 const emit = defineEmits<{
@@ -296,8 +302,11 @@ const rows = computed<Row[]>(() =>
   }))
 );
 
-const page = ref(1);
-const pageSize = ref(25);
+// TanStack Table pagination state
+const pagination = ref({
+  pageIndex: 0,
+  pageSize: 25
+});
 const search = ref("");
 const placeholderFilter = ref("all");
 
@@ -448,11 +457,11 @@ const filteredRows = computed(() => {
   return filtered;
 });
 
-// Reset page when filters change
+// Reset pagination when filters change
 watch(
   [search, textLengthRange, placeholderFilter],
   () => {
-    page.value = 1;
+    pagination.value.pageIndex = 0;
   },
   { deep: true }
 );
@@ -464,12 +473,12 @@ watch(maxTextLength, (newMax) => {
   }
 });
 
-const pageCount = computed(() =>
-  Math.max(1, Math.ceil(filteredRows.value.length / pageSize.value))
-);
-const pagedRows = computed(() => {
-  const start = (page.value - 1) * pageSize.value;
-  return filteredRows.value.slice(start, start + pageSize.value);
+// Remove manual pagination - now handled by TanStack Table
+
+// Computed property to sync pagination between header and footer
+const currentPage = computed({
+  get: (): number => (table.value?.tableApi?.getState().pagination.pageIndex || 0) + 1,
+  set: (page: number): void => table.value?.tableApi?.setPageIndex(page - 1)
 });
 
 const hasTranslated = computed(() =>
