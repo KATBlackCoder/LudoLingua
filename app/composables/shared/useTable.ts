@@ -87,6 +87,11 @@ export interface TableConfig<T = unknown> {
  * Enhanced shared table composable using Nuxt UI v4 patterns
  * Provides consistent table behavior with pagination, sorting, filtering, selection,
  * display mode management, custom data processing, export functionality, and statistics
+ * 
+ * Note: This composable works with Nuxt UI v4 Table component and uses proper
+ * accessorKey properties for column identification as per Nuxt UI v4 standards.
+ * According to https://ui.nuxt.com/docs/components/table, columns should use
+ * accessorKey instead of id for proper Nuxt UI v4 Table integration.
  */
 export function useTable<T = unknown>(config: TableConfig<T>) {
   const tableStore = useTableStore()
@@ -101,6 +106,14 @@ export function useTable<T = unknown>(config: TableConfig<T>) {
     console.warn('useTable: config.columns must be an array')
     config.columns = []
   }
+
+  // Validate column properties for Nuxt UI v4 compliance
+  config.columns.forEach((col, index) => {
+    const column = col as unknown as Record<string, unknown>
+    if (!column.accessorKey && !column.id) {
+      console.warn(`useTable: Column at index ${index} is missing accessorKey property. This may cause issues with Nuxt UI v4 Table.`)
+    }
+  })
 
   // Enhanced state management
   const displayMode = ref<DisplayMode>(config.displayMode || 'paginated')
@@ -240,11 +253,20 @@ export function useTable<T = unknown>(config: TableConfig<T>) {
     isEmpty: totalItems.value === 0
   }))
 
-  // Table API methods
+  // Table API methods (Nuxt UI v4 compliant)
   const onSelect = (row: TableRow<T>) => {
     if (!config.selectable || !row) return
     try {
-      row.toggleSelected(!row.getIsSelected())
+      // Use Nuxt UI v4 TableRow API
+      if (typeof row.toggleSelected === 'function') {
+        row.toggleSelected(!row.getIsSelected())
+      } else {
+        // Fallback for compatibility
+        const rowId = String(row.index)
+        const newSelection = { ...rowSelection.value }
+        newSelection[rowId] = !newSelection[rowId]
+        tableStore.setRowSelection(newSelection)
+      }
     } catch (error) {
       console.warn('useTable: Error toggling row selection', error)
     }
@@ -348,10 +370,14 @@ export function useTable<T = unknown>(config: TableConfig<T>) {
   const convertToCSV = (data: unknown[], columns: TableColumn<unknown>[], includeHeaders: boolean = true): string => {
     if (!data.length || !columns.length) return ''
 
-    const headers = columns.map(col => col.header || col.id).join(',')
+    const headers = columns.map(col => {
+      const column = col as unknown as Record<string, unknown>
+      return column.header || column.accessorKey
+    }).join(',')
     const rows = data.map(item => {
       return columns.map(col => {
-        const value = (item as Record<string, unknown>)[col.id || '']
+        const column = col as unknown as Record<string, unknown>
+        const value = (item as Record<string, unknown>)[column.accessorKey as string || '']
         // Escape CSV values
         const stringValue = String(value || '')
         if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {

@@ -83,7 +83,7 @@
               Search
             </label>
             <UInput
-              v-model="search"
+              v-model="globalFilter"
               icon="i-lucide-search"
               :placeholder="searchPlaceholder"
               size="sm"
@@ -102,7 +102,7 @@
               </label>
               <USelect
                 v-model="statusFilter"
-                :options="statusFilterOptions"
+                :options="props.statusFilterOptions.length > 0 ? props.statusFilterOptions : statusFilterOptions"
                 placeholder="All statuses"
                 size="sm"
                 @change="(event) => onStatusFilterChange((event.target as HTMLSelectElement).value)"
@@ -116,7 +116,7 @@
               </label>
               <USelect
                 v-model="promptTypeFilter"
-                :options="promptTypeFilterOptions"
+                :options="props.promptTypeFilterOptions.length > 0 ? props.promptTypeFilterOptions : promptTypeFilterOptions"
                 placeholder="All types"
                 size="sm"
                 @change="(event) => onPromptTypeFilterChange((event.target as HTMLSelectElement).value)"
@@ -217,7 +217,7 @@
 
     <!-- Bulk Actions -->
     <UAlert
-      v-if="hasSelection && showBulkActions"
+      v-if="selectedCount > 0 && showBulkActions"
       color="info"
       variant="soft"
       icon="i-lucide-check-square"
@@ -253,17 +253,21 @@
       <UTable
         ref="table"
         v-model:row-selection="rowSelection"
-        v-model:sorting="sorting"
-        :data="data || []"
-        :columns="columns || []"
+        :data="tableData"
+        :columns="tableColumns"
         :loading="loading"
+        :loading-animation="loadingAnimation"
+        :loading-color="loadingColor"
+        :sticky="sticky"
+        :sticky-header="stickyHeader"
+        :sticky-footer="stickyFooter"
         :empty-state="{
           icon: 'i-lucide-table',
           label: 'No data available',
           description: 'No items match your current filters or search criteria.'
         }"
         class="text-sm"
-        @select="onSelect"
+        @select="onRowSelect"
       >
         <!-- Custom cell slots -->
         <template v-for="(_, slotName) in $slots" :key="slotName" #[slotName]="slotProps">
@@ -278,7 +282,7 @@
               {{ selectedCount }} of {{ totalItems }} row(s) selected
             </span>
             <span v-else>
-              Showing {{ data.length }} of {{ totalItems }} items
+              Showing {{ tableData.length }} of {{ totalItems }} items
             </span>
             <span v-if="displayMode === 'all'">
               (All data mode)
@@ -306,7 +310,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, h, resolveComponent } from 'vue'
+import { computed, ref, watch, h, resolveComponent, useTemplateRef } from 'vue'
 import { useTable } from '~/composables/shared/useTable'
 import type { TableColumn, TableRow } from '#ui/types'
 import type { Component } from 'vue'
@@ -344,7 +348,8 @@ interface Props {
   showStatusFilter?: boolean
   showPromptTypeFilter?: boolean
   showFieldTypeFilter?: boolean
-  // Note: statusOptions and promptTypeOptions now come from shared utilities
+  statusFilterOptions?: Array<{ label: string; value: string }>
+  promptTypeFilterOptions?: Array<{ label: string; value: string }>
   
   // Progress
   showProgress?: boolean
@@ -401,6 +406,15 @@ interface Props {
   showStatistics?: boolean
   showResetButton?: boolean
   autoResetOnDataChange?: boolean
+  
+  // Sticky features
+  sticky?: boolean
+  stickyHeader?: boolean
+  stickyFooter?: boolean
+  
+  // Loading states
+  loadingAnimation?: 'carousel' | 'carousel-inverse' | 'swing' | 'elastic'
+  loadingColor?: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -424,6 +438,8 @@ const props = withDefaults(defineProps<Props>(), {
   showStatusFilter: false,
   showPromptTypeFilter: false,
   showFieldTypeFilter: false,
+  statusFilterOptions: () => [],
+  promptTypeFilterOptions: () => [],
   showProgress: false,
   isProcessing: false,
   progressCurrent: 0,
@@ -448,7 +464,12 @@ const props = withDefaults(defineProps<Props>(), {
   }),
   showStatistics: false,
   showResetButton: false,
-  autoResetOnDataChange: false
+  autoResetOnDataChange: false,
+  sticky: false,
+  stickyHeader: false,
+  stickyFooter: false,
+  loadingAnimation: 'carousel',
+  loadingColor: 'primary'
 })
 
 // Emits
@@ -459,13 +480,26 @@ const emit = defineEmits<{
   (e: 'search-change', search: string): void
 }>()
 
+// Template refs
+const tableRef = useTemplateRef('table')
+
 // Local state
 const textLengthRange = ref<[number, number]>(props.textLengthRange)
+const globalFilter = ref('')
 
 // Domain-specific filter state
 const statusFilter = ref('All')
 const promptTypeFilter = ref('All')
 const fieldTypeFilter = ref('')
+
+// Validation
+if (!props.data || !Array.isArray(props.data)) {
+  console.warn('BaseTable: data prop must be an array')
+}
+
+if (!props.columns || !Array.isArray(props.columns)) {
+  console.warn('BaseTable: columns prop must be an array')
+}
 
 // Computed properties
 const progressPercentage = computed(() => {
@@ -479,23 +513,46 @@ const enhancedColumns = computed(() => {
   
   if (props.showActionColumn && props.actionButtons.length > 0) {
     columns.push({
-      id: 'actions',
+      accessorKey: 'actions',
       header: props.actionColumnHeader,
       enableSorting: false,
+      enableColumnFilter: false,
+      enableHiding: false,
+      meta: {
+        class: {
+          th: 'text-center',
+          td: 'text-center'
+        },
+        style: {
+          th: 'min-width: 120px;',
+          td: 'min-width: 120px;'
+        }
+      },
       cell: ({ row }) => {
-        const UButton = resolveComponent('UButton') as Component
-        return h('div', { class: 'flex gap-2' }, 
-          props.actionButtons.map(button => 
-            h(UButton, {
-              size: button.size || 'xs',
-              color: button.color || 'neutral',
-              variant: button.variant || 'soft',
-              icon: button.icon,
-              disabled: button.disabled,
-              onClick: () => button.onClick?.(row.original)
-            }, { default: () => button.label })
+        try {
+          const UButton = resolveComponent('UButton') as Component
+          return h('div', { class: 'flex gap-1 justify-center' }, 
+            props.actionButtons.map(button => 
+              h(UButton, {
+                size: button.size || 'xs',
+                color: button.color || 'neutral',
+                variant: button.variant || 'soft',
+                icon: button.icon,
+                disabled: button.disabled,
+                onClick: () => {
+                  try {
+                    button.onClick?.(row.original)
+                  } catch (error) {
+                    console.warn('BaseTable: Error in action button click', error)
+                  }
+                }
+              }, { default: () => button.label })
+            )
           )
-        )
+        } catch (error) {
+          console.warn('BaseTable: Error rendering action buttons', error)
+          return h('div', { class: 'text-center text-gray-500' }, 'Error')
+        }
       }
     })
   }
@@ -503,29 +560,21 @@ const enhancedColumns = computed(() => {
   return columns
 })
 
-// Use enhanced shared table composable
+// Use enhanced shared table composable for table functionality
 const {
-  data,
-  columns,
+  data: tableData,
+  columns: tableColumns,
   rowSelection,
-  sorting,
   page,
   pageSize,
   pageCount,
-  search,
   selectedRows,
   selectedCount,
-  hasSelection,
   totalItems,
   displayMode,
   isExporting,
   exportProgress,
   statistics,
-  processedData,
-  filteredData,
-  sortedData,
-  paginatedData,
-  onSelect: onSelectRow,
   clearSelection,
   setFilter,
   clearFilter,
@@ -556,61 +605,93 @@ const {
   exportOptions: props.exportOptions,
   showStatistics: props.showStatistics || false,
   showResetButton: props.showResetButton || false,
-  autoResetOnDataChange: props.autoResetOnDataChange || false
+  autoResetOnDataChange: props.autoResetOnDataChange || false,
+  // Domain-specific filters
+  domainFilters: {
+    status: statusFilter.value,
+    promptType: promptTypeFilter.value,
+    textLength: textLengthRange.value,
+    fieldType: fieldTypeFilter.value
+  }
 })
 
-// Enhanced select handler
-const onSelect = (row: unknown) => {
-  onSelectRow(row as TableRow<unknown>)
-  emit('select', row)
+
+// Row selection handler for @select event
+const onRowSelect = (row: TableRow<unknown>) => {
+  try {
+    emit('select', row.original)
+  } catch (error) {
+    console.warn('BaseTable: Error handling row selection', error)
+  }
 }
 
-// Watch for search changes
-watch(search, (newSearch) => {
+
+// Watch for search changes and sync with useTable
+watch(globalFilter, (newSearch) => {
+  setFilter('global', newSearch)
   emit('search-change', newSearch)
 }, { deep: true })
 
-// Watch for filter changes
+// Watch for filter changes and sync with useTable
 watch(textLengthRange, (newRange) => {
   setFilter('textLength', newRange)
   emit('filter-change', { textLength: newRange })
 }, { deep: true })
 
+// Watch for domain filter changes and sync with useTable
+watch([statusFilter, promptTypeFilter, fieldTypeFilter], ([status, promptType, fieldType]) => {
+  setFilter('status', status)
+  setFilter('promptType', promptType)
+  setFilter('fieldType', fieldType)
+  emit('filter-change', { status, promptType, fieldType })
+}, { deep: true })
+
 // Domain-specific filter methods
 const onStatusFilterChange = (value: string) => {
+  statusFilter.value = value
   setStatusFilter(value)
   emit('filter-change', { status: value })
 }
 
 const onPromptTypeFilterChange = (value: string) => {
+  promptTypeFilter.value = value
   setPromptTypeFilter(value)
   emit('filter-change', { promptType: value })
 }
 
 const onFieldTypeFilterChange = (value: string) => {
+  fieldTypeFilter.value = value
   setFieldTypeFilter(value)
   emit('filter-change', { fieldType: value })
 }
 
-// Watch for external data changes
-watch(() => props.data, (_newData) => {
-  // The useTable composable will handle this automatically
+// Watch for external data changes and sync with useTable
+watch(() => props.data, (newData) => {
+  if (props.autoResetOnDataChange && newData) {
+    enhancedReset()
+  }
 }, { deep: true })
 
-// Watch for external filter changes
-watch(() => props.filters, (_newFilters) => {
-  // The useTable composable will handle this automatically
+// Watch for external filter changes and sync with useTable
+watch(() => props.filters, (newFilters) => {
+  if (newFilters) {
+    Object.entries(newFilters).forEach(([key, value]) => {
+      setFilter(key, value)
+    })
+  }
 }, { deep: true })
 
 // Expose methods and utilities for parent components
 defineExpose({
+  // Table ref for direct access
+  tableRef,
+  // Core table methods
   clearSelection,
   clearAllFilters,
   setFilter,
   clearFilter,
   selectedRows,
   selectedCount,
-  hasSelection,
   totalItems,
   page,
   pageCount,
@@ -621,16 +702,18 @@ defineExpose({
   exportData,
   enhancedReset,
   statistics,
-  processedData,
-  filteredData,
-  sortedData,
-  paginatedData,
   isExporting,
   exportProgress,
   // Shared utilities from translation.ts
   statusFilterOptions,
   promptTypeFilterOptions,
   getStatusLabel,
-  getStatusColor
+  getStatusColor,
+  // Filter state
+  globalFilter,
+  statusFilter,
+  promptTypeFilter,
+  fieldTypeFilter,
+  textLengthRange
 })
 </script>
