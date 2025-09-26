@@ -1,8 +1,9 @@
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEngineStore } from '~/stores/engine'
-import { useTranslatorStore } from '~/stores/translator'
+import { useTranslationStore } from '~/stores/translation'
 import { TranslationStatus } from '~/types/translation'
+import { formatDuration } from '~/utils/translation'
 
 type Mode = 'raw' | 'process' | 'result'
 type ProcessRowStatus = 'pending' | 'processing' | 'done' | 'error'
@@ -15,17 +16,7 @@ const startTimestampMs = ref<number | null>(null)
 const elapsedMs = ref<number>(0)
 let intervalId: number | null = null
 
-function formatDuration(ms: number): string {
-  if (!Number.isFinite(ms) || ms < 0) ms = 0
-  const totalSeconds = Math.floor(ms / 1000)
-  const hours = Math.floor(totalSeconds / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  const seconds = totalSeconds % 60
-  const hh = hours.toString().padStart(2, '0')
-  const mm = minutes.toString().padStart(2, '0')
-  const ss = seconds.toString().padStart(2, '0')
-  return hours > 0 ? `${hh}:${mm}:${ss}` : `${mm}:${ss}`
-}
+// formatDuration is now imported from shared utilities
 
 function startTimer(): void {
   stopTimer()
@@ -48,7 +39,7 @@ function stopTimer(): void {
 
 export function useTranslator() {
   const engineStore = useEngineStore()
-  const translatorStore = useTranslatorStore()
+  const translationStore = useTranslationStore()
 
   const translatedItems = computed(() => engineStore.textUnits.filter((u) =>
     u.status === 'MachineTranslated' ||
@@ -62,7 +53,7 @@ export function useTranslator() {
     translationProgress,
     translationTotal,
     failedTranslations,
-  } = storeToRefs(translatorStore)
+  } = storeToRefs(translationStore)
   const isBusy = isTranslationInProgress
   const failedCount = computed(() => failedTranslations.value.length)
 
@@ -124,7 +115,7 @@ export function useTranslator() {
       processRows.value[0]!.status = 'processing'
     }
     startTimer()
-    await translatorStore.startBatchTranslation(untranslated, (translatedUnit) => {
+    await translationStore.startBatchTranslation(untranslated, (translatedUnit) => {
       const currentIndex = processRows.value.findIndex(r => r.status === 'processing')
       const rowIndex = processRows.value.findIndex(r => r.id === translatedUnit.id)
       if (rowIndex !== -1) {
@@ -146,7 +137,7 @@ export function useTranslator() {
     processRows.value = [{ id: unit.id, source_text: unit.source_text, target_text: '', status: 'processing' }]
     mode.value = 'process'
     startTimer()
-    const translated = await translatorStore.translateTextUnit(unit)
+    const translated = await translationStore.translateTextUnit(unit)
     stopTimer()
     processRows.value[0]!.status = 'done'
     processRows.value[0]!.target_text = translated.translated_text ?? ''
@@ -157,7 +148,7 @@ export function useTranslator() {
   const retranslate = async (id: string) => {
     const unit = engineStore.getTextUnitById(id)
     if (!unit) return
-    const updated = await translatorStore.translateTextUnit(unit)
+    const updated = await translationStore.translateTextUnit(unit)
     return updated
   }
 
@@ -183,7 +174,7 @@ export function useTranslator() {
     // Get the actual text units for translation
     const unitsToTranslate = selectedRows.map(row => engineStore.getTextUnitById(row.id)).filter((unit): unit is NonNullable<typeof unit> => unit !== null && unit !== undefined)
     
-    await translatorStore.startBatchTranslation(unitsToTranslate, (translatedUnit) => {
+    await translationStore.startBatchTranslation(unitsToTranslate, (translatedUnit) => {
       const currentIndex = processRows.value.findIndex(r => r.status === 'processing')
       const rowIndex = processRows.value.findIndex(r => r.id === translatedUnit.id)
       if (rowIndex !== -1) {
@@ -229,8 +220,6 @@ export function useTranslator() {
       // The database will be synced on next project load
     }
   }
-
-
 
   return {
     // state

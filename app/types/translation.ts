@@ -51,4 +51,37 @@ export interface ActualTokenUsage {
 export interface TranslationResult {
   text_unit: TextUnit;
   token_usage?: ActualTokenUsage;
+}
+
+/**
+ * Database record for translation storage (matches backend TextUnitRecord)
+ */
+export interface TextUnitRecord {
+  id?: number
+  project_path: string
+  file_path: string
+  field_type: string
+  source_text: string
+  translated_text?: string
+  status: TranslationStatus
+  prompt_type: PromptType
+  source_lang: string
+  target_lang: string
+  manifest_hash?: string
+  created_at?: string
+  updated_at?: string
+}
+
+/**
+ * Query parameters for fetching translations
+ */
+export interface TextUnitQuery {
+  manifest_hash?: string
+  status?: TranslationStatus
+  prompt_type?: PromptType
+  source_lang?: string
+  target_lang?: string
+  search_text?: string
+  limit?: number
+  offset?: number
 } 

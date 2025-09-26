@@ -417,32 +417,48 @@
 **Status:** Ready to start - All Phase 5 objectives completed
 **Priority:** HIGH (Next development focus)
 
-### **🔧 Advanced Translation Management**
-- [ ] Multi-criteria filtering system (status + type + project + date)
-- [ ] Full-text search across source and translated text
-- [ ] Advanced statistics dashboard with visual analytics
-- [ ] Export/Import capabilities (JSON, CSV, Excel)
-- [ ] Bulk operations and batch processing enhancements
+### **🏗️ Nuxt UI v4 Shared Architecture** - IN PROGRESS
+**Goal:** Leverage Nuxt UI v4's built-in components and design system for consistent UX and reduced code duplication
+**Timeline:** 1 week
+**Status:** In Progress - Nuxt UI v4 integration analysis completed
 
-### **🌍 Advanced Language Detection**
-- [ ] Replace script-based detection with actual language detection
-- [ ] Integrate language detection library (e.g., `whatlang`, `langdetect`)
-- [ ] Support detection of multiple languages (EN, FR, DE, ES, IT, PT, JP, CN, KR)
-- [ ] Handle mixed-language text and confidence scores
-- [ ] Enhanced translation direction logic
+#### **Phase 6.0: Nuxt UI v4 Shared Architecture** - IN PROGRESS
+- [ ] **Nuxt UI v4 Integration**: Leverage [Nuxt UI v4](https://ui.nuxt.com/) components and design system
+  - [ ] **UTable Component**: Use Nuxt UI's high-performance table with built-in virtualization, sorting, and filtering
+  - [ ] **Design System**: Implement semantic color system and CSS-first configuration
+- [ ] **Shared State Management**: Create stores and composables leveraging Nuxt UI v4 patterns
+  - [ ] **Table Store**: Create `stores/shared/useTableStore.ts` for table state (pagination, sorting, filtering, selection)
+  - [ ] **Table Composable**: Create `composables/shared/useTable.ts` using Nuxt UI's table API
+- [ ] **Test Implementation**: Create test components using Nuxt UI v4 components
+  - [ ] **Test Table Component**: Create `components/test/TestTable.vue` using UTable for validation
+  - [ ] **Test Page**: Create `pages/test-shared.vue` to demonstrate Nuxt UI v4 components
+  - [ ] **Test Navigation**: Add test page link to `AppHeader.vue` navigation menu
+  - [ ] **Test Data**: Create mock data and test scenarios for shared components
+  - [ ] **Architecture Validation**: Verify Nuxt UI v4 components work correctly before refactoring
+- [ ] **Component Refactoring**: Refactor existing components to use Nuxt UI v4 components
+  - [ ] **Table Components**: Refactor to use UTable with built-in features
+    - [ ] **TranslationResult.vue**: Use UTable with virtualization, sorting, and row selection
+    - [ ] **TranslationRaw.vue**: Use UTable with simplified columns and pagination
+    - [ ] **TranslationProcess.vue**: Use UTable with progress indicators and status badges
+    - [ ] **TranslationTable.vue**: Use UTable with translation-specific features
+    - [ ] **GlossaryTable.vue**: Use UTable with glossary-specific features
+  - [ ] **Translation Components Unification**: Merge using Nuxt UI v4 patterns
+    - [ ] **Unified Translation Component**: Create `components/translator/TranslationView.vue` with mode switching
+    - [ ] **Mode-based Rendering**: Support 'raw', 'process', 'result' modes using UTable variants
+    - [ ] **Shared Table Logic**: Use Nuxt UI's table API for pagination, filtering, and selection
+    - [ ] **Component Consolidation**: Replace three separate components with one unified component
+    - [ ] **Design System Integration**: Use semantic colors and CSS-first configuration
 
-### **🎨 UI/UX Polish & Performance**
-- [ ] Virtual scrolling for large datasets (10,000+ translations)
-- [ ] Keyboard shortcuts for power users
-- [ ] Enhanced loading states and skeleton screens
-- [ ] Improved error handling and user feedback
-- [ ] Mobile-responsive design and touch support
+#### **🎯 Benefits of Nuxt UI v4 Shared Architecture**
+- ✅ **High-Performance Tables**: Built-in virtualization for 2000+ translation units
+- ✅ **Accessibility**: WAI-ARIA compliance with Reka UI primitives
+- ✅ **Design System**: Semantic color system with CSS-first configuration
+- ✅ **Type Safety**: Full TypeScript support with auto-completion
+- ✅ **Performance**: 5x faster builds with Tailwind CSS v4
+- ✅ **Icon System**: 200,000+ icons from Iconify with Lucide integration
+- ✅ **Dark Mode**: Automatic theme switching with CSS variables
+- ✅ **Responsive Design**: Mobile-first approach with consistent breakpoints
 
-### **🧪 Quality Assurance & Testing**
-- [ ] Unit tests for components and composables
-- [ ] Integration tests for end-to-end workflows
-- [ ] Performance testing with large datasets
-- [ ] Cross-platform compatibility validation (Windows/macOS/Linux)
 
 ---
 
@@ -455,32 +471,6 @@
 - [ ] **Professional Distribution**: Eliminate security warnings for better user experience
 - [ ] **App Store Distribution**: Enable Microsoft Store and Mac App Store distribution
 
-### **🔧 Advanced Translation Management**
-- [ ] Multi-criteria filtering system (status + type + project + date)
-- [ ] Full-text search across source and translated text
-- [ ] Advanced statistics dashboard with visual analytics
-- [ ] Export/Import capabilities (JSON, CSV, Excel)
-- [ ] Bulk operations and batch processing enhancements
-
-### **🌍 Advanced Language Detection**
-- [ ] Replace script-based detection with actual language detection
-- [ ] Integrate language detection library (e.g., `whatlang`, `langdetect`)
-- [ ] Support detection of multiple languages (EN, FR, DE, ES, IT, PT, JP, CN, KR)
-- [ ] Handle mixed-language text and confidence scores
-- [ ] Enhanced translation direction logic
-
-### **🎨 UI/UX Polish & Performance**
-- [ ] Virtual scrolling for large datasets (10,000+ translations)
-- [ ] Keyboard shortcuts for power users
-- [ ] Enhanced loading states and skeleton screens
-- [ ] Improved error handling and user feedback
-- [ ] Mobile-responsive design and touch support
-
-### **🧪 Quality Assurance & Testing**
-- [ ] Unit tests for components and composables
-- [ ] Integration tests for end-to-end workflows
-- [ ] Performance testing with large datasets
-- [ ] Cross-platform compatibility validation (Windows/macOS/Linux)
 
 ---
 
@@ -508,6 +498,10 @@
 - **✅ Phase 5.8**: UI Component Enhancement (1 day) - **COMPLETED**
 - **✅ Phase 5.9**: Cross-Platform Update Enhancement (1 day) - **COMPLETED**
 - **Total Completed**: 6-7 weeks of development
+
+### 🎯 Phase 6 Timeline (In Progress)
+- **🔄 Phase 6.0**: Nuxt UI v4 Shared Architecture (1 week) - **IN PROGRESS**
+- **Total Planned**: 1 week of development
 
 ### 🔄 Development Strategy
 - **Incremental**: Each sub-phase can be developed and released independently
@@ -556,15 +550,10 @@
 
 **Phase 5 Complete!** 🎉 All enhanced features and polish objectives achieved successfully.
 
-**Current Priority**: **Phase 6 - Advanced Features & Polish** (READY TO START)
+**Current Priority**: **Phase 6 - Nuxt UI v4 Shared Architecture** (IN PROGRESS)
 
-**Phase 6** - Advanced Features & Polish (2-3 weeks):
-1. **Advanced Translation Management** (multi-criteria filtering, full-text search, analytics dashboard)
-2. **Performance Optimization** (virtual scrolling, memory optimization, background processing)
-3. **Enhanced UI/UX** (keyboard shortcuts, better loading states, error handling improvements)
-4. **Quality Assurance** (unit tests, integration tests, cross-platform validation)
-5. **Advanced Language Detection** (replace script-based detection with actual language detection)
-6. **Export/Import Capabilities** (JSON, CSV, Excel formats)
+**Phase 6** - Nuxt UI v4 Shared Architecture (1 week):
+1. **Nuxt UI v4 Shared Architecture** (high-performance tables, shared stores, component consolidation)
 
 **Future Phases**:
 - **Phase 7**: Cross-platform optimization and deployment automation

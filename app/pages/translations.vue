@@ -23,7 +23,7 @@
     </div>
 
     <!-- Stats Overview -->
-    <div v-if="stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div v-if="translationStore.stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <UCard>
         <div class="p-6">
           <div class="flex items-center gap-3 mb-4">
@@ -32,7 +32,7 @@
             </div>
             <div>
               <h3 class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Items</h3>
-              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total || 0 }}</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ (translationStore.stats as any)?.total || 0 }}</p>
             </div>
           </div>
         </div>
@@ -46,7 +46,7 @@
             </div>
             <div>
               <h3 class="text-sm font-medium text-gray-600 dark:text-gray-400">Translated</h3>
-              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.translated || 0 }}</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ (translationStore.stats as any)?.translated || 0 }}</p>
             </div>
           </div>
         </div>
@@ -60,7 +60,7 @@
             </div>
             <div>
               <h3 class="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</h3>
-              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.pending || 0 }}</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ (translationStore.stats as any)?.pending || 0 }}</p>
             </div>
           </div>
         </div>
@@ -92,25 +92,31 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import TranslationTable from '~/components/translations/TranslationTable.vue'
-import { useTranslations } from '~/composables/useTranslations'
+import { useTranslationStore } from '~/stores/translation'
 
 // Set page meta
 definePageMeta({
   title: 'Translation Management'
 })
 
-const { stats, loadTranslations } = useTranslations()
+const translationStore = useTranslationStore()
 
 // Computed progress percentage
 const progressPercentage = computed(() => {
-  if (!stats.value || !stats.value.total || stats.value.total === 0) return 0
-  const translated = stats.value.translated || 0
-  return Math.round((translated / stats.value.total) * 100)
+  const currentStats = translationStore.stats
+  if (!currentStats) return 0
+  
+  const statsData = currentStats as Record<string, unknown>
+  const total = Number(statsData?.total) || 0
+  const translated = Number(statsData?.translated) || 0
+  
+  if (total === 0) return 0
+  return Math.round((translated / total) * 100)
 })
 
 // Load data on mount
 onMounted(async () => {
-  await loadTranslations()
-  // Note: Stats would need to be implemented in the composable to fetch from backend
+  await translationStore.fetchTranslations()
+  await translationStore.fetchStats()
 })
 </script>

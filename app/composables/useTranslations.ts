@@ -1,47 +1,27 @@
-import { ref, computed } from 'vue'
-import { useTranslationsStore } from '~/stores/translations'
+import { computed } from 'vue'
+import { useTranslationStore } from '~/stores/translation'
 import { useAppToast } from '~/composables/useAppToast'
-import type { TextUnitRecord, TextUnitQuery } from '~/stores/translations'
+import type { TextUnitRecord, TextUnitQuery, TranslationStatus } from '~/types/translation'
 
 export function useTranslations() {
-  const translationsStore = useTranslationsStore()
+  const translationsStore = useTranslationStore()
   const { showToast } = useAppToast()
 
-  // UI State
-  const search = ref('')
-  const statusFilter = ref<string>('All')
-  const promptTypeFilter = ref<string>('All')
-  const page = ref(1)
-  const pageSize = ref(50)
+  // Raw data access (components handle their own filtering)
+  const allTranslations = computed(() => translationsStore.translations)
 
-  // Filter options
-  const statusOptions = [
-    'All',
-    'NotTranslated',
-    'MachineTranslated', 
-    'HumanReviewed',
-    'Ignored'
-  ]
-
-  const promptTypeOptions = [
-    'All',
-    'Character',
-    'Dialogue',
-    'System',
-    'Equipment',
-    'Skill',
-    'Class',
-    'State',
-    'Other'
-  ]
-
-  // Computed properties
-  const filteredTranslations = computed(() => {
-    let filtered = translationsStore.translations
+  // Filtering helper function (components handle their own filter state)
+  const getFilteredData = (
+    data: TextUnitRecord[], 
+    search: string, 
+    statusFilter: string, 
+    promptTypeFilter: string
+  ) => {
+    let filtered = data
 
     // Text search
-    if (search.value) {
-      const searchLower = search.value.toLowerCase()
+    if (search) {
+      const searchLower = search.toLowerCase()
       filtered = filtered.filter(t => 
         t.source_text.toLowerCase().includes(searchLower) ||
         (t.translated_text && t.translated_text.toLowerCase().includes(searchLower)) ||
@@ -50,27 +30,27 @@ export function useTranslations() {
     }
 
     // Status filter
-    if (statusFilter.value !== 'All') {
-      filtered = filtered.filter(t => t.status === statusFilter.value)
+    if (statusFilter !== 'All') {
+      filtered = filtered.filter(t => t.status === statusFilter)
     }
 
     // Prompt type filter
-    if (promptTypeFilter.value !== 'All') {
-      filtered = filtered.filter(t => t.prompt_type === promptTypeFilter.value)
+    if (promptTypeFilter !== 'All') {
+      filtered = filtered.filter(t => t.prompt_type === promptTypeFilter)
     }
 
     return filtered
-  })
+  }
 
-  const pagedTranslations = computed(() => {
-    const start = (page.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    return filteredTranslations.value.slice(start, end)
-  })
+  // Pagination helper functions (components handle their own pagination state)
+  const getPagedData = <T>(data: T[], page: number, pageSize: number): T[] => {
+    const start = (page - 1) * pageSize
+    const end = start + pageSize
+    return data.slice(start, end)
+  }
 
-  const pageCount = computed(() => 
-    Math.ceil(filteredTranslations.value.length / pageSize.value)
-  )
+  const getPageCount = (totalItems: number, pageSize: number) => 
+    Math.ceil(totalItems / pageSize)
 
   // Actions
   async function loadTranslations(query: TextUnitQuery = {}) {
@@ -80,7 +60,7 @@ export function useTranslations() {
   async function updateTranslation(
     id: number, 
     translatedText: string, 
-    status?: string
+    status?: TranslationStatus
   ): Promise<boolean> {
     const success = await translationsStore.updateTranslation(id, translatedText, status)
     if (success) {
@@ -117,12 +97,12 @@ export function useTranslations() {
     return await translationsStore.getTranslation(id)
   }
 
-  function clearFilters() {
-    search.value = ''
-    statusFilter.value = 'All'
-    promptTypeFilter.value = 'All'
-    page.value = 1
-  }
+  // Clear filters helper (components handle their own filter state)
+  const getDefaultFilters = () => ({
+    search: '',
+    statusFilter: 'All',
+    promptTypeFilter: 'All'
+  })
 
   function getStatusLabel(status: string): string {
     switch (status) {
@@ -151,21 +131,16 @@ export function useTranslations() {
     error: translationsStore.error,
     stats: translationsStore.stats,
 
-    // UI State
-    search,
-    statusFilter,
-    promptTypeFilter,
-    page,
-    pageSize,
-
-    // Filter options
-    statusOptions,
-    promptTypeOptions,
+    // Filter options moved to shared utilities
 
     // Computed
-    filteredTranslations,
-    pagedTranslations,
-    pageCount,
+    allTranslations,
+
+    // Helper functions
+    getFilteredData,
+    getPagedData,
+    getPageCount,
+    getDefaultFilters,
 
     // Actions
     loadTranslations,
@@ -173,7 +148,6 @@ export function useTranslations() {
     deleteTranslation,
     bulkDeleteTranslations,
     getTranslation,
-    clearFilters,
     getStatusLabel,
     getStatusColor
   }

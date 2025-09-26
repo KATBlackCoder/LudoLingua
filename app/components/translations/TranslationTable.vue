@@ -162,7 +162,7 @@
       <UTable 
         ref="table"
         v-model:row-selection="rowSelection"
-        :data="pagedTranslations" 
+        :data="tableData" 
         :columns="columns" 
         :loading="isLoading" 
         class="text-sm"
@@ -196,15 +196,28 @@
         <div class="flex items-center justify-between w-full">
           <div class="flex items-center gap-4">
             <span class="text-xs text-gray-500 dark:text-gray-400">
-              Showing {{ pagedTranslations.length }} of {{ filteredTranslations.length }} translations
+              <template v-if="displayMode === 'paginated'">
+                Showing {{ pagedTranslations.length }} of {{ filteredTranslations.length }} translations
+              </template>
+              <template v-else>
+                Showing all {{ filteredTranslations.length }} translations
+              </template>
             </span>
             <span class="text-xs text-gray-500 dark:text-gray-400">
-              {{ selectedRowsCount }} of {{ pagedTranslations.length }} row(s) selected
+              {{ selectedRowsCount }} of {{ tableData.length }} row(s) selected
             </span>
           </div>
           <div class="flex items-center gap-3">
-            <span class="text-xs text-gray-500 dark:text-gray-400">Page {{ page }} / {{ pageCount }}</span>
-            <UPagination v-model:page="page" :total="filteredTranslations.length" :items-per-page="pageSize" size="sm" />
+            <template v-if="displayMode === 'paginated'">
+              <span class="text-xs text-gray-500 dark:text-gray-400">Page {{ page }} / {{ pageCount }}</span>
+              <UPagination v-model:page="page" :total="filteredTranslations.length" :items-per-page="pageSize" size="sm" />
+            </template>
+            <template v-else>
+              <UBadge color="info" variant="soft" size="sm">
+                <i-lucide-list class="w-3 h-3 mr-1" />
+                All Data Mode
+              </UBadge>
+            </template>
           </div>
         </div>
       </template>
@@ -219,36 +232,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, h, resolveComponent, type Component } from 'vue'
+import { ref, computed, onMounted, watch, h, resolveComponent, type Component } from 'vue'
 import type { TableColumn } from '#ui/types'
 import TranslationForm from '~/components/translations/TranslationForm.vue'
-import type { TextUnitRecord } from '~/stores/translations'
+import type { TextUnitRecord, TranslationStatus } from '~/types/translation'
 import { useTranslations } from '~/composables/useTranslations'
 import { useAppToast } from '~/composables/useAppToast'
+import { promptTypeFilterOptions, statusFilterOptions } from '~/utils/translation'
 // Tauri API will be imported dynamically when needed
 
 const { showToast } = useAppToast()
+
+// Use shared utilities for filter options
+const statusOptions = statusFilterOptions
+const promptTypeOptions = promptTypeFilterOptions
 
 const {
   // State
   isLoading,
   error,
   
-  // UI State
-  search,
-  statusFilter,
-  promptTypeFilter,
-  page,
-  pageSize,
-  
-  // Filter options
-  statusOptions,
-  promptTypeOptions,
+  // Filter options (using local constants from shared utilities)
   
   // Computed
-  filteredTranslations,
-  pagedTranslations,
-  pageCount,
+  allTranslations,
+  
+  // Helper functions
+  getFilteredData,
+  getPagedData,
+  getPageCount,
+  getDefaultFilters,
   
   // Actions
   loadTranslations,
@@ -256,7 +269,6 @@ const {
   deleteTranslation,
   bulkDeleteTranslations,
   getTranslation,
-  clearFilters,
   getStatusLabel,
   getStatusColor
 } = useTranslations()
@@ -265,6 +277,53 @@ const UCheckbox = resolveComponent('UCheckbox') as Component
 
 const table = useTemplateRef<{ tableApi?: { getFilteredSelectedRowModel: () => { rows: { original: TextUnitRecord }[] } } }>('table')
 const rowSelection = ref({})
+
+// Filter state (like TranslationRaw.vue)
+const search = ref('')
+const statusFilter = ref<string>('All')
+const promptTypeFilter = ref<string>('All')
+
+// Pagination state (like TranslationRaw.vue)
+const page = ref(1)
+const pageSize = ref(50)
+
+// Display mode toggle
+const displayMode = ref<'paginated' | 'all'>('paginated')
+
+// Computed filtering
+const filteredTranslations = computed(() => {
+  return getFilteredData(allTranslations.value, search.value, statusFilter.value, promptTypeFilter.value)
+})
+
+// Computed pagination
+const pagedTranslations = computed(() => {
+  return getPagedData(filteredTranslations.value, page.value, pageSize.value)
+})
+
+const pageCount = computed(() => 
+  getPageCount(filteredTranslations.value.length, pageSize.value)
+)
+
+// Computed data source based on display mode
+const tableData = computed(() => {
+  return displayMode.value === 'all' ? allTranslations.value : pagedTranslations.value
+})
+
+// Reset page when switching to all data mode
+watch(displayMode, (newMode) => {
+  if (newMode === 'all') {
+    page.value = 1
+  }
+})
+
+// Clear filters function
+function clearFilters() {
+  const defaults = getDefaultFilters()
+  search.value = defaults.search
+  statusFilter.value = defaults.statusFilter
+  promptTypeFilter.value = defaults.promptTypeFilter
+  page.value = 1
+}
 
 // Computed property to get selected row count
 const selectedRowsCount = computed((): number => {
@@ -472,7 +531,7 @@ async function handleBulkDelete() {
 }
 
 async function handleFormSave(id: number, translatedText: string, status?: string) {
-  await updateTranslation(id, translatedText, status)
+  await updateTranslation(id, translatedText, status as TranslationStatus)
   modalOpen.value = false
 }
 

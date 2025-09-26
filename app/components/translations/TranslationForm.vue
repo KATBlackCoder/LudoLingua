@@ -90,7 +90,7 @@
             <UFormField label="Status">
               <USelect
                 v-model="local.status"
-                :items="statusOptions.filter(s => s !== 'All')"
+                :items="statusOptions"
                 placeholder="Select status"
                 size="sm"
               />
@@ -138,8 +138,8 @@
           </UButton>
           <UButton 
             color="primary" 
-            @click="onSave" 
             :disabled="!isValid"
+            @click="onSave"
           >
             <UIcon name="i-lucide-check" class="w-4 h-4 mr-2" />
             Save Translation
@@ -152,7 +152,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import type { TextUnitRecord } from '~/stores/translations'
+import type { TextUnitRecord } from '~/types/translation'
+import { TranslationStatus, PromptType } from '~/types/translation'
 
 interface Props {
   open: boolean
@@ -161,7 +162,7 @@ interface Props {
 
 interface Emits {
   (e: 'update:open', value: boolean): void
-  (e: 'save', id: number, translatedText: string, status?: string): void
+  (e: 'save', id: number, translatedText: string, status?: TranslationStatus): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -172,29 +173,29 @@ const emit = defineEmits<Emits>()
 
 // Status options for the select
 const statusOptions = [
-  'NotTranslated',
-  'MachineTranslated', 
-  'HumanReviewed',
-  'Ignored'
+  { label: 'Not Translated', value: TranslationStatus.NotTranslated },
+  { label: 'Machine Translated', value: TranslationStatus.MachineTranslated },
+  { label: 'Human Reviewed', value: TranslationStatus.HumanReviewed },
+  { label: 'Ignored', value: TranslationStatus.Ignored }
 ]
 
 // Utility functions
-function getStatusLabel(status: string): string {
+function getStatusLabel(status: TranslationStatus): string {
   switch (status) {
-    case 'NotTranslated': return 'Not Translated'
-    case 'MachineTranslated': return 'Machine Translated'
-    case 'HumanReviewed': return 'Human Reviewed'
-    case 'Ignored': return 'Ignored'
+    case TranslationStatus.NotTranslated: return 'Not Translated'
+    case TranslationStatus.MachineTranslated: return 'Machine Translated'
+    case TranslationStatus.HumanReviewed: return 'Human Reviewed'
+    case TranslationStatus.Ignored: return 'Ignored'
     default: return status
   }
 }
 
-function getStatusColor(status: string): string {
+function getStatusColor(status: TranslationStatus): string {
   switch (status) {
-    case 'NotTranslated': return 'gray'
-    case 'MachineTranslated': return 'yellow'
-    case 'HumanReviewed': return 'green'
-    case 'Ignored': return 'red'
+    case TranslationStatus.NotTranslated: return 'gray'
+    case TranslationStatus.MachineTranslated: return 'yellow'
+    case TranslationStatus.HumanReviewed: return 'green'
+    case TranslationStatus.Ignored: return 'red'
     default: return 'gray'
   }
 }
@@ -207,8 +208,8 @@ const local = ref<TextUnitRecord>({
   field_type: '',
   source_text: '',
   translated_text: '',
-  status: 'NotTranslated',
-  prompt_type: 'Other',
+  status: TranslationStatus.NotTranslated,
+  prompt_type: PromptType.Other,
   source_lang: 'ja',
   target_lang: 'en'
 })
@@ -241,8 +242,8 @@ watch(() => props.translation, (newTranslation) => {
       field_type: '',
       source_text: '',
       translated_text: '',
-      status: 'NotTranslated',
-      prompt_type: 'Other',
+      status: TranslationStatus.NotTranslated,
+      prompt_type: PromptType.Other,
       source_lang: 'ja',
       target_lang: 'en'
     }

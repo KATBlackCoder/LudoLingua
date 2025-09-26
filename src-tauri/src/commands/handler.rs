@@ -15,7 +15,7 @@ use tauri::State;
 
 // Internal command modules
 use crate::commands::{
-    engine, glossary as glossary_cmd, languages, provider, translations, translator, updater,
+    engine, glossary as glossary_cmd, languages, provider, translation, updater,
 };
 
 // Database types
@@ -135,13 +135,13 @@ pub async fn translate_text_unit(
     text_unit: TextUnit,
     config: LlmConfig,
     engine_info: EngineInfo,
-) -> Result<translator::TranslationResult, String> {
+) -> Result<translation::TranslationResult, String> {
     debug!("Command: translate_text_unit - {}", text_unit.id);
 
     // Use manifest hash from engine info for project identification
     let manifest_hash = engine_info.manifest_hash.clone();
 
-    translator::translate_text_unit(
+    translation::translate_text_unit(
         state,
         glossary,
         db,
@@ -265,7 +265,7 @@ pub async fn list_translations_cmd(
     query: crate::db::translation::model::TextUnitQuery,
 ) -> Result<Vec<crate::db::translation::model::TextUnitRecord>, String> {
     debug!("Command: list_translations");
-    translations::list_translations(&translation, query)
+    translation::list_translations(&translation, query)
         .await
         .map_err(|e| e.to_string())
 }
@@ -277,7 +277,7 @@ pub async fn get_translation_cmd(
     id: i64,
 ) -> Result<crate::db::translation::model::TextUnitRecord, String> {
     debug!("Command: get_translation - {}", id);
-    translations::get_translation(&translation, id)
+    translation::get_translation(&translation, id)
         .await
         .map_err(|e| e.to_string())
 }
@@ -291,7 +291,7 @@ pub async fn update_translation_cmd(
     status: Option<String>,
 ) -> Result<bool, String> {
     debug!("Command: update_translation - {}", id);
-    translations::update_translation(&translation, id, translated_text, status)
+    translation::update_translation(&translation, id, translated_text, status)
         .await
         .map_err(|e| e.to_string())
 }
@@ -303,7 +303,7 @@ pub async fn delete_translation_cmd(
     id: i64,
 ) -> Result<bool, String> {
     debug!("Command: delete_translation - {}", id);
-    translations::delete_translation(&translation, id)
+    translation::delete_translation(&translation, id)
         .await
         .map_err(|e| e.to_string())
 }
@@ -315,7 +315,7 @@ pub async fn bulk_delete_translations_cmd(
     ids: Vec<i64>,
 ) -> Result<i64, String> {
     debug!("Command: bulk_delete_translations - {} items", ids.len());
-    translations::bulk_delete_translations(&translation, ids)
+    translation::bulk_delete_translations(&translation, ids)
         .await
         .map_err(|e| e.to_string())
 }
@@ -327,7 +327,7 @@ pub async fn get_translation_stats_cmd(
     project_path: Option<String>,
 ) -> Result<serde_json::Value, String> {
     debug!("Command: get_translation_stats");
-    translations::get_translation_stats(&translation, project_path)
+    translation::get_translation_stats(&translation, project_path)
         .await
         .map_err(|e| e.to_string())
 }
