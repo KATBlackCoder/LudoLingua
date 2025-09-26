@@ -3,7 +3,7 @@
     <AppHeader />
 
     <UMain class="flex-1">
-      <UContainer class="py-8">
+      <UContainer class="py-8 max-w-none">
         <slot />
       </UContainer>
     </UMain>

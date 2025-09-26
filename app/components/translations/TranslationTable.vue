@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 w-full">
     <!-- Filters Section -->
     <UCard>
       <template #header>
@@ -134,7 +134,7 @@
     </UCard>
 
     <!-- Translations Table -->
-    <UCard>
+    <UCard class="w-full">
       <template #header>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -165,7 +165,7 @@
         :data="tableData" 
         :columns="columns" 
         :loading="isLoading" 
-        class="text-sm"
+        class="text-sm w-full min-w-full"
         :empty-state="{ 
           icon: 'i-lucide-file-text', 
           label: 'No translations found', 
@@ -173,13 +173,13 @@
         }"
       >
         <template #source_text-data="{ row }">
-          <div class="max-w-xs truncate" :title="row.original.source_text">
+          <div :class="isFullscreen ? 'max-w-md' : 'max-w-xs'" class="truncate" :title="row.original.source_text">
             {{ row.original.source_text }}
           </div>
         </template>
 
         <template #translated_text-data="{ row }">
-          <div v-if="row.original.translated_text" class="max-w-xs truncate" :title="row.original.translated_text">
+          <div v-if="row.original.translated_text" :class="isFullscreen ? 'max-w-md' : 'max-w-xs'" class="truncate" :title="row.original.translated_text">
             {{ row.original.translated_text }}
           </div>
           <span v-else class="text-gray-400 italic">Not translated</span>
@@ -232,7 +232,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, h, resolveComponent, type Component } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, h, resolveComponent, type Component } from 'vue'
 import type { TableColumn } from '#ui/types'
 import TranslationForm from '~/components/translations/TranslationForm.vue'
 import type { TextUnitRecord, TranslationStatus } from '~/types/translation'
@@ -242,6 +242,24 @@ import { promptTypeFilterOptions, statusFilterOptions } from '~/utils/translatio
 // Tauri API will be imported dynamically when needed
 
 const { showToast } = useAppToast()
+
+// Fullscreen detection
+const isFullscreen = ref(false)
+
+// Window resize handler
+const handleResize = () => {
+  isFullscreen.value = window.innerWidth >= 1920; // Consider 1920px+ as fullscreen
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 // Use shared utilities for filter options
 const statusOptions = statusFilterOptions

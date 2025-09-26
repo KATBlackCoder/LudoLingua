@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 w-full">
     <!-- Header Section -->
     <UCard>
       <template #header>
@@ -23,7 +23,7 @@
     </UCard>
 
     <!-- Raw Text Table -->
-    <UCard>
+    <UCard class="w-full">
       <template #header>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -44,14 +44,14 @@
         </div>
       </template>
 
-      <UTable :data="pagedRows" class="text-sm">
+      <UTable :data="pagedRows" class="text-sm w-full min-w-full">
         <template #prompt_type-data="{ row }">
           <UBadge :color="getPromptTypeColor(row.original.prompt_type)" variant="soft" size="sm">
             {{ row.original.prompt_type }}
           </UBadge>
         </template>
         <template #source_text-data="{ row }">
-          <div class="max-w-md">
+          <div :class="isFullscreen ? 'max-w-lg' : 'max-w-md'">
             <span class="whitespace-pre-wrap break-words text-sm">{{ row.original.source_text }}</span>
           </div>
         </template>
@@ -72,10 +72,28 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useTranslator } from '~/composables/useTranslator'
 
 const { textUnits } = useTranslator()
+
+// Fullscreen detection
+const isFullscreen = ref(false)
+
+// Window resize handler
+const handleResize = () => {
+  isFullscreen.value = window.innerWidth >= 1920; // Consider 1920px+ as fullscreen
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 const rows = computed(() => textUnits.value
   .filter(u => u.status === 'NotTranslated')

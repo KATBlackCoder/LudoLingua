@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 w-full">
     <!-- Header Section -->
     <UCard>
       <template #header>
@@ -119,7 +119,7 @@
     />
 
     <!-- Results Table -->
-    <UCard>
+    <UCard class="w-full">
       <template #header>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -152,7 +152,7 @@
         :pagination-options="{
           getPaginationRowModel: getPaginationRowModel()
         }"
-        class="text-sm"
+        class="text-sm w-full min-w-full"
         @select="onSelect"
       />
 
@@ -230,7 +230,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, h, resolveComponent, watch } from "vue";
+import { computed, ref, h, resolveComponent, watch, onMounted, onUnmounted } from "vue";
 import type { Component } from "vue";
 import type { TextUnit } from "~/types/translation";
 import TranslationEditor from "~/components/translator/TranslationEditor.vue";
@@ -490,6 +490,24 @@ const hasTranslated = computed(() =>
 // Table ref
 const table = useTemplateRef("table");
 
+// Fullscreen detection
+const isFullscreen = ref(false);
+
+// Window resize handler
+const handleResize = () => {
+  isFullscreen.value = window.innerWidth >= 1920; // Consider 1920px+ as fullscreen
+};
+
+// Lifecycle hooks
+onMounted(() => {
+  handleResize();
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
+
 // Selected rows computed using table API
 const selectedRows = computed((): Row[] => {
   const selectedRowModel = table.value?.tableApi?.getFilteredSelectedRowModel();
@@ -542,7 +560,7 @@ const columns: TableColumn<Row>[] = [
     },
     enableSorting: true,
   },
-  {
+  /*{
     accessorKey: "field_type",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
@@ -561,17 +579,66 @@ const columns: TableColumn<Row>[] = [
       });
     },
     enableSorting: true,
+  },*/
+  { 
+    accessorKey: "source_text", 
+    header: "Source", 
+    enableSorting: false,
+    size: isFullscreen.value ? 300 : 200,
+    cell: ({ row }) => {
+      const text = row.getValue("source_text") as string;
+      const isLong = text.length > (isFullscreen.value ? 150 : 100);
+      const maxWidth = isFullscreen.value ? "max-w-md" : "max-w-xs";
+      
+      if (isLong) {
+        const UTooltip = resolveComponent("UTooltip") as Component;
+        return h(UTooltip, {
+          text: text,
+          popper: { placement: 'top' }
+        }, {
+          default: () => h("div", {
+            class: `${maxWidth} truncate cursor-help`
+          }, text.substring(0, isFullscreen.value ? 150 : 100) + " (long)")
+        });
+      }
+      
+      return h("div", {
+        class: `${maxWidth} whitespace-normal break-words`
+      }, text);
+    }
   },
-  { accessorKey: "source_text", header: "Source", enableSorting: false },
   {
     accessorKey: "translated_text",
     header: "Translated",
     enableSorting: false,
+    size: isFullscreen.value ? 300 : 200,
+    cell: ({ row }) => {
+      const text = row.getValue("translated_text") as string;
+      const isLong = text.length > (isFullscreen.value ? 150 : 100);
+      const maxWidth = isFullscreen.value ? "max-w-md" : "max-w-xs";
+      
+      if (isLong) {
+        const UTooltip = resolveComponent("UTooltip") as Component;
+        return h(UTooltip, {
+          text: text,
+          popper: { placement: 'top' }
+        }, {
+          default: () => h("div", {
+            class: `${maxWidth} truncate cursor-help`
+          }, text.substring(0, isFullscreen.value ? 150 : 100) + " (long)")
+        });
+      }
+      
+      return h("div", {
+        class: `${maxWidth} whitespace-normal break-words`
+      }, text);
+    }
   },
   {
-    id: "raw_text",
+    accessorKey: "raw_text",
     header: "Raw Text",
     enableSorting: false,
+    size: 100,
     cell: ({ row }) => {
       const UButton = resolveComponent("UButton") as Component;
       return h(
@@ -589,16 +656,20 @@ const columns: TableColumn<Row>[] = [
     },
   },
   {
-    id: "actions",
+    accessorKey: "actions",
     header: "Actions",
     enableSorting: false,
+    size: isFullscreen.value ? 200 : 150,
     cell: ({ row }) => {
       const UButton = resolveComponent("UButton") as Component;
-      return h("div", { class: "flex gap-2" }, [
+      const buttonSize = isFullscreen.value ? "sm" : "xs";
+      const buttonClass = isFullscreen.value ? "flex gap-2" : "flex gap-1";
+      
+      return h("div", { class: buttonClass }, [
         h(
           UButton,
           {
-            size: "xs",
+            size: buttonSize,
             color: "primary",
             variant: "soft",
             icon: "i-lucide-refresh-cw",
@@ -607,12 +678,12 @@ const columns: TableColumn<Row>[] = [
               await onRetranslate(row.original.id);
             },
           },
-          { default: () => "Re-translate" }
+          { default: () => isFullscreen.value ? "Re-translate" : "Re-translate" }
         ),
         h(
           UButton,
           {
-            size: "xs",
+            size: buttonSize,
             color: "warning",
             variant: "soft",
             icon: "i-lucide-plus",
@@ -621,12 +692,12 @@ const columns: TableColumn<Row>[] = [
               await onAddToGlossary(row.original.id);
             },
           },
-          { default: () => "Add to glossary" }
+          { default: () => isFullscreen.value ? "Add to glossary" : "Add" }
         ),
         h(
           UButton,
           {
-            size: "xs",
+            size: buttonSize,
             color: "error",
             variant: "soft",
             icon: "i-lucide-trash-2",
@@ -640,7 +711,7 @@ const columns: TableColumn<Row>[] = [
         h(
           UButton,
           {
-            size: "xs",
+            size: buttonSize,
             color: "neutral",
             icon: "i-lucide-pencil",
             disabled: isBusy.value || editorOpen.value,

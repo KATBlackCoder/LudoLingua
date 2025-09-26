@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 w-full">
     <!-- Filters Section -->
     <UCard>
       <template #header>
@@ -73,7 +73,7 @@
     </UCard>
 
     <!-- Glossary Table -->
-    <UCard>
+    <UCard class="w-full">
       <template #header>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -106,7 +106,7 @@
         <UAlert color="error" variant="soft" :title="error" />
       </div>
 
-      <UTable :data="pagedRows" :columns="columns" :loading="isLoading" class="text-sm">
+      <UTable :data="pagedRows" :columns="columns" :loading="isLoading" class="text-sm w-full min-w-full">
         <template #enabled-data="{ row }">
           <USwitch 
             :model-value="row.original.enabled" 
@@ -160,11 +160,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, h, resolveComponent, type Component } from 'vue'
+import { ref, watch, h, resolveComponent, onMounted, onUnmounted, type Component } from 'vue'
 import type { TableColumn } from '#ui/types'
 import GlossaryForm from '~/components/glossaries/GlossaryForm.vue'
 import type { GlossaryTerm } from '~/types/glossary'
 import { useGlossary } from '~/composables/useGlossary'
+
+// Fullscreen detection
+const isFullscreen = ref(false)
+
+// Window resize handler
+const handleResize = () => {
+  isFullscreen.value = window.innerWidth >= 1920; // Consider 1920px+ as fullscreen
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 const {
   // state

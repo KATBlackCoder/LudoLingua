@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 w-full">
     <!-- Progress Header -->
     <UCard>
       <template #header>
@@ -61,7 +61,7 @@
     />
 
     <!-- Process Table -->
-    <UCard>
+    <UCard class="w-full">
       <template #header>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -82,7 +82,7 @@
         </div>
       </template>
 
-      <UTable :data="pagedRows" class="text-sm">
+      <UTable :data="pagedRows" class="text-sm w-full min-w-full">
         <template #status-data="{ row }">
           <UBadge :color="statusColor(row.original.status)" variant="soft" size="sm">
             <UIcon 
@@ -93,12 +93,12 @@
           </UBadge>
         </template>
         <template #source_text-data="{ row }">
-          <div class="max-w-md">
+          <div :class="isFullscreen ? 'max-w-lg' : 'max-w-md'">
             <span class="whitespace-pre-wrap break-words text-sm">{{ row.original.source_text }}</span>
           </div>
         </template>
         <template #target_text-data="{ row }">
-          <div class="max-w-md">
+          <div :class="isFullscreen ? 'max-w-lg' : 'max-w-md'">
             <span class="whitespace-pre-wrap break-words text-sm">{{ row.original.target_text }}</span>
           </div>
         </template>
@@ -119,12 +119,30 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useTranslator } from '~/composables/useTranslator'
 type ProcessRow = { id: string; source_text: string; target_text: string; status: 'pending' | 'processing' | 'done' | 'error' }
 
 const props = defineProps<{ rows: ProcessRow[]; errors?: Array<{ id: string; message: string }> }>()
 const { translationProgress, translationTotal } = useTranslator()
+
+// Fullscreen detection
+const isFullscreen = ref(false)
+
+// Window resize handler
+const handleResize = () => {
+  isFullscreen.value = window.innerWidth >= 1920; // Consider 1920px+ as fullscreen
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 const percentage = computed(() => {
   if (!translationTotal.value) return 0
