@@ -89,3 +89,93 @@ export const promptTypeFilterOptions = [
   ...promptTypeOptions
 ]
 
+/**
+ * Comprehensive list of all possible placeholder types from RPG Maker documentation
+ * Used for filtering and placeholder detection in translation components
+ */
+export const allPlaceholderTypes = [
+  // Common placeholders
+  "ARG",
+  "NUM_PREFIX",
+  "FWSPC",
+  "SPC",
+  "TAB",
+  "NEWLINE",
+  "CARRIAGE_RETURN",
+  "CTRL_DOT",
+  "CTRL_WAIT",
+  "CTRL_INSTANT",
+  "CTRL_INPUT",
+
+  // RPG Maker placeholders
+  "COLOR",
+  "NAME",
+  "VARIABLE",
+  "variable",
+  "SWITCH",
+  "ITEM",
+  "WEAPON",
+  "ARMOR",
+  "ACTOR",
+  "GOLD",
+  "CURRENCY",
+  "CONDITIONAL",
+
+  // Wolf RPG placeholders
+  "ICON",
+  "FONT",
+  "WOLF_END",
+  "RUBY_START",
+  "AT",
+  "SLOT",
+  "CSELF",
+
+  // Additional patterns found in data
+  "AWSPC",
+  "BACKGROUND",
+  "BASE",
+  "BONE_CREAK",
+  "IWSPC",
+  "I_FSPC",
+]
+
+/**
+ * Get placeholder filter options for select components
+ * @param existingPlaceholders Set of placeholder types that exist in current data
+ * @returns Array of filter options
+ */
+export function getPlaceholderFilterOptions(existingPlaceholders: Set<string>) {
+  const availablePlaceholders = allPlaceholderTypes.filter((type) =>
+    existingPlaceholders.has(type)
+  )
+
+  return [
+    { label: "All placeholders", value: "all" },
+    ...availablePlaceholders.sort().map((placeholder) => ({
+      label: `[${placeholder}_*]`,
+      value: placeholder,
+    })),
+  ]
+}
+
+/**
+ * Extract placeholder types from text content
+ * @param text Text content to scan for placeholders
+ * @returns Set of found placeholder types
+ */
+export function extractPlaceholderTypes(text: string): Set<string> {
+  const placeholders = new Set<string>()
+  const matches = text.match(/\[([A-Z_]+)_\d+\]/g)
+  
+  if (matches) {
+    matches.forEach((match) => {
+      const placeholderType = match
+        .replace(/\[|\]/g, "")
+        .replace(/_\d+$/, "")
+      placeholders.add(placeholderType)
+    })
+  }
+  
+  return placeholders
+}
+

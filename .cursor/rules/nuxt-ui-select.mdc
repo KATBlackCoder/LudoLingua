@@ -1,0 +1,793 @@
+---
+alwaysApply: true
+description: Nuxt UI v4 Select component usage guidelines and best practices
+---
+
+# Nuxt UI v4 Select Component Usage
+
+This project uses Nuxt UI v4's Select component for dropdown selections. Follow these guidelines for consistent, accessible, and performant select implementations.
+
+## Core Principles
+
+### Component Usage
+- **Always use `USelect`** instead of raw HTML select elements
+- **Leverage TypeScript types** for better type safety
+- **Use proper item structures** for complex data
+- **Implement proper validation** and error handling
+
+### Performance Guidelines
+- **Use computed properties** for dynamic item lists
+- **Implement proper loading states** for async data
+- **Minimize re-renders** with stable item references
+- **Use appropriate item structures** for your use case
+
+## Basic Usage
+
+### Simple String Items
+```vue
+<script setup lang="ts">
+const items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
+const value = ref('Backlog')
+</script>
+
+<template>
+  <USelect v-model="value" :items="items" />
+</template>
+```
+
+### Object Items with Labels
+```vue
+<script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui'
+
+const items = ref<SelectItem[]>([
+  {
+    label: 'Backlog',
+    value: 'backlog'
+  },
+  {
+    label: 'Todo',
+    value: 'todo'
+  },
+  {
+    label: 'In Progress',
+    value: 'in_progress'
+  },
+  {
+    label: 'Done',
+    value: 'done'
+  }
+])
+const value = ref('backlog')
+</script>
+
+<template>
+  <USelect v-model="value" :items="items" class="w-48" />
+</template>
+```
+
+### Custom Value Key
+```vue
+<script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui'
+
+const items = ref<SelectItem[]>([
+  {
+    label: 'Backlog',
+    id: 'backlog'
+  },
+  {
+    label: 'Todo',
+    id: 'todo'
+  }
+])
+const value = ref('backlog')
+</script>
+
+<template>
+  <USelect v-model="value" value-key="id" :items="items" class="w-48" />
+</template>
+```
+
+## Advanced Features
+
+### Multiple Selection
+```vue
+<script setup lang="ts">
+const items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
+const value = ref(['Backlog', 'Todo'])
+</script>
+
+<template>
+  <USelect v-model="value" multiple :items="items" class="w-48" />
+</template>
+```
+
+### Placeholder
+```vue
+<script setup lang="ts">
+const items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
+</script>
+
+<template>
+  <USelect placeholder="Select status" :items="items" class="w-48" />
+</template>
+```
+
+### With Icons
+```vue
+<script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui'
+
+const items = ref<SelectItem[]>([
+  {
+    label: 'Backlog',
+    value: 'backlog',
+    icon: 'i-lucide-clock'
+  },
+  {
+    label: 'Todo',
+    value: 'todo',
+    icon: 'i-lucide-list'
+  },
+  {
+    label: 'In Progress',
+    value: 'in_progress',
+    icon: 'i-lucide-play'
+  },
+  {
+    label: 'Done',
+    value: 'done',
+    icon: 'i-lucide-check-circle'
+  }
+])
+const value = ref('backlog')
+</script>
+
+<template>
+  <USelect v-model="value" :items="items" class="w-48" />
+</template>
+```
+
+### With Avatars
+```vue
+<script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui'
+
+const items = ref<SelectItem[]>([
+  {
+    label: 'John Doe',
+    value: 'john',
+    avatar: {
+      src: 'https://avatars.githubusercontent.com/u/739984?v=4',
+      alt: 'John Doe'
+    }
+  },
+  {
+    label: 'Jane Smith',
+    value: 'jane',
+    avatar: {
+      src: 'https://avatars.githubusercontent.com/u/739985?v=4',
+      alt: 'Jane Smith'
+    }
+  }
+])
+const value = ref('john')
+</script>
+
+<template>
+  <USelect v-model="value" :items="items" class="w-48" />
+</template>
+```
+
+### With Chips
+```vue
+<script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui'
+
+const items = ref<SelectItem[]>([
+  {
+    label: 'Frontend',
+    value: 'frontend',
+    chip: {
+      color: 'blue',
+      variant: 'soft'
+    }
+  },
+  {
+    label: 'Backend',
+    value: 'backend',
+    chip: {
+      color: 'green',
+      variant: 'soft'
+    }
+  }
+])
+const value = ref('frontend')
+</script>
+
+<template>
+  <USelect v-model="value" :items="items" class="w-48" />
+</template>
+```
+
+### Grouped Items
+```vue
+<script setup lang="ts">
+const items = ref([
+  ['Apple', 'Banana', 'Blueberry', 'Grapes', 'Pineapple'],
+  ['Aubergine', 'Broccoli', 'Carrot', 'Courgette', 'Leek']
+])
+const value = ref('Apple')
+</script>
+
+<template>
+  <USelect v-model="value" :items="items" class="w-48" />
+</template>
+```
+
+## Styling and Variants
+
+### Variants
+```vue
+<template>
+  <!-- Outline (default) -->
+  <USelect v-model="value" :items="items" variant="outline" />
+  
+  <!-- Soft -->
+  <USelect v-model="value" :items="items" variant="soft" />
+  
+  <!-- Subtle -->
+  <USelect v-model="value" :items="items" variant="subtle" />
+  
+  <!-- Ghost -->
+  <USelect v-model="value" :items="items" variant="ghost" />
+</template>
+```
+
+### Colors
+```vue
+<template>
+  <!-- Primary (default) -->
+  <USelect v-model="value" :items="items" color="primary" />
+  
+  <!-- Success -->
+  <USelect v-model="value" :items="items" color="success" />
+  
+  <!-- Warning -->
+  <USelect v-model="value" :items="items" color="warning" />
+  
+  <!-- Error -->
+  <USelect v-model="value" :items="items" color="error" />
+  
+  <!-- Neutral -->
+  <USelect v-model="value" :items="items" color="neutral" />
+</template>
+```
+
+### Sizes
+```vue
+<template>
+  <!-- Extra Small -->
+  <USelect v-model="value" :items="items" size="xs" />
+  
+  <!-- Small -->
+  <USelect v-model="value" :items="items" size="sm" />
+  
+  <!-- Medium (default) -->
+  <USelect v-model="value" :items="items" size="md" />
+  
+  <!-- Large -->
+  <USelect v-model="value" :items="items" size="lg" />
+  
+  <!-- Extra Large -->
+  <USelect v-model="value" :items="items" size="xl" />
+</template>
+```
+
+## Advanced Configuration
+
+### Content Positioning
+```vue
+<script setup lang="ts">
+const items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
+const value = ref('Backlog')
+</script>
+
+<template>
+  <USelect
+    v-model="value"
+    :content="{
+      align: 'center',
+      side: 'bottom',
+      sideOffset: 8
+    }"
+    :items="items"
+    class="w-48"
+  />
+</template>
+```
+
+### Loading State
+```vue
+<script setup lang="ts">
+const items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
+const value = ref('Backlog')
+const isLoading = ref(false)
+
+// Simulate async loading
+const loadItems = async () => {
+  isLoading.value = true
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  isLoading.value = false
+}
+</script>
+
+<template>
+  <USelect 
+    v-model="value" 
+    :items="items" 
+    :loading="isLoading"
+    loading-icon="i-lucide-loader-2"
+    class="w-48"
+  />
+</template>
+```
+
+### Disabled State
+```vue
+<script setup lang="ts">
+const items = ref([
+  { label: 'Backlog', value: 'backlog' },
+  { label: 'Todo', value: 'todo', disabled: true },
+  { label: 'In Progress', value: 'in_progress' }
+])
+const value = ref('backlog')
+</script>
+
+<template>
+  <USelect v-model="value" :items="items" class="w-48" />
+</template>
+```
+
+### With Trailing Icon
+```vue
+<script setup lang="ts">
+const items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
+const value = ref('Backlog')
+</script>
+
+<template>
+  <USelect 
+    v-model="value" 
+    :items="items" 
+    trailing-icon="i-lucide-chevron-down"
+    class="w-48"
+  />
+</template>
+```
+
+## Form Integration
+
+### With FormField
+```vue
+<script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui'
+
+const items = ref<SelectItem[]>([
+  { label: 'Backlog', value: 'backlog' },
+  { label: 'Todo', value: 'todo' },
+  { label: 'In Progress', value: 'in_progress' },
+  { label: 'Done', value: 'done' }
+])
+const value = ref('backlog')
+</script>
+
+<template>
+  <UFormField label="Status" required>
+    <USelect v-model="value" :items="items" placeholder="Select status" />
+  </UFormField>
+</template>
+```
+
+### With Validation
+```vue
+<script setup lang="ts">
+import * as z from 'zod'
+import type { FormSubmitEvent } from '@nuxt/ui'
+
+const schema = z.object({
+  status: z.string().min(1, 'Status is required')
+})
+
+type Schema = z.output<typeof schema>
+
+const items = ref([
+  { label: 'Backlog', value: 'backlog' },
+  { label: 'Todo', value: 'todo' },
+  { label: 'In Progress', value: 'in_progress' },
+  { label: 'Done', value: 'done' }
+])
+
+const state = reactive({
+  status: ''
+})
+
+function onSubmit(event: FormSubmitEvent<Schema>) {
+  console.log('Form submitted:', event.data)
+}
+</script>
+
+<template>
+  <UForm :schema="schema" :state="state" @submit="onSubmit">
+    <UFormField label="Status" name="status" required>
+      <USelect 
+        v-model="state.status" 
+        :items="items" 
+        placeholder="Select status"
+        color="primary"
+        variant="outline"
+      />
+    </UFormField>
+    
+    <UButton type="submit">Submit</UButton>
+  </UForm>
+</template>
+```
+
+## Dynamic Content
+
+### Fetched Items
+```vue
+<script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui'
+
+const items = ref<SelectItem[]>([])
+const value = ref('')
+const isLoading = ref(false)
+
+// Fetch items from API
+const fetchItems = async () => {
+  isLoading.value = true
+  try {
+    const { data } = await $fetch('/api/statuses')
+    items.value = data.map((item: any) => ({
+      label: item.name,
+      value: item.id
+    }))
+  } catch (error) {
+    console.error('Failed to fetch items:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchItems()
+})
+</script>
+
+<template>
+  <USelect 
+    v-model="value" 
+    :items="items" 
+    :loading="isLoading"
+    placeholder="Select status"
+    class="w-48"
+  />
+</template>
+```
+
+### Computed Items
+```vue
+<script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui'
+
+const categories = ref(['Frontend', 'Backend', 'DevOps'])
+const selectedCategory = ref('')
+
+const items = computed<SelectItem[]>(() => {
+  if (!selectedCategory.value) return []
+  
+  // Return items based on selected category
+  switch (selectedCategory.value) {
+    case 'Frontend':
+      return [
+        { label: 'React', value: 'react' },
+        { label: 'Vue', value: 'vue' },
+        { label: 'Angular', value: 'angular' }
+      ]
+    case 'Backend':
+      return [
+        { label: 'Node.js', value: 'nodejs' },
+        { label: 'Python', value: 'python' },
+        { label: 'Java', value: 'java' }
+      ]
+    default:
+      return []
+  }
+})
+</script>
+
+<template>
+  <div class="space-y-4">
+    <USelect 
+      v-model="selectedCategory" 
+      :items="categories" 
+      placeholder="Select category"
+      class="w-48"
+    />
+    
+    <USelect 
+      v-model="value" 
+      :items="items" 
+      placeholder="Select technology"
+      :disabled="!selectedCategory"
+      class="w-48"
+    />
+  </div>
+</template>
+```
+
+## Accessibility
+
+### ARIA Labels
+```vue
+<template>
+  <USelect 
+    v-model="value" 
+    :items="items" 
+    aria-label="Select project status"
+    placeholder="Select status"
+  />
+</template>
+```
+
+### Keyboard Navigation
+- **Tab** - Focus the select
+- **Enter/Space** - Open dropdown
+- **Arrow keys** - Navigate options
+- **Escape** - Close dropdown
+- **Enter** - Select option
+
+## Performance Best Practices
+
+### Memoization
+```vue
+<script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui'
+
+// Memoize expensive item transformations
+const items = computed<SelectItem[]>(() => {
+  return rawItems.value.map(item => ({
+    label: item.name,
+    value: item.id,
+    icon: getIconForType(item.type)
+  }))
+})
+
+// Stable reference for v-model
+const value = ref('')
+</script>
+```
+
+### Large Item Lists
+```vue
+<script setup lang="ts">
+// For large lists, consider virtualization or search
+const items = ref<SelectItem[]>([])
+const searchQuery = ref('')
+
+const filteredItems = computed(() => {
+  if (!searchQuery.value) return items.value
+  
+  return items.value.filter(item => 
+    item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
+})
+</script>
+
+<template>
+  <div class="space-y-2">
+    <UInput 
+      v-model="searchQuery" 
+      placeholder="Search items..."
+      icon="i-lucide-search"
+    />
+    
+    <USelect 
+      v-model="value" 
+      :items="filteredItems" 
+      placeholder="Select item"
+      class="w-48"
+    />
+  </div>
+</template>
+```
+
+## Error Handling
+
+### Validation Errors
+```vue
+<script setup lang="ts">
+const items = ref([
+  { label: 'Backlog', value: 'backlog' },
+  { label: 'Todo', value: 'todo' },
+  { label: 'In Progress', value: 'in_progress' },
+  { label: 'Done', value: 'done' }
+])
+
+const value = ref('')
+const error = ref('')
+
+const validate = () => {
+  if (!value.value) {
+    error.value = 'Please select a status'
+    return false
+  }
+  error.value = ''
+  return true
+}
+</script>
+
+<template>
+  <UFormField label="Status" :error="error" required>
+    <USelect 
+      v-model="value" 
+      :items="items" 
+      placeholder="Select status"
+      :color="error ? 'error' : 'primary'"
+      :highlight="!!error"
+      @blur="validate"
+    />
+  </UFormField>
+</template>
+```
+
+## Common Patterns
+
+### Status Selection
+```vue
+<script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui'
+
+const statusItems = ref<SelectItem[]>([
+  {
+    label: 'Backlog',
+    value: 'backlog',
+    icon: 'i-lucide-clock',
+    chip: { color: 'gray', variant: 'soft' }
+  },
+  {
+    label: 'Todo',
+    value: 'todo',
+    icon: 'i-lucide-list',
+    chip: { color: 'blue', variant: 'soft' }
+  },
+  {
+    label: 'In Progress',
+    value: 'in_progress',
+    icon: 'i-lucide-play',
+    chip: { color: 'yellow', variant: 'soft' }
+  },
+  {
+    label: 'Done',
+    value: 'done',
+    icon: 'i-lucide-check-circle',
+    chip: { color: 'green', variant: 'soft' }
+  }
+])
+</script>
+```
+
+### User Selection
+```vue
+<script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui'
+
+const userItems = ref<SelectItem[]>([
+  {
+    label: 'John Doe',
+    value: 'john',
+    avatar: {
+      src: 'https://avatars.githubusercontent.com/u/739984?v=4',
+      alt: 'John Doe'
+    }
+  },
+  {
+    label: 'Jane Smith',
+    value: 'jane',
+    avatar: {
+      src: 'https://avatars.githubusercontent.com/u/739985?v=4',
+      alt: 'Jane Smith'
+    }
+  }
+])
+</script>
+```
+
+### Category Selection
+```vue
+<script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui'
+
+const categoryItems = ref<SelectItem[]>([
+  {
+    label: 'Frontend',
+    value: 'frontend',
+    chip: { color: 'blue', variant: 'soft' }
+  },
+  {
+    label: 'Backend',
+    value: 'backend',
+    chip: { color: 'green', variant: 'soft' }
+  },
+  {
+    label: 'DevOps',
+    value: 'devops',
+    chip: { color: 'purple', variant: 'soft' }
+  }
+])
+</script>
+```
+
+## Integration with BaseTable
+
+When using Select components in table filters:
+
+```vue
+<script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui'
+
+const statusItems = ref<SelectItem[]>([
+  { label: 'All', value: 'all' },
+  { label: 'Backlog', value: 'backlog' },
+  { label: 'Todo', value: 'todo' },
+  { label: 'In Progress', value: 'in_progress' },
+  { label: 'Done', value: 'done' }
+])
+
+const statusFilter = ref('all')
+</script>
+
+<template>
+  <BaseTable
+    :data="data"
+    :columns="columns"
+    :show-filters="true"
+  >
+    <template #filters>
+      <UFormField label="Status">
+        <USelect 
+          v-model="statusFilter" 
+          :items="statusItems" 
+          placeholder="All statuses"
+          size="sm"
+        />
+      </UFormField>
+    </template>
+  </BaseTable>
+</template>
+```
+
+## Testing Considerations
+
+### Component Testing
+- **Test item selection** and value changes
+- **Test placeholder behavior** when no value selected
+- **Test disabled state** functionality
+- **Test loading state** display
+- **Test keyboard navigation** and accessibility
+
+### Integration Testing
+- **Test form validation** with Select components
+- **Test dynamic item loading** and updates
+- **Test multiple selection** behavior
+- **Test error handling** and display
+
+## Resources
+
+- [Nuxt UI v4 Select Documentation](https://ui.nuxt.com/docs/components/select)
+- [Vue 3 Composition API](https://vuejs.org/guide/composition-api/)
+- [TypeScript Best Practices](https://typescript-eslint.io/rules/)
+- [Accessibility Guidelines](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/)

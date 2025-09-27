@@ -1,0 +1,603 @@
+---
+alwaysApply: true
+description: Nuxt UI v4 Card component usage guidelines and best practices
+---
+
+# Nuxt UI v4 Card Component Usage
+
+This project uses Nuxt UI v4's Card component for content containers. Follow these guidelines for consistent, accessible, and well-structured card implementations.
+
+## Core Principles
+
+### Component Usage
+- **Always use `UCard`** instead of raw HTML div containers
+- **Use semantic slots** for proper content structure
+- **Implement proper spacing** and visual hierarchy
+- **Follow accessibility guidelines** for card content
+
+### Design Guidelines
+- **Use cards for related content** grouping
+- **Maintain consistent spacing** across all cards
+- **Implement proper visual hierarchy** with headers and footers
+- **Use appropriate variants** for different contexts
+
+## Basic Usage
+
+### Simple Card
+```vue
+<template>
+  <UCard>
+    <p>This is the card content.</p>
+  </UCard>
+</template>
+```
+
+### Card with Header and Footer
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <h3 class="text-lg font-semibold">Card Title</h3>
+    </template>
+
+    <p>This is the main card content.</p>
+
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton variant="soft" size="sm">Cancel</UButton>
+        <UButton size="sm">Save</UButton>
+      </div>
+    </template>
+  </UCard>
+</template>
+```
+
+### Card with Icon Header
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+          <UIcon name="i-lucide-settings" class="text-primary w-5 h-5" />
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold">Settings</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Manage your preferences</p>
+        </div>
+      </div>
+    </template>
+
+    <div class="space-y-4">
+      <UFormField label="Theme">
+        <USelect :items="themeOptions" />
+      </UFormField>
+      <UFormField label="Language">
+        <USelect :items="languageOptions" />
+      </UFormField>
+    </div>
+  </UCard>
+</template>
+```
+
+## Variants
+
+### Outline (Default)
+```vue
+<template>
+  <UCard variant="outline">
+    <template #header>
+      <h3>Outline Card</h3>
+    </template>
+    <p>This card has a border and background.</p>
+  </UCard>
+</template>
+```
+
+### Solid
+```vue
+<template>
+  <UCard variant="solid">
+    <template #header>
+      <h3>Solid Card</h3>
+    </template>
+    <p>This card has a solid background.</p>
+  </UCard>
+</template>
+```
+
+### Soft
+```vue
+<template>
+  <UCard variant="soft">
+    <template #header>
+      <h3>Soft Card</h3>
+    </template>
+    <p>This card has a soft background.</p>
+  </UCard>
+</template>
+```
+
+### Subtle
+```vue
+<template>
+  <UCard variant="subtle">
+    <template #header>
+      <h3>Subtle Card</h3>
+    </template>
+    <p>This card has a subtle background with border.</p>
+  </UCard>
+</template>
+```
+
+## Common Patterns
+
+### Statistics Card
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <UIcon name="i-lucide-users" class="text-green-500 w-5 h-5" />
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold">Total Users</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Active users this month</p>
+          </div>
+        </div>
+        <UBadge color="success" variant="soft" size="sm">
+          +12%
+        </UBadge>
+      </div>
+    </template>
+
+    <div class="text-center">
+      <div class="text-3xl font-bold text-gray-900 dark:text-white">1,234</div>
+      <div class="text-sm text-gray-500 dark:text-gray-400">users</div>
+    </div>
+  </UCard>
+</template>
+```
+
+### Action Card
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Project Actions</h3>
+        <UButton variant="ghost" size="sm" icon="i-lucide-more-horizontal" />
+      </div>
+    </template>
+
+    <div class="space-y-3">
+      <UButton variant="soft" color="primary" class="w-full justify-start" icon="i-lucide-play">
+        Start Project
+      </UButton>
+      <UButton variant="soft" color="warning" class="w-full justify-start" icon="i-lucide-pause">
+        Pause Project
+      </UButton>
+      <UButton variant="soft" color="error" class="w-full justify-start" icon="i-lucide-stop">
+        Stop Project
+      </UButton>
+    </div>
+
+    <template #footer>
+      <div class="flex justify-between items-center">
+        <span class="text-sm text-gray-500 dark:text-gray-400">Last updated: 2 hours ago</span>
+        <UButton variant="ghost" size="sm">View Details</UButton>
+      </div>
+    </template>
+  </UCard>
+</template>
+```
+
+### Form Card
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center gap-3">
+        <UIcon name="i-lucide-user-plus" class="text-primary w-5 h-5" />
+        <h3 class="text-lg font-semibold">Add New User</h3>
+      </div>
+    </template>
+
+    <UForm :schema="schema" :state="state" @submit="onSubmit" class="space-y-4">
+      <UFormField label="Name" name="name" required>
+        <UInput v-model="state.name" placeholder="Enter full name" />
+      </UFormField>
+      
+      <UFormField label="Email" name="email" required>
+        <UInput v-model="state.email" type="email" placeholder="Enter email address" />
+      </UFormField>
+      
+      <UFormField label="Role" name="role" required>
+        <USelect v-model="state.role" :items="roleOptions" placeholder="Select role" />
+      </UFormField>
+    </UForm>
+
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton variant="soft" @click="onCancel">Cancel</UButton>
+        <UButton type="submit" :loading="isSubmitting">Add User</UButton>
+      </div>
+    </template>
+  </UCard>
+</template>
+```
+
+### List Card
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Recent Activity</h3>
+        <UButton variant="ghost" size="sm">View All</UButton>
+      </div>
+    </template>
+
+    <div class="space-y-3">
+      <div v-for="activity in activities" :key="activity.id" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50">
+        <div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <UIcon :name="activity.icon" class="text-blue-500 w-4 h-4" />
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-medium">{{ activity.title }}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">{{ activity.description }}</p>
+        </div>
+        <span class="text-xs text-gray-400">{{ activity.time }}</span>
+      </div>
+    </div>
+  </UCard>
+</template>
+```
+
+### Progress Card
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+            <UIcon name="i-lucide-target" class="text-primary w-5 h-5" />
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold">Project Progress</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Current milestone</p>
+          </div>
+        </div>
+        <UBadge color="primary" variant="soft" size="sm">
+          {{ progress }}%
+        </UBadge>
+      </div>
+    </template>
+
+    <div class="space-y-4">
+      <UProgress :value="progress" :max="100" size="lg" color="primary" />
+      
+      <div class="grid grid-cols-3 gap-4">
+        <div class="text-center">
+          <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ completed }}</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">Completed</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ inProgress }}</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">In Progress</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ remaining }}</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">Remaining</div>
+        </div>
+      </div>
+    </div>
+  </UCard>
+</template>
+```
+
+## Layout Patterns
+
+### Card Grid
+```vue
+<template>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <UCard v-for="item in items" :key="item.id">
+      <template #header>
+        <h3 class="text-lg font-semibold">{{ item.title }}</h3>
+      </template>
+      <p>{{ item.description }}</p>
+      <template #footer>
+        <UButton variant="soft" size="sm">Learn More</UButton>
+      </template>
+    </UCard>
+  </div>
+</template>
+```
+
+### Card with Sidebar
+```vue
+<template>
+  <div class="flex gap-6">
+    <div class="flex-1">
+      <UCard>
+        <template #header>
+          <h3 class="text-lg font-semibold">Main Content</h3>
+        </template>
+        <p>This is the main content area.</p>
+      </UCard>
+    </div>
+    
+    <div class="w-80">
+      <UCard>
+        <template #header>
+          <h3 class="text-lg font-semibold">Sidebar</h3>
+        </template>
+        <p>This is the sidebar content.</p>
+      </UCard>
+    </div>
+  </div>
+</template>
+```
+
+### Nested Cards
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <h3 class="text-lg font-semibold">Project Overview</h3>
+    </template>
+
+    <div class="space-y-4">
+      <UCard variant="soft">
+        <template #header>
+          <h4 class="font-medium">Team Members</h4>
+        </template>
+        <div class="flex gap-2">
+          <UAvatar src="/avatar1.jpg" alt="John Doe" />
+          <UAvatar src="/avatar2.jpg" alt="Jane Smith" />
+          <UAvatar src="/avatar3.jpg" alt="Bob Johnson" />
+        </div>
+      </UCard>
+
+      <UCard variant="soft">
+        <template #header>
+          <h4 class="font-medium">Recent Updates</h4>
+        </template>
+        <ul class="space-y-2">
+          <li class="text-sm">• Updated project timeline</li>
+          <li class="text-sm">• Added new team member</li>
+          <li class="text-sm">• Completed milestone 1</li>
+        </ul>
+      </UCard>
+    </div>
+  </UCard>
+</template>
+```
+
+## Responsive Design
+
+### Responsive Card Layout
+```vue
+<template>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <UCard v-for="item in items" :key="item.id" class="h-full">
+      <template #header>
+        <div class="flex items-center gap-2">
+          <UIcon :name="item.icon" class="w-4 h-4" />
+          <h3 class="font-medium text-sm sm:text-base">{{ item.title }}</h3>
+        </div>
+      </template>
+      
+      <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+        {{ item.description }}
+      </div>
+      
+      <template #footer>
+        <UButton variant="soft" size="xs sm:sm" class="w-full">
+          {{ item.action }}
+        </UButton>
+      </template>
+    </UCard>
+  </div>
+</template>
+```
+
+## Accessibility
+
+### Semantic Structure
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <header>
+        <h2 class="text-lg font-semibold">Card Title</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Card description</p>
+      </header>
+    </template>
+
+    <main>
+      <p>Main card content goes here.</p>
+    </main>
+
+    <template #footer>
+      <footer>
+        <div class="flex justify-end gap-2">
+          <UButton variant="soft" size="sm">Cancel</UButton>
+          <UButton size="sm">Save</UButton>
+        </div>
+      </footer>
+    </template>
+  </UCard>
+</template>
+```
+
+### ARIA Labels
+```vue
+<template>
+  <UCard aria-label="User profile information">
+    <template #header>
+      <h3 class="text-lg font-semibold">Profile</h3>
+    </template>
+    
+    <div role="region" aria-label="User details">
+      <p>User information content</p>
+    </div>
+  </UCard>
+</template>
+```
+
+## Performance Considerations
+
+### Lazy Loading Cards
+```vue
+<template>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <UCard v-for="item in visibleItems" :key="item.id" class="h-full">
+      <template #header>
+        <h3 class="text-lg font-semibold">{{ item.title }}</h3>
+      </template>
+      <p>{{ item.description }}</p>
+    </UCard>
+  </div>
+</template>
+
+<script setup lang="ts">
+const visibleItems = computed(() => {
+  // Implement virtual scrolling or pagination for large datasets
+  return items.value.slice(0, 20)
+})
+</script>
+```
+
+### Memoized Card Content
+```vue
+<script setup lang="ts">
+const cardContent = computed(() => {
+  return expensiveDataProcessing(rawData.value)
+})
+</script>
+
+<template>
+  <UCard>
+    <template #header>
+      <h3 class="text-lg font-semibold">Processed Data</h3>
+    </template>
+    
+    <div v-for="item in cardContent" :key="item.id">
+      {{ item.processedValue }}
+    </div>
+  </UCard>
+</template>
+```
+
+## Integration with Other Components
+
+### Card with Table
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Data Table</h3>
+        <UButton size="sm" icon="i-lucide-plus">Add Item</UButton>
+      </div>
+    </template>
+
+    <UTable :data="tableData" :columns="columns" />
+  </UCard>
+</template>
+```
+
+### Card with Form
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <h3 class="text-lg font-semibold">Settings</h3>
+    </template>
+
+    <UForm :schema="schema" :state="state" @submit="onSubmit" class="space-y-4">
+      <UFormField label="Name" name="name">
+        <UInput v-model="state.name" />
+      </UFormField>
+      
+      <UFormField label="Email" name="email">
+        <UInput v-model="state.email" type="email" />
+      </UFormField>
+    </UForm>
+
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton variant="soft" @click="onCancel">Cancel</UButton>
+        <UButton type="submit">Save</UButton>
+      </div>
+    </template>
+  </UCard>
+</template>
+```
+
+### Card with Charts
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Analytics</h3>
+        <USelect :items="timeRangeOptions" size="sm" />
+      </div>
+    </template>
+
+    <div class="h-64">
+      <!-- Chart component would go here -->
+      <div class="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <p class="text-gray-500">Chart placeholder</p>
+      </div>
+    </div>
+  </UCard>
+</template>
+```
+
+## Testing Considerations
+
+### Component Testing
+- **Test card structure** and slot content
+- **Test variant rendering** and styling
+- **Test responsive behavior** across screen sizes
+- **Test accessibility** with screen readers
+
+### Integration Testing
+- **Test card interactions** with forms and tables
+- **Test dynamic content** loading and updates
+- **Test card layouts** and grid systems
+- **Test performance** with large datasets
+
+## Best Practices
+
+### Content Organization
+- **Use headers** for titles and descriptions
+- **Group related content** in the body
+- **Place actions** in the footer
+- **Maintain consistent spacing** and hierarchy
+
+### Visual Design
+- **Choose appropriate variants** for context
+- **Use consistent iconography** and colors
+- **Implement proper contrast** for accessibility
+- **Maintain visual hierarchy** with typography
+
+### Performance
+- **Lazy load** large card collections
+- **Memoize expensive** content processing
+- **Use virtual scrolling** for very large lists
+- **Optimize images** and media content
+
+## Resources
+
+- [Nuxt UI v4 Card Documentation](https://ui.nuxt.com/docs/components/card)
+- [Vue 3 Composition API](https://vuejs.org/guide/composition-api/)
+- [Accessibility Guidelines](https://www.w3.org/WAI/ARIA/apg/patterns/card/)
+- [CSS Grid Layout](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout)

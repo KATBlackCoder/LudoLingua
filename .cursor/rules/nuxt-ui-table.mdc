@@ -1,0 +1,564 @@
+---
+alwaysApply: true
+description: Nuxt UI v4 Table component usage guidelines and best practices
+---
+
+# Nuxt UI v4 Table Component Usage
+
+This project uses Nuxt UI v4's Table component built on TanStack Table v8. Follow these guidelines for consistent, performant, and accessible table implementations.
+
+## Core Principles
+
+### Component Usage
+- **Always use `UTable`** instead of raw HTML table elements
+- **Leverage TanStack Table v8** for advanced features like sorting, filtering, and pagination
+- **Use `useVueTable` composable** for table state management
+- **Built-in TypeScript support** with full type safety
+
+### Performance Guidelines
+- **Optimize for large datasets** (2000+ items) with proper pagination
+- **Use column virtualization** for tables with many columns
+- **Implement proper loading states** and skeleton screens
+- **Minimize re-renders** with computed properties and proper dependencies
+- **Leverage TanStack Table's built-in optimizations**
+
+## Basic Usage
+
+### Simple Data Table
+```vue
+<script setup lang="ts">
+const data = ref([
+  {
+    id: '1',
+    name: 'John Doe',
+    email: 'john@example.com',
+    status: 'active'
+  }
+])
+</script>
+
+<template>
+  <UTable :data="data" class="flex-1" />
+</template>
+```
+
+### With Custom Columns
+```vue
+<script setup lang="ts">
+import type { TableColumn } from '#ui/types'
+
+const columns: TableColumn<Row>[] = [
+  { accessorKey: 'name', header: 'Name' },
+  { accessorKey: 'email', header: 'Email' },
+  { 
+    accessorKey: 'status', 
+    header: 'Status',
+    cell: ({ row }) => {
+      const UBadge = resolveComponent('UBadge') as Component
+      return h(UBadge, {
+        color: row.getValue('status') === 'active' ? 'success' : 'neutral',
+        variant: 'soft'
+      }, row.getValue('status'))
+    }
+  }
+]
+</script>
+
+<template>
+  <UTable :data="data" :columns="columns" />
+</template>
+```
+
+## Advanced Features
+
+### Row Selection
+```vue
+<script setup lang="ts">
+const rowSelection = ref({})
+
+const columns: TableColumn<Row>[] = [
+  {
+    id: 'select',
+    header: ({ table }) => {
+      const UCheckbox = resolveComponent('UCheckbox') as Component
+      return h(UCheckbox, {
+        modelValue: table.getIsSomePageRowsSelected()
+          ? 'indeterminate'
+          : table.getIsAllPageRowsSelected(),
+        'onUpdate:modelValue': (value: boolean | 'indeterminate') =>
+          table.toggleAllPageRowsSelected(!!value),
+        'aria-label': 'Select all'
+      })
+    },
+    cell: ({ row }) => {
+      const UCheckbox = resolveComponent('UCheckbox') as Component
+      return h(UCheckbox, {
+        modelValue: row.getIsSelected(),
+        'onUpdate:modelValue': (value: boolean | 'indeterminate') =>
+          row.toggleSelected(!!value),
+        'aria-label': 'Select row'
+      })
+    }
+  }
+  // ... other columns
+]
+</script>
+
+<template>
+  <UTable 
+    v-model:row-selection="rowSelection"
+    :data="data" 
+    :columns="columns"
+    @select="onRowSelect"
+  />
+</template>
+```
+
+### Sorting
+```vue
+<script setup lang="ts">
+const sorting = ref([
+  { id: 'name', desc: false }
+])
+
+const columns: TableColumn<Row>[] = [
+  {
+    accessorKey: 'name',
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted()
+      const UButton = resolveComponent('UButton') as Component
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'ghost',
+        label: 'Name',
+        icon: isSorted
+          ? isSorted === 'asc'
+            ? 'i-lucide-arrow-up-narrow-wide'
+            : 'i-lucide-arrow-down-wide-narrow'
+          : 'i-lucide-arrow-up-down',
+        class: '-mx-2.5',
+        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+      })
+    },
+    enableSorting: true
+  }
+]
+</script>
+
+<template>
+  <UTable 
+    v-model:sorting="sorting"
+    :data="data" 
+    :columns="columns"
+  />
+</template>
+```
+
+### Pagination
+```vue
+<script setup lang="ts">
+import { getPaginationRowModel } from '@tanstack/vue-table'
+import type { TableColumn } from '@nuxt/ui'
+
+const table = useTemplateRef('table')
+
+const pagination = ref({
+  pageIndex: 0,
+  pageSize: 5
+})
+</script>
+
+<template>
+  <div class="w-full space-y-4 pb-4">
+    <UTable
+      ref="table"
+      v-model:pagination="pagination"
+      :data="data"
+      :columns="columns"
+      :pagination-options="{
+        getPaginationRowModel: getPaginationRowModel()
+      }"
+      class="flex-1"
+    />
+
+    <div class="flex justify-center border-t border-default pt-4">
+      <UPagination
+        :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+        :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+        :total="table?.tableApi?.getFilteredRowModel().rows.length"
+        @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
+      />
+    </div>
+  </div>
+</template>
+```
+
+### Loading States
+```vue
+<template>
+  <UTable 
+    :data="data" 
+    :columns="columns"
+    :loading="isLoading"
+    :loading-animation="loadingAnimation"
+    :loading-color="loadingColor"
+  />
+</template>
+```
+
+### Sticky Headers/Footers
+```vue
+<template>
+  <UTable 
+    :data="data" 
+    :columns="columns"
+    :sticky="true"
+    :sticky-header="true"
+    :sticky-footer="true"
+  />
+</template>
+```
+
+## Column Configuration
+
+### Column Properties
+- **`accessorKey`**: The key of the row object to extract the value
+- **`header`**: Header display (string or function)
+- **`footer`**: Footer display (string or function)
+- **`cell`**: Cell renderer (function)
+- **`meta`**: Extra properties for styling and behavior
+
+### Column Meta Properties
+```typescript
+const columns: TableColumn<Row>[] = [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+    meta: {
+      class: {
+        th: 'text-left',
+        td: 'text-left'
+      },
+      style: {
+        th: 'min-width: 200px;',
+        td: 'min-width: 200px;'
+      }
+    }
+  }
+]
+```
+
+### Custom Cell Renderers
+```vue
+<script setup lang="ts">
+const columns: TableColumn<Row>[] = [
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({ row }) => {
+      const status = row.getValue('status') as string
+      const UBadge = resolveComponent('UBadge') as Component
+      return h(UBadge, {
+        color: getStatusColor(status),
+        variant: 'soft'
+      }, status)
+    }
+  },
+  {
+    accessorKey: 'actions',
+    header: 'Actions',
+    cell: ({ row }) => {
+      const UButton = resolveComponent('UButton') as Component
+      return h('div', { class: 'flex gap-2' }, [
+        h(UButton, {
+          size: 'xs',
+          color: 'primary',
+          variant: 'soft',
+          icon: 'i-lucide-edit',
+          onClick: () => editRow(row.original)
+        }, { default: () => 'Edit' }),
+        h(UButton, {
+          size: 'xs',
+          color: 'error',
+          variant: 'soft',
+          icon: 'i-lucide-trash',
+          onClick: () => deleteRow(row.original)
+        }, { default: () => 'Delete' })
+      ])
+    }
+  }
+]
+</script>
+```
+
+## Slots and Customization
+
+### Table Slots
+```vue
+<template>
+  <UTable :data="data" :columns="columns">
+    <!-- Custom cell slots -->
+    <template #status-data="{ row }">
+      <UBadge :color="getStatusColor(row.original.status)">
+        {{ row.original.status }}
+      </UBadge>
+    </template>
+    
+    <!-- Empty state -->
+    <template #empty>
+      <div class="text-center py-8">
+        <UIcon name="i-lucide-inbox" class="w-12 h-12 mx-auto text-gray-400 mb-4" />
+        <p class="text-gray-500">No data available</p>
+      </div>
+    </template>
+    
+    <!-- Loading state -->
+    <template #loading>
+      <div class="text-center py-8">
+        <UIcon name="i-lucide-loader-2" class="w-8 h-8 mx-auto animate-spin text-primary" />
+        <p class="text-gray-500 mt-2">Loading...</p>
+      </div>
+    </template>
+  </UTable>
+</template>
+```
+
+## Performance Best Practices
+
+### Large Datasets
+```vue
+<script setup lang="ts">
+// Use pagination for large datasets
+const pagination = ref({
+  pageIndex: 0,
+  pageSize: 50 // Reasonable page size
+})
+
+// Implement server-side filtering/sorting for very large datasets
+const { data: tableData, isLoading } = await useFetch('/api/data', {
+  query: {
+    page: pagination.value.pageIndex,
+    size: pagination.value.pageSize,
+    sort: sorting.value,
+    filter: globalFilter.value
+  }
+})
+</script>
+```
+
+### Memoization
+```vue
+<script setup lang="ts">
+// Memoize expensive computations
+const processedData = computed(() => {
+  return data.value.map(item => ({
+    ...item,
+    processedField: expensiveOperation(item)
+  }))
+})
+
+// Memoize column definitions
+const columns = computed(() => [
+  // column definitions
+])
+</script>
+```
+
+## Accessibility
+
+### ARIA Labels
+```vue
+<script setup lang="ts">
+const columns: TableColumn<Row>[] = [
+  {
+    id: 'select',
+    header: ({ table }) => {
+      const UCheckbox = resolveComponent('UCheckbox') as Component
+      return h(UCheckbox, {
+        'aria-label': 'Select all rows',
+        // ... other props
+      })
+    },
+    cell: ({ row }) => {
+      const UCheckbox = resolveComponent('UCheckbox') as Component
+      return h(UCheckbox, {
+        'aria-label': `Select row ${row.original.id}`,
+        // ... other props
+      })
+    }
+  }
+]
+</script>
+```
+
+### Keyboard Navigation
+- **Ensure all interactive elements** are keyboard accessible
+- **Use proper heading hierarchy** for table headers
+- **Provide meaningful labels** for form inputs in cells
+- **Test with screen readers** during development
+
+## Error Handling
+
+### Error States
+```vue
+<template>
+  <UTable 
+    :data="data" 
+    :columns="columns"
+    :loading="isLoading"
+    :empty-state="{
+      icon: 'i-lucide-alert-triangle',
+      label: 'Error loading data',
+      description: 'Please try again later'
+    }"
+  />
+</template>
+```
+
+### Validation
+```vue
+<script setup lang="ts">
+// Validate data structure
+if (!props.data || !Array.isArray(props.data)) {
+  console.warn('Table: data prop must be an array')
+}
+
+if (!props.columns || !Array.isArray(props.columns)) {
+  console.warn('Table: columns prop must be an array')
+}
+</script>
+```
+
+## Integration with BaseTable
+
+When using the project's BaseTable component, follow these patterns:
+
+```vue
+<script setup lang="ts">
+// Use BaseTable for consistent styling and features
+import BaseTable from '~/components/bases/BaseTable.vue'
+
+const columns: TableColumn<Row>[] = [
+  // column definitions
+]
+</script>
+
+<template>
+  <BaseTable
+    :data="data"
+    :columns="columns"
+    :loading="isLoading"
+    :searchable="true"
+    :selectable="true"
+    :show-filters="true"
+    :show-bulk-actions="true"
+    @select="onRowSelect"
+    @bulk-action="onBulkAction"
+  />
+</template>
+```
+
+## Common Patterns
+
+### Status Badges
+```vue
+<script setup lang="ts">
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'active': return 'success'
+    case 'inactive': return 'neutral'
+    case 'error': return 'error'
+    default: return 'neutral'
+  }
+}
+</script>
+```
+
+### Action Buttons
+```vue
+<script setup lang="ts">
+const actionButtons = [
+  {
+    label: 'Edit',
+    color: 'primary',
+    variant: 'soft',
+    icon: 'i-lucide-edit',
+    onClick: (row: Row) => editRow(row)
+  },
+  {
+    label: 'Delete',
+    color: 'error',
+    variant: 'soft',
+    icon: 'i-lucide-trash',
+    onClick: (row: Row) => deleteRow(row)
+  }
+]
+</script>
+```
+
+### Responsive Design
+```vue
+<script setup lang="ts">
+const isFullscreen = ref(false)
+
+const handleResize = () => {
+  isFullscreen.value = window.innerWidth >= 1920
+}
+
+onMounted(() => {
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
+
+const columns = computed(() => [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+    size: isFullscreen.value ? 300 : 200
+  }
+])
+</script>
+```
+
+## Migration from Nuxt UI v3
+
+### Key Changes
+- **TanStack Table v8** instead of custom table logic
+- **Enhanced TypeScript support** with better type inference
+- **Improved performance** with built-in optimizations
+- **Better accessibility** with ARIA support
+- **More flexible column configuration** with meta properties
+
+### Migration Steps
+1. **Update column definitions** to use TanStack Table format
+2. **Replace custom sorting/filtering** with TanStack Table features
+3. **Update event handlers** to use new event system
+4. **Test accessibility** with screen readers
+5. **Optimize performance** with new features
+
+## Testing Considerations
+
+### Component Testing
+- **Test column rendering** and cell content
+- **Test sorting and filtering** functionality
+- **Test row selection** and bulk operations
+- **Test responsive behavior** across screen sizes
+- **Test accessibility** with screen readers
+
+### Integration Testing
+- **Test data loading** and error states
+- **Test pagination** and infinite scroll
+- **Test export functionality** if implemented
+- **Test performance** with large datasets
+- **Test user interactions** and state changes
+
+## Resources
+
+- [Nuxt UI v4 Table Documentation](https://ui.nuxt.com/docs/components/table)
+- [TanStack Table v8 Documentation](https://tanstack.com/table/latest/docs/introduction)
+- [Vue 3 Composition API](https://vuejs.org/guide/composition-api/)
+- [TypeScript Best Practices](https://typescript-eslint.io/rules/)

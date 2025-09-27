@@ -1,0 +1,604 @@
+---
+alwaysApply: true
+description: Nuxt UI v4 Container component usage guidelines and best practices
+---
+
+# Nuxt UI v4 Container Component Usage
+
+This project uses Nuxt UI v4's Container component for centering and constraining content width. Follow these guidelines for consistent, responsive, and well-structured layout implementations.
+
+## Core Principles
+
+### Component Usage
+- **Always use `UContainer`** for main content areas
+- **Use for responsive width constraints** and centering
+- **Implement consistent spacing** across all pages
+- **Follow responsive design patterns** for different screen sizes
+
+### Layout Guidelines
+- **Use containers for main content** areas
+- **Maintain consistent max-width** across the application
+- **Implement proper responsive padding** for mobile and desktop
+- **Center content** for better readability
+
+## Basic Usage
+
+### Simple Container
+```vue
+<template>
+  <UContainer>
+    <h1>Page Title</h1>
+    <p>This content is centered and constrained to a maximum width.</p>
+  </UContainer>
+</template>
+```
+
+### Container with Cards
+```vue
+<template>
+  <UContainer>
+    <div class="space-y-6">
+      <UCard>
+        <template #header>
+          <h2 class="text-xl font-semibold">Welcome</h2>
+        </template>
+        <p>This card is contained within the responsive container.</p>
+      </UCard>
+      
+      <UCard>
+        <template #header>
+          <h2 class="text-xl font-semibold">Features</h2>
+        </template>
+        <p>Another card with consistent spacing.</p>
+      </UCard>
+    </div>
+  </UContainer>
+</template>
+```
+
+### Container with Grid Layout
+```vue
+<template>
+  <UContainer>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <UCard v-for="item in items" :key="item.id">
+        <template #header>
+          <h3 class="font-semibold">{{ item.title }}</h3>
+        </template>
+        <p>{{ item.description }}</p>
+      </UCard>
+    </div>
+  </UContainer>
+</template>
+```
+
+## Layout Patterns
+
+### Page Layout with Container
+```vue
+<template>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <AppHeader />
+    
+    <main>
+      <UContainer>
+        <div class="py-8">
+          <h1 class="text-3xl font-bold mb-6">Page Title</h1>
+          <div class="prose max-w-none">
+            <p>Main content goes here...</p>
+          </div>
+        </div>
+      </UContainer>
+    </main>
+    
+    <AppFooter />
+  </div>
+</template>
+```
+
+### Container with Sidebar Layout
+```vue
+<template>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="flex">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+        <nav class="p-4">
+          <!-- Navigation items -->
+        </nav>
+      </aside>
+      
+      <!-- Main content -->
+      <main class="flex-1">
+        <UContainer>
+          <div class="py-8">
+            <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+            <!-- Dashboard content -->
+          </div>
+        </UContainer>
+      </main>
+    </div>
+  </div>
+</template>
+```
+
+### Full-width Hero with Container Content
+```vue
+<template>
+  <div>
+    <!-- Full-width hero section -->
+    <section class="bg-primary-600 text-white py-20">
+      <UContainer>
+        <div class="text-center">
+          <h1 class="text-4xl font-bold mb-4">Welcome to Our Platform</h1>
+          <p class="text-xl opacity-90">Build amazing applications with ease</p>
+        </div>
+      </UContainer>
+    </section>
+    
+    <!-- Contained content section -->
+    <section class="py-16">
+      <UContainer>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h2 class="text-2xl font-bold mb-4">Feature 1</h2>
+            <p>Description of the first feature...</p>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold mb-4">Feature 2</h2>
+            <p>Description of the second feature...</p>
+          </div>
+        </div>
+      </UContainer>
+    </section>
+  </div>
+</template>
+```
+
+## Responsive Design
+
+### Responsive Container Spacing
+```vue
+<template>
+  <UContainer>
+    <div class="py-4 sm:py-6 lg:py-8">
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 lg:mb-8">
+        Responsive Title
+      </h1>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <UCard v-for="item in items" :key="item.id">
+          <template #header>
+            <h3 class="text-lg sm:text-xl font-semibold">{{ item.title }}</h3>
+          </template>
+          <p class="text-sm sm:text-base">{{ item.description }}</p>
+        </UCard>
+      </div>
+    </div>
+  </UContainer>
+</template>
+```
+
+### Mobile-first Container Layout
+```vue
+<template>
+  <UContainer>
+    <div class="space-y-6 sm:space-y-8">
+      <!-- Mobile: stacked, Desktop: side-by-side -->
+      <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
+        <div class="flex-1">
+          <UCard>
+            <template #header>
+              <h2 class="text-lg sm:text-xl font-semibold">Left Content</h2>
+            </template>
+            <p>This content adapts to different screen sizes.</p>
+          </UCard>
+        </div>
+        
+        <div class="flex-1">
+          <UCard>
+            <template #header>
+              <h2 class="text-lg sm:text-xl font-semibold">Right Content</h2>
+            </template>
+            <p>This content also adapts responsively.</p>
+          </UCard>
+        </div>
+      </div>
+    </div>
+  </UContainer>
+</template>
+```
+
+## Content Organization
+
+### Container with Sections
+```vue
+<template>
+  <UContainer>
+    <div class="space-y-12">
+      <!-- Hero Section -->
+      <section class="text-center py-8">
+        <h1 class="text-3xl font-bold mb-4">Page Title</h1>
+        <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          Page description that explains what this page is about.
+        </p>
+      </section>
+      
+      <!-- Features Section -->
+      <section>
+        <h2 class="text-2xl font-bold mb-6">Features</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <UCard v-for="feature in features" :key="feature.id">
+            <template #header>
+              <div class="flex items-center gap-3">
+                <UIcon :name="feature.icon" class="w-6 h-6 text-primary" />
+                <h3 class="font-semibold">{{ feature.title }}</h3>
+              </div>
+            </template>
+            <p>{{ feature.description }}</p>
+          </UCard>
+        </div>
+      </section>
+      
+      <!-- CTA Section -->
+      <section class="text-center py-8">
+        <UCard variant="soft">
+          <h2 class="text-2xl font-bold mb-4">Ready to Get Started?</h2>
+          <p class="mb-6">Join thousands of users who are already using our platform.</p>
+          <UButton size="lg" icon="i-lucide-arrow-right">Get Started</UButton>
+        </UCard>
+      </section>
+    </div>
+  </UContainer>
+</template>
+```
+
+### Container with Form Layout
+```vue
+<template>
+  <UContainer>
+    <div class="max-w-2xl mx-auto py-8">
+      <UCard>
+        <template #header>
+          <h1 class="text-2xl font-bold">Contact Form</h1>
+          <p class="text-gray-600 dark:text-gray-400">Get in touch with us</p>
+        </template>
+        
+        <UForm :schema="schema" :state="state" @submit="onSubmit" class="space-y-6">
+          <UFormField label="Name" name="name" required>
+            <UInput v-model="state.name" placeholder="Your full name" />
+          </UFormField>
+          
+          <UFormField label="Email" name="email" required>
+            <UInput v-model="state.email" type="email" placeholder="your@email.com" />
+          </UFormField>
+          
+          <UFormField label="Message" name="message" required>
+            <UTextarea v-model="state.message" placeholder="Your message..." rows="5" />
+          </UFormField>
+        </UForm>
+        
+        <template #footer>
+          <div class="flex justify-end gap-3">
+            <UButton variant="soft" @click="onCancel">Cancel</UButton>
+            <UButton type="submit" :loading="isSubmitting">Send Message</UButton>
+          </div>
+        </template>
+      </UCard>
+    </div>
+  </UContainer>
+</template>
+```
+
+## Advanced Patterns
+
+### Container with Sticky Header
+```vue
+<template>
+  <div class="min-h-screen">
+    <!-- Sticky header -->
+    <header class="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+      <UContainer>
+        <div class="flex items-center justify-between py-4">
+          <h1 class="text-xl font-bold">Sticky Header</h1>
+          <nav class="flex gap-4">
+            <UButton variant="ghost" size="sm">Home</UButton>
+            <UButton variant="ghost" size="sm">About</UButton>
+            <UButton variant="ghost" size="sm">Contact</UButton>
+          </nav>
+        </div>
+      </UContainer>
+    </header>
+    
+    <!-- Main content -->
+    <main>
+      <UContainer>
+        <div class="py-8">
+          <h2 class="text-2xl font-bold mb-6">Main Content</h2>
+          <div class="space-y-6">
+            <UCard v-for="item in items" :key="item.id">
+              <p>{{ item.content }}</p>
+            </UCard>
+          </div>
+        </div>
+      </UContainer>
+    </main>
+  </div>
+</template>
+```
+
+### Container with Breadcrumbs
+```vue
+<template>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Breadcrumb navigation -->
+    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <UContainer>
+        <div class="py-4">
+          <UBreadcrumb :items="breadcrumbItems" />
+        </div>
+      </UContainer>
+    </nav>
+    
+    <!-- Main content -->
+    <main>
+      <UContainer>
+        <div class="py-8">
+          <h1 class="text-3xl font-bold mb-6">Page Title</h1>
+          <div class="prose max-w-none">
+            <p>Main content with proper breadcrumb navigation.</p>
+          </div>
+        </div>
+      </UContainer>
+    </main>
+  </div>
+</template>
+```
+
+### Container with Tabs
+```vue
+<template>
+  <UContainer>
+    <div class="py-8">
+      <h1 class="text-3xl font-bold mb-8">Dashboard</h1>
+      
+      <UTabs :items="tabs" class="w-full">
+        <template #overview="{ item }">
+          <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <UCard v-for="stat in stats" :key="stat.id">
+                <template #header>
+                  <div class="flex items-center gap-3">
+                    <UIcon :name="stat.icon" class="w-6 h-6 text-primary" />
+                    <h3 class="font-semibold">{{ stat.title }}</h3>
+                  </div>
+                </template>
+                <div class="text-2xl font-bold">{{ stat.value }}</div>
+              </UCard>
+            </div>
+          </div>
+        </template>
+        
+        <template #analytics="{ item }">
+          <div class="space-y-6">
+            <UCard>
+              <template #header>
+                <h3 class="text-lg font-semibold">Analytics</h3>
+              </template>
+              <p>Analytics content goes here...</p>
+            </UCard>
+          </div>
+        </template>
+      </UTabs>
+    </div>
+  </UContainer>
+</template>
+```
+
+## Performance Considerations
+
+### Lazy Loading with Container
+```vue
+<template>
+  <UContainer>
+    <div class="py-8">
+      <h1 class="text-2xl font-bold mb-6">Content List</h1>
+      
+      <div class="space-y-4">
+        <UCard v-for="item in visibleItems" :key="item.id">
+          <template #header>
+            <h3 class="font-semibold">{{ item.title }}</h3>
+          </template>
+          <p>{{ item.description }}</p>
+        </UCard>
+      </div>
+      
+      <!-- Load more button -->
+      <div class="text-center mt-8" v-if="hasMore">
+        <UButton @click="loadMore" :loading="isLoading">
+          Load More
+        </UButton>
+      </div>
+    </div>
+  </UContainer>
+</template>
+
+<script setup lang="ts">
+const visibleItems = ref([])
+const hasMore = ref(true)
+const isLoading = ref(false)
+
+const loadMore = async () => {
+  isLoading.value = true
+  // Load more items
+  isLoading.value = false
+}
+</script>
+```
+
+### Memoized Container Content
+```vue
+<script setup lang="ts">
+const processedContent = computed(() => {
+  return expensiveDataProcessing(rawData.value)
+})
+</script>
+
+<template>
+  <UContainer>
+    <div class="py-8">
+      <h1 class="text-2xl font-bold mb-6">Processed Data</h1>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <UCard v-for="item in processedContent" :key="item.id">
+          <template #header>
+            <h3 class="font-semibold">{{ item.title }}</h3>
+          </template>
+          <p>{{ item.processedValue }}</p>
+        </UCard>
+      </div>
+    </div>
+  </UContainer>
+</template>
+```
+
+## Accessibility
+
+### Semantic Container Structure
+```vue
+<template>
+  <UContainer>
+    <main>
+      <header class="mb-8">
+        <h1 class="text-3xl font-bold">Page Title</h1>
+        <p class="text-gray-600 dark:text-gray-400">Page description</p>
+      </header>
+      
+      <section aria-labelledby="features-heading">
+        <h2 id="features-heading" class="text-2xl font-bold mb-6">Features</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <article v-for="feature in features" :key="feature.id">
+            <UCard>
+              <template #header>
+                <h3 class="font-semibold">{{ feature.title }}</h3>
+              </template>
+              <p>{{ feature.description }}</p>
+            </UCard>
+          </article>
+        </div>
+      </section>
+    </main>
+  </UContainer>
+</template>
+```
+
+### ARIA Labels and Roles
+```vue
+<template>
+  <UContainer>
+    <div role="main" aria-label="Main content">
+      <h1 class="text-3xl font-bold mb-6">Accessible Content</h1>
+      
+      <section role="region" aria-labelledby="content-heading">
+        <h2 id="content-heading" class="text-2xl font-bold mb-4">Content Section</h2>
+        <p>This content is properly labeled for screen readers.</p>
+      </section>
+    </div>
+  </UContainer>
+</template>
+```
+
+## Integration with Other Components
+
+### Container with Navigation
+```vue
+<template>
+  <div class="min-h-screen">
+    <AppHeader />
+    
+    <main>
+      <UContainer>
+        <div class="py-8">
+          <h1 class="text-3xl font-bold mb-6">Page Content</h1>
+          <div class="prose max-w-none">
+            <p>Main content with proper navigation integration.</p>
+          </div>
+        </div>
+      </UContainer>
+    </main>
+    
+    <AppFooter />
+  </div>
+</template>
+```
+
+### Container with Sidebar Navigation
+```vue
+<template>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="flex">
+      <!-- Sidebar -->
+      <AppSidebar />
+      
+      <!-- Main content -->
+      <main class="flex-1">
+        <UContainer>
+          <div class="py-8">
+            <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <UCard v-for="item in dashboardItems" :key="item.id">
+                <template #header>
+                  <h3 class="font-semibold">{{ item.title }}</h3>
+                </template>
+                <p>{{ item.description }}</p>
+              </UCard>
+            </div>
+          </div>
+        </UContainer>
+      </main>
+    </div>
+  </div>
+</template>
+```
+
+## Testing Considerations
+
+### Component Testing
+- **Test container structure** and content rendering
+- **Test responsive behavior** across screen sizes
+- **Test accessibility** with screen readers
+- **Test content centering** and width constraints
+
+### Integration Testing
+- **Test container with navigation** components
+- **Test container with forms** and interactive elements
+- **Test container with cards** and other UI components
+- **Test performance** with large content
+
+## Best Practices
+
+### Content Organization
+- **Use semantic HTML** elements within containers
+- **Maintain consistent spacing** and padding
+- **Implement proper heading hierarchy** for accessibility
+- **Group related content** logically
+
+### Responsive Design
+- **Test on multiple screen sizes** during development
+- **Use responsive utilities** for spacing and typography
+- **Implement mobile-first** design approach
+- **Ensure touch-friendly** interactions on mobile
+
+### Performance
+- **Lazy load** large content sections
+- **Memoize expensive** content processing
+- **Optimize images** and media content
+- **Use virtual scrolling** for very large lists
+
+## Resources
+
+- [Nuxt UI v4 Container Documentation](https://ui.nuxt.com/docs/components/container)
+- [Vue 3 Composition API](https://vuejs.org/guide/composition-api/)
+- [CSS Grid Layout](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout)
+- [Responsive Design Principles](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Responsive_Design)
+- [Accessibility Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)

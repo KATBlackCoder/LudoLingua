@@ -242,7 +242,7 @@ import { useLanguageStore } from "~/stores/language";
 import { useAppToast } from "~/composables/useAppToast";
 import { useEngineStore } from "~/stores/engine";
 import { useNotifications } from "~/composables/useNotifications";
-// @ts-expect-error - TanStack Table import
+import { getPlaceholderFilterOptions, extractPlaceholderTypes } from "~/utils/translation";
 import { getPaginationRowModel } from '@tanstack/vue-table'
 
 const props = defineProps<{ items: TextUnit[] }>();
@@ -332,80 +332,11 @@ const placeholderOptions = computed(() => {
   // Scan all text units for placeholder patterns
   rows.value.forEach((row) => {
     const text = `${row.source_text} ${row.translated_text}`;
-    // Match patterns like [NEWLINE_1], [COLOR_6], [VARIABLE_16], etc.
-    const matches = text.match(/\[([A-Z_]+)_\d+\]/g);
-    if (matches) {
-      matches.forEach((match) => {
-        const placeholderType = match
-          .replace(/\[|\]/g, "")
-          .replace(/_\d+$/, "");
-        existingPlaceholders.add(placeholderType);
-      });
-    }
+    const placeholders = extractPlaceholderTypes(text);
+    placeholders.forEach(type => existingPlaceholders.add(type));
   });
 
-  // Comprehensive list of all possible placeholder types from documentation
-  const allPlaceholderTypes = [
-    // Common placeholders
-    "ARG",
-    "NUM_PREFIX",
-    "FWSPC",
-    "SPC",
-    "TAB",
-    "NEWLINE",
-    "CARRIAGE_RETURN",
-    "CTRL_DOT",
-    "CTRL_WAIT",
-    "CTRL_INSTANT",
-    "CTRL_INPUT",
-
-    // RPG Maker placeholders
-    "COLOR",
-    "NAME",
-    "VARIABLE",
-    "variable",
-    "SWITCH",
-    "ITEM",
-    "WEAPON",
-    "ARMOR",
-    "ACTOR",
-    "GOLD",
-    "CURRENCY",
-    "CONDITIONAL",
-
-    // Wolf RPG placeholders
-    "ICON",
-    "FONT",
-    "WOLF_END",
-    "RUBY_START",
-    "AT",
-    "SLOT",
-    "CSELF",
-
-    // Additional patterns found in your data
-    "AWSPC",
-    "BACKGROUND",
-    "BASE",
-    "BONE_CREAK",
-    "IWSPC",
-    "I_FSPC",
-  ];
-
-  // Filter to only show placeholders that exist in current data
-  const availablePlaceholders = allPlaceholderTypes.filter((type) =>
-    existingPlaceholders.has(type)
-  );
-
-  // Convert to select options format
-  const options = [
-    { label: "All placeholders", value: "all" },
-    ...availablePlaceholders.sort().map((placeholder) => ({
-      label: `[${placeholder}_*]`,
-      value: placeholder,
-    })),
-  ];
-
-  return options;
+  return getPlaceholderFilterOptions(existingPlaceholders);
 });
 
 const filteredRows = computed(() => {
@@ -518,7 +449,7 @@ const selectedRows = computed((): Row[] => {
 
 const columns: TableColumn<Row>[] = [
   {
-    id: "select",
+    accessorKey: "select",
     header: ({ table }) => {
       const UCheckbox = resolveComponent("UCheckbox") as Component;
       return h(UCheckbox, {
@@ -598,7 +529,7 @@ const columns: TableColumn<Row>[] = [
         }, {
           default: () => h("div", {
             class: `${maxWidth} truncate cursor-help`
-          }, text.substring(0, isFullscreen.value ? 150 : 100) + " (long)")
+          }, text.substring(0, isFullscreen.value ? 150 : 100) + " [NEXT_LIGNE]")
         });
       }
       
@@ -625,7 +556,7 @@ const columns: TableColumn<Row>[] = [
         }, {
           default: () => h("div", {
             class: `${maxWidth} truncate cursor-help`
-          }, text.substring(0, isFullscreen.value ? 150 : 100) + " (long)")
+          }, text.substring(0, isFullscreen.value ? 150 : 100) + " [NEXT_LIGNE]")
         });
       }
       
