@@ -58,10 +58,10 @@
   - `TranslationRowActions.vue` (~100 lines)
 - [x] ✅ `TranslationTable.vue`: Removed (replaced by modern `TranslationView.vue`)
 - [ ] Simplify `GlossaryTable.vue` (reduce from 282 to ~100 lines)
-- [ ] Migrate `TranslationRaw.vue` to TanStack Table pagination
+- [x] ✅ `TranslationRaw.vue`: Migrated to DataTable component with utility functions
 - [x] ✅ `TranslationTable.vue`: Removed (replaced by modern `TranslationView.vue`)
 - [ ] Migrate `GlossaryTable.vue` to TanStack Table pagination
-- [ ] Migrate `TranslationProcess.vue` to TanStack Table pagination
+- [x] ✅ `TranslationProcess.vue`: Migrated to DataTable component with utility functions
 - [ ] Standardize all table components to use TanStack Table
 
 ##### 4. Refactor Modal Components

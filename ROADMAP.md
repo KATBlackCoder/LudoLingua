@@ -46,6 +46,8 @@ Refactor oversized components and eliminate code duplication to improve maintain
    - Create unified `usePagination.ts` composable
    - Eliminate mixed pagination systems (TanStack vs manual)
    - Ensure consistent pagination behavior across all tables
+   - ✅ `TranslationProcess.vue`: Migrated to DataTable component with utility functions
+   - ✅ `TranslationRaw.vue`: Migrated to DataTable component with utility functions
 
 7. **Selection & Bulk Actions Standardization**
    - Create pure `useTableSelection.ts` for selection state management

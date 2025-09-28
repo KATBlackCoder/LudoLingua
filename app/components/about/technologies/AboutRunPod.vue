@@ -57,7 +57,7 @@
                     variant="soft" 
                     icon="i-lucide-hard-drive"
                     title="Storage Requirements"
-                    description="Minimum 50GB storage required for both models (qwen2.5:14b ~20GB + qwen3:14b ~20GB + system overhead). Storage optimization: If you only need one model, you can remove one line from the container command and use 30GB storage instead (single model ~20GB + system overhead)."
+                    description="Minimum 60GB storage required for both models (qwen3:30b ~19GB + deepseek-r1:32b ~20GB + system overhead). Storage optimization: If you only need one model, you can remove one line from the container command and use 40GB storage instead (single model ~20GB + system overhead)."
                   />
                   
                   <UAlert 
@@ -74,7 +74,7 @@
                         <UIcon name="i-lucide-zap" class="text-success w-4 h-4" />
                         <span class="font-medium text-success-800 dark:text-success-200">RTX 4090 (24GB)</span>
                       </div>
-                      <p class="text-xs text-success-700 dark:text-success-300">For 13B+ models</p>
+                      <p class="text-xs text-success-700 dark:text-success-300">Required for 30B+ models</p>
                     </UCard>
                     
                     <UCard class="p-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800">
@@ -82,7 +82,7 @@
                         <UIcon name="i-lucide-cpu" class="text-primary w-4 h-4" />
                         <span class="font-medium text-primary-800 dark:text-primary-200">RTX 3080/4080 (12GB)</span>
                       </div>
-                      <p class="text-xs text-primary-700 dark:text-primary-300">For 7B-8B models</p>
+                      <p class="text-xs text-primary-700 dark:text-primary-300">For 14B models only</p>
                     </UCard>
                     
                     <UCard class="p-3 bg-neutral-50 dark:bg-neutral-900/20 border border-neutral-200 dark:border-neutral-800">
@@ -90,7 +90,7 @@
                         <UIcon name="i-lucide-cpu" class="text-neutral-600 dark:text-neutral-400 w-4 h-4" />
                         <span class="font-medium text-neutral-800 dark:text-neutral-200">RTX 3060 (12GB)</span>
                       </div>
-                      <p class="text-xs text-neutral-700 dark:text-neutral-300">For 7B models (Q4 quantization)</p>
+                      <p class="text-xs text-neutral-700 dark:text-neutral-300">Not recommended for 30B+ models</p>
                     </UCard>
                   </div>
                 </div>
@@ -132,7 +132,7 @@
                   icon="i-lucide-info" 
                   class="mt-3"
                   title="Pre-configured Models"
-                  description="This command installs the models that LudoLingua supports: qwen2.5:14b and qwen3:14b. You'll select from these models in the LudoLingua settings. Single model option: To save storage space, you can remove either ollama pull qwen2.5:14b && or ollama pull qwen3:14b && from the command above. This reduces storage requirement to 30GB."
+                  description="This command installs the models that LudoLingua supports: qwen3:30b (256K context, superior Japanese→English) and deepseek-r1:32b (advanced reasoning, adult content). You'll select from these models in the LudoLingua settings. Single model option: To save storage space, you can remove either ollama pull qwen3:30b && or ollama pull deepseek-r1:32b && from the command above. This reduces storage requirement to 40GB."
                 />
               </div>
             </div>
@@ -154,27 +154,7 @@
                   <UCard class="bg-gray-50 dark:bg-gray-800 p-3">
                     <div class="flex items-center gap-2 mb-2">
                       <UIcon name="i-lucide-brain" class="text-primary w-4 h-4" />
-                      <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Qwen2.5:14b only (30GB storage)</span>
-                    </div>
-                    <div class="flex items-start justify-between gap-2">
-                      <pre class="text-xs overflow-x-auto flex-1 font-mono"><code>{{ singleModelCommandQwen25 }}</code></pre>
-                      <UTooltip text="Copy to clipboard" :content="{ side: 'left' }">
-                        <UButton
-                          :color="copiedQwen25 ? 'success' : 'neutral'"
-                          variant="link"
-                          size="sm"
-                          :icon="copiedQwen25 ? 'i-lucide-copy-check' : 'i-lucide-copy'"
-                          aria-label="Copy to clipboard"
-                          @click="copyQwen25(singleModelCommandQwen25)"
-                        />
-                      </UTooltip>
-                    </div>
-                  </UCard>
-                  
-                  <UCard class="bg-gray-50 dark:bg-gray-800 p-3">
-                    <div class="flex items-center gap-2 mb-2">
-                      <UIcon name="i-lucide-brain" class="text-info w-4 h-4" />
-                      <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Qwen3:14b only (30GB storage)</span>
+                      <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Qwen3:30b only (40GB storage)</span>
                     </div>
                     <div class="flex items-start justify-between gap-2">
                       <pre class="text-xs overflow-x-auto flex-1 font-mono"><code>{{ singleModelCommandQwen3 }}</code></pre>
@@ -186,6 +166,26 @@
                           :icon="copiedQwen3 ? 'i-lucide-copy-check' : 'i-lucide-copy'"
                           aria-label="Copy to clipboard"
                           @click="copyQwen3(singleModelCommandQwen3)"
+                        />
+                      </UTooltip>
+                    </div>
+                  </UCard>
+                  
+                  <UCard class="bg-gray-50 dark:bg-gray-800 p-3">
+                    <div class="flex items-center gap-2 mb-2">
+                      <UIcon name="i-lucide-brain" class="text-info w-4 h-4" />
+                      <span class="text-xs font-medium text-gray-700 dark:text-gray-300">DeepSeek-R1:32b only (40GB storage)</span>
+                    </div>
+                    <div class="flex items-start justify-between gap-2">
+                      <pre class="text-xs overflow-x-auto flex-1 font-mono"><code>{{ singleModelCommandDeepSeek }}</code></pre>
+                      <UTooltip text="Copy to clipboard" :content="{ side: 'left' }">
+                        <UButton
+                          :color="copiedDeepSeek ? 'success' : 'neutral'"
+                          variant="link"
+                          size="sm"
+                          :icon="copiedDeepSeek ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                          aria-label="Copy to clipboard"
+                          @click="copyDeepSeek(singleModelCommandDeepSeek)"
                         />
                       </UTooltip>
                     </div>
@@ -230,7 +230,7 @@
                 <ul class="list-disc pl-5 space-y-1 text-sm mb-3">
                   <li><strong>Provider:</strong> RunPod</li>
                   <li><strong>Pod ID:</strong> <code>abc123def456</code> (just the pod ID, not the full URL)</li>
-                  <li><strong>Model:</strong> Select from available models (Qwen2.5 14B or qwen3 14b)</li>
+                  <li><strong>Model:</strong> Select from available models (Qwen3 30B or DeepSeek-R1 32B)</li>
                 </ul>
                 
                 <UAlert 
@@ -271,24 +271,24 @@
               </div>
               <div class="space-y-2 text-sm">
                 <div><strong>VRAM:</strong> 24GB</div>
-                <div><strong>Storage:</strong> 50GB+ (recommended)</div>
-                <div><strong>Models:</strong> Qwen2.5:14b, qwen3:14b</div>
+                <div><strong>Storage:</strong> 60GB+ (recommended)</div>
+                <div><strong>Models:</strong> Qwen3:30b, DeepSeek-R1:32b</div>
                 <div><strong>Cost:</strong> ~$0.79/hour</div>
-                <div><strong>Best for:</strong> Large projects, high-quality translations</div>
+                <div><strong>Best for:</strong> Adult RPG translation, high-quality reasoning</div>
               </div>
             </UCard>
             
             <UCard class="p-4 bg-neutral-50 dark:bg-neutral-900/20 border border-neutral-200 dark:border-neutral-800">
               <div class="flex items-center gap-2 mb-3">
-                <UBadge color="neutral" variant="soft" size="sm">Balanced</UBadge>
+                <UBadge color="neutral" variant="soft" size="sm">Not Recommended</UBadge>
                 <span class="font-medium text-gray-900 dark:text-white">RTX 3080/4080</span>
               </div>
               <div class="space-y-2 text-sm">
                 <div><strong>VRAM:</strong> 12GB</div>
-                <div><strong>Storage:</strong> 50GB+ (minimum)</div>
-                <div><strong>Models:</strong> Qwen2.5:14b, qwen3:14b (may require quantization)</div>
+                <div><strong>Storage:</strong> 60GB+ (minimum)</div>
+                <div><strong>Models:</strong> Insufficient VRAM for 30B+ models</div>
                 <div><strong>Cost:</strong> ~$0.34/hour</div>
-                <div><strong>Best for:</strong> Most translation tasks, cost-effective</div>
+                <div><strong>Best for:</strong> Not suitable for 30B+ models</div>
               </div>
             </UCard>
             </div>
@@ -309,7 +309,7 @@
               <li><strong>Use spot instances:</strong> Save up to 80% on costs with RunPod spot pricing</li>
               <li><strong>Auto-shutdown:</strong> Configure auto-shutdown after inactivity to avoid unnecessary charges</li>
               <li><strong>Right-size your instance:</strong> Choose the minimum VRAM needed for your model</li>
-              <li><strong>Storage optimization:</strong> Use exactly 50GB for both models or 30GB for single model to minimize costs</li>
+              <li><strong>Storage optimization:</strong> Use exactly 60GB for both models or 40GB for single model to minimize costs</li>
               <li><strong>Batch processing:</strong> Process multiple translations in one session to maximize efficiency</li>
             </ul>
             
@@ -348,9 +348,10 @@
             <div>
               <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Model Issues</h4>
               <ul class="list-disc pl-5 space-y-1 text-sm">
-                <li>Check if both models (qwen2.5:14b and qwen3:14b) were successfully pulled</li>
+                <li>Check if both models (qwen3:30b and deepseek-r1:32b) were successfully pulled</li>
                 <li>Ensure the model name matches exactly in LudoLingua settings</li>
                 <li>Both models should be available in the LudoLingua model dropdown</li>
+                <li>Verify you have sufficient VRAM (24GB+) for 30B+ models</li>
               </ul>
             </div>
           </div>
@@ -362,25 +363,16 @@
 
 <script setup lang="ts">
 const { copy, copied } = useClipboard()
-const { copy: copyQwen25, copied: copiedQwen25 } = useClipboard()
 const { copy: copyQwen3, copied: copiedQwen3 } = useClipboard()
+const { copy: copyDeepSeek, copied: copiedDeepSeek } = useClipboard()
 
 const containerCommand = ref(`bash -c "
 apt update && apt install -y curl lshw &&
 curl -fsSL https://ollama.com/install.sh | sh &&
 nohup ollama serve > /root/ollama.log 2>&1 &
 sleep 60 &&
-ollama pull qwen2.5:14b-instruct-q5_K_M &&
-ollama pull qwen3:14b-q4_K_M &&
-sleep infinity
-"`)
-
-const singleModelCommandQwen25 = ref(`bash -c "
-apt update && apt install -y curl lshw &&
-curl -fsSL https://ollama.com/install.sh | sh &&
-nohup ollama serve > /root/ollama.log 2>&1 &
-sleep 60 &&
-ollama pull qwen2.5:14b-instruct-q5_K_M &&
+ollama pull qwen3:30b &&
+ollama pull deepseek-r1:32b &&
 sleep infinity
 "`)
 
@@ -389,7 +381,16 @@ apt update && apt install -y curl lshw &&
 curl -fsSL https://ollama.com/install.sh | sh &&
 nohup ollama serve > /root/ollama.log 2>&1 &
 sleep 60 &&
-ollama pull qwen3:14b-q4_K_M &&
+ollama pull qwen3:30b &&
+sleep infinity
+"`)
+
+const singleModelCommandDeepSeek = ref(`bash -c "
+apt update && apt install -y curl lshw &&
+curl -fsSL https://ollama.com/install.sh | sh &&
+nohup ollama serve > /root/ollama.log 2>&1 &
+sleep 60 &&
+ollama pull deepseek-r1:32b &&
 sleep infinity
 "`)
 </script>

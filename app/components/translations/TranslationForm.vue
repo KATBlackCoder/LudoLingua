@@ -192,11 +192,11 @@ function getStatusLabel(status: TranslationStatus): string {
 
 function getStatusColor(status: TranslationStatus): string {
   switch (status) {
-    case TranslationStatus.NotTranslated: return 'gray'
-    case TranslationStatus.MachineTranslated: return 'yellow'
-    case TranslationStatus.HumanReviewed: return 'green'
-    case TranslationStatus.Ignored: return 'red'
-    default: return 'gray'
+    case TranslationStatus.NotTranslated: return 'neutral'
+    case TranslationStatus.MachineTranslated: return 'warning'
+    case TranslationStatus.HumanReviewed: return 'success'
+    case TranslationStatus.Ignored: return 'error'
+    default: return 'neutral'
   }
 }
 

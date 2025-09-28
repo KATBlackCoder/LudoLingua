@@ -1,16 +1,55 @@
 {
     "models": [
         {
-            "display_name": "Qwen2.5 (Multilingual)",
-            "model_name": "qwen2.5:latest",
+            "display_name": "Qwen2.5 7B",
+            "model_name": "qwen2.5:7b",
             "provider": "Ollama",
-            "description": "Qwen2.5 with superior multilingual capabilities, especially strong for Asian languages (Chinese, Japanese, Korean) and technical translation",
+            "description": "Qwen2.5 7B - Lightweight model with excellent multilingual capabilities, especially strong for Asian languages. Perfect for quick translations and UI text. No content filtering.",
             "pricing": {
                 "input_price_per_1k": 0.0,
                 "output_price_per_1k": 0.0,
                 "currency": "USD"
             },
             "context_window": 131072,
+            "enabled": true
+        },
+        {
+            "display_name": "DeepSeek-R1 8B",
+            "model_name": "deepseek-r1:8b",
+            "provider": "Ollama",
+            "description": "DeepSeek-R1 8B - Compact reasoning model with advanced context understanding for complex adult themes and character relationships. Excellent for RPG dialogue translation.",
+            "pricing": {
+                "input_price_per_1k": 0.0,
+                "output_price_per_1k": 0.0,
+                "currency": "USD"
+            },
+            "context_window": 8192,
+            "enabled": true
+        },
+        {
+            "display_name": "Qwen3 30B",
+            "model_name": "qwen3:30b",
+            "provider": "Ollama",
+            "description": "Qwen3 30B - Advanced model with 256K context window, superior Japanese→English translation, and excellent adult content handling. Perfect for complex RPG texts with long context requirements.",
+            "pricing": {
+                "input_price_per_1k": 0.0,
+                "output_price_per_1k": 0.0,
+                "currency": "USD"
+            },
+            "context_window": 262144,
+            "enabled": true
+        },
+        {
+            "display_name": "DeepSeek-R1 32B",
+            "model_name": "deepseek-r1:32b",
+            "provider": "Ollama",
+            "description": "DeepSeek-R1 32B - Advanced reasoning model with superior context understanding for complex adult themes, character relationships, and RPG terminology consistency. No content filtering.",
+            "pricing": {
+                "input_price_per_1k": 0.0,
+                "output_price_per_1k": 0.0,
+                "currency": "USD"
+            },
+            "context_window": 8192,
             "enabled": true
         }
     ]

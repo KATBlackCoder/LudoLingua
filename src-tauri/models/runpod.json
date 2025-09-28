@@ -1,29 +1,29 @@
 {
     "models": [
         {
-            "display_name": "Qwen2.5 14B",
-            "model_name": "qwen2.5:14b-instruct-q5_K_M",
+            "display_name": "Qwen3 30B",
+            "model_name": "qwen3:30b",
             "provider": "RunPod",
-            "description": "Qwen2.5 14B - Ollama's latest model with 128K context, 140+ languages support, and excellent translation quality. Perfect for complex RPG texts",
+            "description": "Qwen3 30B - Advanced model with 256K context window, superior Japanese→English translation, and excellent adult content handling. Perfect for complex RPG texts with long context requirements.",
             "pricing": {
                 "input_price_per_1k": 0.0,
                 "output_price_per_1k": 0.0,
                 "currency": "USD"
             },
-            "context_window": 131072,
+            "context_window": 262144,
             "enabled": true
         },
         {
-            "display_name": "qwen3 14b",
-            "model_name": "qwen3:14b-q4_K_M",
+            "display_name": "DeepSeek-R1 32B",
+            "model_name": "deepseek-r1:32b",
             "provider": "RunPod",
-            "description": "Qwen3 14B - Ollama's latest model with 128K context, 140+ languages support, and excellent translation quality. Perfect for complex RPG texts",
+            "description": "DeepSeek-R1 32B - Advanced reasoning model with superior context understanding for complex adult themes, character relationships, and RPG terminology consistency. No content filtering.",
             "pricing": {
                 "input_price_per_1k": 0.0,
                 "output_price_per_1k": 0.0,
                 "currency": "USD"
             },
-            "context_window": 131072,
+            "context_window": 8192,
             "enabled": true
         }
     ]

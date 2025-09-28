@@ -515,7 +515,7 @@ const columns: TableColumn<Row>[] = [
     },
     enableSorting: true,
   },
-  /*{
+  {
     accessorKey: "field_type",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
@@ -534,7 +534,7 @@ const columns: TableColumn<Row>[] = [
       });
     },
     enableSorting: true,
-  },*/
+  },
   { 
     accessorKey: "source_text", 
     header: "Source", 

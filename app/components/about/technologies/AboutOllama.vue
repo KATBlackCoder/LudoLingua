@@ -71,7 +71,7 @@
                 <h4 class="font-semibold text-gray-900 dark:text-white mb-1">Pull a Model</h4>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Install a model for translation:</p>
                 <UCard class="bg-gray-50 dark:bg-gray-800 p-3">
-                  <code class="text-sm font-mono">ollama pull qwen2.5:14b-instruct-q5_K_M</code>
+                  <code class="text-sm font-mono">ollama pull qwen2.5:7b</code>
                 </UCard>
               </div>
             </div>
@@ -145,10 +145,10 @@
                 <ul class="list-disc pl-5 space-y-1 text-sm">
                   <li><strong>CPU:</strong> 8+ physical cores</li>
                   <li><strong>RAM:</strong> 32+ GB</li>
-                  <li><strong>VRAM:</strong> 16–24 GB</li>
-                  <li><strong>Models:</strong> 13B Q4 or 7–8B higher quant</li>
+                  <li><strong>VRAM:</strong> 20–24 GB</li>
+                  <li><strong>Models:</strong> 30B+ models (Qwen3:30b, DeepSeek-R1:32b)</li>
                   <li><strong>Parallelism:</strong> 3–4</li>
-                  <li class="text-gray-500 dark:text-gray-400">Best latency and longer generations (num_predict 512+).</li>
+                  <li class="text-gray-500 dark:text-gray-400">Required for 30B+ models with adult content capabilities.</li>
                 </ul>
               </UCard>
             </div>
@@ -157,7 +157,7 @@
               color="neutral" 
               variant="soft" 
               icon="i-lucide-info"
-              description="Actual capacity depends on quantization, drivers, and model family. For most projects, a 7–8B Q4/Q5 model on an 8–12 GB GPU is sufficient."
+              description="Actual capacity depends on quantization, drivers, and model family. For adult RPG translation, 30B+ models provide superior quality but require 20GB+ VRAM. For budget setups, 7-8B models work well for basic translation tasks."
             />
           </div>
         </UCard>
@@ -173,27 +173,57 @@
           
           <div class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UCard class="p-4 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800">
-                <div class="flex items-center gap-2 mb-3">
-                  <UBadge color="primary" variant="soft" size="sm">Translation</UBadge>
-                  <span class="font-medium text-gray-900 dark:text-white">Qwen2.5:14b</span>
-                </div>
-                <div class="space-y-2 text-sm">
-                  <div><strong>Size:</strong> ~8GB (Q4 quantization)</div>
-                  <div><strong>Best for:</strong> High-quality translations, dialogue, and complex text</div>
-                  <div><strong>Requirements:</strong> 8GB+ VRAM or 16GB+ RAM</div>
-                </div>
-              </UCard>
-              
               <UCard class="p-4 bg-neutral-50 dark:bg-neutral-900/20 border border-neutral-200 dark:border-neutral-800">
                 <div class="flex items-center gap-2 mb-3">
                   <UBadge color="neutral" variant="soft" size="sm">Lightweight</UBadge>
                   <span class="font-medium text-gray-900 dark:text-white">Qwen2.5:7b</span>
                 </div>
                 <div class="space-y-2 text-sm">
-                  <div><strong>Size:</strong> ~4GB (Q4 quantization)</div>
+                  <div><strong>Size:</strong> ~4GB</div>
                   <div><strong>Best for:</strong> Quick translations, UI text, and basic content</div>
                   <div><strong>Requirements:</strong> 4GB+ VRAM or 8GB+ RAM</div>
+                  <div><strong>Adult content:</strong> No content filtering</div>
+                </div>
+              </UCard>
+              
+              <UCard class="p-4 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800">
+                <div class="flex items-center gap-2 mb-3">
+                  <UBadge color="primary" variant="soft" size="sm">Reasoning</UBadge>
+                  <span class="font-medium text-gray-900 dark:text-white">DeepSeek-R1:8b</span>
+                </div>
+                <div class="space-y-2 text-sm">
+                  <div><strong>Size:</strong> ~5GB</div>
+                  <div><strong>Best for:</strong> Complex adult themes, character relationships</div>
+                  <div><strong>Requirements:</strong> 6GB+ VRAM or 12GB+ RAM</div>
+                  <div><strong>Adult content:</strong> Advanced reasoning for mature themes</div>
+                </div>
+              </UCard>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <UCard class="p-4 bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800">
+                <div class="flex items-center gap-2 mb-3">
+                  <UBadge color="success" variant="soft" size="sm">Premium</UBadge>
+                  <span class="font-medium text-gray-900 dark:text-white">Qwen3:30b</span>
+                </div>
+                <div class="space-y-2 text-sm">
+                  <div><strong>Size:</strong> ~19GB</div>
+                  <div><strong>Best for:</strong> 256K context, superior Japanese→English</div>
+                  <div><strong>Requirements:</strong> 20GB+ VRAM</div>
+                  <div><strong>Adult content:</strong> Excellent adult content handling</div>
+                </div>
+              </UCard>
+              
+              <UCard class="p-4 bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800">
+                <div class="flex items-center gap-2 mb-3">
+                  <UBadge color="success" variant="soft" size="sm">Premium</UBadge>
+                  <span class="font-medium text-gray-900 dark:text-white">DeepSeek-R1:32b</span>
+                </div>
+                <div class="space-y-2 text-sm">
+                  <div><strong>Size:</strong> ~20GB</div>
+                  <div><strong>Best for:</strong> Advanced reasoning, character consistency</div>
+                  <div><strong>Requirements:</strong> 24GB+ VRAM</div>
+                  <div><strong>Adult content:</strong> Superior adult theme understanding</div>
                 </div>
               </UCard>
             </div>
@@ -203,7 +233,7 @@
               variant="soft" 
               icon="i-lucide-info"
               title="Model Installation"
-              description="Install models using: ollama pull qwen2.5:14b or ollama pull qwen2.5:7b"
+              description="Install models using: ollama pull qwen2.5:7b, ollama pull deepseek-r1:8b, ollama pull qwen3:30b, or ollama pull deepseek-r1:32b"
             />
           </div>
         </UCard>

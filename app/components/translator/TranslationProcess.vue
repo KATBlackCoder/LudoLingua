@@ -60,135 +60,100 @@
       class="p-4"
     />
 
-    <!-- Process Table -->
-    <UCard class="w-full">
-      <template #header>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <UIcon name="i-lucide-table" class="text-gray-500 w-4 h-4" />
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Translation Status</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-gray-500 dark:text-gray-400">
-              Page {{ page }} of {{ pageCount }}
-            </span>
-            <UPagination 
-              v-model:page="page" 
-              :total="viewRows.length" 
-              :items-per-page="pageSize"
-              size="sm"
-            />
-          </div>
+    <!-- Process Table using DataTable -->
+    <DataTable
+      :data="rows"
+      :columns="tableColumns"
+      :loading="false"
+      title="Translation Status"
+      icon="i-lucide-table"
+      :show-filters="false"
+      :show-search="false"
+      :show-pagination="true"
+      :show-row-count="true"
+      :show-stats="true"
+      :stats="computedStats"
+      :initial-page-size="25"
+      :sticky-headers="true"
+      class="w-full"
+    >
+      <!-- Custom cell slots for status and text content -->
+      <template #status-data="{ row }">
+        <UBadge :color="statusColor((row.original as ProcessRow).status)" variant="soft" size="sm">
+          <UIcon 
+            :name="getStatusIconFromUtils((row.original as ProcessRow).status)" 
+            class="w-3 h-3 mr-1"
+          />
+          {{ (row.original as ProcessRow).status }}
+        </UBadge>
+      </template>
+      
+      <template #source_text-data="{ row }">
+        <div class="max-w-md">
+          <span class="whitespace-pre-wrap break-words text-sm">{{ (row.original as ProcessRow).source_text }}</span>
         </div>
       </template>
-
-      <UTable :data="pagedRows" class="text-sm w-full min-w-full">
-        <template #status-data="{ row }">
-          <UBadge :color="statusColor(row.original.status)" variant="soft" size="sm">
-            <UIcon 
-              :name="getStatusIcon(row.original.status)" 
-              class="w-3 h-3 mr-1"
-            />
-            {{ row.original.status }}
-          </UBadge>
-        </template>
-        <template #source_text-data="{ row }">
-          <div :class="isFullscreen ? 'max-w-lg' : 'max-w-md'">
-            <span class="whitespace-pre-wrap break-words text-sm">{{ row.original.source_text }}</span>
-          </div>
-        </template>
-        <template #target_text-data="{ row }">
-          <div :class="isFullscreen ? 'max-w-lg' : 'max-w-md'">
-            <span class="whitespace-pre-wrap break-words text-sm">{{ row.original.target_text }}</span>
-          </div>
-        </template>
-      </UTable>
-
-      <template #footer>
-        <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-          <span>
-            Showing {{ pagedRows.length }} of {{ viewRows.length }} items
-          </span>
-          <span>
-            Real-time translation progress
-          </span>
+      
+      <template #target_text-data="{ row }">
+        <div class="max-w-md">
+          <span class="whitespace-pre-wrap break-words text-sm">{{ (row.original as ProcessRow).target_text }}</span>
         </div>
       </template>
-    </UCard>
+    </DataTable>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import { useTranslator } from '~/composables/useTranslator'
+import type { TableColumn } from '#ui/types'
+import DataTable from '~/components/shared/DataTable.vue'
+import { getBadgeColor, getStatusIcon } from '~/utils/ui'
+
 type ProcessRow = { id: string; source_text: string; target_text: string; status: 'pending' | 'processing' | 'done' | 'error' }
 
-const props = defineProps<{ rows: ProcessRow[]; errors?: Array<{ id: string; message: string }> }>()
+defineProps<{ rows: ProcessRow[]; errors?: Array<{ id: string; message: string }> }>()
 const { translationProgress, translationTotal } = useTranslator()
-
-// Fullscreen detection
-const isFullscreen = ref(false)
-
-// Window resize handler
-const handleResize = () => {
-  isFullscreen.value = window.innerWidth >= 1920; // Consider 1920px+ as fullscreen
-}
-
-// Lifecycle hooks
-onMounted(() => {
-  handleResize()
-  window.addEventListener('resize', handleResize)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
-})
 
 const percentage = computed(() => {
   if (!translationTotal.value) return 0
   return Math.round((translationProgress.value / translationTotal.value) * 100)
 })
 
-// Hide internal id by projecting rows to only displayed fields
-const viewRows = computed(() => props.rows.map(r => ({
-  status: r.status,
-  source_text: r.source_text,
-  target_text: r.target_text
-})))
-
-const page = ref(1)
-const pageSize = ref(25)
-const pageCount = computed(() => Math.max(1, Math.ceil(viewRows.value.length / pageSize.value)))
-const pagedRows = computed(() => {
-  const start = (page.value - 1) * pageSize.value
-  return viewRows.value.slice(start, start + pageSize.value)
-})
-
-function statusColor(status: ProcessRow['status']) {
-  switch (status) {
-    case 'processing':
-      return 'primary'
-    case 'done':
-      return 'success'
-    case 'error':
-      return 'error'
-    default:
-      return 'neutral'
+// Table columns configuration
+const tableColumns: TableColumn<unknown>[] = [
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    size: 120,
+    enableSorting: true
+  },
+  {
+    accessorKey: 'source_text',
+    header: 'Source Text',
+    size: 300,
+    enableSorting: false
+  },
+  {
+    accessorKey: 'target_text',
+    header: 'Target Text',
+    size: 300,
+    enableSorting: false
   }
-}
+]
 
-function getStatusIcon(status: ProcessRow['status']) {
-  switch (status) {
-    case 'processing':
-      return 'i-lucide-loader-2'
-    case 'done':
-      return 'i-lucide-check-circle'
-    case 'error':
-      return 'i-lucide-x-circle'
-    default:
-      return 'i-lucide-clock'
-  }
-}
+
+// Stats for DataTable
+const computedStats = computed(() => ({
+  completed: translationProgress.value,
+  total: translationTotal.value,
+  remaining: translationTotal.value - translationProgress.value,
+  percentage: percentage.value
+}))
+
+// Use utility functions for status styling
+const statusColor = getBadgeColor
+const getStatusIconFromUtils = getStatusIcon
 </script>
 
 

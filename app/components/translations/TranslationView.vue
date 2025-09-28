@@ -33,16 +33,25 @@
       @row-action="onRowAction"
       @project-deleted="onProjectDeleted"
     />
+
+    <!-- Translation Edit Modal -->
+    <TranslationForm
+      :open="isEditModalOpen"
+      :translation="selectedTranslation"
+      @update:open="isEditModalOpen = $event"
+      @save="onSaveTranslation"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, onMounted, h, resolveComponent, type Component } from 'vue'
 import type { TableColumn } from '#ui/types'
-import type { TextUnitRecord } from '~/types/translation'
+import type { TextUnitRecord, TranslationStatus } from '~/types/translation'
 import { useTranslations } from '~/composables/useTranslations'
 import { getPromptTypeColor } from '~/utils/table'
 import DataTable from '~/components/shared/DataTable.vue'
+import TranslationForm from '~/components/translations/TranslationForm.vue'
 import type { BulkAction } from '~/composables/features/useBulkActions'
 
 // Composables
@@ -50,6 +59,7 @@ const {
   allTranslations,
   isLoading,
   loadTranslations,
+  updateTranslation,
   deleteTranslation: deleteTranslationAction,
   bulkDeleteTranslations,
   getStatusLabel,
@@ -67,6 +77,10 @@ const dataTableRef = ref()
 
 // Selection state
 const selectedRows = ref<TextUnitRecord[]>([])
+
+// Edit modal state
+const isEditModalOpen = ref(false)
+const selectedTranslation = ref<TextUnitRecord | null>(null)
 
 // Table columns configuration for TranslationView
 const tableColumns: TableColumn<TextUnitRecord>[] = [
@@ -209,13 +223,29 @@ const onRowAction = (action: { type: string; row: unknown }) => {
 }
 
 const editTranslation = (translation: TextUnitRecord) => {
-  // TODO: Implement edit functionality
-  console.log('Edit translation:', translation)
+  selectedTranslation.value = translation
+  isEditModalOpen.value = true
 }
 
 const deleteTranslation = async (id?: number) => {
   if (!id) return
   await deleteTranslationAction(id)
+}
+
+const onSaveTranslation = async (id: number, translatedText: string, status?: TranslationStatus) => {
+  try {
+    const success = await updateTranslation(id, translatedText, status)
+    if (success) {
+      // Close the modal
+      isEditModalOpen.value = false
+      selectedTranslation.value = null
+      
+      // Reload translations to reflect the changes
+      await loadTranslations()
+    }
+  } catch (error) {
+    console.error('Error saving translation:', error)
+  }
 }
 
 // Load project options for the filter
