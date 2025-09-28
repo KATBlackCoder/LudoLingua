@@ -31,7 +31,7 @@
 
       <!-- Filters Section -->
       <div class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <!-- Search Filter -->
           <div class="space-y-2">
             <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -41,6 +41,21 @@
               v-model="search"
               icon="i-lucide-search"
               placeholder="Search translations..."
+              size="sm"
+            />
+          </div>
+
+          <!-- Prompt Type Filter -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >Prompt Type</label
+            >
+            <UInputMenu
+              v-model="promptTypeFilter"
+              :items="promptTypeOptions"
+              placeholder="All types"
+              multiple
+              value-key="value"
               size="sm"
             />
           </div>
@@ -242,7 +257,7 @@ import { useLanguageStore } from "~/stores/language";
 import { useAppToast } from "~/composables/useAppToast";
 import { useEngineStore } from "~/stores/engine";
 import { useNotifications } from "~/composables/useNotifications";
-import { getPlaceholderFilterOptions, extractPlaceholderTypes } from "~/utils/translation";
+import { getPlaceholderFilterOptions, extractPlaceholderTypes, promptTypeOptions } from "~/utils/translation";
 import { getPaginationRowModel } from '@tanstack/vue-table'
 
 const props = defineProps<{ items: TextUnit[] }>();
@@ -309,6 +324,7 @@ const pagination = ref({
 });
 const search = ref("");
 const placeholderFilter = ref("all");
+const promptTypeFilter = ref<string[]>([]);
 
 // Calculate max text length dynamically
 const maxTextLength = computed(() => {
@@ -343,8 +359,16 @@ const filteredRows = computed(() => {
   const q = search.value.trim().toLowerCase();
   const [minLength, maxLength] = textLengthRange.value;
   const placeholderType = placeholderFilter.value;
+  const selectedPromptTypes = promptTypeFilter.value;
 
   let filtered = rows.value;
+
+  // Apply prompt type filter
+  if (selectedPromptTypes.length > 0) {
+    filtered = filtered.filter((r) =>
+      selectedPromptTypes.includes(r.prompt_type)
+    );
+  }
 
   // Apply text length filter
   filtered = filtered.filter((r) => {
@@ -390,7 +414,7 @@ const filteredRows = computed(() => {
 
 // Reset pagination when filters change
 watch(
-  [search, textLengthRange, placeholderFilter],
+  [search, textLengthRange, placeholderFilter, promptTypeFilter],
   () => {
     pagination.value.pageIndex = 0;
   },
@@ -587,7 +611,7 @@ const columns: TableColumn<Row>[] = [
     },
   },
   {
-    accessorKey: "actions",
+    id: "actions",
     header: "Actions",
     enableSorting: false,
     size: isFullscreen.value ? 200 : 150,

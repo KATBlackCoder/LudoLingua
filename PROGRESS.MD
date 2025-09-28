@@ -4,11 +4,11 @@ This document tracks the completed milestones and current status of the LudoLing
 
 ---
 
-## 🎯 **Current Status: Phase 9.2 - Responsive Table Width & Fullscreen Support (100% Complete)**
+## 🎯 **Current Status: Phase 10.1.6 - Legacy Component Cleanup (100% Complete)**
 
-**Latest Achievement:** Successfully completed Phase 9.2 with responsive table width and fullscreen support. Implemented full-width table layout with dynamic column sizing, responsive text handling, and adaptive button sizing that automatically adjusts when the app goes fullscreen.
+**Latest Achievement:** Successfully completed Phase 10.1.6 with legacy component cleanup. Removed TranslationTable.vue component that was superseded by modern TranslationView.vue, eliminating 490 lines of duplicate table logic and ensuring all translation management uses the same DataTable.vue architecture.
 
-**Next Priority:** Phase 10 - Advanced Features & Polish for enhanced translation management and performance optimization.
+**Next Priority:** Phase 10.2 - Refactor Existing Components to use the new shared architecture and reduce component complexity.
 
 ---
 
@@ -33,7 +33,14 @@ Phase 5.9 (Completed): Cross-Platform Update Enhancement     [██████
 Phase 9 (Completed): Row Selection Pagination Fix            [████████████] 100%
 Phase 9.1 (Completed): Table Text Wrapping Enhancement       [████████████] 100%
 Phase 9.2 (Completed): Responsive Table Width & Fullscreen   [████████████] 100%
-Phase 10 (Next): Advanced Features & Polish                  [░░░░░░░░░░░░]   0%
+Phase 10.1 (Completed): Component Architecture Refactoring   [████████████] 100%
+Phase 10.1.1 (Completed): Pagination Fix Implementation      [████████████] 100%
+Phase 10.1.2 (Completed): Vue Warnings Fix Implementation    [████████████] 100%
+Phase 10.1.3 (Completed): Project Management Centralization  [████████████] 100%
+Phase 10.1.4 (Completed): DataTable Row Actions Implementation [████████████] 100%
+Phase 10.1.5 (Completed): Row Selection Data Mapping Fix      [████████████] 100%
+Phase 10.1.6 (Completed): Legacy Component Cleanup           [████████████] 100%
+Phase 10.2 (Next): Refactor Existing Components              [░░░░░░░░░░░░]   0%
 ```
 
 ---
@@ -116,7 +123,7 @@ Phase 10 (Next): Advanced Features & Polish                  [░░░░░░
 
 **4.4 Translation Management Rebuild - COMPLETED**
 - ✅ Complete CRUD interface using proven glossary patterns
-- ✅ Built `TranslationTable.vue` with advanced features (row selection, bulk operations)
+- ✅ Built `TranslationView.vue` with advanced features (row selection, bulk operations)
 - ✅ Built `TranslationForm.vue` with validation and status management
 - ✅ Implemented clean state management with `useTranslations.ts`
 - ✅ Added navigation integration with seamless UX
@@ -138,7 +145,7 @@ Phase 10 (Next): Advanced Features & Polish                  [░░░░░░
 - ✅ Fixed app info loading in footer with proper async handling
 
 **4.6 Translation Management Enhancement - COMPLETED**
-- ✅ Added field type column to TranslationTable.vue for better source identification
+- ✅ Added field type column to TranslationView.vue for better source identification
 - ✅ Enhanced search functionality to include field type in search queries
 - ✅ Updated search placeholder to reflect new searchable content
 - ✅ Improved user experience for identifying translation sources and locations
@@ -487,6 +494,175 @@ Phase 10 (Next): Advanced Features & Polish                  [░░░░░░
   - **Button Labels:** Full labels in fullscreen, abbreviated labels in smaller screens
   - **User Experience:** Buttons remain accessible and properly sized across all screen sizes
 
+**Phase 10.1: Component Architecture Refactoring - COMPLETED**
+- ✅ **Shared Composables**: Complete implementation of reusable state management logic
+  - **useFullscreen.ts:** Window size detection and reactive fullscreen state management
+  - **useModal.ts:** Generic modal state management with loading and error states
+  - **useTableSelection.ts:** Pure row selection logic with TanStack Table integration
+  - **useBulkActions.ts:** Bulk operation logic with progress tracking and error handling
+  - **Features Directory:** Organized composables in `app/composables/features/` for better structure
+- ✅ **Shared Utility Functions**: Pure, stateless helper functions for common operations
+  - **utils/table.ts:** Table column factories, formatting functions, and validation utilities
+  - **utils/ui.ts:** UI utility functions for badge colors, icons, and text formatting
+  - **DRY Compliance:** Clear separation between stateful composables and stateless utilities
+- ✅ **Shared Components**: Reusable UI components following Nuxt UI v4 patterns
+  - **FilterCard.vue:** Standardized filter card wrapper with clear functionality
+  - **FilterField.vue:** Reusable filter field component with multiple input types (select, input, range)
+  - **TableHeader.vue:** Reusable table header with pagination and actions
+  - **TableFooter.vue:** TanStack Table-native pagination with stats and controls
+  - **BulkActions.vue:** Bulk action alert component with action buttons
+  - **ActionButtonGroup.vue:** Flexible action button group with layout options
+  - **DataTable.vue:** Complete table solution integrating all shared features
+- ✅ **TanStack Table Integration**: Native pagination and state management
+  - **Direct API Usage:** TableFooter.vue uses TanStack Table API directly for pagination
+  - **Performance Optimization:** Eliminated manual pagination calculations and duplicate state
+  - **State Synchronization:** Real-time pagination state with table data
+  - **Code Simplification:** Removed redundant usePagination.ts composable
+- ✅ **FilterField Component Enhancement**: DRY principle implementation for filter fields
+  - **Eliminated Code Duplication:** Replaced 5 repetitive filter divs with reusable FilterField component
+  - **Multiple Input Types:** Support for select, input, and range slider with consistent styling
+  - **Flexible Configuration:** Props for visibility, labels, placeholders, and input-specific options
+  - **Type Safety:** Separate computed properties for different input types with proper TypeScript support
+  - **Extensibility:** Easy to add new input types (date, checkbox, etc.) in the future
+
+**Phase 10.1.1: Pagination Fix Implementation - COMPLETED**
+- ✅ **Nuxt UI v4 Compliance**: Fixed pagination to follow official Nuxt UI v4 Table documentation patterns
+  - **External Pagination:** Moved UPagination component outside table card following official documentation
+  - **Direct API Integration:** Connected UPagination directly to TanStack Table API for optimal performance
+  - **Proper Event Handling:** Implemented correct page change handling with `@update:page` and `setPageIndex`
+  - **State Synchronization:** Real-time pagination state management without manual calculations
+- ✅ **TableFooter Simplification**: Streamlined footer to focus on stats and page size controls
+  - **Removed Pagination Controls:** Eliminated redundant pagination from TableFooter.vue
+  - **Stats Focus:** Maintained row count, selection count, and page size selector functionality
+  - **Clean Architecture:** Simplified props and removed unnecessary pagination-related properties
+  - **Performance Optimization:** Reduced complexity and improved maintainability
+- ✅ **DataTable Architecture**: Enhanced table component with proper pagination integration
+  - **External Pagination Layout:** Added pagination component outside table card with proper styling
+  - **Props Cleanup:** Removed unnecessary pagination props and event handlers
+  - **Event Simplification:** Eliminated manual pagination event propagation
+  - **Code Quality:** Reduced complexity and improved code maintainability
+- ✅ **TranslationView Integration**: Successfully integrated fixed pagination with existing components
+  - **Working Pagination:** Pages now change correctly when clicked in TranslationView.vue
+  - **Seamless Integration:** Pagination works with existing filters, search, and bulk actions
+  - **User Experience:** Improved table navigation with proper page state management
+  - **Performance:** Optimized pagination with direct TanStack Table API calls
+
+**Phase 10.1.2: Vue Warnings Fix Implementation - COMPLETED**
+- ✅ **Component Resolution Fixes:** Resolved all Vue component resolution warnings
+  - **i-lucide-list Component Fix:** Changed `<i-lucide-list>` to `<UIcon name="i-lucide-list">` in TranslationView.vue
+  - **UCheckbox Component Fix:** Replaced `resolveComponent('UCheckbox')` with native HTML `<input type="checkbox">` in utils/table.ts
+  - **Icon Name Correction:** Fixed non-existent `i-lucide-translate` to correct `i-lucide-languages` in TranslationView.vue
+- ✅ **Native HTML Checkbox Implementation:** Enhanced table selection with native HTML elements
+  - **Better Performance:** Native HTML checkboxes eliminate component resolution overhead
+  - **Proper Styling:** Tailwind classes for consistent appearance with design system
+  - **Indeterminate State:** Full support for partial selection states
+  - **Event Handling:** Proper onChange events for selection toggling
+  - **Accessibility:** Proper aria-label attributes for screen reader support
+- ✅ **Icon System Compliance:** Ensured all icons use correct Lucide icon names
+  - **Valid Icon Names:** All icons now use existing Lucide icon identifiers
+  - **Consistent Usage:** Proper UIcon component usage throughout the application
+  - **Visual Consistency:** Icons display correctly without loading errors
+- ✅ **Code Quality Improvements:** Enhanced maintainability and reliability
+  - **No Linting Errors:** All modified files pass TypeScript linting
+  - **Better Performance:** Native HTML elements reduce component resolution overhead
+  - **Future-Proof:** Native HTML checkboxes are more stable than component resolution
+  - **Clean Architecture:** Simplified implementation with better separation of concerns
+
+**Phase 10.1.3: Project Management Centralization - COMPLETED**
+- ✅ **Centralized Project Management Functions:** Moved project management logic to `useTranslations.ts` composable
+  - **loadAvailableProjects():** Centralized function returning project options with proper error handling
+  - **deleteProject(projectHash, projectName):** Centralized function with native Tauri dialog confirmation and toast notifications
+  - **Consistent UX:** All project operations use the same native Tauri dialogs and toast notifications
+  - **Type Safety:** Proper TypeScript types for all functions with comprehensive error handling
+- ✅ **Component Refactoring:** Updated TranslationView.vue to use centralized functions
+  - **Eliminated Code Duplication:** Removed duplicate project management functions from both components
+  - **Simplified Local Functions:** Components now call composable methods instead of implementing their own logic
+  - **Cleaner Code:** Removed unused imports and simplified component logic
+  - **Consistent Behavior:** All components now use the same project management patterns
+- ✅ **Native Dialog Integration:** Enhanced user experience with consistent confirmation dialogs
+  - **Project Deletion Confirmation:** Native Tauri dialog with warning icon and detailed confirmation message
+  - **Success/Error Feedback:** Toast notifications for all project operations with appropriate icons
+  - **Error Handling:** Graceful error handling with user-friendly error messages
+  - **Cross-Platform:** Works consistently across all supported platforms
+- ✅ **Benefits Achieved:** Professional-grade project management functionality
+  - **DRY Principle:** No duplicate project management code across components
+  - **Centralized Logic:** All project management functionality in one composable
+  - **Better Maintainability:** Changes to project management only need to be made in one place
+  - **Consistent UX:** All project operations use the same patterns and feedback
+  - **Type Safety:** Proper TypeScript types for all functions and parameters
+  - **Error Handling:** Comprehensive error handling and user feedback
+
+**Phase 10.1.4: DataTable Row Actions Implementation - COMPLETED**
+- ✅ **Component Resolution Fix:** Resolved UButton component resolution error in DataTable row actions
+  - **Root Cause Analysis:** Identified that `resolveComponent('UButton')` was failing in table cell renderer context
+  - **Direct Implementation:** Moved row actions implementation directly into DataTable.vue component with proper component resolution
+  - **Error Handling:** Added proper component resolution with `h()` and `resolveComponent()` in correct Vue context
+  - **Type Safety:** Fixed TypeScript type issues with proper const assertions and type casting
+- ✅ **TranslationView Refactoring:** Updated TranslationView.vue to use new DataTable row actions system
+  - **Removed Custom Actions Column:** Eliminated complex custom actions column with inline button rendering
+  - **Added Row Actions Configuration:** Implemented `rowActions` computed property with Edit and Delete actions
+  - **Event Handling:** Added `@row-action` event handler for proper action event emission
+  - **Cleaner Code:** Removed complex custom column rendering logic for better maintainability
+- ✅ **DataTable Enhancement:** Enhanced DataTable component with comprehensive row actions functionality
+  - **Inline Row Actions:** Implemented row actions directly in DataTable component with proper component resolution
+  - **Dropdown Menu Integration:** Used Nuxt UI v4 DropdownMenu with proper component resolution and event handling
+  - **Event Emission:** Added `@row-action` event emission for parent component communication
+  - **Type Safety:** Proper TypeScript types with component resolution and event handling
+- ✅ **Code Quality Improvements:** Enhanced maintainability and performance
+  - **No Component Resolution Errors:** Components are resolved in proper Vue context eliminating runtime errors
+  - **Simplified Architecture:** Row actions handled directly in DataTable component reducing complexity
+  - **Better Performance:** No complex utility function calls in table cell renderers
+  - **Proper Event Handling:** Row actions emit events correctly to parent components
+  - **Clean Imports:** Removed unused utility function imports from DataTable component
+- ✅ **Benefits Achieved:** Professional-grade table row actions functionality
+  - **No More Vue Warnings:** Eliminated component resolution errors for clean console output
+  - **Consistent UI:** Uses DataTable's standardized row actions with dropdown menus
+  - **Better UX:** Dropdown menu instead of inline buttons for cleaner interface
+  - **Type Safety:** Proper TypeScript types with const assertions and component resolution
+  - **Event Handling:** Automatic event emission for parent component communication
+  - **Maintainability:** Centralized row actions logic in DataTable component
+
+**Phase 10.1.5: Row Selection Data Mapping Fix - COMPLETED**
+- ✅ **Row Selection Data Mapping Fix:** Fixed critical issue where row selection was working but returning empty arrays instead of actual selected row data
+  - **Root Cause Analysis:** Identified that TanStack Table uses row indices as keys, not actual row IDs, and the selection mapping was incorrectly trying to map keys back to data
+  - **TanStack Table API Integration:** Updated DataTable.vue to use `tableRef.value?.tableApi?.getFilteredSelectedRowModel().rows` to get actual selected rows instead of manual key mapping
+  - **Consistent Pattern Implementation:** Applied the same approach used in TranslationView.vue for reliable row selection data retrieval
+  - **Selection Count Fix:** Updated selectedCount computation to use TanStack Table API for accurate row counting
+  - **Event Handling Enhancement:** Fixed selection change watcher to properly emit actual row data objects instead of empty arrays
+- ✅ **DataTable Component Enhancement:** Improved row selection functionality with proper data mapping
+  - **API-Based Selection:** Uses TanStack Table's built-in selection API for reliable row data access
+  - **Proper Row Mapping:** Maps `row.original` to get actual data objects from selected rows
+  - **Type Safety:** Proper TypeScript typing for row mapping and selection handling
+  - **Performance Optimization:** Eliminated manual key-to-data mapping for better performance
+- ✅ **TranslationView Integration:** Updated TranslationView.vue to work with fixed row selection
+  - **Bulk Actions Fix:** Bulk delete and other operations now receive actual row data instead of empty arrays
+  - **Selection Clearing:** Added proper selection clearing after bulk operations
+  - **Event Handling:** Fixed type assertions for proper component integration
+- ✅ **Benefits Achieved:** Professional-grade row selection functionality
+  - **Working Row Selection:** Users can now select rows and see correct count in console logs
+  - **Bulk Operations:** Bulk actions now work with actual selected row data
+  - **Data Integrity:** Selected rows contain complete data objects for processing
+  - **Consistent Behavior:** Row selection works the same across all table components
+  - **Performance:** Optimized selection handling using TanStack Table APIs
+
+**Phase 10.1.6: Legacy Component Cleanup - COMPLETED**
+- ✅ **TranslationTable.vue Removal:** Removed legacy TranslationTable.vue component that was superseded by modern TranslationView.vue
+  - **Architecture Modernization:** TranslationTable.vue used custom UTable implementation while TranslationView.vue uses shared DataTable.vue
+  - **Code Reduction:** Eliminated 490 lines of duplicate table logic that was reimplementing DataTable functionality
+  - **Consistency Improvement:** Ensures all translation management uses the same modern table architecture
+  - **Maintenance Simplification:** Reduces code duplication and maintenance burden by consolidating table implementations
+- ✅ **Documentation Updates:** Updated all references across CHANGELOG.md, PROGRESS.MD, TODO.md, and ROADMAP.md
+  - **Reference Cleanup:** Updated all mentions of TranslationTable.vue to TranslationView.vue in documentation
+  - **Task Completion:** Marked TranslationTable.vue refactoring tasks as completed in TODO.md
+  - **Roadmap Update:** Updated Phase 10.2 roadmap to reflect component removal
+  - **Progress Tracking:** Updated development metrics to show TranslationTable.vue removal as completed
+- ✅ **Benefits Achieved:** Cleaner codebase with modern architecture
+  - **Eliminated Duplication:** Removed 490 lines of duplicate table implementation code
+  - **Consistent UX:** All translation tables now use the same DataTable.vue architecture
+  - **Better Maintainability:** Changes to table functionality only need to be made in DataTable.vue
+  - **Modern Patterns:** All components now follow the Phase 10.1 refactored architecture
+  - **Reduced Complexity:** Simplified component structure with shared functionality
+
 **Benefits Achieved:**
 - ✅ **Automatic Updates**: Users get latest features and bug fixes automatically
 - ✅ **Security**: Signed updates ensure authenticity and prevent tampering
@@ -553,36 +729,37 @@ Phase 10 (Next): Advanced Features & Polish                  [░░░░░░
 
 ## 🚀 **Next Steps**
 
-### **Phase 9.2 Complete!** 🎉
-Responsive table width and fullscreen support successfully implemented with full-width layout, dynamic column sizing, responsive text handling, and adaptive button sizing that automatically adjusts when the app goes fullscreen.
+### **Phase 10.1 Complete!** 🎉
+Component architecture refactoring successfully implemented with shared composables, utility functions, and reusable components that eliminate code duplication and establish a scalable foundation for future development. Row selection data mapping fix ensures professional-grade table functionality with proper bulk operations support.
 
-### **Immediate Priority (Phase 10)**
-1. **Advanced Translation Management Features**
-   - Multi-criteria filtering (status, type, project, date)
-   - Full-text search across source and translated text
-   - Advanced statistics and analytics dashboard
-   - Export/Import capabilities (JSON/CSV)
+### **Immediate Priority (Phase 10.2)**
+1. **Refactor Existing Components**
+   - Break down `TranslationResult.vue` (812 lines → 4 components)
+   - ✅ Removed `TranslationTable.vue` (replaced by modern `TranslationView.vue`)
+   - Simplify `GlossaryTable.vue` (282 lines → ~100 lines)
+   - Migrate all table components to use shared architecture
 
-2. **Performance Optimization**
-   - Virtual scrolling for large datasets (1000+ translations)
-   - Memory usage optimization and caching
-   - Background processing for bulk operations
+2. **Modal Component Refactoring**
+   - Update `TranslationEditor.vue` to use `useModal.ts`
+   - Update `TranslationForm.vue` to use `useModal.ts`
+   - Update `GlossaryForm.vue` to use `useModal.ts`
+   - Standardize modal props and events across all forms
 
-3. **Enhanced UI/UX**
-   - Keyboard shortcuts for power users
-   - Better loading states and skeleton screens
-   - Error handling improvements
-   - Mobile responsive design
+3. **TanStack Table Standardization**
+   - Migrate `TranslationRaw.vue` to TanStack Table pagination
+   - Migrate `TranslationProcess.vue` to TanStack Table pagination
+   - Standardize all table components to use shared DataTable.vue
 
-4. **Quality Assurance**
-   - Unit tests for components and composables
-   - Integration tests for end-to-end workflows
-   - Cross-platform compatibility validation
+4. **Testing & Validation**
+   - Test all refactored components individually
+   - Verify no functionality is broken
+   - Test responsive behavior across screen sizes
+   - Validate accessibility features are preserved
 
 ### **Future Phases**
-- **Phase 11**: Cross-platform optimization and deployment automation
-- **Phase 12**: Community features and plugin system
-- **Phase 13**: Professional distribution and app store integration
+- **Phase 11**: Advanced Translation Management Features
+- **Phase 12**: Performance Optimization & Virtual Scrolling
+- **Phase 13**: Quality Assurance & Testing
 
 ---
 
@@ -598,4 +775,4 @@ LudoLingua has evolved into a **mature, production-ready desktop application** w
 - **Clean Codebase** with 33% function reduction and comprehensive cleanup
 - **Professional Architecture** following domain-driven design principles
 
-**Phase 9.2 Complete!** - Responsive table width and fullscreen support with full-width layout, dynamic column sizing, responsive text handling, and adaptive button sizing that automatically adjusts when the app goes fullscreen.
+**Phase 10.1 Complete!** - Component architecture refactoring with shared composables, utility functions, and reusable components that eliminate code duplication and establish a scalable foundation for future development. Row selection data mapping fix ensures professional-grade table functionality with proper bulk operations support.

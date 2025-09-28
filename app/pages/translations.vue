@@ -84,14 +84,14 @@
 
     <!-- Translation Table -->
     <UCard>
-      <TranslationTable />
+      <TranslationView />
     </UCard>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import TranslationTable from '~/components/translations/TranslationTable.vue'
+import TranslationView from '~/components/translations/TranslationView.vue'
 import { useTranslationStore } from '~/stores/translation'
 
 // Set page meta

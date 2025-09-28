@@ -72,6 +72,16 @@ export function useTranslations() {
   }
 
   async function deleteTranslation(id: number): Promise<boolean> {
+    // Use native Tauri dialog for deletion confirmation
+    const { ask } = await import('@tauri-apps/plugin-dialog')
+    
+    const confirmed = await ask('Are you sure you want to delete this translation?', {
+      title: 'Delete Translation',
+      kind: 'warning'
+    })
+    
+    if (!confirmed) return false
+    
     const success = await translationsStore.deleteTranslation(id)
     if (success) {
       showToast('Translation deleted successfully', 'success')
@@ -84,6 +94,19 @@ export function useTranslations() {
   async function bulkDeleteTranslations(ids: number[]): Promise<number> {
     if (ids.length === 0) return 0
     
+    // Use native Tauri dialog for bulk deletion confirmation
+    const { ask } = await import('@tauri-apps/plugin-dialog')
+    
+    const confirmed = await ask(
+      `Are you sure you want to delete ${ids.length} translation${ids.length > 1 ? 's' : ''}?`, 
+      {
+        title: 'Delete Translations',
+        kind: 'warning'
+      }
+    )
+    
+    if (!confirmed) return 0
+    
     const count = await translationsStore.bulkDeleteTranslations(ids)
     if (count > 0) {
       showToast(`Deleted ${count} translations successfully`, 'success')
@@ -95,6 +118,74 @@ export function useTranslations() {
 
   async function getTranslation(id: number): Promise<TextUnitRecord | null> {
     return await translationsStore.getTranslation(id)
+  }
+
+  // Project management functions
+  async function loadAvailableProjects(): Promise<Array<{ label: string; value: string }>> {
+    try {
+      // Get list of projects from database/manifest files
+      const { invoke } = await import('@tauri-apps/api/core')
+      const projects = await invoke('get_available_projects') as { name: string; path: string; hash: string }[]
+      
+      return [
+        { label: 'All Projects', value: 'none' },
+        ...projects.map(project => ({
+          label: project.name || project.path.split('/').pop() || 'Unknown Project',
+          value: project.hash
+        }))
+      ]
+    } catch (error) {
+      console.error('Error loading projects:', error)
+      // Fallback to empty list if command doesn't exist yet
+      return [
+        { label: 'All Projects', value: 'none' }
+      ]
+    }
+  }
+
+  async function deleteProject(projectHash: string, projectName: string): Promise<boolean> {
+    // Use native Tauri dialog for project deletion confirmation
+    const { ask } = await import('@tauri-apps/plugin-dialog')
+    
+    const confirmed = await ask(
+      `Are you sure you want to delete the project "${projectName}"?\n\nThis will permanently remove all translations and project data. This action cannot be undone.`, 
+      {
+        title: 'Delete Project',
+        kind: 'warning'
+      }
+    )
+    
+    if (!confirmed) return false
+    
+    try {
+      // Delete project and all its translations
+      const { invoke } = await import('@tauri-apps/api/core')
+      await invoke('delete_project', { projectHash })
+      
+      // Show success message
+      showToast(
+        'Project Deleted',
+        `Project "${projectName}" has been successfully deleted.`,
+        'success',
+        5000,
+        'i-lucide-check-circle'
+      )
+      
+      return true
+    } catch (error) {
+      console.error('Error deleting project:', error)
+      
+      // Show error message
+      showToast(
+        'Error Deleting Project',
+        error instanceof Error ? error.message : 'Failed to delete project',
+        'error',
+        7000,
+        'i-lucide-alert-triangle'
+      )
+      
+      return false
+    }
   }
 
   // Clear filters helper (components handle their own filter state)
@@ -149,6 +240,10 @@ export function useTranslations() {
     bulkDeleteTranslations,
     getTranslation,
     getStatusLabel,
-    getStatusColor
+    getStatusColor,
+    
+    // Project management
+    loadAvailableProjects,
+    deleteProject
   }
 }

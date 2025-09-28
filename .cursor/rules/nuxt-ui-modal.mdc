@@ -1,0 +1,605 @@
+---
+globs: *.vue,*.ts,*.js
+description: Nuxt UI v4 Modal component usage guidelines
+---
+
+# Nuxt UI v4 Modal Component Usage
+
+This project uses Nuxt UI v4's Modal component for dialog windows. Follow these guidelines for consistent, accessible, and well-structured modal implementations.
+
+## Core Principles
+
+### Component Usage
+- **Always use `UModal`** instead of raw HTML dialog elements
+- **Use semantic slots** for proper content structure
+- **Implement proper state management** with v-model:open
+- **Follow accessibility guidelines** for modal interactions
+
+### Design Guidelines
+- **Use modals for focused interactions** that require user attention
+- **Maintain consistent sizing** and positioning across all modals
+- **Implement proper keyboard navigation** and escape handling
+- **Use appropriate variants** for different contexts
+
+## Basic Usage
+
+### Simple Modal
+```vue
+<template>
+  <UModal v-model:open="isOpen">
+    <UButton @click="isOpen = true">Open Modal</UButton>
+    
+    <template #content>
+      <div class="p-6">
+        <h3 class="text-lg font-semibold mb-4">Modal Title</h3>
+        <p>Modal content goes here.</p>
+      </div>
+    </template>
+  </UModal>
+</template>
+
+<script setup lang="ts">
+const isOpen = ref(false)
+</script>
+```
+
+### Modal with Header and Footer
+```vue
+<template>
+  <UModal v-model:open="isOpen" title="Modal Title" description="Modal description">
+    <UButton @click="isOpen = true">Open Modal</UButton>
+    
+    <template #body>
+      <div class="space-y-4">
+        <p>Main modal content goes here.</p>
+      </div>
+    </template>
+    
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton variant="soft" @click="isOpen = false">Cancel</UButton>
+        <UButton @click="handleSave">Save</UButton>
+      </div>
+    </template>
+  </UModal>
+</template>
+```
+
+### Modal with Custom Header
+```vue
+<template>
+  <UModal v-model:open="isOpen">
+    <UButton @click="isOpen = true">Open Modal</UButton>
+    
+    <template #header>
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+          <UIcon name="i-lucide-settings" class="text-primary w-5 h-5" />
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold">Settings</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Manage your preferences</p>
+        </div>
+      </div>
+    </template>
+    
+    <template #body>
+      <div class="space-y-4">
+        <UFormField label="Theme">
+          <USelect :items="themeOptions" />
+        </UFormField>
+      </div>
+    </template>
+  </UModal>
+</template>
+```
+
+## Advanced Features
+
+### Non-dismissible Modal
+```vue
+<template>
+  <UModal 
+    v-model:open="isOpen" 
+    :dismissible="false"
+    title="Important Action"
+  >
+    <UButton @click="isOpen = true">Open Modal</UButton>
+    
+    <template #body>
+      <p>This modal cannot be dismissed by clicking outside or pressing escape.</p>
+    </template>
+    
+    <template #footer>
+      <UButton @click="handleConfirm">Confirm</UButton>
+    </template>
+  </UModal>
+</template>
+```
+
+### Fullscreen Modal
+```vue
+<template>
+  <UModal 
+    v-model:open="isOpen" 
+    fullscreen
+    title="Fullscreen Modal"
+  >
+    <UButton @click="isOpen = true">Open Fullscreen</UButton>
+    
+    <template #body>
+      <div class="h-full">
+        <!-- Fullscreen content -->
+      </div>
+    </template>
+  </UModal>
+</template>
+```
+
+### Modal with Custom Close Button
+```vue
+<template>
+  <UModal 
+    v-model:open="isOpen"
+    title="Custom Close Button"
+    :close="{
+      color: 'primary',
+      variant: 'outline',
+      class: 'rounded-full'
+    }"
+  >
+    <UButton @click="isOpen = true">Open Modal</UButton>
+    
+    <template #body>
+      <p>Modal with custom close button styling.</p>
+    </template>
+  </UModal>
+</template>
+```
+
+### Modal without Overlay
+```vue
+<template>
+  <UModal 
+    v-model:open="isOpen"
+    :overlay="false"
+    title="Modal without Overlay"
+  >
+    <UButton @click="isOpen = true">Open Modal</UButton>
+    
+    <template #body>
+      <p>This modal has no overlay background.</p>
+    </template>
+  </UModal>
+</template>
+```
+
+## Programmatic Usage
+
+### Using useOverlay Composable
+```vue
+<script setup lang="ts">
+import { LazyModalExample } from '#components'
+
+const overlay = useOverlay()
+const modal = overlay.create(LazyModalExample)
+
+async function openModal() {
+  const instance = modal.open({
+    data: 'some data'
+  })
+  
+  const result = await instance.result
+  console.log('Modal result:', result)
+}
+</script>
+
+<template>
+  <UButton @click="openModal">Open Programmatically</UButton>
+</template>
+```
+
+### Modal Component for Programmatic Use
+```vue
+<!-- ModalExample.vue -->
+<script setup lang="ts">
+defineProps<{
+  data: string
+}>()
+
+const emit = defineEmits<{ close: [any] }>()
+</script>
+
+<template>
+  <UModal :close="{ onClick: () => emit('close', 'result') }">
+    <template #body>
+      <p>{{ data }}</p>
+    </template>
+    
+    <template #footer>
+      <div class="flex gap-2">
+        <UButton variant="soft" @click="emit('close', null)">Cancel</UButton>
+        <UButton @click="emit('close', 'success')">Confirm</UButton>
+      </div>
+    </template>
+  </UModal>
+</template>
+```
+
+## Form Integration
+
+### Modal with Form
+```vue
+<template>
+  <UModal v-model:open="isOpen" title="Create User">
+    <UButton @click="isOpen = true">Add User</UButton>
+    
+    <template #body>
+      <UForm :schema="schema" :state="state" @submit="onSubmit" class="space-y-4">
+        <UFormField label="Name" name="name" required>
+          <UInput v-model="state.name" placeholder="Enter name" />
+        </UFormField>
+        
+        <UFormField label="Email" name="email" required>
+          <UInput v-model="state.email" type="email" placeholder="Enter email" />
+        </UFormField>
+      </UForm>
+    </template>
+    
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton variant="soft" @click="isOpen = false">Cancel</UButton>
+        <UButton type="submit" :loading="isSubmitting">Create User</UButton>
+      </div>
+    </template>
+  </UModal>
+</template>
+
+<script setup lang="ts">
+import * as z from 'zod'
+
+const schema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email')
+})
+
+const state = reactive({
+  name: '',
+  email: ''
+})
+
+const isOpen = ref(false)
+const isSubmitting = ref(false)
+
+async function onSubmit() {
+  isSubmitting.value = true
+  try {
+    // Handle form submission
+    await createUser(state)
+    isOpen.value = false
+  } finally {
+    isSubmitting.value = false
+  }
+}
+</script>
+```
+
+## Common Patterns
+
+### Confirmation Modal
+```vue
+<template>
+  <UModal 
+    v-model:open="isOpen"
+    title="Confirm Action"
+    description="This action cannot be undone."
+  >
+    <UButton @click="isOpen = true">Delete Item</UButton>
+    
+    <template #body>
+      <div class="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+        <UIcon name="i-lucide-alert-triangle" class="text-red-500 w-5 h-5" />
+        <p class="text-red-700 dark:text-red-300">
+          Are you sure you want to delete this item? This action cannot be undone.
+        </p>
+      </div>
+    </template>
+    
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton variant="soft" @click="isOpen = false">Cancel</UButton>
+        <UButton color="error" @click="handleDelete">Delete</UButton>
+      </div>
+    </template>
+  </UModal>
+</template>
+```
+
+### Settings Modal
+```vue
+<template>
+  <UModal v-model:open="isOpen" title="Settings">
+    <UButton @click="isOpen = true">Open Settings</UButton>
+    
+    <template #body>
+      <div class="space-y-6">
+        <div class="space-y-4">
+          <h4 class="font-medium">General</h4>
+          <UFormField label="Theme">
+            <USelect v-model="settings.theme" :items="themeOptions" />
+          </UFormField>
+          <UFormField label="Language">
+            <USelect v-model="settings.language" :items="languageOptions" />
+          </UFormField>
+        </div>
+        
+        <div class="space-y-4">
+          <h4 class="font-medium">Notifications</h4>
+          <UFormField label="Email Notifications">
+            <USwitch v-model="settings.emailNotifications" />
+          </UFormField>
+          <UFormField label="Push Notifications">
+            <USwitch v-model="settings.pushNotifications" />
+          </UFormField>
+        </div>
+      </div>
+    </template>
+    
+    <template #footer>
+      <div class="flex justify-between">
+        <UButton variant="soft" @click="resetSettings">Reset</UButton>
+        <div class="flex gap-2">
+          <UButton variant="soft" @click="isOpen = false">Cancel</UButton>
+          <UButton @click="saveSettings">Save</UButton>
+        </div>
+      </div>
+    </template>
+  </UModal>
+</template>
+```
+
+### Loading Modal
+```vue
+<template>
+  <UModal 
+    v-model:open="isOpen"
+    :dismissible="false"
+    title="Processing"
+  >
+    <template #body>
+      <div class="text-center py-8">
+        <UIcon name="i-lucide-loader-2" class="w-8 h-8 mx-auto animate-spin text-primary mb-4" />
+        <p class="text-gray-600 dark:text-gray-400">{{ loadingMessage }}</p>
+      </div>
+    </template>
+  </UModal>
+</template>
+```
+
+## Responsive Design
+
+### Responsive Modal Sizing
+```vue
+<template>
+  <UModal 
+    v-model:open="isOpen"
+    :ui="{ 
+      content: 'w-[calc(100vw-2rem)] max-w-md sm:max-w-lg lg:max-w-2xl' 
+    }"
+    title="Responsive Modal"
+  >
+    <UButton @click="isOpen = true">Open Modal</UButton>
+    
+    <template #body>
+      <div class="space-y-4">
+        <p>This modal adapts to different screen sizes.</p>
+      </div>
+    </template>
+  </UModal>
+</template>
+```
+
+## Accessibility
+
+### ARIA Labels and Roles
+```vue
+<template>
+  <UModal 
+    v-model:open="isOpen"
+    title="Accessible Modal"
+    aria-label="User settings dialog"
+  >
+    <UButton @click="isOpen = true" aria-haspopup="dialog">Open Settings</UButton>
+    
+    <template #body>
+      <div role="main">
+        <p>This modal is properly labeled for screen readers.</p>
+      </div>
+    </template>
+  </UModal>
+</template>
+```
+
+### Keyboard Navigation
+- **Tab** - Navigate between focusable elements
+- **Enter/Space** - Activate buttons and form controls
+- **Escape** - Close modal (if dismissible)
+- **Focus management** - Automatically handled by Nuxt UI
+
+## Performance Considerations
+
+### Lazy Loading Modals
+```vue
+<template>
+  <UModal v-model:open="isOpen">
+    <UButton @click="isOpen = true">Open Heavy Modal</UButton>
+    
+    <template #body>
+      <Suspense>
+        <LazyHeavyModalContent />
+        <template #fallback>
+          <div class="text-center py-8">
+            <UIcon name="i-lucide-loader-2" class="w-6 h-6 mx-auto animate-spin" />
+            <p class="mt-2">Loading...</p>
+          </div>
+        </template>
+      </Suspense>
+    </template>
+  </UModal>
+</template>
+```
+
+### Conditional Rendering
+```vue
+<template>
+  <UModal v-model:open="isOpen">
+    <UButton @click="isOpen = true">Open Modal</UButton>
+    
+    <template #body>
+      <div v-if="dataLoaded">
+        <!-- Heavy content only rendered when needed -->
+        <HeavyComponent :data="data" />
+      </div>
+      <div v-else class="text-center py-8">
+        <UIcon name="i-lucide-loader-2" class="w-6 h-6 mx-auto animate-spin" />
+      </div>
+    </template>
+  </UModal>
+</template>
+```
+
+## Integration with Other Components
+
+### Modal with Table
+```vue
+<template>
+  <UModal v-model:open="isOpen" title="Data Table" :ui="{ content: 'max-w-6xl' }">
+    <UButton @click="isOpen = true">View Data</UButton>
+    
+    <template #body>
+      <UTable :data="tableData" :columns="columns" />
+    </template>
+    
+    <template #footer>
+      <div class="flex justify-between">
+        <span class="text-sm text-gray-500">{{ tableData.length }} items</span>
+        <UButton @click="isOpen = false">Close</UButton>
+      </div>
+    </template>
+  </UModal>
+</template>
+```
+
+### Modal with Form Validation
+```vue
+<template>
+  <UModal v-model:open="isOpen" title="Create Project">
+    <UButton @click="isOpen = true">New Project</UButton>
+    
+    <template #body>
+      <UForm :schema="schema" :state="state" @submit="onSubmit" class="space-y-4">
+        <UFormField label="Project Name" name="name" required>
+          <UInput v-model="state.name" placeholder="Enter project name" />
+        </UFormField>
+        
+        <UFormField label="Description" name="description">
+          <UTextarea v-model="state.description" placeholder="Enter description" />
+        </UFormField>
+        
+        <UFormField label="Category" name="category" required>
+          <USelect v-model="state.category" :items="categoryOptions" />
+        </UFormField>
+      </UForm>
+    </template>
+    
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton variant="soft" @click="isOpen = false">Cancel</UButton>
+        <UButton type="submit" :loading="isSubmitting">Create Project</UButton>
+      </div>
+    </template>
+  </UModal>
+</template>
+```
+
+## Error Handling
+
+### Modal with Error States
+```vue
+<template>
+  <UModal v-model:open="isOpen" title="User Profile">
+    <UButton @click="isOpen = true">Edit Profile</UButton>
+    
+    <template #body>
+      <div v-if="error" class="mb-4">
+        <UAlert color="error" :title="error" />
+      </div>
+      
+      <UForm :schema="schema" :state="state" @submit="onSubmit" class="space-y-4">
+        <UFormField label="Name" name="name" required>
+          <UInput v-model="state.name" />
+        </UFormField>
+      </UForm>
+    </template>
+    
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton variant="soft" @click="isOpen = false">Cancel</UButton>
+        <UButton type="submit" :loading="isSubmitting">Save Changes</UButton>
+      </div>
+    </template>
+  </UModal>
+</template>
+
+<script setup lang="ts">
+const error = ref('')
+const isSubmitting = ref(false)
+
+async function onSubmit() {
+  error.value = ''
+  isSubmitting.value = true
+  
+  try {
+    await updateProfile(state)
+    isOpen.value = false
+  } catch (err) {
+    error.value = 'Failed to update profile. Please try again.'
+  } finally {
+    isSubmitting.value = false
+  }
+}
+</script>
+```
+
+## Best Practices
+
+### State Management
+- **Use reactive refs** for open state management
+- **Reset form state** when modal closes
+- **Handle loading states** properly during async operations
+- **Implement proper cleanup** for subscriptions and timers
+
+### Content Organization
+- **Use semantic slots** for proper structure
+- **Group related content** logically
+- **Implement proper spacing** and visual hierarchy
+- **Use appropriate modal sizes** for content
+
+### User Experience
+- **Provide clear actions** in the footer
+- **Use appropriate button colors** for different actions
+- **Implement keyboard shortcuts** where appropriate
+- **Show loading states** for async operations
+
+### Accessibility
+- **Use proper ARIA labels** and roles
+- **Implement focus management** correctly
+- **Provide keyboard navigation** support
+- **Test with screen readers** during development
+
+## Resources
+
+- [Nuxt UI v4 Modal Documentation](https://ui.nuxt.com/docs/components/modal)
+- [Vue 3 Composition API](https://vuejs.org/guide/composition-api/)
+- [Accessibility Guidelines](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/)
+- [Modal Design Patterns](https://www.nngroup.com/articles/modal-nonmodal-dialog/)

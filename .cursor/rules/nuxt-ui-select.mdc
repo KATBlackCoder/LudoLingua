@@ -1,8 +1,7 @@
 ---
-alwaysApply: true
-description: Nuxt UI v4 Select component usage guidelines and best practices
+globs: *.vue,*.ts
+alwaysApply: false
 ---
-
 # Nuxt UI v4 Select Component Usage
 
 This project uses Nuxt UI v4's Select component for dropdown selections. Follow these guidelines for consistent, accessible, and performant select implementations.

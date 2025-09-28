@@ -1,8 +1,7 @@
 ---
-globs: *.vue
+globs: *.vue,*.ts
 alwaysApply: false
 ---
-
 # Nuxt UI v4 Usage Policy
 
 This project uses Nuxt UI v4 for all UI components and elements. Follow these guidelines for consistent, performant, and accessible user interfaces built on Reka UI primitives and Tailwind CSS v4.

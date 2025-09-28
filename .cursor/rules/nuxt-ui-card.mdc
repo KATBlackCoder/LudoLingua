@@ -1,8 +1,7 @@
 ---
-alwaysApply: true
-description: Nuxt UI v4 Card component usage guidelines and best practices
+globs: *.vue,*.ts
+alwaysApply: false
 ---
-
 # Nuxt UI v4 Card Component Usage
 
 This project uses Nuxt UI v4's Card component for content containers. Follow these guidelines for consistent, accessible, and well-structured card implementations.

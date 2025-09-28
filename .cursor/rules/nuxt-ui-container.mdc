@@ -1,8 +1,7 @@
 ---
-alwaysApply: true
-description: Nuxt UI v4 Container component usage guidelines and best practices
+globs: *.vue,*.ts
+alwaysApply: false
 ---
-
 # Nuxt UI v4 Container Component Usage
 
 This project uses Nuxt UI v4's Container component for centering and constraining content width. Follow these guidelines for consistent, responsive, and well-structured layout implementations.

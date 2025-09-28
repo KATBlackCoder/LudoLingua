@@ -1,8 +1,7 @@
 ---
-alwaysApply: true
-description: Nuxt UI v4 Table component usage guidelines and best practices
+globs: *.vue,*.ts
+alwaysApply: false
 ---
-
 # Nuxt UI v4 Table Component Usage
 
 This project uses Nuxt UI v4's Table component built on TanStack Table v8. Follow these guidelines for consistent, performant, and accessible table implementations.
