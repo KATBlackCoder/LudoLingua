@@ -1,38 +1,5 @@
 <template>
   <div class="space-y-6">
-    <!-- Project Management Section -->
-    <UCard>
-      <template #header>
-        <div class="flex items-center gap-3">
-          <UIcon name="i-lucide-folder" class="text-gray-500 w-4 h-4" />
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Project Management</span>
-        </div>
-      </template>
-
-      <div class="flex items-center gap-3">
-        <USelect 
-          v-model="selectedProject" 
-          :items="projectOptions" 
-          placeholder="Select a project to manage..."
-          icon="i-lucide-folder"
-          class="flex-1"
-          size="sm"
-        />
-        
-        <UButton 
-          v-if="selectedProject && selectedProject !== 'none'" 
-          color="error" 
-          variant="soft"
-          icon="i-lucide-trash-2" 
-          :loading="isDeletingProject"
-          size="sm"
-          @click="handleDeleteProject"
-        >
-          Delete Project
-        </UButton>
-      </div>
-    </UCard>
-
     <DataTable
       ref="dataTableRef"
       :data="allTranslations as any"
@@ -55,11 +22,16 @@
       filter-icon="i-lucide-filter"
       :show-status-filter="true"
       :show-prompt-type-filter="true"
+      :show-project-filter="true"
+      :project-filter-options="projectOptions"
+      :show-project-actions="true"
+      :on-delete-project="handleDeleteProject"
       :show-row-actions="true"
       :row-actions="rowActions"
       @selection-change="onSelectionChange as any"
       @bulk-action="onBulkAction"
       @row-action="onRowAction"
+      @project-deleted="onProjectDeleted"
     />
   </div>
 </template>
@@ -87,12 +59,8 @@ const {
 } = useTranslations()
 
 
-// Project management state
-const selectedProject = ref<string>('')
-const isDeletingProject = ref(false)
-const projectOptions = ref([
-  { label: 'All Projects', value: 'none' }
-])
+// Project options for the filter
+const projectOptions = ref<Array<{ label: string; value: string }>>([])
 
 // DataTable reference
 const dataTableRef = ref()
@@ -100,7 +68,7 @@ const dataTableRef = ref()
 // Selection state
 const selectedRows = ref<TextUnitRecord[]>([])
 
-// Table columns configuration
+// Table columns configuration for TranslationView
 const tableColumns: TableColumn<TextUnitRecord>[] = [
   {
     accessorKey: 'status',
@@ -170,7 +138,7 @@ const tableColumns: TableColumn<TextUnitRecord>[] = [
   },
 ]
 
-// Computed stats for the table
+// Computed stats for the table (DataTable will handle filtering)
 const translationStats = computed(() => {
   const total = allTranslations.value.length
   const byStatus = allTranslations.value.reduce((acc, item) => {
@@ -250,34 +218,45 @@ const deleteTranslation = async (id?: number) => {
   await deleteTranslationAction(id)
 }
 
-// Project management functions
+// Load project options for the filter
 const loadProjectOptions = async () => {
   projectOptions.value = await loadAvailableProjects()
 }
 
-const handleDeleteProject = async () => {
-  if (!selectedProject.value || selectedProject.value === 'none') return
-  
-  const projectName = projectOptions.value.find(p => p.value === selectedProject.value)?.label || 'Unknown Project'
+// Project management functions
+const handleDeleteProject = async (projectHash: string, projectName: string): Promise<boolean> => {
+  try {
+    const success = await deleteProject(projectHash, projectName)
+    return success
+  } catch (error) {
+    console.error('Error deleting project:', error)
+    return false
+  }
+}
+
+const onProjectDeleted = async (projectHash: string) => {
+  console.log('Project deleted:', projectHash)
   
   try {
-    isDeletingProject.value = true
+    // Small delay to ensure database operations are complete
+    await new Promise(resolve => setTimeout(resolve, 100))
     
-    const success = await deleteProject(selectedProject.value, projectName)
+    // Reload project options from database
+    console.log('Reloading project options from database...')
+    await loadProjectOptions()
     
-    if (success) {
-      // Reset selection and reload data
-      selectedProject.value = 'none'
-      await loadProjectOptions()
-      await loadTranslations()
-      
-      // Clear table selection after project deletion
-      if (dataTableRef.value?.clearSelection) {
-        dataTableRef.value.clearSelection()
-      }
+    // Reload translations from database to reflect the deletion
+    console.log('Reloading translations from database...')
+    await loadTranslations()
+    
+    // Clear any table selections since the data has changed
+    if (dataTableRef.value?.clearSelection) {
+      dataTableRef.value.clearSelection()
     }
-  } finally {
-    isDeletingProject.value = false
+    
+    console.log('Database successfully reloaded after project deletion')
+  } catch (error) {
+    console.error('Error reloading data after project deletion:', error)
   }
 }
 

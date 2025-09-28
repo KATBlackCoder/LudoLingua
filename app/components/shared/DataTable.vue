@@ -67,6 +67,15 @@
         :total-filters="activeFilterCount"
       />
 
+      <FilterField
+        v-model="projectFilter"
+        :show="showProjectFilter"
+        label="Project"
+        :items="projectFilterOptions"
+        placeholder="All projects"
+        :total-filters="activeFilterCount"
+      />
+
       <template v-if="customFilters">
         <slot name="filters" />
       </template>
@@ -91,7 +100,7 @@
         >
           <template #actions>
             <ActionButtonGroup
-              :actions="headerActions"
+              :actions="[...headerActions, ...projectActions]"
               :spacing="'tight'"
             />
           </template>
@@ -103,7 +112,7 @@
         v-model:pagination="pagination"
         v-model:row-selection="tableConfig.rowSelection.value"
         :data="tableData"
-        :columns="tableColumns"
+        :columns="processedTableColumns"
         :pagination-options="paginationOptions"
         :loading="loading"
         :sticky="stickyHeaders"
@@ -143,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, h, resolveComponent, type Component } from 'vue'
+import { computed, ref, watch, nextTick, h, resolveComponent, type Component } from 'vue'
 import type { TableColumn } from '#ui/types'
 import { getPaginationRowModel } from '@tanstack/vue-table'
 import { useTableSelection } from '~/composables/features/useTableSelection'
@@ -188,6 +197,7 @@ interface Props<T = unknown> {
   promptTypeFilterOptions?: Array<{ label: string; value: string }>
   categoryFilterOptions?: Array<{ label: string; value: string }>
   languageFilterOptions?: Array<{ label: string; value: string }>
+  projectFilterOptions?: Array<{ label: string; value: string }>
   
   // Filter visibility
   showStatusFilter?: boolean
@@ -196,6 +206,7 @@ interface Props<T = unknown> {
   showLanguageFilter?: boolean
   showSourceLanguageFilter?: boolean
   showTargetLanguageFilter?: boolean
+  showProjectFilter?: boolean
 
   // Selection
   showSelection?: boolean
@@ -223,6 +234,10 @@ interface Props<T = unknown> {
   // Custom filtering function
   filterFunction?: (data: T[], searchQuery: string) => T[]
 
+  // Project management
+  showProjectActions?: boolean
+  onDeleteProject?: (projectHash: string, projectName: string) => Promise<boolean>
+
   // Row actions
   showRowActions?: boolean
   rowActions?: Array<{
@@ -248,6 +263,7 @@ interface Emits {
   (e: 'selection-change', selectedRows: unknown[]): void
   (e: 'bulk-action', action: BulkAction): void
   (e: 'row-action', action: { type: string; row: unknown }): void
+  (e: 'project-deleted', projectHash: string): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -269,6 +285,7 @@ const props = withDefaults(defineProps<Props>(), {
   promptTypeFilterOptions: () => defaultPromptTypeFilterOptions,
   categoryFilterOptions: () => [],
   languageFilterOptions: () => [],
+  projectFilterOptions: () => [],
   
   // Filter visibility
   showStatusFilter: false,
@@ -277,6 +294,7 @@ const props = withDefaults(defineProps<Props>(), {
   showLanguageFilter: false,
   showSourceLanguageFilter: false,
   showTargetLanguageFilter: false,
+  showProjectFilter: false,
 
   // Selection
   showSelection: false,
@@ -309,6 +327,10 @@ const props = withDefaults(defineProps<Props>(), {
   // Custom filtering
   filterFunction: undefined,
 
+  // Project management
+  showProjectActions: false,
+  onDeleteProject: undefined,
+
   // Row actions
   showRowActions: false,
   rowActions: () => [],
@@ -333,6 +355,10 @@ const promptTypeFilter = ref('All')
 const categoryFilter = ref('All')
 const sourceLanguageFilter = ref('All')
 const targetLanguageFilter = ref('All')
+const projectFilter = ref('All')
+
+// Project management state
+const isDeletingProject = ref(false)
 
 // Selection
 const { 
@@ -389,6 +415,16 @@ const filteredData = computed(() => {
     filtered = filtered.filter((item: unknown) => (item as Record<string, unknown>).target_lang === targetLanguageFilter.value)
   }
 
+  if (props.showProjectFilter && projectFilter.value !== 'All') {
+    filtered = filtered.filter((item: unknown) => {
+      const record = item as Record<string, unknown>
+      // Support both manifest_hash (for translations) and project_path (for other data)
+      return record.manifest_hash === projectFilter.value || 
+             record.project_path === projectFilter.value ||
+             record.project_hash === projectFilter.value
+    })
+  }
+
   // Apply custom filter function if provided
   if (props.filterFunction) {
     filtered = props.filterFunction(filtered, searchQuery.value)
@@ -435,7 +471,8 @@ if (props.showSelection && tableConfig.columns.value.length > 0) {
   }
 }
 
-const tableColumns = computed(() => {
+// Process table columns (adds row actions column if enabled)
+const processedTableColumns = computed(() => {
   const columns = [...tableConfig.columns.value]
   
   // Add row actions column if enabled
@@ -504,11 +541,41 @@ const hasActiveFilters = computed(() => {
          promptTypeFilter.value !== 'All' ||
          categoryFilter.value !== 'All' ||
          sourceLanguageFilter.value !== 'All' ||
-         targetLanguageFilter.value !== 'All'
+         targetLanguageFilter.value !== 'All' ||
+         projectFilter.value !== 'All'
 })
 
 const selectedCount = computed(() => {
   return tableRef.value?.tableApi?.getFilteredSelectedRowModel().rows.length || 0
+})
+
+// Project management computed properties
+const selectedProject = computed(() => {
+  if (!props.showProjectFilter || projectFilter.value === 'All') {
+    return null
+  }
+  
+  const project = props.projectFilterOptions?.find(p => p.value === projectFilter.value)
+  return project ? { hash: project.value, name: project.label } : null
+})
+
+const projectActions = computed((): ActionButton[] => {
+  if (!props.showProjectActions || !selectedProject.value) {
+    return []
+  }
+  
+  return [
+    {
+      id: 'delete-project',
+      label: 'Delete Project',
+      icon: 'i-lucide-trash-2',
+      color: 'error',
+      variant: 'soft',
+      loading: isDeletingProject.value,
+      disabled: isDeletingProject.value,
+      onClick: () => handleDeleteProject()
+    }
+  ]
 })
 
 // Count active filters for responsive design
@@ -520,6 +587,7 @@ const activeFilterCount = computed(() => {
   if (props.showCategoryFilter) count++
   if (props.showSourceLanguageFilter) count++
   if (props.showTargetLanguageFilter) count++
+  if (props.showProjectFilter) count++
   return count
 })
 
@@ -529,6 +597,17 @@ watch(tableConfig.rowSelection, (_newSelection) => {
   const selectedRows = tableRef.value?.tableApi?.getFilteredSelectedRowModel().rows.map((row: { original: unknown }) => row.original) || []
   
   emit('selection-change', selectedRows)
+}, { deep: true })
+
+// Watch for project filter options changes and reset filter if selected project is no longer available
+watch(() => props.projectFilterOptions, (newOptions) => {
+  if (newOptions && projectFilter.value !== 'All') {
+    const currentProject = newOptions.find(p => p.value === projectFilter.value)
+    if (!currentProject) {
+      console.log('Selected project no longer available, resetting filter to All')
+      projectFilter.value = 'All'
+    }
+  }
 }, { deep: true })
 
 // Pagination is now handled directly by TanStack Table and UPagination
@@ -541,9 +620,40 @@ const clearFilters = () => {
   categoryFilter.value = 'All'
   sourceLanguageFilter.value = 'All'
   targetLanguageFilter.value = 'All'
+  projectFilter.value = 'All'
   clearSelection()
   // Clear table selection
   tableConfig.rowSelection.value = {}
+}
+
+// Project management methods
+const handleDeleteProject = async () => {
+  if (!selectedProject.value || !props.onDeleteProject) return
+  
+  const projectHash = selectedProject.value.hash
+  const projectName = selectedProject.value.name
+  
+  try {
+    isDeletingProject.value = true
+    
+    const success = await props.onDeleteProject(projectHash, projectName)
+    
+    if (success) {
+      // Reset project filter and clear selection immediately
+      projectFilter.value = 'All'
+      clearSelection()
+      // Clear table selection
+      tableConfig.rowSelection.value = {}
+      
+      // Wait for the next tick to ensure the filter is reset
+      await nextTick()
+      
+      // Emit event to parent component to refresh data
+      emit('project-deleted', projectHash)
+    }
+  } finally {
+    isDeletingProject.value = false
+  }
 }
 
 // Row actions helper
