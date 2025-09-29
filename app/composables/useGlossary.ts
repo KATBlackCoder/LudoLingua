@@ -18,7 +18,7 @@ export function useGlossary() {
   const onlyEnabled = ref<boolean>(false)
 
   // Rows/projection
-  type Row = { _id: number; enabled: boolean; category: string; input: string; output: string }
+  type Row = { _id: number; enabled: boolean; category: string; input: string; output: string; source_lang: string; target_lang: string }
   const filteredTerms = computed(() => {
     const q = search.value.trim().toLowerCase()
     return glossary.terms.filter(t => {
@@ -31,7 +31,15 @@ export function useGlossary() {
       return hay.includes(q)
     })
   })
-  const rows = computed<Row[]>(() => filteredTerms.value.map(t => ({ _id: t.id, enabled: !!t.enabled, category: t.category, input: t.input, output: t.output })))
+  const rows = computed<Row[]>(() => filteredTerms.value.map(t => ({ 
+    _id: t.id, 
+    enabled: !!t.enabled, 
+    category: t.category, 
+    input: t.input, 
+    output: t.output,
+    source_lang: t.source_lang,
+    target_lang: t.target_lang
+  })))
 
   // Pagination
   const page = ref(1)

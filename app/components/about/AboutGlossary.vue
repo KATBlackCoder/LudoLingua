@@ -112,6 +112,20 @@
         </div>
       </UCard>
 
+      <!-- Language Filtering -->
+      <UAlert color="info" variant="soft" icon="i-lucide-languages">
+        <template #title>Language-specific filtering</template>
+        <template #description>
+          <div class="text-sm">
+            The glossary only displays terms that match your current source and target language settings. 
+            For example, if you have both <code class="px-1 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs">jp→en</code> and 
+            <code class="px-1 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs">en→fr</code> terms in your database, 
+            but your settings use <code class="px-1 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs">jp→en</code>, 
+            only the Japanese to English terms will be shown.
+          </div>
+        </template>
+      </UAlert>
+
       <!-- Keep glossary entries short -->
       <UAlert color="warning" variant="soft" icon="i-lucide-triangle-alert">
         <template #title>Keep glossary entries short</template>

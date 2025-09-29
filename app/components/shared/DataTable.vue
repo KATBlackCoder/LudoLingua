@@ -76,6 +76,27 @@
         :total-filters="activeFilterCount"
       />
 
+      <FilterField
+        v-model="textLengthValue"
+        :show="showTextLengthFilter"
+        label="Text Length"
+        type="range"
+        :range-min="textLengthMin"
+        :range-max="textLengthMax"
+        :range-step="textLengthStep"
+        :range-label="textLengthLabel"
+        :total-filters="activeFilterCount"
+      />
+
+      <FilterField
+        v-model="placeholderFilter"
+        :show="showPlaceholderFilter"
+        label="Placeholder"
+        :items="placeholderFilterOptions"
+        placeholder="All placeholders"
+        :total-filters="activeFilterCount"
+      />
+
       <template v-if="customFilters">
         <slot name="filters" />
       </template>
@@ -162,7 +183,9 @@ import {
 } from '~/utils/table'
 import { 
   statusFilterOptions as defaultStatusFilterOptions, 
-  promptTypeFilterOptions as defaultPromptTypeFilterOptions 
+  promptTypeFilterOptions as defaultPromptTypeFilterOptions,
+  getPlaceholderFilterOptions,
+  extractPlaceholderTypes
 } from '~/utils/translation'
 import FilterCard from './FilterCard.vue'
 import FilterField from './FilterField.vue'
@@ -207,6 +230,16 @@ interface Props<T = unknown> {
   showSourceLanguageFilter?: boolean
   showTargetLanguageFilter?: boolean
   showProjectFilter?: boolean
+  showTextLengthFilter?: boolean
+  showPlaceholderFilter?: boolean
+
+  // Text length filter configuration
+  textLengthMin?: number
+  textLengthMax?: number
+  textLengthStep?: number
+
+  // Placeholder filter configuration
+  placeholderFilterOptions?: Array<{ label: string; value: string }>
 
   // Selection
   showSelection?: boolean
@@ -295,6 +328,16 @@ const props = withDefaults(defineProps<Props>(), {
   showSourceLanguageFilter: false,
   showTargetLanguageFilter: false,
   showProjectFilter: false,
+  showTextLengthFilter: false,
+  showPlaceholderFilter: false,
+
+  // Text length filter configuration
+  textLengthMin: 0,
+  textLengthMax: 200,
+  textLengthStep: 5,
+
+  // Placeholder filter configuration
+  placeholderFilterOptions: () => [],
 
   // Selection
   showSelection: false,
@@ -356,6 +399,8 @@ const categoryFilter = ref('All')
 const sourceLanguageFilter = ref('All')
 const targetLanguageFilter = ref('All')
 const projectFilter = ref('All')
+const textLengthValue = ref(props.textLengthMin)
+const placeholderFilter = ref('All')
 
 // Project management state
 const isDeletingProject = ref(false)
@@ -422,6 +467,37 @@ const filteredData = computed(() => {
       return record.manifest_hash === projectFilter.value || 
              record.project_path === projectFilter.value ||
              record.project_hash === projectFilter.value
+    })
+  }
+
+  // Apply text length filter
+  if (props.showTextLengthFilter && textLengthValue.value !== undefined) {
+    const minLength = textLengthValue.value
+    filtered = filtered.filter((item: unknown) => {
+      const record = item as Record<string, unknown>
+      const translatedText = record.translated_text as string || ''
+      
+      // Show if translated text is at least the minimum length
+      return translatedText.length >= minLength
+    })
+  }
+
+  // Apply placeholder filter
+  if (props.showPlaceholderFilter && placeholderFilter.value !== 'All') {
+    filtered = filtered.filter((item: unknown) => {
+      const record = item as Record<string, unknown>
+      const sourceText = record.source_text as string || ''
+      const translatedText = record.translated_text as string || ''
+      const combinedText = `${sourceText} ${translatedText}`
+      
+      if (placeholderFilter.value === 'all') {
+        // Show items that contain any placeholder
+        return /\[[A-Z_]+\d+\]/g.test(combinedText)
+      } else {
+        // Show items that contain the specific placeholder type
+        const placeholderPattern = new RegExp(`\\[${placeholderFilter.value}_\\d+\\]`, 'g')
+        return placeholderPattern.test(combinedText)
+      }
     })
   }
 
@@ -542,11 +618,45 @@ const hasActiveFilters = computed(() => {
          categoryFilter.value !== 'All' ||
          sourceLanguageFilter.value !== 'All' ||
          targetLanguageFilter.value !== 'All' ||
-         projectFilter.value !== 'All'
+         projectFilter.value !== 'All' ||
+         placeholderFilter.value !== 'All' ||
+         (props.showTextLengthFilter && textLengthValue.value !== props.textLengthMin)
 })
 
 const selectedCount = computed(() => {
   return tableRef.value?.tableApi?.getFilteredSelectedRowModel().rows.length || 0
+})
+
+// Text length filter label
+const textLengthLabel = computed(() => {
+  if (!props.showTextLengthFilter || textLengthValue.value === undefined) return ''
+  return `${textLengthValue.value}+ chars`
+})
+
+// Placeholder filter options - dynamically generated from data
+const placeholderFilterOptions = computed(() => {
+  if (!props.showPlaceholderFilter) return []
+  
+  // If custom options provided, use them
+  if (props.placeholderFilterOptions && props.placeholderFilterOptions.length > 0) {
+    return props.placeholderFilterOptions
+  }
+  
+  // Otherwise, generate from current data
+  const existingPlaceholders = new Set<string>()
+  
+  // Scan all data for placeholder patterns
+  props.data.forEach((item) => {
+    const record = item as Record<string, unknown>
+    const sourceText = record.source_text as string || ''
+    const translatedText = record.translated_text as string || ''
+    const combinedText = `${sourceText} ${translatedText}`
+    
+    const placeholders = extractPlaceholderTypes(combinedText)
+    placeholders.forEach(type => existingPlaceholders.add(type))
+  })
+  
+  return getPlaceholderFilterOptions(existingPlaceholders)
 })
 
 // Project management computed properties
@@ -588,6 +698,8 @@ const activeFilterCount = computed(() => {
   if (props.showSourceLanguageFilter) count++
   if (props.showTargetLanguageFilter) count++
   if (props.showProjectFilter) count++
+  if (props.showTextLengthFilter) count++
+  if (props.showPlaceholderFilter) count++
   return count
 })
 
@@ -621,6 +733,8 @@ const clearFilters = () => {
   sourceLanguageFilter.value = 'All'
   targetLanguageFilter.value = 'All'
   projectFilter.value = 'All'
+  textLengthValue.value = props.textLengthMin
+  placeholderFilter.value = 'All'
   clearSelection()
   // Clear table selection
   tableConfig.rowSelection.value = {}

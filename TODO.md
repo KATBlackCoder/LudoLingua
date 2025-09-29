@@ -51,35 +51,60 @@
 - [x] `components/shared/DataTable.vue` - Complete table with common features
 
 ##### 3. Refactor Existing Components
-- [ ] Break down `TranslationResult.vue` into:
-  - `TranslationFilters.vue` (~100 lines)
-  - ✅ `TranslationTable.vue`: Removed (replaced by modern `TranslationView.vue`) 
-  - `BulkActions.vue` (~50 lines)
-  - `TranslationRowActions.vue` (~100 lines)
-- [x] ✅ `TranslationTable.vue`: Removed (replaced by modern `TranslationView.vue`)
-- [ ] Simplify `GlossaryTable.vue` (reduce from 282 to ~100 lines)
+- [x] ✅ `TranslationResult.vue`: Migrated to DataTable component with utility functions
+- [x] ✅ `TranslationTable.vue`: Removed (replaced by modern `TranslationView.vue`) 
+- [x] ✅ `GlossaryTable.vue`: Migrated to DataTable component with utility functions
 - [x] ✅ `TranslationRaw.vue`: Migrated to DataTable component with utility functions
-- [x] ✅ `TranslationTable.vue`: Removed (replaced by modern `TranslationView.vue`)
-- [ ] Migrate `GlossaryTable.vue` to TanStack Table pagination
 - [x] ✅ `TranslationProcess.vue`: Migrated to DataTable component with utility functions
-- [ ] Standardize all table components to use TanStack Table
+- [x] ✅ `GlossaryTable.vue`: Migrated to DataTable component with TanStack Table pagination
+- [x] ✅ All table components: Standardized to use DataTable component with TanStack Table
 
 ##### 4. Refactor Modal Components
-- [ ] Update `TranslationEditor.vue` to use `useModal.ts`
-  - [ ] Replace custom modal state with `useModal` composable
-  - [ ] Add consistent loading and error states
-  - [ ] Standardize modal props and events
-- [ ] Update `TranslationForm.vue` to use `useModal.ts`
-  - [ ] Replace local state management with `useModal`
-  - [ ] Add built-in error handling
-  - [ ] Implement consistent form validation
-- [ ] Update `GlossaryForm.vue` to use `useModal.ts`
-  - [ ] Standardize modal behavior across all forms
-  - [ ] Add loading states for async operations
-  - [ ] Implement consistent save/cancel patterns
-- [ ] Standardize modal props and events across all forms
-- [ ] Add consistent loading and error states to all modals
-- [ ] Create shared modal utility functions for common patterns
+- [x] ✅ Create comprehensive `Modal.vue` component in `components/shared/modal/`:
+  - [x] ✅ **Main Modal Component**: `Modal.vue` - Complete modal with all features (like DataTable.vue)
+    - [x] ✅ Built-in header with icon, title, description, and actions
+    - [x] ✅ Built-in body with consistent spacing and layout
+    - [x] ✅ Built-in footer with save/cancel buttons and status
+    - [x] ✅ Built-in loading and error states
+    - [x] ✅ Built-in form validation and submission handling
+    - [x] ✅ Built-in keyboard shortcuts (Enter to save, Escape to cancel)
+    - [x] ✅ Built-in responsive design and accessibility
+  - [x] ✅ **Supporting Components**:
+    - [x] ✅ `ModalHeader.vue` - Standardized modal header with icon, title, and description
+    - [x] ✅ `ModalActions.vue` - Standardized modal actions with badge display
+    - [x] ✅ `ModalBody.vue` - Standardized modal body with consistent spacing
+    - [x] ✅ `ModalFooter.vue` - Standardized modal footer with save/cancel buttons and status
+    - [x] ✅ `TextCard.vue` - Reusable text display card with character count and styling
+    - [x] ✅ `FormCard.vue` - Reusable form input card with header and footer actions
+    - [x] ✅ `MetadataCard.vue` - Reusable metadata display card for configuration sections
+- [x] ✅ **Modal Component Analysis**: Analyzed existing modal components for compatibility
+  - [x] ✅ **TranslationEditor.vue Analysis**: Perfect match for two-column layout with source/translation cards
+  - [x] ✅ **TranslationForm.vue Analysis**: Perfect match for two-column layout with metadata integration
+  - [x] ✅ **GlossaryForm.vue Analysis**: Perfect match for two-column layout with configuration sections
+  - [x] ✅ **Implementation Strategy**: All three components can be replaced with Modal.vue using slots and props
+- [ ] Update `TranslationEditor.vue` to use `Modal.vue` component
+  - [ ] Replace custom modal structure with `Modal.vue`
+  - [ ] Use two-column layout with source text and translation form cards
+  - [ ] Leverage built-in loading and error states
+  - [ ] Use custom content slots for re-translate button and prompt type selection
+- [x] ✅ Update `TranslationForm.vue` to use `Modal.vue` component
+  - [x] ✅ Replace custom modal structure with `Modal.vue`
+  - [x] ✅ Use two-column layout with source text and translation form cards
+  - [x] ✅ Integrate metadata section with status, file path, and field type
+  - [x] ✅ Leverage built-in form validation and submission
+  - [x] ✅ Move status utilities to Modal.vue for better encapsulation
+  - [x] ✅ Use template ref to access Modal's exposed utilities
+- [ ] Update `GlossaryForm.vue` to use `Modal.vue` component
+  - [ ] Replace custom modal structure with `Modal.vue`
+  - [ ] Use two-column layout with source term and target term cards
+  - [ ] Add configuration section with category, language, and enabled settings
+  - [ ] Leverage built-in modal behavior and keyboard shortcuts
+- [ ] Benefits Achieved:
+  - [ ] Eliminate 3x modal structure duplication across form components
+  - [ ] Consistent modal behavior with shared components
+  - [ ] Standardized loading and error states across all modals
+  - [ ] Reusable card components for different content types
+  - [ ] Centralized modal state management with `useModal.ts`
 
 ##### 5. Testing & Validation
 - [ ] Test all refactored components individually
@@ -103,9 +128,10 @@
 #### Progress Status:
 - ✅ **Phase 1A Complete**: All shared composables and utilities created
 - ✅ **Phase 1B Complete**: All shared components created (FilterCard, TableHeader, TableFooter, BulkActions, ActionButtonGroup, DataTable)
-- 🔄 **Phase 1C In Progress**: Refactoring existing components
-- ⏳ **Phase 1D Pending**: Modal component refactoring
-- ⏳ **Phase 1E Pending**: TanStack Table standardization
+- ✅ **Phase 1C Complete**: TranslationResult.vue, TranslationRaw.vue, and TranslationProcess.vue migrated to DataTable
+- ✅ **Phase 1D Complete**: GlossaryTable.vue migrated to DataTable with language filter optimization
+- ✅ **Phase 1E Complete**: Modal component refactoring - Supporting components created
+- ✅ **Phase 1F Complete**: TanStack Table standardization across all components
 
 ---
 

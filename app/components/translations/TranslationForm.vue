@@ -1,159 +1,97 @@
 <template>
-  <UModal
+  <Modal
     v-model:open="open_"
     :dismissible="false"
-    :ui="{ content: 'max-w-5xl' }"
+    layout="two-column"
+    title="Edit Translation"
+    description="Update the translation and status"
+    header-icon="i-lucide-edit-3"
+    header-icon-color="primary"
+    :status="getStatusLabel(local.status)"
+    :status-color="getStatusColor(local.status) as any"
+    :category="local.prompt_type"
+    :source-text="local.source_text"
+    source-title="Source Text"
+    source-icon="i-lucide-file-text"
+    source-icon-color="neutral"
+    :show-character-count="true"
+    :translation-value="local.translated_text"
+    :translation-valid="!!isValid"
+    :translation-error="!isValid && (local.translated_text?.length || 0) > 0"
+    translation-validation-type="translation"
+    :metadata-items="metadataItems"
+    metadata-title="Translation Metadata"
+    metadata-icon="i-lucide-info"
+    metadata-icon-color="info"
+    :show-cancel="true"
+    cancel-label="Cancel"
+    :show-save="true"
+    :save-label="hasModifications ? 'Save Translation' : 'No Changes'"
+    save-color="primary"
+    :disabled="!isValid || !hasModifications"
+    :status-info="`ID: ${local.id || 'New'} • ${local.source_lang} → ${local.target_lang}`"
+    keyboard-shortcuts="Ctrl/Cmd + Enter to save"
+    :modal-ui="{ content: 'max-w-5xl' }"
+    :show-retranslation="true"
+    :is-retranslating="isRetranslating"
+    :retranslation-disabled="!local.source_text"
+    @cancel="onCancel"
+    @save="onSave"
+    @retranslate="onRetranslate"
   >
-    <template #title>
-      <div class="flex items-center gap-3">
-        <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
-          <UIcon name="i-lucide-edit-3" class="text-primary w-5 h-5" />
-        </div>
-        <div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Edit Translation</h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Update the translation and status</p>
-        </div>
-      </div>
-    </template>
-    <template #actions>
-      <div class="flex items-center gap-2">
-        <UBadge color="neutral" variant="soft" size="sm">{{ local.prompt_type }}</UBadge>
-        <UBadge :color="getStatusColor(local.status) as any" size="sm">
-          {{ getStatusLabel(local.status) }}
-        </UBadge>
-      </div>
+    <!-- Translation content slot -->
+    <template #translationContent>
+      <UFormField label="Translated text">
+        <UTextarea
+          v-model="local.translated_text"
+          :rows="6"
+          placeholder="Enter translation..."
+          @keydown.ctrl.enter.prevent="onSave"
+          @keydown.meta.enter.prevent="onSave"
+        />
+      </UFormField>
     </template>
 
-    <template #body>
-      <div class="space-y-6">
-        <!-- Two-column layout -->
-        <div class="grid gap-6 lg:grid-cols-2">
-          <!-- Source Text Card -->
-          <UCard>
-            <template #header>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-file-text" class="text-gray-500 w-4 h-4" />
-                  <span class="font-medium text-gray-900 dark:text-white">Source Text</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <UBadge color="neutral" variant="soft" size="sm">{{ sourceCharCount }} chars</UBadge>
-                </div>
-              </div>
-            </template>
-            <UFormField label="Original text">
-              <UTextarea
-                :model-value="local.source_text"
-                readonly
-                :rows="6"
-                placeholder="Source text..."
-                class="bg-gray-50 dark:bg-gray-800/50"
-              />
-            </UFormField>
-          </UCard>
+    <!-- Metadata content slot -->
+    <template #metadataFooter>
+      <div class="grid gap-4 sm:grid-cols-3">
+        <UFormField label="Status">
+          <USelect
+            v-model="local.status"
+            :items="statusOptions"
+            placeholder="Select status"
+            size="sm"
+          />
+        </UFormField>
 
-          <!-- Translation Card -->
-          <UCard>
-            <template #header>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-languages" class="text-primary w-4 h-4" />
-                  <span class="font-medium text-gray-900 dark:text-white">Translation</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <UBadge color="primary" variant="soft" size="sm">{{ translationCharCount }} chars</UBadge>
-                </div>
-              </div>
-            </template>
-            <UFormField label="Translated text">
-              <UTextarea
-                v-model="local.translated_text"
-                :rows="6"
-                placeholder="Enter translation..."
-                @keydown.ctrl.enter.prevent="onSave"
-                @keydown.meta.enter.prevent="onSave"
-              />
-            </UFormField>
-          </UCard>
-        </div>
+        <UFormField label="File Path">
+          <UInput
+            :model-value="local.file_path"
+            readonly
+            class="bg-gray-50 dark:bg-gray-800/50"
+            size="sm"
+          />
+        </UFormField>
 
-        <!-- Metadata Section -->
-        <UCard>
-          <template #header>
-            <div class="flex items-center gap-2">
-              <UIcon name="i-lucide-info" class="text-gray-500 w-4 h-4" />
-              <span class="font-medium text-gray-900 dark:text-white">Translation Metadata</span>
-            </div>
-          </template>
-          
-          <div class="grid gap-4 sm:grid-cols-3">
-            <UFormField label="Status">
-              <USelect
-                v-model="local.status"
-                :items="statusOptions"
-                placeholder="Select status"
-                size="sm"
-              />
-            </UFormField>
-
-            <UFormField label="File Path">
-              <UInput
-                :model-value="local.file_path"
-                readonly
-                class="bg-gray-50 dark:bg-gray-800/50"
-                size="sm"
-              />
-            </UFormField>
-
-            <UFormField label="Field Type">
-              <UInput
-                :model-value="local.field_type"
-                readonly
-                class="bg-gray-50 dark:bg-gray-800/50"
-                size="sm"
-              />
-            </UFormField>
-          </div>
-        </UCard>
+        <UFormField label="Field Type">
+          <UInput
+            :model-value="local.field_type"
+            readonly
+            class="bg-gray-50 dark:bg-gray-800/50"
+            size="sm"
+          />
+        </UFormField>
       </div>
     </template>
-
-    <template #footer>
-      <div class="flex items-center justify-between w-full gap-4">
-        <div class="flex items-center gap-3">
-          <div class="text-xs text-gray-500 dark:text-gray-400">
-            ID: {{ local.id || 'New' }} • {{ local.source_lang }} → {{ local.target_lang }}
-          </div>
-          <div class="text-xs text-gray-500 dark:text-gray-400">
-            Ctrl/Cmd + Enter to save
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <UButton 
-            color="neutral" 
-            variant="outline" 
-            @click="onCancel"
-          >
-            Cancel
-          </UButton>
-          <UButton 
-            color="primary" 
-            :disabled="!isValid"
-            @click="onSave"
-          >
-            <UIcon name="i-lucide-check" class="w-4 h-4 mr-2" />
-            Save Translation
-          </UButton>
-        </div>
-      </div>
-    </template>
-  </UModal>
+  </Modal>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { TextUnitRecord } from '~/types/translation'
 import { TranslationStatus, PromptType } from '~/types/translation'
+import Modal from '~/components/shared/modal/Modal.vue'
+import { getStatusLabel, getStatusColor, statusOptions } from '~/utils/translation'
 
 interface Props {
   open: boolean
@@ -163,6 +101,7 @@ interface Props {
 interface Emits {
   (e: 'update:open', value: boolean): void
   (e: 'save', id: number, translatedText: string, status?: TranslationStatus): void
+  (e: 'retranslate', id: number, sourceText: string): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -171,34 +110,10 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-// Status options for the select
-const statusOptions = [
-  { label: 'Not Translated', value: TranslationStatus.NotTranslated },
-  { label: 'Machine Translated', value: TranslationStatus.MachineTranslated },
-  { label: 'Human Reviewed', value: TranslationStatus.HumanReviewed },
-  { label: 'Ignored', value: TranslationStatus.Ignored }
-]
+// Status utilities imported directly from utils/translation
 
-// Utility functions
-function getStatusLabel(status: TranslationStatus): string {
-  switch (status) {
-    case TranslationStatus.NotTranslated: return 'Not Translated'
-    case TranslationStatus.MachineTranslated: return 'Machine Translated'
-    case TranslationStatus.HumanReviewed: return 'Human Reviewed'
-    case TranslationStatus.Ignored: return 'Ignored'
-    default: return status
-  }
-}
-
-function getStatusColor(status: TranslationStatus): string {
-  switch (status) {
-    case TranslationStatus.NotTranslated: return 'neutral'
-    case TranslationStatus.MachineTranslated: return 'warning'
-    case TranslationStatus.HumanReviewed: return 'success'
-    case TranslationStatus.Ignored: return 'error'
-    default: return 'neutral'
-  }
-}
+// Retranslation state
+const isRetranslating = ref(false)
 
 // Local state
 const local = ref<TextUnitRecord>({
@@ -214,15 +129,54 @@ const local = ref<TextUnitRecord>({
   target_lang: 'en'
 })
 
+// Original state to track changes
+const original = ref<TextUnitRecord | null>(null)
+
 // Two-way binding for modal open state
 const open_ = computed({
   get: () => props.open,
   set: (value: boolean) => emit('update:open', value)
 })
 
-// Character counts
-const sourceCharCount = computed(() => local.value.source_text.length)
-const translationCharCount = computed(() => local.value.translated_text?.length || 0)
+// Character counts (computed by the Modal component)
+
+// Metadata items for the modal
+const metadataItems = computed(() => [
+  {
+    label: 'File Path',
+    value: local.value.file_path,
+    icon: 'i-lucide-file',
+    type: 'text' as const
+  },
+  {
+    label: 'Field Type',
+    value: local.value.field_type,
+    icon: 'i-lucide-tag',
+    type: 'text' as const
+  },
+  {
+    label: 'Source Language',
+    value: local.value.source_lang,
+    icon: 'i-lucide-globe',
+    type: 'text' as const
+  },
+  {
+    label: 'Target Language',
+    value: local.value.target_lang,
+    icon: 'i-lucide-languages',
+    type: 'text' as const
+  }
+])
+
+// Check if there are any modifications
+const hasModifications = computed(() => {
+  if (!original.value) return false
+  
+  return (
+    local.value.translated_text !== original.value.translated_text ||
+    local.value.status !== original.value.status
+  )
+})
 
 // Validation
 const isValid = computed(() => {
@@ -233,6 +187,7 @@ const isValid = computed(() => {
 watch(() => props.translation, (newTranslation) => {
   if (newTranslation) {
     local.value = { ...newTranslation }
+    original.value = { ...newTranslation } // Store original state
   } else {
     // Reset to default
     local.value = {
@@ -247,6 +202,7 @@ watch(() => props.translation, (newTranslation) => {
       source_lang: 'ja',
       target_lang: 'en'
     }
+    original.value = null
   }
 }, { immediate: true })
 
@@ -254,10 +210,30 @@ watch(() => props.translation, (newTranslation) => {
 function onSave() {
   if (!isValid.value || !local.value.id) return
   
+  // Only save if there are modifications
+  if (!hasModifications.value) {
+    console.log('No modifications detected, skipping save')
+    return
+  }
+  
   emit('save', local.value.id, local.value.translated_text || '', local.value.status)
 }
 
 function onCancel() {
   emit('update:open', false)
+}
+
+async function onRetranslate() {
+  if (!local.value.id || !local.value.source_text || isRetranslating.value) return
+  
+  isRetranslating.value = true
+  try {
+    emit('retranslate', local.value.id, local.value.source_text)
+  } finally {
+    // Reset loading state after a short delay to show the loading state
+    setTimeout(() => {
+      isRetranslating.value = false
+    }, 1000)
+  }
 }
 </script>

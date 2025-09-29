@@ -1,207 +1,86 @@
 <template>
   <div class="space-y-6 w-full">
-    <!-- Filters Section -->
-    <UCard>
-      <template #header>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <UIcon name="i-lucide-filter" class="text-gray-500 w-4 h-4" />
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Filters & Search</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <UBadge color="primary" variant="soft" size="sm">
-              {{ rows.length }} terms
-            </UBadge>
-          </div>
-        </div>
-      </template>
+    <!-- Error Display -->
+    <div v-if="error" class="mb-4">
+      <UAlert color="error" variant="soft" :title="error" />
+    </div>
 
-      <div class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <!-- Search Filter -->
-          <UFormField label="Search">
-            <UInput 
-              v-model="search" 
-              icon="i-lucide-search" 
-              placeholder="Search terms..."
-              size="sm"
-            />
-          </UFormField>
-
-          <!-- Category Filter -->
-          <UFormField label="Category">
-            <USelect 
-              v-model="categoryFilter" 
-              :items="categoryItems" 
-              placeholder="All categories"
-              size="sm"
-              class="w-full"
-            />
-          </UFormField>
-
-          <!-- Source Language Filter -->
-          <UFormField label="Source Language">
-            <USelect 
-              v-model="sourceFilter" 
-              :items="languageItems" 
-              placeholder="Source language"
-              size="sm"
-              class="w-full"
-            />
-          </UFormField>
-
-          <!-- Target Language Filter -->
-          <UFormField label="Target Language">
-            <USelect 
-              v-model="targetFilter" 
-              :items="languageItems" 
-              placeholder="Target language"
-              size="sm"
-              class="w-full"
-            />
-          </UFormField>
-
-          <!-- Enabled Filter -->
-          <UFormField label="Status">
-            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-              <USwitch v-model="onlyEnabled" size="sm" />
-              <span class="text-sm text-gray-600 dark:text-gray-400">Only enabled</span>
-            </div>
-          </UFormField>
-        </div>
-      </div>
-    </UCard>
-
-    <!-- Glossary Table -->
-    <UCard class="w-full">
-      <template #header>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <UIcon name="i-lucide-table" class="text-gray-500 w-4 h-4" />
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Glossary Terms</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <UButton 
-              color="primary" 
-              icon="i-lucide-plus" 
-              size="sm"
-              @click="openAdd"
-            >
-              Add Term
-            </UButton>
-            <UButton 
-              color="neutral" 
-              icon="i-lucide-refresh-cw" 
-              :loading="isLoading" 
-              size="sm"
-              @click="reload"
-            >
-              Reload
-            </UButton>
+    <!-- DataTable Component -->
+    <DataTable
+      :data="rows"
+      :columns="columns"
+      :loading="isLoading"
+      title="Glossary Terms"
+      icon="i-lucide-book-open"
+      :show-filters="true"
+      :show-search="true"
+      :show-category-filter="true"
+      :show-selection="false"
+      :show-bulk-actions="false"
+      :show-pagination="true"
+      :show-row-count="true"
+      :custom-filters="true"
+      :category-filter-options="categoryFilterOptions"
+      :header-actions="headerActions"
+      :initial-page-size="25"
+      :page-size-options="[
+        { label: '10', value: 10 },
+        { label: '25', value: 25 },
+        { label: '50', value: 50 },
+        { label: '100', value: 100 }
+      ]"
+      :filter-function="customFilterFunction"
+    >
+      <!-- Custom filters slot -->
+      <template #filters>
+        <div class="space-y-1">
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+          <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <USwitch v-model="onlyEnabled" size="sm" />
+            <span class="text-sm text-gray-600 dark:text-gray-400">Only enabled</span>
           </div>
         </div>
       </template>
-
-      <div v-if="error" class="mb-4">
-        <UAlert color="error" variant="soft" :title="error" />
-      </div>
-
-      <UTable :data="pagedRows" :columns="columns" :loading="isLoading" class="text-sm w-full min-w-full">
-        <template #enabled-data="{ row }">
-          <USwitch 
-            :model-value="row.original.enabled" 
-            size="sm"
-            @update:model-value="(v:boolean) => toggleEnabled(row.original._id, v)" 
-          />
-        </template>
-        <template #category-data="{ row }">
-          <UBadge color="neutral" variant="soft" size="sm">
-            {{ row.original.category }}
-          </UBadge>
-        </template>
-      </UTable>
-
-      <template #footer>
-        <div class="flex items-center justify-between w-full">
-          <div class="flex items-center gap-3">
-            <div class="flex items-center gap-2">
-              <UButton 
-                size="xs" 
-                variant="soft" 
-                icon="i-lucide-download" 
-                @click="exportJson"
-              >
-                Export JSON
-              </UButton>
-              <UButton 
-                size="xs" 
-                variant="soft" 
-                icon="i-lucide-upload" 
-                @click="importJson"
-              >
-                Import JSON
-              </UButton>
-            </div>
-            <span class="text-xs text-gray-500 dark:text-gray-400">
-              Showing {{ pagedRows.length }} of {{ rows.length }} terms
-            </span>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-xs text-gray-500 dark:text-gray-400">Page {{ page }} / {{ pageCount }}</span>
-            <UPagination v-model:page="page" :total="rows.length" :items-per-page="pageSize" size="sm" />
-          </div>
-        </div>
+      <!-- Custom cell slots -->
+      <template #enabled-data="{ row }">
+        <USwitch 
+          :model-value="(row.original as Row).enabled" 
+          size="sm"
+          @update:model-value="(v:boolean) => toggleEnabled((row.original as Row)._id, v)" 
+        />
       </template>
-    </UCard>
+      
+      <template #category-data="{ row }">
+        <UBadge color="neutral" variant="soft" size="sm">
+          {{ (row.original as Row).category }}
+        </UBadge>
+      </template>
+    </DataTable>
 
     <GlossaryForm v-model:open="modalOpen" :term="activeTerm" heading="Glossary Term" @save="onSave" />
   </div>
-  
 </template>
 
 <script setup lang="ts">
-import { ref, watch, h, resolveComponent, onMounted, onUnmounted, type Component } from 'vue'
+import { ref, computed, h, resolveComponent, type Component } from 'vue'
 import type { TableColumn } from '#ui/types'
+import DataTable from '~/components/shared/DataTable.vue'
 import GlossaryForm from '~/components/glossaries/GlossaryForm.vue'
 import type { GlossaryTerm } from '~/types/glossary'
 import { useGlossary } from '~/composables/useGlossary'
-
-// Fullscreen detection
-const isFullscreen = ref(false)
-
-// Window resize handler
-const handleResize = () => {
-  isFullscreen.value = window.innerWidth >= 1920; // Consider 1920px+ as fullscreen
-}
-
-// Lifecycle hooks
-onMounted(() => {
-  handleResize()
-  window.addEventListener('resize', handleResize)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
-})
+import type { ActionButton } from '~/components/shared/ActionButtonGroup.vue'
 
 const {
   // state
   isLoading,
   error,
   // filters
-  search,
   categoryItems,
-  categoryFilter,
-  languageItems,
   sourceFilter,
   targetFilter,
   onlyEnabled,
   // table
   rows,
-  pagedRows,
-  page,
-  pageSize,
-  pageCount,
   // actions
   reload,
   save,
@@ -212,9 +91,9 @@ const {
   getTermById,
 } = useGlossary()
 
-type Row = { _id: number; enabled: boolean; category: string; input: string; output: string }
+type Row = { _id: number; enabled: boolean; category: string; input: string; output: string; source_lang: string; target_lang: string }
 
-const columns: TableColumn<Row>[] = [
+const columns: TableColumn<unknown>[] = [
   { accessorKey: 'enabled', header: 'On', enableSorting: false },
   { accessorKey: 'category', header: 'Category' },
   { accessorKey: 'input', header: 'Input' },
@@ -225,23 +104,78 @@ const columns: TableColumn<Row>[] = [
     enableSorting: false,
     cell: ({ row }) => {
       const UButton = resolveComponent('UButton') as Component
+      const rowData = row.original as Row
       return h('div', { class: 'flex gap-2' }, [
         h(UButton, {
           size: 'xs', color: 'neutral', variant: 'soft', icon: 'i-lucide-pencil',
           disabled: modalOpen.value,
-          onClick: () => openEdit(row.original._id)
+          onClick: () => openEdit(rowData._id)
         }, { default: () => 'Edit' }),
         h(UButton, {
           size: 'xs', color: 'error', variant: 'soft', icon: 'i-lucide-trash',
           disabled: modalOpen.value,
-          onClick: () => remove(row.original._id)
+          onClick: () => remove(rowData._id)
         }, { default: () => 'Delete' })
       ])
     }
   }
 ]
 
-// reload provided
+// Convert filter options to the expected format
+const categoryFilterOptions = computed(() => 
+  categoryItems.map(item => ({ label: item, value: item }))
+)
+
+
+// Header actions for the DataTable
+const headerActions = computed((): ActionButton[] => [
+  {
+    id: 'add-term',
+    label: 'Add Term',
+    icon: 'i-lucide-plus',
+    color: 'primary',
+    variant: 'solid',
+    onClick: openAdd
+  },
+  {
+    id: 'reload',
+    label: 'Reload',
+    icon: 'i-lucide-refresh-cw',
+    color: 'info',
+    variant: 'soft',
+    loading: isLoading,
+    onClick: reload
+  },
+  {
+    id: 'export',
+    label: 'Export JSON',
+    icon: 'i-lucide-download',
+    color: 'success',
+    variant: 'soft',
+    onClick: exportJson
+  },
+  {
+    id: 'import',
+    label: 'Import JSON',
+    icon: 'i-lucide-upload',
+    color: 'warning',
+    variant: 'soft',
+    onClick: importJson
+  }
+])
+
+// Custom filter function to handle the "only enabled" filter
+// Note: This function is called AFTER DataTable's built-in filters, so we only need to handle our custom logic
+const customFilterFunction = (data: unknown[], _searchQuery: string) => {
+  let filtered = data as Row[]
+
+  // Apply "only enabled" filter
+  if (onlyEnabled.value) {
+    filtered = filtered.filter(item => item.enabled)
+  }
+
+  return filtered
+}
 
 const modalOpen = ref(false)
 const activeTerm = ref<GlossaryTerm | null>(null)
@@ -266,16 +200,13 @@ function openEdit(id: number) {
   modalOpen.value = true
 }
 
-async function onSave(term: GlossaryTerm) { await save(term); modalOpen.value = false }
+async function onSave(term: GlossaryTerm) { 
+  await save(term)
+  modalOpen.value = false 
+}
 
-watch([categoryFilter, sourceFilter, targetFilter, onlyEnabled, search], () => { page.value = 1 })
-
-// initial load
+// Initial load
 void reload()
-
-// exportJson/importJson provided
-
-// no local wrappers
 </script>
 
 

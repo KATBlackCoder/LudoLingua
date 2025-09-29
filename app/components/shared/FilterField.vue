@@ -47,7 +47,7 @@
         <!-- Decrement button -->
         <UButton
           class="shrink-0"
-          :disabled="disabled || (Array.isArray(rangeValue) ? (rangeValue[0] ?? 0) <= rangeMin : (rangeValue as number) <= rangeMin)"
+          :disabled="disabled || (rangeValue as number) <= rangeMin"
           variant="outline"
           :size="isCompactMode ? 'xs' : 'sm'"
           icon="i-lucide-minus"
@@ -68,7 +68,7 @@
         <!-- Increment button -->
         <UButton
           class="shrink-0"
-          :disabled="disabled || (Array.isArray(rangeValue) ? (rangeValue[1] ?? 0) >= rangeMax : (rangeValue as number) >= rangeMax)"
+          :disabled="disabled || (rangeValue as number) >= rangeMax"
           variant="outline"
           :size="isCompactMode ? 'xs' : 'sm'"
           icon="i-lucide-plus"
@@ -113,11 +113,11 @@ interface Props {
   rangeLabel?: string
   
   // Model value
-  modelValue: string | string[] | number[]
+  modelValue: string | string[] | number
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: string | string[] | number[]): void
+  (e: 'update:modelValue', value: string | string[] | number): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -174,42 +174,24 @@ const inputValue = computed({
 })
 
 const rangeValue = computed({
-  get: () => props.modelValue as number[],
-  set: (value: number[]) => emit('update:modelValue', value)
+  get: () => props.modelValue as number,
+  set: (value: number) => emit('update:modelValue', value)
 })
 
 // Range increment/decrement methods
 const incrementRange = () => {
-  const currentValue = props.modelValue as number[]
-  if (Array.isArray(currentValue) && currentValue.length >= 2) {
-    const newValue = [...currentValue]
-    if (newValue[1] && newValue[1] < props.rangeMax) {
-      newValue[1] = Math.min(newValue[1] + props.rangeStep, props.rangeMax)
-      emit('update:modelValue', newValue)
-    }
-  } else {
-    const singleValue = Array.isArray(props.modelValue) ? props.modelValue[0] : (props.modelValue as unknown as number)
-    if (typeof singleValue === 'number' && singleValue < props.rangeMax) {
-      const newValue = Math.min(singleValue + props.rangeStep, props.rangeMax)
-      emit('update:modelValue', [newValue])
-    }
+  const currentValue = props.modelValue as number
+  if (typeof currentValue === 'number' && currentValue < props.rangeMax) {
+    const newValue = Math.min(currentValue + props.rangeStep, props.rangeMax)
+    emit('update:modelValue', newValue)
   }
 }
 
 const decrementRange = () => {
-  const currentValue = props.modelValue as number[]
-  if (Array.isArray(currentValue) && currentValue.length >= 2) {
-    const newValue = [...currentValue]
-    if (newValue[0] && newValue[0] > props.rangeMin) {
-      newValue[0] = Math.max(newValue[0] - props.rangeStep, props.rangeMin)
-      emit('update:modelValue', newValue)
-    }
-  } else {
-    const singleValue = Array.isArray(props.modelValue) ? props.modelValue[0] : (props.modelValue as unknown as number)
-    if (typeof singleValue === 'number' && singleValue > props.rangeMin) {
-      const newValue = Math.max(singleValue - props.rangeStep, props.rangeMin)
-      emit('update:modelValue', [newValue])
-    }
+  const currentValue = props.modelValue as number
+  if (typeof currentValue === 'number' && currentValue > props.rangeMin) {
+    const newValue = Math.max(currentValue - props.rangeStep, props.rangeMin)
+    emit('update:modelValue', newValue)
   }
 }
 </script>
