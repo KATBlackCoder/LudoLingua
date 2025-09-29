@@ -2,106 +2,51 @@
 
 ## 🎯 LudoLingua Development Roadmap
 
-### Phase 1: Component Architecture Refactoring (Current Priority)
+### Phase 1: Selective Translation Injection (Current Priority)
 **Timeline: 2-3 weeks**
 
 #### Objective
-Refactor oversized components and eliminate code duplication to improve maintainability, performance, and developer experience.
+Implement selective injection functionality that allows users to choose specific translations to inject rather than performing a global injection of all translated content.
 
 #### Key Deliverables
-1. **Shared Composables**
-   - `useFullscreen.ts` - Centralized fullscreen detection
-   - `usePagination.ts` - TanStack Table pagination integration
-   - `useTableSelection.ts` - Pure row selection state management
-   - `useBulkActions.ts` - Bulk operation logic and state handling
-   - `useModal.ts` - Modal state management
 
-2. **Shared Utilities**
-   - `utils/translation.ts` - Translation-related utilities (already exists)
-   - `utils/table.ts` - Table formatting and column factory functions
-   - `utils/ui.ts` - UI styling and responsive utilities
+##### 1. Enhanced Selection System
+- **Multi-Select Translation Units**: Allow users to select specific translation units for injection
+- **Batch Selection**: Support selecting multiple translations by criteria (status, file type, etc.)
+- **Visual Selection Indicators**: Clear UI indicators showing what's selected for injection
+- **Selection Persistence**: Maintain selection state across navigation and filtering
 
-3. **Shared Components**
-   - `FilterCard.vue` - Standardized filter interface
-   - `TableHeader.vue` - Consistent table headers
-   - `TableFooter.vue` - Standardized table footers
-   - `ActionButtonGroup.vue` - Reusable action buttons
-   - `BulkActions.vue` - Reusable bulk action alerts
-   - `DataTable.vue` - Complete table solution
+##### 2. Selective Injection UI
+- **Injection Dialog**: Create modal for selective injection with preview
+- **Injection Preview**: Show which files will be modified and what translations will be injected
+- **Injection Options**: Allow users to choose injection scope (selected items only)
+- **Progress Tracking**: Real-time progress indicator during selective injection
 
-4. **Component Breakdown**
-   - ✅ `TranslationResult.vue`: Migrated to DataTable component with utility functions
-   - ✅ Removed `TranslationTable.vue` (replaced by modern `TranslationView.vue`)
-   - ✅ `GlossaryTable.vue`: Migrated to DataTable component with language filter optimization
+##### 3. Backend Injection Logic
+- **Selective Injection API**: Modify backend to accept specific translation unit IDs
+- **Partial File Updates**: Update only the files containing selected translations
+- **Injection Validation**: Validate selected translations before injection
+- **Rollback Support**: Ability to undo selective injections
 
-5. **Modal Component Refactoring**
-   - ✅ **Supporting Components Created**: All modal components created in `components/shared/modal/`
-     - ✅ `ModalHeader.vue` - Standardized modal header with icon, title, and description
-     - ✅ `ModalActions.vue` - Standardized modal actions with badge display
-     - ✅ `ModalBody.vue` - Standardized modal body with consistent spacing
-     - ✅ `ModalFooter.vue` - Standardized modal footer with save/cancel buttons and status
-     - ✅ `TextCard.vue` - Reusable text display card with character count and styling
-     - ✅ `FormCard.vue` - Reusable form input card with header and footer actions
-     - ✅ `MetadataCard.vue` - Reusable metadata display card for configuration sections
-   - ✅ **Modal Component Analysis**: Analyzed existing modal components for compatibility
-     - ✅ **TranslationEditor.vue Analysis**: Perfect match for two-column layout with source/translation cards
-     - ✅ **TranslationForm.vue Analysis**: Perfect match for two-column layout with metadata integration
-     - ✅ **GlossaryForm.vue Analysis**: Perfect match for two-column layout with configuration sections
-     - ✅ **Implementation Strategy**: All three components can be replaced with Modal.vue using slots and props
-   - [x] ✅ Update `TranslationEditor.vue` to use `Modal.vue` component
-   - [x] ✅ Update `TranslationForm.vue` to use `Modal.vue` component
-   - [x] ✅ Update `GlossaryForm.vue` to use `Modal.vue` component
-   - [x] ✅ Standardize modal behavior across all form components
-   - [x] ✅ Eliminate modal state management duplication
-
-6. **TanStack Table Standardization**
-   - ✅ Migrate all table components to TanStack Table pagination
-   - ✅ Create unified `usePagination.ts` composable
-   - ✅ Eliminate mixed pagination systems (TanStack vs manual)
-   - ✅ Ensure consistent pagination behavior across all tables
-   - ✅ `TranslationProcess.vue`: Migrated to DataTable component with utility functions
-   - ✅ `TranslationRaw.vue`: Migrated to DataTable component with utility functions
-   - ✅ `GlossaryTable.vue`: Migrated to DataTable component with language filter optimization
-
-7. **Selection & Bulk Actions Standardization**
-   - Create pure `useTableSelection.ts` for selection state management
-   - Create separate `useBulkActions.ts` for bulk operation logic
-   - Standardize bulk action patterns across all components
-   - Eliminate duplicated selection logic and bulk action implementations
+##### 4. Integration Points
+- **Translation Tables**: Add selection checkboxes and bulk injection actions
+- **Translation Editor**: Add "Inject Selected" option to individual translation editor
+- **Glossary System**: Selective injection for glossary terms
+- **Export System**: Modify export to support selective translation injection
 
 #### Success Metrics
-- [ ] Reduce total LOC by 60% (2000 → 800 lines)
-- [x] Eliminate 5x code duplication (shared composables created)
-- [ ] Achieve <200 lines per component
-- [ ] 100% functionality preservation
-- [ ] Improved test coverage
-- [ ] 100% TanStack Table pagination adoption
-- [ ] Consistent pagination behavior across all components
-- [ ] Unified selection and bulk action patterns
-- [x] Clear separation of concerns between selection and bulk operations
-- [x] ✅ Standardized modal behavior across all form components
-- [x] ✅ Eliminated modal state management duplication
+- [ ] Users can select 1-1000+ specific translations for injection
+- [ ] Injection process takes <30 seconds for typical selections
+- [ ] 100% accuracy in selective injection (no unintended changes)
+- [ ] Clear visual feedback during injection process
+- [ ] Support for both single-item and bulk selective injection
 
-#### Phase 1 Progress
-- ✅ **Shared Composables**: All 5 composables created and tested
-- ✅ **Shared Utilities**: Pure utility functions for table and UI operations
-- ✅ **Core Components**: FilterCard, TableHeader, BulkActions created
-- ✅ **Component Refactoring**: TranslationResult.vue, TranslationRaw.vue, TranslationProcess.vue, and GlossaryTable.vue migrated to DataTable
-- ✅ **Modal Components**: All supporting modal components created in `components/shared/modal/`
-- ✅ **Modal Integration**: TranslationEditor, TranslationForm, GlossaryForm completed
-- ✅ **Table Migration**: TanStack Table standardization complete across all components
-
-#### Completed Deliverables
-1. **`useFullscreen.ts`** - Eliminates 5x duplication across all table components
-2. **`useModal.ts`** - Comprehensive modal state management with loading/error states
-3. **`usePagination.ts`** - TanStack Table pagination integration with manual fallback
-4. **`useTableSelection.ts`** - Pure row selection logic (separated from bulk actions)
-5. **`useBulkActions.ts`** - Bulk operation logic with error handling and dynamic labels
-6. **`utils/table.ts`** - Pure table utility functions (column factories, formatting, validation)
-7. **`utils/ui.ts`** - Pure UI utility functions (badge colors, icons, text formatting)
-8. **`FilterCard.vue`** - Reusable filter card wrapper with badges and clear functionality
-9. **`TableHeader.vue`** - Standardized table header with pagination integration
-10. **`BulkActions.vue`** - Reusable bulk action alerts with dynamic buttons
+#### Technical Requirements
+- [ ] Modify `export_translated_subset` to accept translation unit IDs
+- [ ] Update database queries to fetch specific translation units
+- [ ] Enhance UI selection components with injection actions
+- [ ] Add injection preview and confirmation dialogs
+- [ ] Implement progress tracking for selective injection operations
 
 ---
 
@@ -238,7 +183,7 @@ Add advanced translation features and third-party integrations.
 ## 📊 Progress Tracking
 
 ### Current Status
-- **Phase 1**: 🔄 In Progress (40% complete)
+- **Phase 1**: 🔄 In Progress (0% complete)
 - **Phase 2**: ⏳ Planned
 - **Phase 3**: ⏳ Planned
 - **Phase 4**: ⏳ Planned
@@ -274,32 +219,21 @@ Add advanced translation features and third-party integrations.
 ## 📝 Notes
 
 ### Technical Debt
-- Component architecture needs immediate attention
+- Selective injection system needs implementation
 - Performance optimization required for large datasets
 - Testing coverage needs improvement
 - Documentation needs updating
-- Mixed pagination systems causing inconsistencies
-- ~~Duplicated table logic across 5 components~~ ✅ **RESOLVED** - Shared composables created
-- ~~Row selection and bulk action logic mixed together~~ ✅ **RESOLVED** - Separated into distinct composables
-- ~~Inconsistent bulk operation patterns across components~~ ✅ **RESOLVED** - Unified useBulkActions composable
-- ~~Modal state management duplicated across form components~~ ✅ **RESOLVED** - useModal composable created
-- ~~Inconsistent modal loading and error states~~ ✅ **RESOLVED** - Built into useModal composable
 
 ### Risk Mitigation
-- Incremental refactoring to avoid breaking changes
+- Incremental implementation to avoid breaking changes
 - Comprehensive testing at each phase
 - User feedback integration
 - Performance monitoring throughout development
 
 ### Success Criteria
-- Maintainable codebase with <200 lines per component
+- Users can selectively inject specific translations
 - 95% user satisfaction score
 - <100ms response time for common operations
 - Zero critical bugs in production
 - 100% accessibility compliance
-- Unified TanStack Table pagination across all components
-- Eliminated code duplication in table logic
-- Clear separation between selection state and bulk operations
-- Consistent bulk action patterns across all table components
-- Standardized modal behavior with built-in loading/error states
-- Eliminated modal state management duplication across form components
+- Efficient selective injection with clear user feedback

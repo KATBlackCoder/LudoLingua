@@ -124,7 +124,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
             id: "system_game_title".to_string(),
             source_text: system.game_title.clone(), // Raw text, no processing
             translated_text: String::new(),
-            field_type: "gameTitle:data/System.json:0".to_string(),
+            field_type: "gameTitle:www/data/System.json:0".to_string(),
             status: TranslationStatus::NotTranslated,
             prompt_type: PromptType::Character,
         });
@@ -136,7 +136,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
             id: "system_currency_unit".to_string(),
             source_text: system.currency_unit.clone(), // Raw text, no processing
             translated_text: String::new(),
-            field_type: "currencyUnit:data/System.json:0".to_string(),
+            field_type: "currencyUnit:www/data/System.json:0".to_string(),
             status: TranslationStatus::NotTranslated,
             prompt_type: PromptType::System,
         });
@@ -149,7 +149,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
                 id: format!("system_armor_type_{}", index),
                 source_text: armor_type.clone(), // Raw text, no processing
                 translated_text: String::new(),
-                field_type: format!("armorTypes[{}]:data/System.json:0", index),
+                field_type: format!("armorTypes[{}]:www/data/System.json:0", index),
                 status: TranslationStatus::NotTranslated,
                 prompt_type: PromptType::Equipment,
             });
@@ -163,7 +163,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
                 id: format!("system_element_{}", index),
                 source_text: element.clone(), // Raw text, no processing
                 translated_text: String::new(),
-                field_type: format!("elements[{}]:data/System.json:0", index),
+                field_type: format!("elements[{}]:www/data/System.json:0", index),
                 status: TranslationStatus::NotTranslated,
                 prompt_type: PromptType::System,
             });
@@ -177,7 +177,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
                 id: format!("system_equip_type_{}", index),
                 source_text: equip_type.clone(), // Raw text, no processing
                 translated_text: String::new(),
-                field_type: format!("equipTypes[{}]:data/System.json:0", index),
+                field_type: format!("equipTypes[{}]:www/data/System.json:0", index),
                 status: TranslationStatus::NotTranslated,
                 prompt_type: PromptType::Equipment,
             });
@@ -191,60 +191,54 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
                 id: format!("system_skill_type_{}", index),
                 source_text: skill_type.clone(), // Raw text, no processing
                 translated_text: String::new(),
-                field_type: format!("skillTypes[{}]:data/System.json:0", index),
+                field_type: format!("skillTypes[{}]:www/data/System.json:0", index),
                 status: TranslationStatus::NotTranslated,
                 prompt_type: PromptType::Skill,
             });
         }
     }
 
-    // Extract weapon types
-    // NOTE: Weapon types are not translated per project requirements
-    // for (index, weapon_type) in system.weapon_types.iter().enumerate() {
-    //     if !weapon_type.is_empty() {
-    //         // Raw text, no processing - let clean = replace_formatting_codes_for_translation(weapon_type);
-    //         text_units.push(TextUnit {
-    //             id: format!("system_weapon_type_{}", index),
-    //             source_text: system.game_title.clone(), // TODO: Fix this to use correct field
-    //             translated_text: String::new(),
-    //             field_type: format!("weaponTypes[{}]:data/System.json:0", index),
-    //             status: TranslationStatus::NotTranslated,
-    //             prompt_type: PromptType::Equipment,
-    //         });
-    //     }
-    // }
+    /* // Extract weapon types
+    for (index, weapon_type) in system.weapon_types.iter().enumerate() {
+        if !weapon_type.is_empty() {
+            text_units.push(TextUnit {
+                id: format!("system_weapon_type_{}", index),
+                source_text: weapon_type.clone(), // Fixed: use actual weapon_type instead of game_title
+                translated_text: String::new(),
+                field_type: format!("weaponTypes[{}]:www/data/System.json:0", index),
+                status: TranslationStatus::NotTranslated,
+                prompt_type: PromptType::Equipment,
+            });
+        }
+    }*/
 
-    // Extract switches
-    // NOTE: Switches are not translated per project requirements
-    // for (index, switch_name) in system.switches.iter().enumerate() {
-    //     if !switch_name.is_empty() && !is_technical_content(switch_name) {
-    //         // Raw text, no processing - let clean = replace_formatting_codes_for_translation(switch_name);
-    //         text_units.push(TextUnit {
-    //             id: format!("system_switch_{}", index),
-    //             source_text: system.game_title.clone(), // TODO: Fix this to use correct field
-    //             translated_text: String::new(),
-    //             field_type: format!("switches[{}]:data/System.json:0", index),
-    //             status: TranslationStatus::NotTranslated,
-    //             prompt_type: PromptType::System,
-    //         });
-    //     }
-    // }
+    /* // Extract switches (filter out technical/empty ones)
+    for (index, switch_name) in system.switches.iter().enumerate() {
+        if !switch_name.is_empty() && !is_technical_switch_name(switch_name) {
+            text_units.push(TextUnit {
+                id: format!("system_switch_{}", index),
+                source_text: switch_name.clone(), // Fixed: use actual switch_name
+                translated_text: String::new(),
+                field_type: format!("switches[{}]:www/data/System.json:0", index),
+                status: TranslationStatus::NotTranslated,
+                prompt_type: PromptType::System,
+            });
+        }
+    }*/
 
-    // Extract variables
-    // NOTE: Variables are not translated per project requirements
-    // for (index, variable_name) in system.variables.iter().enumerate() {
-    //     if !variable_name.is_empty() && !is_technical_content(variable_name) {
-    //         // Raw text, no processing - let clean = replace_formatting_codes_for_translation(variable_name);
-    //         text_units.push(TextUnit {
-    //             id: format!("system_variable_{}", index),
-    //             source_text: system.game_title.clone(), // TODO: Fix this to use correct field
-    //             translated_text: String::new(),
-    //             field_type: format!("variables[{}]:data/System.json:0", index),
-    //             status: TranslationStatus::NotTranslated,
-    //             prompt_type: PromptType::System,
-    //         });
-    //     }
-    // }
+    /* // Extract variables (filter out technical/empty ones)
+    for (index, variable_name) in system.variables.iter().enumerate() {
+        if !variable_name.is_empty() && !is_technical_variable_name(variable_name) {
+            text_units.push(TextUnit {
+                id: format!("system_variable_{}", index),
+                source_text: variable_name.clone(), // Fixed: use actual variable_name
+                translated_text: String::new(),
+                field_type: format!("variables[{}]:www/data/System.json:0", index),
+                status: TranslationStatus::NotTranslated,
+                prompt_type: PromptType::System,
+            });
+        }
+    }*/
 
     // Extract basic terms
     for (index, basic_term) in system.terms.basic.iter().enumerate() {
@@ -254,7 +248,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
                     id: format!("system_basic_term_{}", index),
                     source_text: term.clone(), // Raw text, no processing
                     translated_text: String::new(),
-                    field_type: format!("terms.basic[{}]:data/System.json:0", index),
+                    field_type: format!("terms.basic[{}]:www/data/System.json:0", index),
                     status: TranslationStatus::NotTranslated,
                     prompt_type: PromptType::System,
                 });
@@ -270,7 +264,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
                     id: format!("system_command_term_{}", index),
                     source_text: term.clone(), // Raw text, no processing
                     translated_text: String::new(),
-                    field_type: format!("terms.commands[{}]:data/System.json:0", index),
+                    field_type: format!("terms.commands[{}]:www/data/System.json:0", index),
                     status: TranslationStatus::NotTranslated,
                     prompt_type: PromptType::System,
                 });
@@ -286,7 +280,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
                     id: format!("system_param_term_{}", index),
                     source_text: term.clone(), // Raw text, no processing
                     translated_text: String::new(),
-                    field_type: format!("terms.params[{}]:data/System.json:0", index),
+                    field_type: format!("terms.params[{}]:www/data/System.json:0", index),
                     status: TranslationStatus::NotTranslated,
                     prompt_type: PromptType::System,
                 });
@@ -301,7 +295,7 @@ pub fn extract_text(project_path: &Path, file_path: &str) -> AppResult<GameDataF
                 id: format!("system_message_{}", key),
                 source_text: message.clone(), // Raw text, no processing
                 translated_text: String::new(),
-                field_type: format!("terms.messages.{}:data/System.json:0", key),
+                field_type: format!("terms.messages.{}:www/data/System.json:0", key),
                 status: TranslationStatus::NotTranslated,
                 prompt_type: PromptType::System,
             });
@@ -368,7 +362,7 @@ pub fn inject_translations(
         if !unit.translated_text.is_empty() {
             let restored = unit.translated_text.clone(); // Text processing handled by unified pipeline
                                                          // Add LudoLingua signature to the translated title
-            system.game_title = format!("{} - LudoLingua", restored);
+            system.game_title = format!("{} - Translated by LudoLingua", restored);
         }
     }
 
@@ -421,37 +415,34 @@ pub fn inject_translations(
     }
 
     // Update weapon types
-    // NOTE: Weapon types are not translated per project requirements
-    // for (index, weapon_type) in system.weapon_types.iter_mut().enumerate() {
-    //     if let Some(unit) = text_units_map.get(&format!("system_weapon_type_{}", index)) {
-    //         if !unit.translated_text.is_empty() {
-    //             let restored = unit.translated_text.clone(); // Text processing handled by unified pipeline
-    //             *weapon_type = restored;
-    //         }
-    //     }
-    // }
+    /*for (index, weapon_type) in system.weapon_types.iter_mut().enumerate() {
+        if let Some(unit) = text_units_map.get(&format!("system_weapon_type_{}", index)) {
+            if !unit.translated_text.is_empty() {
+                let restored = unit.translated_text.clone(); // Text processing handled by unified pipeline
+                *weapon_type = restored;
+            }
+        }
+    }*/
 
     // Update switches
-    // NOTE: Switches are not translated per project requirements
-    // for (index, switch_name) in system.switches.iter_mut().enumerate() {
-    //     if let Some(unit) = text_units_map.get(&format!("system_switch_{}", index)) {
-    //         if !unit.translated_text.is_empty() {
-    //             let restored = unit.translated_text.clone(); // Text processing handled by unified pipeline
-    //             *switch_name = restored;
-    //         }
-    //     }
-    // }
+    /*for (index, switch_name) in system.switches.iter_mut().enumerate() {
+        if let Some(unit) = text_units_map.get(&format!("system_switch_{}", index)) {
+            if !unit.translated_text.is_empty() {
+                let restored = unit.translated_text.clone(); // Text processing handled by unified pipeline
+                *switch_name = restored;
+            }
+        }
+    }*/
 
     // Update variables
-    // NOTE: Variables are not translated per project requirements
-    // for (index, variable_name) in system.variables.iter_mut().enumerate() {
-    //     if let Some(unit) = text_units_map.get(&format!("system_variable_{}", index)) {
-    //         if !unit.translated_text.is_empty() {
-    //             let restored = unit.translated_text.clone(); // Text processing handled by unified pipeline
-    //             *variable_name = restored;
-    //         }
-    //     }
-    // }
+    /*for (index, variable_name) in system.variables.iter_mut().enumerate() {
+        if let Some(unit) = text_units_map.get(&format!("system_variable_{}", index)) {
+            if !unit.translated_text.is_empty() {
+                let restored = unit.translated_text.clone(); // Text processing handled by unified pipeline
+                *variable_name = restored;
+            }
+        }
+    }*/
 
     // Update basic terms
     for (index, basic_term) in system.terms.basic.iter_mut().enumerate() {

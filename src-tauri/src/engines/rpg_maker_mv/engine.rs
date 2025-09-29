@@ -344,16 +344,6 @@ impl RpgMakerMvEngine {
             "class",
         )?;
 
-        // Inject system translations
-        common::inject_file_type_translations(
-            project_info,
-            text_units,
-            "system_",
-            &["www/data/System.json"],
-            system::inject_translations,
-            "system",
-        )?;
-
         // Inject states translations
         common::inject_file_type_translations(
             project_info,
@@ -449,6 +439,16 @@ impl RpgMakerMvEngine {
                 log::info!("No text units found for map {}", map_id);
             }
         }
+
+        // Inject system translations
+        common::inject_file_type_translations(
+            project_info,
+            text_units,
+            "system_",
+            &["www/data/System.json"],
+            system::inject_translations,
+            "system",
+        )?;
 
         // info!("Translation injection completed");
         Ok(())

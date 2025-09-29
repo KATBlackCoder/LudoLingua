@@ -86,7 +86,7 @@ const currentProviderSettings = ref({
   base_url: '',
   api_key: '',
   temperature: 0.3,
-  max_tokens: 2048,
+  max_tokens: 1024,
 })
 
 // Handle provider settings updates

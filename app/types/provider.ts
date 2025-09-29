@@ -36,15 +36,15 @@ export interface TranslationSettings {
 export const defaultOllamaConfig: LlmConfig = {
   model: {
     display_name: 'Qwen2.5 7B',
-    model_name: 'qwen2.5:latest',
+    model_name: 'qwen2.5:7b',
     provider: 'Ollama',
-    description: 'A 7B parameter model trained by Qwen AI, good for general-purpose text generation and translation',
+    description: 'Qwen2.5 7B - Lightweight model with excellent multilingual capabilities, especially strong for Asian languages. Perfect for quick translations and UI text. No content filtering.',
     pricing: {
       input_price_per_1k: 0.0,
       output_price_per_1k: 0.0,
       currency: 'USD'
     },
-    context_window: 32768,
+    context_window: 131072,
     enabled: true
   },
   base_url: 'http://localhost:11434', // Always localhost for Ollama
@@ -60,20 +60,20 @@ export const defaultOllamaConfig: LlmConfig = {
  */
 export const defaultRunPodConfig: LlmConfig = {
   model: {
-    display_name: 'Llama 3.1 8B (RunPod)',
-    model_name: 'llama3.1:8b',
+    display_name: 'Qwen3 30B',
+    model_name: 'qwen3:30b',
     provider: 'RunPod',
-    description: 'Meta Llama 3.1 8B model optimized for translation on RunPod GPU infrastructure',
+    description: 'Qwen3 30B - Advanced model with 256K context window, superior Japanese→English translation, and excellent adult content handling. Perfect for complex RPG texts with long context requirements.',
     pricing: {
       input_price_per_1k: 0.0,
       output_price_per_1k: 0.0,
       currency: 'USD'
     },
-    context_window: 131072,
+    context_window: 262144,
     enabled: true
   },
   base_url: '', // User needs to enter their pod ID (e.g., "abc123")
   api_key: undefined,
   temperature: 0.3,
-  max_tokens: 1000,
+  max_tokens: 512,
 };

@@ -8,6 +8,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 10.1.18: RPG Maker MZ System.json Architecture Alignment - COMPLETED ✅**
+  - **Serde Field Mapping Fix:** Added proper serde rename attributes to match JSON field names
+    - **Field Mapping:** Added `#[serde(rename)]` attributes for gameTitle, currencyUnit, armorTypes, equipTypes, skillTypes, weaponTypes
+    - **JSON Compatibility:** MZ System struct now properly maps to actual JSON field names
+    - **Cross-Engine Consistency:** MZ system.rs now matches MV architecture patterns
+    - **Parse Reliability:** Eliminates potential JSON parsing issues due to field name mismatches
+  - **Non-Translatable Fields Commenting:** Commented out fields that should not be translated
+    - **Field Classification:** Commented out weaponTypes, elements, switches, variables in struct definition
+    - **Extraction Logic:** Commented out extraction code for non-translatable fields
+    - **Injection Logic:** Commented out injection code for non-translatable fields
+    - **Architecture Clarity:** Clear separation between translatable and non-translatable fields
+  - **Translatable Fields Specification:** Implemented exact field specification as requested
+    - **Specified Fields:** Only armorTypes, equipTypes, gameTitle, skillTypes, and terms are extracted
+    - **Currency Unit:** Included currencyUnit as it contains UI text (not explicitly specified but UI-relevant)
+    - **Terms Structure:** Proper extraction of terms.basic, terms.commands, terms.params, terms.messages
+    - **Quality Control:** Ensures only meaningful content is sent for translation
+  - **LudoLingua Signature Integration:** Added signature to game title translations
+    - **Signature Format:** Game titles now formatted as `"[Translated Title] - Translated by LudoLingua"`
+    - **MV Consistency:** Matches the signature behavior implemented in MV system.rs
+    - **Brand Recognition:** Provides proper attribution for LudoLingua translations
+    - **Professional Quality:** Maintains consistent branding across all engine implementations
+  - **Architecture Benefits:** Enhanced maintainability and consistency
+    - **Code Consistency:** MZ system.rs now follows same patterns as MV system.rs
+    - **Field Clarity:** Clear documentation of which fields are translatable vs non-translatable
+    - **Maintainability:** Easier to understand and modify System.json handling
+    - **Cross-Engine:** Consistent behavior between MV and MZ engines
+  - **Benefits Achieved:** Professional-grade MZ System.json handling
+    - **Correct Field Extraction:** Only extracts the fields specified as translatable
+    - **Proper JSON Mapping:** Serde attributes ensure correct JSON parsing
+    - **Brand Consistency:** LudoLingua signature on translated game titles
+    - **Architecture Alignment:** MZ system.rs matches MV architecture patterns
+    - **Quality Assurance:** Clear separation between translatable and non-translatable content
+- **Phase 10.1.17: System.json Extraction/Injection Fixes - COMPLETED ✅**
+  - **Field Type Format Fix:** Corrected field type format to include www/ prefix for proper engine compatibility
+    - **Format Standardization:** Changed all field types from `"field:data/System.json:0"` to `"field:www/data/System.json:0"`
+    - **Engine Compatibility:** Now matches expected format for engine's reconstruction logic
+    - **Consistent Pattern:** Applied to all System.json fields (gameTitle, currencyUnit, armorTypes, elements, equipTypes, skillTypes, weaponTypes, terms)
+    - **Cross-Engine Support:** Ensures proper field type recognition across all RPG Maker engines
+  - **Weapon Types Extraction Fix:** Enabled and fixed weapon types extraction with proper field usage
+    - **Bug Resolution:** Fixed critical bug where `system.game_title.clone()` was used instead of `weapon_type.clone()`
+    - **Extraction Enablement:** Uncommented weapon types extraction to process all weapon type names
+    - **Proper Field Usage:** Now correctly extracts weapon type names for translation
+    - **Translation Support:** Weapon types can now be translated with appropriate prompt types
+  - **Switches and Variables Extraction:** Enabled extraction of switches and variables with intelligent filtering
+    - **Technical Content Filtering:** Added helper functions to filter out technical switches and variables
+    - **Smart Detection:** Filters out debug switches, test variables, coordinate data, and system variables
+    - **Content Quality:** Prevents translation of technical content that shouldn't be translated
+    - **Comprehensive Coverage:** Handles Japanese debug markers, test patterns, and system variables
+  - **Helper Functions Implementation:** Added comprehensive filtering functions for technical content
+    - **Switch Filtering:** `is_technical_switch_name()` filters debug switches, test patterns, and empty names
+    - **Variable Filtering:** `is_technical_variable_name()` filters system variables, coordinates, and technical data
+    - **Pattern Recognition:** Detects Japanese debug markers, test patterns, and system variables
+    - **Quality Assurance:** Ensures only meaningful content is sent for translation
+  - **Injection Code Updates:** Updated injection methods to handle all new fields properly
+    - **Weapon Types Injection:** Added proper injection logic for weapon types with translated text
+    - **Switches Injection:** Added injection logic for switches with proper field mapping
+    - **Variables Injection:** Added injection logic for variables with proper field mapping
+    - **Consistent Pattern:** All injection methods follow the same pattern as other RPG Maker files
+  - **Benefits Achieved:** Complete System.json translation support with professional-grade functionality
+    - **Comprehensive Coverage:** All System.json translatable content now properly extracted and injected
+    - **Quality Control:** Intelligent filtering prevents translation of technical content
+    - **Consistent Architecture:** Follows same patterns as other RPG Maker files for maintainability
+    - **Professional Quality:** System.json now fully integrated with translation workflow
+    - **User Experience:** Users can translate game titles, UI elements, switches, and variables
 - **Phase 10.1.16: Clipboard Functionality Refactoring - COMPLETED ✅**
   - **ModalFooter.vue Clipboard Integration:** Centralized clipboard functionality in ModalFooter component
     - **useClipboard Integration:** Added useClipboard composable directly to ModalFooter.vue for centralized clipboard handling

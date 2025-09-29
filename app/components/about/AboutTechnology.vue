@@ -98,10 +98,10 @@
                   </p>
                   <div class="space-y-1">
                     <UBadge color="primary" variant="soft" size="sm">
-                      Recommended: 1024
+                      Recommended: 512
                     </UBadge>
                     <p class="text-xs text-primary-600 dark:text-primary-400">
-                      Use 2048 for longer paragraphs; smaller for short UI strings.
+                      128 for character names/UI; 512 for dialogue; 1024 for descriptions.
                     </p>
                   </div>
                 </div>

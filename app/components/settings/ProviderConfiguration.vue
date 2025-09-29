@@ -107,12 +107,12 @@
             />
           </UFormField>
 
-          <UFormField label="Max Tokens" description="Response token cap">
+          <UFormField label="Max Tokens" description="Response token cap (128-1024 recommended for RPG)">
             <UInput 
               :model-value="advancedSettings.max_tokens" 
               type="number" 
-              min="1" 
-              max="8192"
+              min="64" 
+              max="2048"
               icon="i-lucide-hash"
               @update:model-value="updateField('max_tokens', $event)" 
             />
@@ -161,7 +161,7 @@ const advancedSettings = ref({
   base_url: settingsStore.userSettings.base_url || '',
   api_key: '', // Void - not used in UI but kept for backend compatibility
   temperature: settingsStore.userSettings.temperature || 0.3,
-  max_tokens: settingsStore.userSettings.max_tokens || 2048,
+  max_tokens: settingsStore.userSettings.max_tokens || 512,
 })
 
 // Update settings when store changes
@@ -170,7 +170,7 @@ watch(() => settingsStore.userSettings, (newSettings) => {
     base_url: newSettings.base_url || '',
     api_key: '', // Void - not used in UI but kept for backend compatibility
     temperature: newSettings.temperature || 0.3,
-    max_tokens: newSettings.max_tokens || 2048,
+    max_tokens: newSettings.max_tokens || 512,
   }
 }, { deep: true })
 
@@ -189,12 +189,12 @@ onMounted(() => {
   emit('settings-updated', advancedSettings.value)
 })
 
-// Presets for temperature/max_tokens
+// Presets for temperature/max_tokens - optimized for RPG content
 const presets = [
-  { id: 'recommended', label: 'Recommended (0.3 · 2048)', temperature: 0.3, max_tokens: 2048 },
-  { id: 'high', label: 'High Quality (0.3 · 4096)', temperature: 0.3, max_tokens: 4096 },
-  { id: 'creative', label: 'Creative (0.7 · 2048)', temperature: 0.7, max_tokens: 2048 },
-  { id: 'maximum', label: 'Maximum Context (0.3 · 8192)', temperature: 0.3, max_tokens: 8192 },
+  { id: 'fast', label: 'Fast (0.3 · 128)', temperature: 0.3, max_tokens: 128 },
+  { id: 'recommended', label: 'Recommended (0.3 · 512)', temperature: 0.3, max_tokens: 512 },
+  { id: 'thorough', label: 'Thorough (0.3 · 1024)', temperature: 0.3, max_tokens: 1024 },
+  { id: 'creative', label: 'Creative (0.7 · 256)', temperature: 0.7, max_tokens: 256 },
 ]
 const presetItems = computed(() => presets.map(p => ({ label: p.label, value: p.id })))
 const selectedPreset = ref('recommended')
