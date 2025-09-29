@@ -8,7 +8,6 @@
     header-icon="i-lucide-edit-3"
     header-icon-color="primary"
     :status="getStatusLabel(local.status)"
-    :status-color="getStatusColor(local.status) as any"
     :category="local.prompt_type"
     :source-text="local.source_text"
     source-title="Source Text"
@@ -32,12 +31,8 @@
     :status-info="`ID: ${local.id || 'New'} • ${local.source_lang} → ${local.target_lang}`"
     keyboard-shortcuts="Ctrl/Cmd + Enter to save"
     :modal-ui="{ content: 'max-w-5xl' }"
-    :show-retranslation="true"
-    :is-retranslating="isRetranslating"
-    :retranslation-disabled="!local.source_text"
     @cancel="onCancel"
     @save="onSave"
-    @retranslate="onRetranslate"
   >
     <!-- Translation content slot -->
     <template #translationContent>
@@ -91,7 +86,7 @@ import { computed, ref, watch } from 'vue'
 import type { TextUnitRecord } from '~/types/translation'
 import { TranslationStatus, PromptType } from '~/types/translation'
 import Modal from '~/components/shared/modal/Modal.vue'
-import { getStatusLabel, getStatusColor, statusOptions } from '~/utils/translation'
+import { getStatusLabel, statusOptions } from '~/utils/translation'
 
 interface Props {
   open: boolean
@@ -101,7 +96,6 @@ interface Props {
 interface Emits {
   (e: 'update:open', value: boolean): void
   (e: 'save', id: number, translatedText: string, status?: TranslationStatus): void
-  (e: 'retranslate', id: number, sourceText: string): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -111,9 +105,6 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 // Status utilities imported directly from utils/translation
-
-// Retranslation state
-const isRetranslating = ref(false)
 
 // Local state
 const local = ref<TextUnitRecord>({
@@ -221,19 +212,5 @@ function onSave() {
 
 function onCancel() {
   emit('update:open', false)
-}
-
-async function onRetranslate() {
-  if (!local.value.id || !local.value.source_text || isRetranslating.value) return
-  
-  isRetranslating.value = true
-  try {
-    emit('retranslate', local.value.id, local.value.source_text)
-  } finally {
-    // Reset loading state after a short delay to show the loading state
-    setTimeout(() => {
-      isRetranslating.value = false
-    }, 1000)
-  }
 }
 </script>

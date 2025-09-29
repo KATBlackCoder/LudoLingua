@@ -21,7 +21,6 @@
     <template v-if="showActions" #actions>
       <ModalActions
         :status="status"
-        :status-color="statusColor"
         :status-variant="statusVariant"
         :category="category"
         :category-variant="categoryVariant"

@@ -9,6 +9,18 @@
 export function getBadgeColor(status: string): 'primary' | 'secondary' | 'tertiary' | 'info' | 'success' | 'warning' | 'error' | 'neutral' {
   const statusLower = status.toLowerCase()
   
+  // Translation-specific keywords
+  if (statusLower.includes('reviewed') || statusLower.includes('human')) {
+    return 'success'
+  }
+  if (statusLower.includes('translated') || statusLower.includes('machine')) {
+    return 'warning'
+  }
+  if (statusLower.includes('ignored')) {
+    return 'error'
+  }
+  
+  // General status keywords
   if (statusLower.includes('success') || statusLower.includes('complete') || statusLower.includes('done')) {
     return 'success'
   }
