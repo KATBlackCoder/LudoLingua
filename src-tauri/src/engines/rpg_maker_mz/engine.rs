@@ -527,10 +527,49 @@ impl Engine for RpgMakerMzEngine {
             format!("other")
         };
 
-        // Special handling for System.json - it uses simple field-based IDs without index
+        // Special handling for System.json - it uses specific ID formats
         let reconstructed_id = if file_path.contains("System.json") {
-            // System uses format: "system_{field_name}" (no index)
-            format!("system_{}", field)
+            // Handle different System.json field types
+            if field.starts_with("terms.basic[") && field.ends_with("]") {
+                // Extract index from terms.basic[index]
+                let index_str = &field[12..field.len()-1]; // Remove "terms.basic[" and "]"
+                format!("system_basic_term_{}", index_str)
+            } else if field.starts_with("terms.commands[") && field.ends_with("]") {
+                // Extract index from terms.commands[index]
+                let index_str = &field[15..field.len()-1]; // Remove "terms.commands[" and "]"
+                format!("system_command_term_{}", index_str)
+            } else if field.starts_with("terms.params[") && field.ends_with("]") {
+                // Extract index from terms.params[index]
+                let index_str = &field[13..field.len()-1]; // Remove "terms.params[" and "]"
+                format!("system_param_term_{}", index_str)
+            } else if field.starts_with("terms.messages.") {
+                // Handle terms.messages.key format
+                let key = &field[15..]; // Remove "terms.messages."
+                format!("system_message_{}", key)
+            } else if field.starts_with("armorTypes[") && field.ends_with("]") {
+                // Extract index from armorTypes[index]
+                let index_str = &field[11..field.len()-1]; // Remove "armorTypes[" and "]"
+                format!("system_armor_type_{}", index_str)
+            } else if field.starts_with("elements[") && field.ends_with("]") {
+                // Extract index from elements[index]
+                let index_str = &field[9..field.len()-1]; // Remove "elements[" and "]"
+                format!("system_element_{}", index_str)
+            } else if field.starts_with("equipTypes[") && field.ends_with("]") {
+                // Extract index from equipTypes[index]
+                let index_str = &field[11..field.len()-1]; // Remove "equipTypes[" and "]"
+                format!("system_equip_type_{}", index_str)
+            } else if field.starts_with("skillTypes[") && field.ends_with("]") {
+                // Extract index from skillTypes[index]
+                let index_str = &field[11..field.len()-1]; // Remove "skillTypes[" and "]"
+                format!("system_skill_type_{}", index_str)
+            } else if field == "gameTitle" {
+                format!("system_game_title")
+            } else if field == "currencyUnit" {
+                format!("system_currency_unit")
+            } else {
+                // Fallback for other System.json fields
+                format!("system_{}", field)
+            }
         } else {
             // All other files use format: "object_type_index_field"
             format!("{}_{}_{}", object_type, index, field)

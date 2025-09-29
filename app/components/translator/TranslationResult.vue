@@ -24,6 +24,7 @@
       :placeholder-filter-options="placeholderOptions"
       :bulk-actions="bulkActions"
       :bulk-alert-color="'info'"
+      :search-fields="['source_text', 'translated_text']"
       @selection-change="onSelectionChange as any"
       @bulk-action="onBulkAction"
     />

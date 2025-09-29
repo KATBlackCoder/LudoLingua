@@ -8,6 +8,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 10.1.19: System.json ID Reconstruction Fix - COMPLETED ✅**
+  - **ID Mismatch Resolution:** Fixed critical issue where System.json translation injection was failing
+    - **Root Cause Analysis:** Identified mismatch between extraction IDs and reconstruction IDs in `reconstruct_text_unit_id()` function
+    - **Extraction vs Reconstruction:** Extraction created IDs like `"system_basic_term_0"` but reconstruction created `"system_terms.basic[0]"`
+    - **Injection Failure:** Injection functions expected extraction format but received reconstruction format, causing translations to be ignored
+    - **Solution Implementation:** Updated reconstruction logic to generate IDs that match injection expectations
+  - **Comprehensive Field Type Handling:** Enhanced `reconstruct_text_unit_id()` function for all System.json field types
+    - **Terms Handling:** Added specific parsing for `terms.basic[index]`, `terms.commands[index]`, `terms.params[index]`, `terms.messages.key`
+    - **Array Field Handling:** Added parsing for `armorTypes[index]`, `elements[index]`, `equipTypes[index]`, `skillTypes[index]`
+    - **Simple Field Handling:** Added handling for `gameTitle` and `currencyUnit` fields
+    - **Fallback Support:** Added fallback for other System.json fields with `system_{field}` format
+  - **ID Reconstruction Logic:** Implemented intelligent field type parsing and ID generation
+    - **Pattern Recognition:** Uses regex patterns to extract indices from field types like `terms.basic[0]`
+    - **Index Extraction:** Properly extracts numeric indices from bracketed field types
+    - **Key Extraction:** Extracts keys from `terms.messages.key` format for message terms
+    - **Consistent Formatting:** Generates IDs in exact format expected by injection functions
+  - **Cross-Engine Compatibility:** Ensured fix applies to all RPG Maker engines
+    - **MV Engine:** Fix applies to RPG Maker MV System.json handling
+    - **MZ Engine:** Fix applies to RPG Maker MZ System.json handling
+    - **Consistent Behavior:** All engines now properly handle System.json ID reconstruction
+    - **Future-Proof:** Architecture supports any new engines that use System.json format
+  - **Benefits Achieved:** Professional-grade System.json translation injection functionality
+    - **Working Injection:** System.json translations now properly injected back into game files
+    - **Complete Coverage:** All System.json field types supported for translation injection
+    - **Consistent Architecture:** ID reconstruction follows same patterns as other RPG Maker files
+    - **User Experience:** Users can now successfully translate and export System.json content
+    - **Professional Quality:** System.json fully integrated with complete translation workflow
+
+### Fixed
+- **System.json Translation Injection:** Fixed critical bug where System.json translations were not being injected back into game files
+  - **ID Reconstruction:** Updated `reconstruct_text_unit_id()` function in `src-tauri/src/engines/rpg_maker_mv/engine.rs` to properly handle System.json field types
+  - **Field Type Parsing:** Added intelligent parsing for complex field types like `terms.basic[0]:www/data/System.json:0`
+  - **Cross-Engine Support:** Fix applies to both RPG Maker MV and MZ engines for consistent behavior
+
 - **Phase 10.1.18: RPG Maker MZ System.json Architecture Alignment - COMPLETED ✅**
   - **Serde Field Mapping Fix:** Added proper serde rename attributes to match JSON field names
     - **Field Mapping:** Added `#[serde(rename)]` attributes for gameTitle, currencyUnit, armorTypes, equipTypes, skillTypes, weaponTypes

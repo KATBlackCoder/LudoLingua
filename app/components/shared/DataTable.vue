@@ -267,6 +267,9 @@ interface Props<T = unknown> {
   // Custom filtering function
   filterFunction?: (data: T[], searchQuery: string) => T[]
 
+  // Search configuration
+  searchFields?: string[]
+
   // Project management
   showProjectActions?: boolean
   onDeleteProject?: (projectHash: string, projectName: string) => Promise<boolean>
@@ -370,6 +373,9 @@ const props = withDefaults(defineProps<Props>(), {
   // Custom filtering
   filterFunction: undefined,
 
+  // Search configuration
+  searchFields: undefined,
+
   // Project management
   showProjectActions: false,
   onDeleteProject: undefined,
@@ -435,6 +441,14 @@ const filteredData = computed(() => {
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(item => {
+      // If specific search fields are provided, search only in those fields
+      if (props.searchFields && props.searchFields.length > 0) {
+        return props.searchFields.some(field => {
+          const fieldValue = (item as Record<string, unknown>)[field]
+          return fieldValue && String(fieldValue).toLowerCase().includes(query)
+        })
+      }
+      // Otherwise, search in all fields (default behavior)
       return JSON.stringify(item).toLowerCase().includes(query)
     })
   }

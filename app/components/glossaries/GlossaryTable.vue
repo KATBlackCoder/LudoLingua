@@ -29,6 +29,7 @@
         { label: '50', value: 50 },
         { label: '100', value: 100 }
       ]"
+      :search-fields="['input', 'output']"
       :filter-function="customFilterFunction"
     >
       <!-- Custom filters slot -->

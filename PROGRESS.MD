@@ -4,9 +4,9 @@ This document tracks the completed milestones and current status of the LudoLing
 
 ---
 
-## 🎯 **Current Status: Phase 10.1.18 - RPG Maker MZ System.json Architecture Alignment (100% Complete)**
+## 🎯 **Current Status: Phase 10.1.19 - System.json ID Reconstruction Fix (100% Complete)**
 
-**Latest Achievement:** Successfully completed Phase 10.1.18 with RPG Maker MZ System.json architecture alignment. Fixed MZ system.rs to match MV architecture with proper serde field mapping, commented out non-translatable fields (weaponTypes, elements, switches, variables), and added LudoLingua signature to game title translations. MZ System.json now correctly extracts only the specified translatable fields: armorTypes, equipTypes, gameTitle, skillTypes, and terms.
+**Latest Achievement:** Successfully completed Phase 10.1.19 with System.json ID reconstruction fix. Fixed critical issue where System.json text unit injection was failing due to ID mismatch between extraction and reconstruction phases. Updated `reconstruct_text_unit_id()` function in `engine.rs` to properly handle System.json field types and reconstruct correct IDs that match injection expectations. System.json translation injection now works correctly for all field types including terms.basic, terms.commands, terms.params, terms.messages, armorTypes, elements, equipTypes, skillTypes, gameTitle, and currencyUnit.
 
 **Next Priority:** Phase 10.2 - Advanced Translation Management Features and Performance Optimization.
 
@@ -52,6 +52,7 @@ Phase 10.1.15 (Completed): GlossaryForm.vue Migration        [██████
 Phase 10.1.16 (Completed): Clipboard Functionality Refactoring [████████████] 100%
 Phase 10.1.17 (Completed): System.json Extraction/Injection Fixes [████████████] 100%
 Phase 10.1.18 (Completed): RPG Maker MZ System.json Architecture Alignment [████████████] 100%
+Phase 10.1.19 (Completed): System.json ID Reconstruction Fix              [████████████] 100%
 ```
 
 ---
@@ -988,6 +989,34 @@ Phase 10.1.18 (Completed): RPG Maker MZ System.json Architecture Alignment [█�
   - **Brand Consistency:** LudoLingua signature on translated game titles
   - **Architecture Alignment:** MZ system.rs matches MV architecture patterns
   - **Quality Assurance:** Clear separation between translatable and non-translatable content
+
+**Phase 10.1.19: System.json ID Reconstruction Fix - COMPLETED**
+- ✅ **ID Mismatch Resolution:** Fixed critical issue where System.json translation injection was failing
+  - **Root Cause Analysis:** Identified mismatch between extraction IDs and reconstruction IDs in `reconstruct_text_unit_id()` function
+  - **Extraction vs Reconstruction:** Extraction created IDs like `"system_basic_term_0"` but reconstruction created `"system_terms.basic[0]"`
+  - **Injection Failure:** Injection functions expected extraction format but received reconstruction format, causing translations to be ignored
+  - **Solution Implementation:** Updated reconstruction logic to generate IDs that match injection expectations
+- ✅ **Comprehensive Field Type Handling:** Enhanced `reconstruct_text_unit_id()` function for all System.json field types
+  - **Terms Handling:** Added specific parsing for `terms.basic[index]`, `terms.commands[index]`, `terms.params[index]`, `terms.messages.key`
+  - **Array Field Handling:** Added parsing for `armorTypes[index]`, `elements[index]`, `equipTypes[index]`, `skillTypes[index]`
+  - **Simple Field Handling:** Added handling for `gameTitle` and `currencyUnit` fields
+  - **Fallback Support:** Added fallback for other System.json fields with `system_{field}` format
+- ✅ **ID Reconstruction Logic:** Implemented intelligent field type parsing and ID generation
+  - **Pattern Recognition:** Uses regex patterns to extract indices from field types like `terms.basic[0]`
+  - **Index Extraction:** Properly extracts numeric indices from bracketed field types
+  - **Key Extraction:** Extracts keys from `terms.messages.key` format for message terms
+  - **Consistent Formatting:** Generates IDs in exact format expected by injection functions
+- ✅ **Cross-Engine Compatibility:** Ensured fix applies to all RPG Maker engines
+  - **MV Engine:** Fix applies to RPG Maker MV System.json handling
+  - **MZ Engine:** Fix applies to RPG Maker MZ System.json handling
+  - **Consistent Behavior:** All engines now properly handle System.json ID reconstruction
+  - **Future-Proof:** Architecture supports any new engines that use System.json format
+- ✅ **Benefits Achieved:** Professional-grade System.json translation injection functionality
+  - **Working Injection:** System.json translations now properly injected back into game files
+  - **Complete Coverage:** All System.json field types supported for translation injection
+  - **Consistent Architecture:** ID reconstruction follows same patterns as other RPG Maker files
+  - **User Experience:** Users can now successfully translate and export System.json content
+  - **Professional Quality:** System.json fully integrated with complete translation workflow
 
 **Benefits Achieved:**
 - ✅ **Automatic Updates**: Users get latest features and bug fixes automatically

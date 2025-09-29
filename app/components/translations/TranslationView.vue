@@ -28,6 +28,7 @@
       :on-delete-project="handleDeleteProject"
       :show-row-actions="true"
       :row-actions="rowActions"
+      :search-fields="['source_text', 'translated_text']"
       @selection-change="onSelectionChange as any"
       @bulk-action="onBulkAction"
       @row-action="onRowAction"
