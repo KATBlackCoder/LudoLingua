@@ -1,28 +1,35 @@
 <template>
-  <UModal
+  <Modal
     v-model:open="open_"
     :dismissible="false"
-    :ui="{ content: 'max-w-6xl' }"
+    layout="custom"
+    :title="heading"
+    description="Add or edit a glossary mapping"
+    header-icon="i-lucide-book-open"
+    header-icon-color="primary"
+    header-icon-background="primary"
+    :status="local.category"
+    :metadata="`${local.source_lang} → ${local.target_lang}`"
+    metadata-color="primary"
+    :show-footer="true"
+    :show-cancel="true"
+    cancel-label="Cancel"
+    :show-copy="true"
+    :copy-label="'Copy Input'"
+    :copy-color="'neutral'"
+    copy-variant="ghost"
+    :copy-icon="'i-lucide-copy'"
+    :copy-text="local.input"
+    :show-save="true"
+    save-label="Save Term"
+    save-color="primary"
+    :disabled="!canSave"
+    status-info="Ctrl/Cmd + Enter to save — Only Input and Output are required"
+    keyboard-shortcuts="Ctrl/Cmd + Enter to save"
+    @cancel="emit('update:open', false)"
+    @save="onSave"
   >
-    <template #title>
-      <div class="flex items-center gap-3">
-        <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
-          <UIcon name="i-lucide-book-open" class="text-primary w-5 h-5" />
-        </div>
-        <div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ heading }}</h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Add or edit a glossary mapping</p>
-        </div>
-      </div>
-    </template>
-    <template #actions>
-      <div class="flex items-center gap-2">
-        <UBadge color="neutral" variant="soft" size="sm">{{ local.category }}</UBadge>
-        <UBadge color="primary" variant="soft" size="sm">{{ local.source_lang }} → {{ local.target_lang }}</UBadge>
-      </div>
-    </template>
-
-    <template #body>
+    <template #content>
       <div class="space-y-6">
         <!-- Two-column layout -->
         <div class="grid gap-6 lg:grid-cols-2">
@@ -73,15 +80,6 @@
             <template #footer>
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <UButton 
-                    size="xs" 
-                    color="neutral" 
-                    variant="ghost" 
-                    icon="i-lucide-copy" 
-                    @click="copyFromInput"
-                  >
-                    Copy input
-                  </UButton>
                   <UButton 
                     size="xs" 
                     color="neutral" 
@@ -160,34 +158,7 @@
         </UCard>
       </div>
     </template>
-
-    <template #footer>
-      <div class="flex items-center justify-between w-full gap-4">
-        <div class="flex items-center gap-3">
-          <div class="text-xs text-gray-500 dark:text-gray-400">
-            Ctrl/Cmd + Enter to save — Only Input and Output are required
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <UButton 
-            color="neutral" 
-            variant="outline" 
-            @click="emit('update:open', false)"
-          >
-            Cancel
-          </UButton>
-          <UButton 
-            color="primary" 
-            :disabled="!canSave" 
-            @click="onSave"
-          >
-            <UIcon name="i-lucide-check" class="w-4 h-4 mr-2" />
-            Save Term
-          </UButton>
-        </div>
-      </div>
-    </template>
-  </UModal>
+  </Modal>
 </template>
 
 <script setup lang="ts">
@@ -195,6 +166,7 @@ import { computed, reactive, watchEffect } from 'vue'
 import type { GlossaryTerm } from '~/types/glossary'
 import { useLanguageStore } from '~/stores/language'
 import { useGlossary } from '~/composables/useGlossary'
+import Modal from '~/components/shared/modal/Modal.vue'
 
 const props = defineProps<{ term: GlossaryTerm | null; heading?: string; open?: boolean }>()
 const emit = defineEmits<{ (e: 'save', term: GlossaryTerm): void; (e: 'update:open', v: boolean): void }>()
@@ -233,9 +205,6 @@ function onSave() {
   emit('update:open', false)
 }
 
-function copyFromInput() {
-  local.output = local.input
-}
 
 function clearOutput() {
   local.output = ''

@@ -172,6 +172,14 @@
       <ModalFooter
         :show-cancel="showCancel"
         :cancel-label="cancelLabel"
+        :show-copy="showCopy"
+        :copy-label="copyLabel"
+        :copy-color="copyColor"
+        :copy-variant="copyVariant"
+        :copy-icon="copyIcon"
+        :copy-disabled="copyDisabled"
+        :copy-loading="copyLoading"
+        :copy-text="copyText"
         :show-save="showSave"
         :save-label="saveLabel"
         :save-color="saveColor"
@@ -181,6 +189,7 @@
         :status-info="statusInfo"
         :keyboard-shortcuts="keyboardShortcuts"
         @cancel="$emit('cancel')"
+        @copy="$emit('copy')"
         @save="$emit('save')"
       >
         <template v-if="$slots.footerActions" #actions>
@@ -310,6 +319,14 @@ interface Props {
   showFooter?: boolean
   showCancel?: boolean
   cancelLabel?: string
+  showCopy?: boolean
+  copyLabel?: string
+  copyColor?: ModalColor
+  copyVariant?: 'solid' | 'soft' | 'outline' | 'subtle' | 'ghost'
+  copyIcon?: string
+  copyDisabled?: boolean
+  copyLoading?: boolean
+  copyText?: string
   showSave?: boolean
   saveLabel?: string
   saveColor?: ModalColor
@@ -422,6 +439,14 @@ const props = withDefaults(defineProps<Props>(), {
   showFooter: true,
   showCancel: true,
   cancelLabel: 'Cancel',
+  showCopy: false,
+  copyLabel: 'Copy',
+  copyColor: 'neutral',
+  copyVariant: 'ghost',
+  copyIcon: 'i-lucide-copy',
+  copyDisabled: false,
+  copyLoading: false,
+  copyText: '',
   showSave: true,
   saveLabel: 'Save',
   saveColor: 'primary',
@@ -452,6 +477,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   'update:open': [value: boolean]
   cancel: []
+  copy: []
   save: []
   retranslate: []
 }>()

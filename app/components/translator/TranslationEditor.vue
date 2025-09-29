@@ -1,169 +1,97 @@
 <template>
-  <UModal
+  <Modal
     v-model:open="open"
     :dismissible="false"
-    :ui="{ content: 'max-w-6xl' }"
+    layout="two-column"
+    :title="modalTitle"
+    :description="item?.field_type"
+    :header-icon="'i-lucide-edit-3'"
+    :header-icon-color="'primary'"
+    :header-icon-background="'primary'"
+    :status="statusLabel"
+    :status-color="statusColor"
+    :category="item?.prompt_type"
+    :category-variant="'soft'"
+    :source-text="item?.source_text"
+    :source-title="'Source Text'"
+    :source-icon="'i-lucide-file-text'"
+    :source-icon-color="'neutral'"
+    :show-character-count="true"
+    :translation-title="'Translation'"
+    :translation-icon="'i-lucide-languages'"
+    :translation-icon-color="'primary'"
+    :translation-validation-type="'translation'"
+    :translation-value="draft"
+    :show-retranslation="true"
+    :is-retranslating="isRetranslating"
+    :retranslation-label="'AI Retranslation'"
+    :retranslation-description="'Generate new translation using AI'"
+    :retranslation-icon="'i-lucide-refresh-cw'"
+    :retranslation-button-icon="'i-lucide-sparkles'"
+    :retranslation-button-text="'Re-translate'"
+    :retranslation-loading-text="'Retranslating...'"
+    :alert-message="'Text inside [ ... ] brackets contains game formatting codes. These must be preserved exactly as they are in your translation.'"
+    :alert-title="'Placeholder Guidelines'"
+    :alert-color="'info'"
+    :alert-icon="'i-lucide-info'"
+    :save-label="'Save Translation'"
+    :save-color="'primary'"
+    :loading="isSaving"
+    :disabled="!canSave"
+    :show-copy="true"
+    :copy-label="'Copy Source'"
+    :copy-color="'neutral'"
+    :copy-variant="'ghost'"
+    :copy-icon="'i-lucide-copy'"
+    :copy-text="item?.source_text"
+    :status-info="statusInfo"
+    :keyboard-shortcuts="'Ctrl/Cmd + Enter to save'"
+    @save="save"
+    @cancel="cancel"
+    @retranslate="retranslate"
   >
-    <template #title>
-      <div class="flex items-center gap-3">
-        <div class="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
-          <UIcon name="i-lucide-edit-3" class="text-primary w-5 h-5" />
-        </div>
-        <div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ modalTitle }}</h3>
-          <p v-if="item?.field_type" class="text-sm text-gray-500 dark:text-gray-400">{{ item?.field_type }}</p>
-        </div>
+    <!-- Translation content slot -->
+    <template #translationContent>
+      <div class="space-y-4">
+        <!-- Prompt Type Selection -->
+        <UFormField label="Prompt Type">
+          <USelect v-model="promptTypeDraft" :items="promptTypeItems" />
+        </UFormField>
+        
+        <!-- Translation Textarea -->
+        <UFormField label="Translation">
+          <UTextarea
+            v-model="draft"
+            :rows="12"
+            placeholder="Enter your translation here..."
+            autofocus
+            @keydown.ctrl.enter.prevent="save"
+            @keydown.meta.enter.prevent="save"
+          />
+        </UFormField>
       </div>
     </template>
-    <template #actions>
+
+    <!-- Source footer with character count -->
+    <template #sourceFooter>
       <div class="flex items-center gap-2">
-        <UBadge :color="statusColor" variant="soft" size="sm">{{ statusLabel }}</UBadge>
-        <UBadge v-if="item?.prompt_type" color="neutral" variant="soft" size="sm">{{ item?.prompt_type }}</UBadge>
+        <UBadge color="neutral" variant="soft" size="sm">{{ sourceCharCount }} chars</UBadge>
       </div>
     </template>
 
-    <template #body>
-      <div class="space-y-6">
-        <!-- Two-column layout -->
-        <div class="grid gap-6 lg:grid-cols-2">
-          <!-- Source Text Card -->
-          <UCard>
-            <template #header>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-file-text" class="text-gray-500 w-4 h-4" />
-                  <span class="font-medium text-gray-900 dark:text-white">Source Text</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <UBadge color="neutral" variant="soft" size="sm">{{ sourceCharCount }} chars</UBadge>
-                </div>
-              </div>
-            </template>
-            <div class="text-sm whitespace-pre-wrap break-words bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border">
-              {{ item?.source_text }}
-            </div>
-          </UCard>
-
-          <!-- Translation Card -->
-          <UCard>
-            <template #header>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-languages" class="text-primary w-4 h-4" />
-                  <span class="font-medium text-gray-900 dark:text-white">Translation</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <UBadge color="primary" variant="soft" size="sm">{{ draftCharCount }} chars</UBadge>
-                  <UButton
-                    size="xs"
-                    color="primary"
-                    variant="soft"
-                    :loading="isRetranslating"
-                    @click="retranslate"
-                  >
-                    <UIcon v-if="!isRetranslating" name="i-lucide-sparkles" class="w-3 h-3 mr-1" />
-                    Re-translate
-                  </UButton>
-                </div>
-              </div>
-            </template>
-            
-            <div class="space-y-4">
-              <!-- Prompt Type Selection -->
-              <UFormField label="Prompt Type">
-                <USelect v-model="promptTypeDraft" :items="promptTypeItems" />
-              </UFormField>
-              
-              <!-- Translation Textarea -->
-              <UFormField label="Translation">
-                <UTextarea
-                  v-model="draft"
-                  :rows="12"
-                  placeholder="Enter your translation here..."
-                  autofocus
-                  @keydown.ctrl.enter.prevent="save"
-                  @keydown.meta.enter.prevent="save"
-                />
-              </UFormField>
-            </div>
-
-            <template #footer>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <UButton 
-                    size="xs" 
-                    color="neutral" 
-                    variant="ghost" 
-                    icon="i-lucide-copy" 
-                    @click="copyFromSource"
-                  >
-                    Copy Source
-                  </UButton>
-                  <UButton 
-                    size="xs" 
-                    color="neutral" 
-                    variant="ghost" 
-                    icon="i-lucide-x" 
-                    @click="clearDraft"
-                  >
-                    Clear
-                  </UButton>
-                </div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">
-                  Ctrl/Cmd + Enter to save
-                </div>
-              </div>
-            </template>
-          </UCard>
-        </div>
-
-        <!-- Placeholder Information -->
-        <UAlert
-          icon="i-lucide-info"
-          color="info"
-          variant="soft"
-          title="Placeholder Guidelines"
-          description="Text inside [ ... ] brackets contains game formatting codes. These must be preserved exactly as they are in your translation."
-        />
-      </div>
+    <!-- Additional footer actions -->
+    <template #footerActions>
+      <UButton 
+        size="xs" 
+        color="neutral" 
+        variant="ghost" 
+        icon="i-lucide-x" 
+        @click="clearDraft"
+      >
+        Clear
+      </UButton>
     </template>
-
-    <template #footer>
-      <div class="flex items-center justify-between w-full gap-4">
-        <div class="flex items-center gap-3">
-          <UBadge v-if="isSaving" color="primary" variant="soft" size="sm">
-            <UIcon name="i-lucide-loader-2" class="w-3 h-3 mr-1 animate-spin" />
-            Saving to database...
-          </UBadge>
-          <UBadge v-else-if="lastSaved" color="success" variant="soft" size="sm">
-            <UIcon name="i-lucide-check-circle" class="w-3 h-3 mr-1" />
-            Saved {{ lastSaved }}
-          </UBadge>
-          <div v-else class="text-xs text-gray-500 dark:text-gray-400">
-            Ctrl/Cmd + Enter to save
-          </div>
-        </div>
-        <div class="flex gap-3">
-          <UButton 
-            color="neutral" 
-            variant="outline" 
-            @click="cancel"
-          >
-            Cancel
-          </UButton>
-          <UButton 
-            color="primary" 
-            :disabled="!canSave" 
-            :loading="isSaving" 
-            @click="save"
-          >
-            <UIcon v-if="!isSaving" name="i-lucide-check" class="w-4 h-4 mr-2" />
-            Save Translation
-          </UButton>
-        </div>
-      </div>
-    </template>
-  </UModal>
+  </Modal>
 </template>
 
 <script setup lang="ts">
@@ -173,6 +101,8 @@ import { useTranslator } from '~/composables/useTranslator'
 import type { SelectItem } from '#ui/types'
 import { useEngineStore } from '~/stores/engine'
 import { useNotifications } from '~/composables/useNotifications'
+import Modal from '~/components/shared/modal/Modal.vue'
+import { promptTypeOptions } from '~/utils/translation'
 
 const props = defineProps<{ open: boolean; item: TextUnit | null }>()
 const emit = defineEmits<{ (e: 'update:open', v: boolean): void; (e: 'save', payload: { id: string; translated_text: string; prompt_type?: string }): void }>()
@@ -198,7 +128,6 @@ watch(() => props.item, (val) => {
 const modalTitle = computed(() => props.item ? `Edit Translation – ${props.item.id}` : 'Edit Translation')
 
 const sourceCharCount = computed(() => props.item?.source_text?.length ?? 0)
-const draftCharCount = computed(() => draft.value.length)
 
 const canSave = computed(() => {
   if (!props.item) return false
@@ -212,6 +141,16 @@ const statusColor = computed(() => {
   if (s.includes('Machine')) return 'info'
   if (s.includes('Ignored')) return 'warning'
   return 'neutral'
+})
+
+const statusInfo = computed(() => {
+  if (isSaving.value) {
+    return 'Saving to database...'
+  }
+  if (lastSaved.value) {
+    return `Saved ${lastSaved.value}`
+  }
+  return ''
 })
 
 const cancel = () => emit('update:open', false)
@@ -243,10 +182,6 @@ const save = async () => {
   }
 }
 
-function copyFromSource() {
-  if (!props.item) return
-  draft.value = props.item.source_text
-}
 
 function clearDraft() {
   draft.value = ''
@@ -276,16 +211,8 @@ async function retranslate() {
   }
 }
 
-const promptTypeItems = [
-  { label: 'Character', value: 'Character' },
-  { label: 'Class', value: 'Class' },
-  { label: 'Skill', value: 'Skill' },
-  { label: 'Equipment', value: 'Equipment' },
-  { label: 'State', value: 'State' },
-  { label: 'System', value: 'System' },
-  { label: 'Dialogue', value: 'Dialogue' },
-  { label: 'Other', value: 'Other' },
-] as SelectItem[]
+// Use shared prompt type options from translation utils
+const promptTypeItems = promptTypeOptions as SelectItem[]
 </script>
 
 

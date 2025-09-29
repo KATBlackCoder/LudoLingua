@@ -82,11 +82,12 @@
   - [x] ✅ **TranslationForm.vue Analysis**: Perfect match for two-column layout with metadata integration
   - [x] ✅ **GlossaryForm.vue Analysis**: Perfect match for two-column layout with configuration sections
   - [x] ✅ **Implementation Strategy**: All three components can be replaced with Modal.vue using slots and props
-- [ ] Update `TranslationEditor.vue` to use `Modal.vue` component
-  - [ ] Replace custom modal structure with `Modal.vue`
-  - [ ] Use two-column layout with source text and translation form cards
-  - [ ] Leverage built-in loading and error states
-  - [ ] Use custom content slots for re-translate button and prompt type selection
+- [x] ✅ Update `TranslationEditor.vue` to use `Modal.vue` component
+  - [x] ✅ Replace custom modal structure with `Modal.vue`
+  - [x] ✅ Use two-column layout with source text and translation form cards
+  - [x] ✅ Leverage built-in loading and error states
+  - [x] ✅ Use custom content slots for re-translate button and prompt type selection
+  - [x] ✅ Integrate shared clipboard functionality from Modal components
 - [x] ✅ Update `TranslationForm.vue` to use `Modal.vue` component
   - [x] ✅ Replace custom modal structure with `Modal.vue`
   - [x] ✅ Use two-column layout with source text and translation form cards
@@ -94,17 +95,18 @@
   - [x] ✅ Leverage built-in form validation and submission
   - [x] ✅ Move status utilities to Modal.vue for better encapsulation
   - [x] ✅ Use template ref to access Modal's exposed utilities
-- [ ] Update `GlossaryForm.vue` to use `Modal.vue` component
-  - [ ] Replace custom modal structure with `Modal.vue`
-  - [ ] Use two-column layout with source term and target term cards
-  - [ ] Add configuration section with category, language, and enabled settings
-  - [ ] Leverage built-in modal behavior and keyboard shortcuts
-- [ ] Benefits Achieved:
-  - [ ] Eliminate 3x modal structure duplication across form components
-  - [ ] Consistent modal behavior with shared components
-  - [ ] Standardized loading and error states across all modals
-  - [ ] Reusable card components for different content types
-  - [ ] Centralized modal state management with `useModal.ts`
+- [x] ✅ Update `GlossaryForm.vue` to use `Modal.vue` component
+  - [x] ✅ Replace custom modal structure with `Modal.vue`
+  - [x] ✅ Use two-column layout with source term and target term cards
+  - [x] ✅ Add configuration section with category, language, and enabled settings
+  - [x] ✅ Leverage built-in modal behavior and keyboard shortcuts
+- [x] ✅ Benefits Achieved:
+  - [x] ✅ Eliminate 3x modal structure duplication across form components
+  - [x] ✅ Consistent modal behavior with shared components
+  - [x] ✅ Standardized loading and error states across all modals
+  - [x] ✅ Reusable card components for different content types
+  - [x] ✅ Centralized modal state management with `useModal.ts`
+  - [x] ✅ Centralized clipboard functionality in Modal components
 
 ##### 5. Testing & Validation
 - [ ] Test all refactored components individually
@@ -168,8 +170,8 @@
 - [ ] Pagination state not synced between header and footer
 - [ ] Row selection logic duplicated across components
 - [x] ✅ Bulk action patterns now consistent (TranslationTable.vue removed, using TranslationView.vue)
-- [ ] Modal state management duplicated across TranslationEditor, TranslationForm, and GlossaryForm
-- [ ] Inconsistent modal loading and error states across form components
+- [x] ✅ Modal state management duplicated across TranslationEditor, TranslationForm, and GlossaryForm
+- [x] ✅ Inconsistent modal loading and error states across form components
 
 ---
 
