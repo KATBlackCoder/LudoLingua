@@ -359,22 +359,8 @@ impl Engine for RpgMakerMzEngine {
         self.detection_criteria.clone()
     }
 
-    fn extract_text_units(&self, project_info: &EngineInfo) -> AppResult<Vec<TextUnit>> {
-        let files = self.extract_game_data_files(project_info)?;
-        let mut out = Vec::new();
-        for f in files {
-            out.extend(f.text_units);
-        }
-        Ok(out)
-    }
-
-    fn inject_text_units(
-        &self,
-        project_info: &EngineInfo,
-        text_units: &[TextUnit],
-    ) -> AppResult<()> {
-        self.inject_game_data_files(project_info, text_units)
-    }
+    // Removed overridden extract_text_units and inject_text_units methods
+    // Now using default Engine trait implementation which applies text formatting
 
     fn reconstruct_text_unit_id(
         &self,
@@ -623,7 +609,7 @@ impl Engine for RpgMakerMzEngine {
             .map(|raw_unit| TextUnit {
                 id: raw_unit.id.clone(),
                 source_text: raw_unit.source_text.clone(),
-                translated_text: String::new(), // Will be set during injection
+                translated_text: raw_unit.source_text.clone(), // Use processed translated text
                 field_type: raw_unit.field_type.clone(),
                 status: crate::models::translation::TranslationStatus::NotTranslated,
                 prompt_type: raw_unit.prompt_type,

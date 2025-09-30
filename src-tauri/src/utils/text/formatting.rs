@@ -127,6 +127,7 @@ impl TextFormatter {
         result = result.replace("\\|", "[CTRL_WAIT]");
         result = result.replace("\\^", "[CTRL_INSTANT]");
         result = result.replace("\\!", "[CTRL_INPUT]");
+        result = result.replace("\\{", "[CTRL_OPEN_BRACE]");
 
         // RPG Maker conditional expressions
         let conditional_regex = Regex::new(r"en\(v\[(\d+)\]>(\d+)\)").unwrap();
@@ -230,6 +231,7 @@ impl TextFormatter {
         result = result.replace("[CTRL_WAIT]", "\\|");
         result = result.replace("[CTRL_INSTANT]", "\\^");
         result = result.replace("[CTRL_INPUT]", "\\!");
+        result = result.replace("[CTRL_OPEN_BRACE]", "\\{");
 
         // Restore RPG Maker conditional expressions
         let conditional_regex = Regex::new(r"\[CONDITIONAL_v(\d+)>(\d+)\]").unwrap();
@@ -331,5 +333,40 @@ impl TextFormatter {
             .to_string();
 
         result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parameter_placeholder_formatting() {
+        let input = "%1は瞑想した！";
+        let expected_prepared = "[ARG_1]は瞑想した！";
+        let expected_restored = "%1は瞑想した！";
+        
+        // Test preparation for translation
+        let prepared = TextFormatter::prepare_for_translation(input);
+        assert_eq!(prepared, expected_prepared, "Parameter placeholder should be converted to [ARG_1]");
+        
+        // Test restoration after translation
+        let restored = TextFormatter::restore_after_translation(&prepared);
+        assert_eq!(restored, expected_restored, "Parameter placeholder should be restored to %1");
+    }
+
+    #[test]
+    fn test_item_code_formatting() {
+        let input = "「あああぁ……\\I[317]こってりドロドロぉ……\\I[317]";
+        let expected_prepared = "\"あああぁ……[ITEM_317]こってりドロドロぉ……[ITEM_317]";
+        let expected_restored = "\"あああぁ……\\I[317]こってりドロドロぉ……\\I[317]";
+        
+        // Test preparation for translation
+        let prepared = TextFormatter::prepare_for_translation(input);
+        assert_eq!(prepared, expected_prepared, "Item codes should be converted to placeholders");
+        
+        // Test restoration after translation
+        let restored = TextFormatter::restore_after_translation(&prepared);
+        assert_eq!(restored, expected_restored, "Item codes should be restored to original format");
     }
 }

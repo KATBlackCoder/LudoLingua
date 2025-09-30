@@ -1,5 +1,5 @@
 use crate::models::translation::TextUnit;
-use crate::utils::text::formatting::TextFormatter;
+use crate::utils::text::formatting_optimized::OptimizedTextFormatter;
 use crate::utils::text::llm_output::clean_llm_output;
 use crate::utils::text::validation::ContentValidator;
 
@@ -34,7 +34,7 @@ impl TextProcessor {
             .into_iter()
             .filter(|raw_unit| ContentValidator::validate_text(&raw_unit.source_text))
             .map(|raw_unit| {
-                let clean_text = TextFormatter::prepare_for_translation(&raw_unit.source_text);
+                let clean_text = OptimizedTextFormatter::prepare_for_translation(&raw_unit.source_text);
                 let initial_status =
                     ContentValidator::get_initial_status(&raw_unit.source_text, target_language);
 
@@ -73,7 +73,7 @@ impl TextProcessor {
         text_units
             .iter()
             .map(|unit| {
-                let restored_text = TextFormatter::restore_after_translation(&unit.translated_text);
+                let restored_text = OptimizedTextFormatter::restore_after_translation(&unit.translated_text);
 
                 RawTextUnit {
                     id: unit.id.clone(),

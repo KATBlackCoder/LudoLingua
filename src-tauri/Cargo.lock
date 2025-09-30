@@ -155,6 +155,7 @@ dependencies = [
  "chrono",
  "llm",
  "log",
+ "once_cell",
  "regex",
  "reqwest",
  "serde",

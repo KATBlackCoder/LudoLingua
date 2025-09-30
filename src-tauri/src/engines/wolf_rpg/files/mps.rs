@@ -1,6 +1,5 @@
 // Text processing now handled by unified pipeline
 use crate::models::translation::{PromptType, TextUnit, TranslationStatus};
-use crate::utils::text::formatting::TextFormatter;
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -255,8 +254,7 @@ fn inject_into_wolf_command(
                 );
                 if let Some(text_unit) = text_units.get(&unit_id) {
                     if !text_unit.translated_text.is_empty() {
-                        let restored_text = TextFormatter::restore_after_translation(&text_unit.translated_text);
-                        *arg = Value::String(restored_text);
+                        *arg = Value::String(text_unit.translated_text.clone());
                     }
                 }
             }

@@ -7,18 +7,27 @@
       :loading="false"
       title="Raw Text"
       icon="i-lucide-file-text"
-      :show-filters="false"
+      :show-filters="true"
+      :show-search="true"
       :show-pagination="true"
       :show-row-count="true"
       :initial-page-size="25"
       :show-selection="false"
       :show-bulk-actions="false"
       :show-row-actions="false"
+      :search-fields="['source_text', 'field_type']"
+      filter-title="Search Raw Text"
+      filter-icon="i-lucide-search"
       class="w-full"
     >
       <template #prompt_type-data="{ row }">
         <UBadge :color="getPromptTypeColor((row.original as { prompt_type: string }).prompt_type)" variant="soft" size="sm">
           {{ (row.original as { prompt_type: string }).prompt_type }}
+        </UBadge>
+      </template>
+      <template #field_type-data="{ row }">
+        <UBadge color="neutral" variant="outline" size="sm">
+          {{ (row.original as { field_type: string }).field_type }}
         </UBadge>
       </template>
       <template #source_text-data="{ row }">
@@ -41,13 +50,19 @@ const { textUnits } = useTranslator()
 
 const rows = computed(() => textUnits.value
   .filter(u => u.status === 'NotTranslated')
-  .map(u => ({ id: u.id, prompt_type: u.prompt_type, source_text: u.source_text })))
+  .map(u => ({ id: u.id, prompt_type: u.prompt_type, field_type: u.field_type, source_text: u.source_text })))
 
 // Create table columns manually
-const tableColumns: TableColumn<{ id: string; prompt_type: string; source_text: string }>[] = [
+const tableColumns: TableColumn<{ id: string; prompt_type: string; field_type: string; source_text: string }>[] = [
   {
     accessorKey: 'prompt_type',
     header: 'Type',
+    size: 120,
+    enableSorting: true
+  },
+  {
+    accessorKey: 'field_type',
+    header: 'Field Type',
     size: 120,
     enableSorting: true
   },

@@ -58,9 +58,11 @@ impl ContentValidator {
         });
 
         // Skip EVXXX event names (technical identifiers)
+        // Skip any text that starts with "EV" followed by numbers (e.g., "EV0", "EV1", "EV123", "EV002物乞いＢ")
         if content.starts_with("EV") && content.len() >= 3 {
             let suffix = &content[2..];
-            if suffix.chars().all(|c| c.is_ascii_digit()) {
+            // Check if the suffix starts with numbers (allows for additional content after numbers)
+            if suffix.chars().next().map_or(false, |c| c.is_ascii_digit()) {
                 return false;
             }
         }
@@ -71,6 +73,20 @@ impl ContentValidator {
             if suffix.chars().all(|c| c.is_ascii_digit()) {
                 return false;
             }
+        }
+
+        // Skip text that contains only Japanese quotation marks without any actual content
+        // Handle cases: "「", "」", "「」", "「 ", " 」", "「 」", and variations with spaces
+        let trimmed = content.trim();
+        if trimmed == "「" || trimmed == "」" || trimmed == "「」" {
+            return false;
+        }
+        
+        // Also check for quotes with spaces between them (like "「 」")
+        // Check if the text contains only Japanese quotes and spaces
+        if trimmed.chars().all(|c| c == '「' || c == '」' || c == ' ') && 
+           trimmed.chars().any(|c| c == '「' || c == '」') {
+            return false;
         }
 
         // Skip pure formatting codes (like "\\n[2]" alone)
@@ -231,6 +247,86 @@ impl ContentValidator {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_japanese_quotation_marks_validation() {
+        // Test cases for Japanese quotation marks that should be filtered out
+        let quotation_texts = vec![
+            "「",            // Only opening quote
+            "」",            // Only closing quote
+            "「」",           // Empty quotes
+            "「 ",            // Opening quote with space
+            " 」",            // Closing quote with space
+            "「 」",           // Empty quotes with space
+            " 「",            // Space before opening quote
+            " 」",            // Space before closing quote
+            " 「 」",          // Space around empty quotes
+        ];
+
+        println!("Testing Japanese quotation marks (should be filtered out):");
+        for text in quotation_texts {
+            let result = ContentValidator::validate_text(text);
+            println!("  '{}' -> {}", text, if result { "PASSED (should be filtered)" } else { "FILTERED (correct)" });
+            assert!(!result, 
+                "Text '{}' should be filtered out because it contains only Japanese quotation marks", text);
+        }
+
+        // Test cases for legitimate text that should NOT be filtered out
+        let legitimate_texts = vec![
+            "「勇者」",      // Quotes with content
+            "「魔法使い」",   // Quotes with content
+            "勇者",          // No quotes
+            "魔法使い",       // No quotes
+            "「こんにちは」", // Quotes with content
+        ];
+
+        println!("\nTesting legitimate texts with quotes (should NOT be filtered out):");
+        for text in legitimate_texts {
+            let result = ContentValidator::validate_text(text);
+            println!("  '{}' -> {}", text, if result { "PASSED (correct)" } else { "FILTERED (should not be)" });
+            assert!(result, 
+                "Text '{}' should NOT be filtered out", text);
+        }
+    }
+
+    #[test]
+    fn test_ev_validation() {
+        // Test cases for EV text that should be filtered out
+        let ev_texts = vec![
+            "EV0",           // Pure technical identifier
+            "EV1",           // Pure technical identifier  
+            "EV123",         // Pure technical identifier
+            "EV002物乞いＢ",   // EV + numbers + Japanese content
+            "EV123見張り",    // EV + numbers + Japanese content
+            "EV456テスト",    // EV + numbers + Japanese content
+            "EV999",         // Pure technical identifier
+        ];
+
+        println!("Testing EV texts (should be filtered out):");
+        for text in ev_texts {
+            let result = ContentValidator::validate_text(text);
+            println!("  '{}' -> {}", text, if result { "PASSED (should be filtered)" } else { "FILTERED (correct)" });
+            assert!(!result, 
+                "Text '{}' should be filtered out because it starts with EV followed by numbers", text);
+        }
+
+        // Test cases for legitimate text that should NOT be filtered out
+        let legitimate_texts = vec![
+            "EVENT",         // Not EV + numbers
+            "EVENT物乞い",    // Not EV + numbers
+            "EVENTテスト",    // Not EV + numbers
+            "EVENT123",      // Not EV + numbers (EVENT is different from EV)
+            "EVENTBEGGAR",   // Not EV + numbers (no underscores to avoid technical variable rule)
+        ];
+
+        println!("\nTesting legitimate texts (should NOT be filtered out):");
+        for text in legitimate_texts {
+            let result = ContentValidator::validate_text(text);
+            println!("  '{}' -> {}", text, if result { "PASSED (correct)" } else { "FILTERED (should not be)" });
+            assert!(result, 
+                "Text '{}' should NOT be filtered out", text);
+        }
+    }
 
     #[test]
     fn test_pipe_separated_coordinates_filtering() {
