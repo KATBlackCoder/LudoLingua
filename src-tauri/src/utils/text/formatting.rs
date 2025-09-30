@@ -107,6 +107,10 @@ impl TextFormatter {
         // Newline character: \n -> [NEWLINE]
         result = result.replace('\n', "[NEWLINE]");
 
+        // Japanese quotation marks: 「」 -> ""
+        result = result.replace('「', "\"");
+        result = result.replace('」', "\"");
+
         // === UNIVERSAL CODES ===
 
         // Parameter placeholders: handle ASCII and full-width forms
