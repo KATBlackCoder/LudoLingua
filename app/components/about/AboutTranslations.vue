@@ -210,6 +210,7 @@
             <li>• Use bulk operations to efficiently manage large numbers of translations</li>
             <li>• Regularly clean up old project data to keep your database organized</li>
             <li>• Check translation statistics to track your progress</li>
+            <li>• For best results with one-by-one translation, use max tokens of 100-150 (optimized for single dialogue lines)</li>
           </ul>
         </template>
       </UAlert>

@@ -110,6 +110,11 @@ Implement selective injection functionality that allows users to choose specific
 
 ## 🎯 Future Development Tasks
 
+### Provider Architecture
+- [ ] **Ollama-Compatible Provider Structure**: Create shared `OllamaCompatibleConfig` structure in `provider.rs` for providers using Ollama API format (Ollama, RunPod, etc.)
+- [ ] **Unified Ollama Options**: Centralize Ollama API options (temperature, num_predict, repeat_penalty, etc.) for all Ollama-compatible providers
+- [ ] **Provider Abstraction**: Distinguish between Ollama-compatible providers (Ollama, RunPod) and custom API providers (OpenAI, DeepSeek, Anthropic)
+
 ### Translation Features
 - [ ] Implement bulk retranslation functionality
 - [ ] Add translation progress indicators

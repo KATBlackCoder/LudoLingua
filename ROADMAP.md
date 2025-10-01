@@ -217,6 +217,7 @@ Add advanced translation features and third-party integrations.
    - Custom model support
    - Fine-tuning capabilities
    - Quality assessment
+   - **Ollama-Compatible Provider Architecture**: Create shared structure for Ollama API-compatible providers (Ollama, RunPod) to reduce code duplication and ensure consistent API usage
 
 2. **Collaboration**
    - Multi-user support
@@ -283,6 +284,7 @@ Add advanced translation features and third-party integrations.
 - Performance optimization required for large datasets
 - Testing coverage needs improvement
 - Documentation needs updating
+- **Provider architecture refactoring**: Create shared `OllamaCompatibleConfig` structure in `provider.rs` for Ollama-compatible providers (Ollama, RunPod) to eliminate code duplication and centralize Ollama API options
 
 ### Risk Mitigation
 - Incremental implementation to avoid breaking changes

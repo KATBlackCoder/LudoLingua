@@ -30,10 +30,21 @@ struct RunPodChatMessage {
 
 #[derive(Debug, Serialize)]
 struct RunPodOptions {
+    /// Randomness/creativity of responses (0.0-2.0). Lower = more deterministic. Recommended: 0.3 for translation
     #[serde(skip_serializing_if = "Option::is_none")]
     temperature: Option<f32>,
+    /// Maximum number of tokens to generate in the response
     #[serde(skip_serializing_if = "Option::is_none")]
     num_predict: Option<u32>,
+    /// Penalty for repeating tokens (1.0 = no penalty, >1.0 = discourage repetition). Fixed: 1.1 for translation quality
+    #[serde(skip_serializing_if = "Option::is_none")]
+    repeat_penalty: Option<f32>,
+    /// Context window size in tokens. Fixed: 4096 to ensure full prompt delivery (glossary + instructions + text)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    num_ctx: Option<u32>,
+    /// Nucleus sampling (0.0-1.0). Limits token selection to top P% probability mass. Fixed: 0.9 for natural translations
+    #[serde(skip_serializing_if = "Option::is_none")]
+    top_p: Option<f32>,
 }
 
 /// RunPod API response for chat (same as Ollama)
@@ -136,6 +147,9 @@ impl RunPodService {
             options: Some(RunPodOptions {
                 temperature: Some(self.config.temperature),
                 num_predict: Some(self.config.max_tokens),
+                repeat_penalty: Some(1.1),
+                num_ctx: Some(4096),
+                top_p: Some(0.9),
             }),
             stream: false,
         };
