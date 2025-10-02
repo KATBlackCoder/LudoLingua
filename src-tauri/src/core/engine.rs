@@ -5,7 +5,8 @@ use crate::core::error::AppResult;
 use crate::models::engine::{EngineCriteria, EngineInfo};
 use crate::models::language::Language;
 use crate::models::translation::TextUnit;
-use crate::utils::text::pipeline::{RawTextUnit, TextProcessor};
+use crate::utils::text::engine_processor::EngineTextProcessor;
+use crate::utils::text::types::RawTextUnit;
 
 /// Core trait that all game engine implementations must implement.
 /// This defines the contract for interacting with different types of game projects.
@@ -24,30 +25,31 @@ pub trait Engine: Send + Sync {
     /// Extract all translatable text units from a project
     ///
     /// This method has a default implementation that automatically processes
-    /// raw text units through the unified text processing pipeline.
+    /// raw text units through the engine-specific text processing pipeline.
     fn extract_text_units(&self, project_info: &EngineInfo) -> AppResult<Vec<TextUnit>> {
         // Get raw text units from engine-specific implementation
         let raw_units = self.extract_raw_text_units(project_info)?;
 
-        // Process through unified text processing pipeline
+        // Process through engine-specific text processing pipeline
         let target_language = &project_info.target_language.id;
-        Ok(TextProcessor::process_for_extraction(
+        Ok(EngineTextProcessor::process_for_extraction(
             raw_units,
             target_language,
+            &project_info.engine_type,
         ))
     }
 
     /// Inject translated text units back into the project files
     ///
     /// This method has a default implementation that automatically processes
-    /// text units through the unified text processing pipeline before injection.
+    /// text units through the engine-specific text processing pipeline before injection.
     fn inject_text_units(
         &self,
         project_info: &EngineInfo,
         text_units: &[TextUnit],
     ) -> AppResult<()> {
-        // Process through unified text processing pipeline
-        let raw_units = TextProcessor::process_injection_pipeline(text_units);
+        // Process through engine-specific text processing pipeline
+        let raw_units = EngineTextProcessor::process_injection_pipeline(text_units, &project_info.engine_type);
 
         // Inject raw text units using engine-specific implementation
         self.inject_raw_text_units(project_info, &raw_units)
@@ -63,6 +65,7 @@ pub trait Engine: Send + Sync {
     ) -> AppResult<TextUnit>;
 
     /// Returns self as Any for downcasting to specific engine implementations
+    #[allow(dead_code)]
     fn as_any(&self) -> &dyn Any;
 
     /// Extract raw text units from project files (file I/O only, no text processing)

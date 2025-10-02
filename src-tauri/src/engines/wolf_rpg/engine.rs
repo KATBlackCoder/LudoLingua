@@ -6,7 +6,7 @@ use crate::core::error::{AppError, AppResult};
 use crate::models::engine::{EngineCriteria, EngineInfo, EngineType};
 use crate::models::language::Language;
 use crate::models::translation::TextUnit;
-use crate::utils::text::pipeline::RawTextUnit;
+use crate::utils::text::types::RawTextUnit;
 
 pub struct WolfRpgEngine {
     detection_criteria: EngineCriteria,

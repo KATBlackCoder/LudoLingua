@@ -14,7 +14,7 @@ use crate::engines::rpg_maker_mv::files::{
 use crate::models::engine::{EngineCriteria, EngineInfo, EngineType, GameDataFile};
 use crate::models::language::Language;
 use crate::models::translation::TextUnit;
-use crate::utils::text::pipeline::RawTextUnit;
+use crate::utils::text::types::RawTextUnit;
 
 /// Implementation of the Engine trait for RPG Maker MV games.
 ///

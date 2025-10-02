@@ -1,6 +1,5 @@
+pub mod engine_processor;
 pub mod engines;
-pub mod formatting;
-pub mod formatting_optimized;
 pub mod llm_output;
-pub mod pipeline;
+pub mod types;
 pub mod validation;

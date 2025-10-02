@@ -20,6 +20,7 @@ use crate::engines::rpg_maker_mv::files::weapons as mz_weapons;
 use crate::models::engine::{EngineCriteria, EngineInfo, EngineType, GameDataFile};
 use crate::models::language::Language;
 use crate::models::translation::TextUnit;
+use crate::utils::text::types::RawTextUnit;
 
 /// RPG Maker MZ engine (MVP: Actors.json only)
 pub struct RpgMakerMzEngine {
@@ -578,7 +579,7 @@ impl Engine for RpgMakerMzEngine {
     fn extract_raw_text_units(
         &self,
         project_info: &EngineInfo,
-    ) -> AppResult<Vec<crate::utils::text::pipeline::RawTextUnit>> {
+    ) -> AppResult<Vec<RawTextUnit>> {
         // Extract game data files
         let game_data_files = self.extract_game_data_files(project_info)?;
 
@@ -586,7 +587,7 @@ impl Engine for RpgMakerMzEngine {
         let mut raw_units = Vec::new();
         for file in &game_data_files {
             for text_unit in &file.text_units {
-                raw_units.push(crate::utils::text::pipeline::RawTextUnit {
+                raw_units.push(RawTextUnit {
                     id: text_unit.id.clone(),
                     source_text: text_unit.source_text.clone(),
                     field_type: text_unit.field_type.clone(),
@@ -601,7 +602,7 @@ impl Engine for RpgMakerMzEngine {
     fn inject_raw_text_units(
         &self,
         project_info: &EngineInfo,
-        raw_units: &[crate::utils::text::pipeline::RawTextUnit],
+        raw_units: &[RawTextUnit],
     ) -> AppResult<()> {
         // Convert RawTextUnits back to TextUnits for injection
         let text_units: Vec<TextUnit> = raw_units

@@ -109,6 +109,15 @@
       :actions="bulkActions"
       :alert-color="bulkAlertColor"
     />
+        <!-- Pagination - Outside the table card -->
+        <div v-if="showPagination" class="flex justify-center border-t border-default pt-4">
+      <UPagination
+        :default-page="(tableRef?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+        :items-per-page="tableRef?.tableApi?.getState().pagination.pageSize"
+        :total="tableRef?.tableApi?.getFilteredRowModel().rows.length"
+        @update:page="(p) => tableRef?.tableApi?.setPageIndex(p - 1)"
+      />
+    </div>
 
     <!-- Table -->
     <UCard>

@@ -1,9 +1,9 @@
-/// Engine-specific text formatting functions
+/// Engine-specific text formatting modules
 /// 
-/// This module contains specialized text processing functions for specific game engines
-/// that may not be fully covered by the unified text processing pipeline.
-/// 
-/// These functions are kept separate for potential future use or special cases
-/// where engine-specific formatting is required.
+/// This module contains specialized formatting functions for different game engines
+/// that provide optimized performance by only processing relevant codes for each engine.
 
-pub mod wolf_rpg;
+pub mod formatter_trait;
+pub mod rpg_maker_formatter;
+pub mod universal_formatter;
+pub mod wolf_rpg_formatter;
