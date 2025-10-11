@@ -25,6 +25,32 @@
             },
             "context_window": 8192,
             "enabled": true
+        },
+        {
+            "display_name": "Qwen2.5 14B",
+            "model_name": "qwen2.5:14b",
+            "provider": "RunPod",
+            "description": "Qwen2.5 14B - Efficient mid-size model with excellent Japanese→English translation capabilities and good context understanding. Balanced performance for RPG text translation.",
+            "pricing": {
+                "input_price_per_1k": 0.0,
+                "output_price_per_1k": 0.0,
+                "currency": "USD"
+            },
+            "context_window": 32768,
+            "enabled": true
+        },
+        {
+            "display_name": "Gemma3 12B",
+            "model_name": "gemma3:12b",
+            "provider": "RunPod",
+            "description": "Gemma3 12B - Google's efficient model with strong multilingual capabilities and good translation quality. Fast processing with reliable Japanese→English translation.",
+            "pricing": {
+                "input_price_per_1k": 0.0,
+                "output_price_per_1k": 0.0,
+                "currency": "USD"
+            },
+            "context_window": 8192,
+            "enabled": true
         }
     ]
 }

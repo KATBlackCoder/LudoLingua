@@ -2,61 +2,65 @@
 
 ## 🎯 LudoLingua Development Roadmap
 
-### Phase 1: Text Processing Performance Optimization (Current Priority)
-**Timeline: 1-2 weeks**
+### Phase 1: Batch Translation System for Large Projects (Current Priority)
+**Timeline: 2-3 weeks**
 
 #### Objective
-Optimize the text processing pipeline to achieve 3-5x performance improvement while maintaining 100% correctness. This foundational optimization will benefit all subsequent development phases.
+Implement batch translation system to handle 10,000+ text units efficiently, reducing translation time from hours to minutes while maintaining translation quality and consistency. This addresses the critical scalability bottleneck for large RPG projects.
 
 #### Key Deliverables
 
-##### 1. Regex Compilation Optimization ✅ COMPLETED
-- **Pre-compiled Regexes**: Use `once_cell::sync::Lazy` to pre-compile all regex patterns
-- **Static Regex Storage**: Store compiled regexes as static constants
-- **Performance Gain**: 70-80% faster regex operations
-- **Integration**: OptimizedTextFormatter integrated into pipeline.rs
+##### 1. Batch Translation Core System
+- **Batch Translation API**: New `translate_batch` command for processing multiple text units
+- **Batch Size Configuration**: Configurable batch sizes (50-200 units) based on provider and context
+- **Batch Prompt Optimization**: Single prompt template for multiple units to reduce token usage
+- **Batch Response Parsing**: Parse batch responses to extract individual translations
+- **Error Handling**: Robust error handling for partial batch failures
 
-##### 2. Early Exit Optimization ✅ COMPLETED
-- **Formatting Code Detection**: Quick check for formatting codes before processing
-- **Plain Text Bypass**: Skip expensive processing for plain text
-- **Performance Gain**: 50-90% faster for plain text (most common case)
-- **Integration**: Early exit logic integrated into OptimizedTextFormatter
+##### 2. Contextual Grouping System
+- **Grouping Strategies**: Group units by character, scene, file, or type for better context
+- **Smart Grouping Logic**: Automatic grouping based on text unit relationships
+- **Context Preservation**: Maintain translation consistency within grouped units
+- **Group Size Optimization**: Balance between context and batch efficiency
 
-##### 3. Batch Processing Optimization ❌ NOT COMPATIBLE
-- **Analysis Complete**: Sequential pipeline cannot be parallelized
-- **Architecture Limitation**: Text processing is inherently sequential
-- **Alternative**: Focus on other optimizations instead
+##### 3. Streaming Progress System
+- **Real-time Progress Updates**: Stream progress to frontend during batch processing
+- **Progress Indicators**: Show current batch, completed units, and estimated time remaining
+- **Batch Status Tracking**: Track individual batch success/failure status
+- **Resume Capability**: Resume interrupted batch operations from last successful batch
 
-##### 4. String Allocation Optimization
-- **Pre-allocation**: Use `String::with_capacity()` for known sizes
-- **Reduced Cloning**: Minimize unnecessary string allocations
-- **Performance Gain**: 20-30% faster string operations
+##### 4. Performance Optimizations
+- **Token Usage Reduction**: 70% reduction in token usage through batch prompts
+- **API Call Reduction**: 10,000 individual calls → 100-200 batch calls
+- **Intelligent Rate Limiting**: Adaptive delays based on provider and batch size
+- **Memory Optimization**: Efficient handling of large batch operations
 
-##### 5. Caching System ❌ NOT COMPATIBLE
-- **Analysis Complete**: Text processing happens only once during extraction
-- **Database Architecture**: Processed text is stored in database permanently
-- **No Re-processing**: Frontend loads pre-processed text from database
-
-##### 6. Engine-Specific Optimization
-- **RPG Maker Formatter**: Optimized formatter for RPG Maker projects
-- **Wolf RPG Formatter**: Optimized formatter for Wolf RPG projects
-- **Performance Gain**: 40-60% faster per engine type
+##### 5. Quality Assurance
+- **Batch Validation**: Validate batch responses before saving to database
+- **Consistency Checks**: Ensure translation consistency within batches
+- **Fallback Handling**: Individual translation fallback for failed batch units
+- **Quality Metrics**: Track translation quality across batch operations
 
 #### Success Metrics
-- [ ] 3-5x overall performance improvement
-- [x] 70-80% faster regex operations
-- [x] 50-90% faster plain text processing
-- [x] ~~2-4x faster batch processing~~ (Not compatible)
-- [x] ~~90% faster cached operations~~ (Not compatible)
-- [x] 100% backward compatibility maintained
+- [ ] **10,000+ text units**: Process in 15-30 minutes instead of 2-3 hours
+- [ ] **70% token reduction**: Batch prompts vs individual prompts
+- [ ] **95% API call reduction**: 10,000 calls → 100-200 batch calls
+- [ ] **Real-time progress**: Users see progress updates during batch processing
+- [ ] **Resume capability**: Continue from last successful batch after interruption
+- [ ] **Quality maintenance**: No degradation in translation quality
+- [ ] **100% backward compatibility**: Individual translation still available
 
 #### Technical Requirements
-- [x] Create `formatting_optimized.rs` with pre-compiled regexes
-- [x] ~~Implement `batch_processor.rs` for parallel processing~~ (Not compatible)
-- [x] ~~Add `cache.rs` for text processing cache~~ (Not compatible)
-- [x] Update `pipeline.rs` with optimized methods
-- [ ] Add engine-specific formatters
-- [x] Maintain backward compatibility with existing code
+- [ ] **New Tauri Command**: `translate_batch` command in `commands/translation.rs`
+- [ ] **Batch Prompt Builder**: Extend `PromptBuilder` with batch prompt generation
+- [ ] **Grouping Logic**: Implement contextual grouping in `utils/batch_grouping.rs`
+- [ ] **Streaming System**: Add progress streaming to frontend via Tauri events
+- [ ] **Database Updates**: Batch save operations for efficiency
+- [ ] **Error Recovery**: Robust error handling and retry logic
+- [ ] **Rate Limiting**: Intelligent delays based on provider type
+- [ ] **Frontend Integration**: Batch translation UI components
+- [ ] **Configuration**: Batch size and strategy configuration options
+- [ ] **Testing**: Comprehensive testing for batch operations
 
 ---
 
@@ -79,12 +83,16 @@ Implement selective injection functionality that allows users to choose specific
 - **Injection Preview**: Show which files will be modified and what translations will be injected
 - **Injection Options**: Allow users to choose injection scope (selected items only)
 - **Progress Tracking**: Real-time progress indicator during selective injection
+- **Translation Controls**: Start, pause, resume, and stop translation operations
+- **Translation State Management**: Handle idle, running, paused, and stopped states
 
 ##### 3. Backend Injection Logic
 - **Selective Injection API**: Modify backend to accept specific translation unit IDs
 - **Partial File Updates**: Update only the files containing selected translations
 - **Injection Validation**: Validate selected translations before injection
 - **Rollback Support**: Ability to undo selective injections
+- **Translation State Persistence**: Save and restore translation progress and state
+- **Request Cancellation**: Cancel ongoing translation requests when paused/stopped
 
 ##### 4. Integration Points
 - **Translation Tables**: Add selection checkboxes and bulk injection actions
@@ -98,6 +106,9 @@ Implement selective injection functionality that allows users to choose specific
 - [ ] 100% accuracy in selective injection (no unintended changes)
 - [ ] Clear visual feedback during injection process
 - [ ] Support for both single-item and bulk selective injection
+- [ ] Users can pause/resume translation operations seamlessly
+- [ ] Translation state persists across application restarts
+- [ ] <2 second response time for pause/stop operations
 
 #### Technical Requirements
 - [ ] Modify `export_translated_subset` to accept translation unit IDs
@@ -105,6 +116,10 @@ Implement selective injection functionality that allows users to choose specific
 - [ ] Enhance UI selection components with injection actions
 - [ ] Add injection preview and confirmation dialogs
 - [ ] Implement progress tracking for selective injection operations
+- [ ] Add translation state management to stores (idle, running, paused, stopped)
+- [ ] Implement request cancellation for pause/stop operations
+- [ ] Add translation progress persistence to database
+- [ ] Create translation control components (start, pause, resume, stop)
 
 ---
 
@@ -242,8 +257,8 @@ Add advanced translation features and third-party integrations.
 ## 📊 Progress Tracking
 
 ### Current Status
-- **Phase 1**: 🔄 In Progress (50% complete) - Text Processing Performance Optimization
-- **Phase 2**: ⏳ Planned - Selective Translation Injection
+- **Phase 1**: 🎯 CURRENT PRIORITY - Batch Translation System for Large Projects (10,000+ text units)
+- **Phase 2**: ⏳ NEXT - Selective Translation Injection
 - **Phase 3**: ⏳ Planned - Enhanced Translation Features
 - **Phase 4**: ⏳ Planned - Performance & Scalability
 - **Phase 5**: ⏳ Planned - User Experience & Polish
@@ -279,7 +294,7 @@ Add advanced translation features and third-party integrations.
 ## 📝 Notes
 
 ### Technical Debt
-- Text processing performance optimization (CRITICAL - Phase 1)
+- **CRITICAL: Batch translation system** - Required for 10,000+ text units (Phase 1)
 - Selective injection system needs implementation
 - Performance optimization required for large datasets
 - Testing coverage needs improvement
@@ -293,7 +308,10 @@ Add advanced translation features and third-party integrations.
 - Performance monitoring throughout development
 
 ### Success Criteria
-- 3-5x performance improvement in text processing (Phase 1)
+- **10,000+ text units processed in 15-30 minutes** (Phase 1 - CRITICAL)
+- 70% reduction in token usage through batch processing
+- 95% API call reduction for large projects
+- Real-time progress updates during batch operations
 - Users can selectively inject specific translations
 - 95% user satisfaction score
 - <100ms response time for common operations

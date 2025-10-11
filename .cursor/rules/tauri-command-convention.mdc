@@ -1,0 +1,51 @@
+---
+description: Tauri command attribute usage convention
+globs: src-tauri/src/**/*.rs
+---
+
+# Tauri Command Convention
+
+All `#[tauri::command]` attributes MUST be used exclusively in [src-tauri/src/commands/handler.rs](mdc:src-tauri/src/commands/handler.rs).
+
+## Rules
+
+1. **Only Location**: The `#[tauri::command]` macro can ONLY be used in the handler.rs file
+2. **Wrapper Pattern**: Handler functions should be simple wrappers that forward to pure logic in sibling command modules
+3. **No Business Logic**: Handler functions should contain minimal logic - just parameter passing and error handling
+4. **Import Organization**: Use the established import organization pattern in handler.rs:
+   - Standard library and external crates
+   - Internal command modules  
+   - Database types
+   - Core types
+
+## Examples
+
+✅ **Correct** - In handler.rs:
+```rust
+#[tauri::command]
+pub async fn load_project(
+    project_path: String,
+    source_language: Language,
+    target_language: Language,
+) -> Result<EngineInfo, String> {
+    debug!("Command: load_project - {}", project_path);
+    engine::load_project(project_path, source_language, target_language).await
+}
+```
+
+❌ **Incorrect** - In any other file:
+```rust
+#[tauri::command]  // This should NOT be here
+pub async fn some_function() -> Result<(), String> {
+    // implementation
+}
+```
+
+## Purpose
+
+This convention ensures:
+- Centralized command registration
+- Clear separation between command handlers and business logic
+- Consistent error handling and logging
+- Easy maintenance and testing
+- Single source of truth for all Tauri commands

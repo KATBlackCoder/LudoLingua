@@ -1,0 +1,62 @@
+---
+globs: CHANGELOG.md
+description: Rules for managing CHANGELOG.md following Keep a Changelog format
+---
+
+# CHANGELOG.md Management Rules
+
+## Keep a Changelog Format
+
+### Standard Sections
+- **Added**: New features and capabilities
+- **Changed**: Changes to existing functionality
+- **Deprecated**: Soon-to-be removed features
+- **Removed**: Removed features and capabilities
+- **Fixed**: Bug fixes and issue resolutions
+- **Security**: Security improvements and vulnerability fixes
+- **Reference**: [CHANGELOG.md](mdc:CHANGELOG.md)
+
+### Version Format
+```markdown
+## [Version] - YYYY-MM-DD
+
+### Added
+- New feature description
+- User-facing improvement
+
+### Changed
+- Modified existing behavior
+- Updated user interface
+
+### Fixed
+- Bug fix description
+- Issue resolution
+```
+
+## Content Guidelines
+
+### Entry Standards
+- **User-Focused**: Write from user perspective, not developer perspective
+- **Clear Language**: Use simple, clear descriptions
+- **Actionable**: Users should understand what changed and why
+- **Categorized**: Group related changes under appropriate sections
+
+### Technical Details
+- Reference specific files when relevant: `[filename.ext](mdc:filename.ext)`
+- Link to related issues and pull requests
+- Include performance improvements and optimizations
+- Note breaking changes and migration requirements
+
+### Update Triggers
+- **Every Release**: Document all user-facing changes
+- **Bug Fixes**: Include all resolved issues
+- **Feature Additions**: Document new capabilities
+- **Breaking Changes**: Highlight incompatible changes
+- **Security Updates**: Include all security improvements
+
+### Quality Standards
+- **Consistent Format**: Follow established patterns
+- **Complete Coverage**: Include all significant changes
+- **User Value**: Focus on user benefits and improvements
+- **Chronological Order**: Most recent changes first
+- **Semantic Versioning**: Align with version numbering scheme

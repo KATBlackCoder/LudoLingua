@@ -147,7 +147,7 @@ impl RunPodService {
             options: Some(RunPodOptions {
                 temperature: Some(self.config.temperature),
                 num_predict: Some(self.config.max_tokens),
-                repeat_penalty: Some(1.1),
+                repeat_penalty: Some(1.2),
                 num_ctx: Some(4096),
                 top_p: Some(0.9),
             }),

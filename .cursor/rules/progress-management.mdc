@@ -1,0 +1,56 @@
+---
+globs: PROGRESS.MD
+description: Rules for managing PROGRESS.MD milestone tracking and completion status
+---
+
+# PROGRESS.MD Management Rules
+
+## Milestone Tracking Structure
+
+### Progress Visualization
+- **Completion Bars**: Use `[████████████]` format for visual progress
+- **Percentage Tracking**: Include completion percentages (e.g., 100%, 75%)
+- **Status Indicators**: Use emojis and status markers (✅, ⏳, 🎯)
+- **Reference**: [PROGRESS.MD](mdc:PROGRESS.MD)
+
+### Phase Documentation
+```markdown
+Phase X (Completed): Feature Name [████████████] 100%
+**Goal:** Clear statement of what was achieved
+**Key Achievements:**
+- ✅ Specific accomplishment 1
+- ✅ Specific accomplishment 2
+- ✅ Technical improvement 3
+```
+
+## Content Guidelines
+
+### Achievement Documentation
+- **Specific Accomplishments**: List concrete deliverables and features
+- **Technical Details**: Include performance improvements and optimizations
+- **User Benefits**: Highlight user-facing improvements and capabilities
+- **Metrics**: Include quantitative improvements and benchmarks
+
+### Status Management
+- **Current Status**: Always show current phase and next priorities
+- **Completion Tracking**: Update percentages as work progresses
+- **Milestone Dates**: Include completion dates for finished phases
+- **Next Steps**: Clearly indicate what comes next
+
+### Cross-Reference Integration
+- **TODO.md**: Link completed tasks to their TODO.md origins
+- **ROADMAP.md**: Connect achievements to roadmap phases
+- **CHANGELOG.md**: Reference user-facing changes and improvements
+- **Technical Architecture**: Note architectural improvements and optimizations
+
+### Update Triggers
+- **Milestone Completion**: When phases reach 100% completion
+- **Weekly Updates**: Regular progress percentage updates
+- **Achievement Unlocks**: When significant features or improvements are delivered
+- **Status Changes**: When priorities or timelines shift
+
+### Quality Standards
+- **Accurate Percentages**: Keep completion status current and realistic
+- **Detailed Achievements**: Provide specific examples of what was accomplished
+- **Visual Clarity**: Use consistent formatting and visual indicators
+- **Comprehensive Coverage**: Include all significant development milestones

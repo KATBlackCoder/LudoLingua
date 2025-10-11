@@ -1,0 +1,95 @@
+---
+alwaysApply: true
+description: DRY, KISS, and YAGNI principles enforcement
+---
+
+# Coding Principles: DRY, KISS, YAGNI
+
+All code updates, upgrades, improvements, and creations in LudoLingua MUST follow these three fundamental principles:
+
+## DRY (Don't Repeat Yourself)
+
+- **Eliminate Duplication**: Never copy-paste code. Extract common functionality into reusable functions, composables, or utilities.
+- **Single Source of Truth**: Each piece of logic should exist in exactly one place.
+- **Shared Components**: Use shared components from [app/components/shared/](mdc:app/components/shared/) for common UI patterns.
+- **Composables**: Extract reusable logic into composables in [app/composables/](mdc:app/composables/).
+- **Backend Utils**: Use utility functions in [src-tauri/src/utils/](mdc:src-tauri/src/utils/) for common Rust operations.
+
+## KISS (Keep It Simple, Stupid)
+
+- **Simplicity First**: Choose the simplest solution that works. Avoid over-engineering.
+- **Clear Naming**: Use descriptive, self-documenting names for variables, functions, and components.
+- **Minimal Dependencies**: Only add dependencies when absolutely necessary.
+- **Straightforward Logic**: Write code that is easy to read and understand without comments.
+- **Single Responsibility**: Each function/component should do one thing well.
+- **Meaningful Comments**: Write comments that explain **why** the code exists, not **what** it does. The code already shows what it does.
+
+## YAGNI (You Aren't Gonna Need It)
+
+- **No Premature Optimization**: Don't add features or optimizations until they're actually needed.
+- **No Future-Proofing**: Don't write code for hypothetical future requirements.
+- **Minimal Viable Implementation**: Implement only what's required for current functionality.
+- **Remove Dead Code**: Delete unused imports, functions, and components immediately.
+- **Avoid Abstractions**: Don't create abstractions until you have at least 2-3 concrete use cases.
+
+## Enforcement Guidelines
+
+### Before Writing Code
+1. **Check Existing Solutions**: Search for similar functionality in the codebase first
+2. **Question Necessity**: Ask "Is this actually needed right now?"
+3. **Choose Simplest Approach**: Pick the most straightforward implementation
+
+### During Development
+1. **Refactor Immediately**: If you notice duplication, extract it immediately
+2. **Remove Complexity**: If code becomes complex, simplify it
+3. **Delete Unused Code**: Remove any code that isn't actively used
+
+### Code Review Checklist
+- [ ] No duplicate code exists
+- [ ] Solution is as simple as possible
+- [ ] Only implements current requirements
+- [ ] No unused imports or functions
+- [ ] Clear, self-documenting names
+
+## Examples
+
+✅ **Good**: Using shared DataTable component for all tables
+❌ **Bad**: Creating separate table components for each page
+
+✅ **Good**: Simple function that does one thing
+❌ **Bad**: Complex function with multiple responsibilities
+
+✅ **Good**: Implementing only current features
+❌ **Bad**: Adding "just in case" configuration options
+
+### Comment Examples
+
+✅ **Good Comments (explain WHY):**
+```typescript
+// Use batch translation for projects with 100+ text units to reduce API calls by 95%
+if (textUnits.length > 100) {
+  await translateBatch(textUnits)
+}
+
+// Add 500ms delay for RunPod to prevent rate limiting on remote servers
+await sleep(Duration.from_millis(500))
+```
+
+❌ **Bad Comments (explain WHAT):**
+```typescript
+// Check if text units length is greater than 100
+if (textUnits.length > 100) {
+  // Call translateBatch function with textUnits
+  await translateBatch(textUnits)
+}
+
+// Sleep for 500 milliseconds
+await sleep(Duration.from_millis(500))
+```
+
+## Violations
+
+Any code that violates these principles should be:
+1. **Refactored** to follow DRY (extract common code)
+2. **Simplified** to follow KISS (reduce complexity)
+3. **Removed** to follow YAGNI (delete unnecessary features)

@@ -1,0 +1,53 @@
+---
+alwaysApply: true
+description: Documentation management rules for TODO, ROADMAP, CHANGELOG, and PROGRESS files
+---
+
+# Documentation Management Rules
+
+## File Purposes & Usage
+
+### TODO.md - Task Management
+- **Purpose**: Immediate development tasks, bug fixes, and feature implementation
+- **When to update**: Daily during active development
+- **Content**: Specific technical tasks with checkboxes, implementation details, and success criteria
+- **Location**: [TODO.md](mdc:TODO.md)
+
+### ROADMAP.md - Strategic Planning  
+- **Purpose**: Long-term vision, release planning, and stakeholder communication
+- **When to update**: Quarterly or when priorities change significantly
+- **Content**: Phases, timelines, success metrics, and technical requirements
+- **Location**: [ROADMAP.md](mdc:ROADMAP.md)
+
+### CHANGELOG.md - Release History
+- **Purpose**: Version history, user-facing changes, and release documentation
+- **When to update**: With every release following [Keep a Changelog](https://keepachangelog.com/) format
+- **Content**: Added, Changed, Deprecated, Removed, Fixed, Security sections
+- **Location**: [CHANGELOG.md](mdc:CHANGELOG.md)
+
+### PROGRESS.MD - Milestone Tracking
+- **Purpose**: Development milestone completion and status reporting
+- **When to update**: Weekly or when milestones complete
+- **Content**: Completion percentages, achievements, and current status
+- **Location**: [PROGRESS.MD](mdc:PROGRESS.MD)
+
+## Maintenance Rules
+
+### Always Update After Changes
+- **TODO.md**: Remove completed items, add new tasks
+- **CHANGELOG.md**: Document all user-facing changes
+- **PROGRESS.MD**: Update completion status when milestones finish
+- **ROADMAP.md**: Adjust timelines and priorities as needed
+
+### File Relationships
+- **TODO.md** feeds into **ROADMAP.md** phases
+- **ROADMAP.md** milestones track in **PROGRESS.MD**
+- **PROGRESS.MD** achievements document in **CHANGELOG.md**
+- **CHANGELOG.md** changes reflect **TODO.md** completions
+
+### Quality Standards
+- Use consistent formatting and structure
+- Include specific technical details and success criteria
+- Maintain clear separation between immediate tasks and long-term planning
+- Follow semantic versioning for releases
+- Keep completion percentages accurate and up-to-date

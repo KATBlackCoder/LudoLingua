@@ -1,0 +1,60 @@
+---
+globs: ROADMAP.md
+description: Rules for managing ROADMAP.md strategic planning and phase organization
+---
+
+# ROADMAP.md Management Rules
+
+## Strategic Planning Structure
+
+### Phase Organization
+- **Clear Phase Headers**: Use descriptive phase names with timelines
+- **Objective Statements**: Define what each phase aims to achieve
+- **Key Deliverables**: List specific features and improvements
+- **Success Metrics**: Include measurable outcomes and KPIs
+- **Reference**: [ROADMAP.md](mdc:ROADMAP.md)
+
+### Timeline Management
+```markdown
+### Phase X: Feature Name
+**Timeline: X-Y weeks**
+
+#### Objective
+Clear statement of phase goals and expected outcomes
+
+#### Key Deliverables
+- Specific feature implementations
+- Technical improvements
+- User experience enhancements
+
+#### Success Metrics
+- [ ] Measurable outcome 1
+- [ ] Measurable outcome 2
+- [ ] Performance benchmarks
+```
+
+## Content Guidelines
+
+### Phase Documentation
+- **Current Priority**: Clearly mark which phase is currently active
+- **Next Steps**: Outline what comes after current phase
+- **Dependencies**: Note phase dependencies and prerequisites
+- **Risk Mitigation**: Include potential challenges and solutions
+
+### Technical Requirements
+- Reference specific files and components
+- Include architecture decisions and rationale
+- Link to related TODO.md tasks and PROGRESS.MD milestones
+- Connect to CHANGELOG.md for completed phases
+
+### Stakeholder Communication
+- Use clear, non-technical language for business stakeholders
+- Include user-facing benefits and improvements
+- Reference user feedback and requirements
+- Maintain alignment with project vision and goals
+
+### Update Triggers
+- **Priority Changes**: When business requirements shift
+- **Timeline Adjustments**: When development velocity changes
+- **Scope Modifications**: When feature requirements evolve
+- **Resource Changes**: When team capacity or technology changes

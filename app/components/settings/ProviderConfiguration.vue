@@ -112,7 +112,7 @@
               :model-value="advancedSettings.max_tokens" 
               type="number" 
               min="50" 
-              max="500"
+              max="9999"
               icon="i-lucide-hash"
               @update:model-value="updateField('max_tokens', $event)" 
             />

@@ -109,13 +109,12 @@
       :actions="bulkActions"
       :alert-color="bulkAlertColor"
     />
-        <!-- Pagination - Outside the table card -->
-        <div v-if="showPagination" class="flex justify-center border-t border-default pt-4">
+        <!-- Pagination - Above the table -->
+        <div v-if="showPagination" class="flex justify-center border-b border-default pb-4">
       <UPagination
-        :default-page="(tableRef?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+        v-model:page="currentPage"
         :items-per-page="tableRef?.tableApi?.getState().pagination.pageSize"
         :total="tableRef?.tableApi?.getFilteredRowModel().rows.length"
-        @update:page="(p) => tableRef?.tableApi?.setPageIndex(p - 1)"
       />
     </div>
 
@@ -169,13 +168,12 @@
       </template>
     </UCard>
 
-    <!-- Pagination - Outside the table card -->
+    <!-- Pagination - Below the table -->
     <div v-if="showPagination" class="flex justify-center border-t border-default pt-4">
       <UPagination
-        :default-page="(tableRef?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+        v-model:page="currentPage"
         :items-per-page="tableRef?.tableApi?.getState().pagination.pageSize"
         :total="tableRef?.tableApi?.getFilteredRowModel().rows.length"
-        @update:page="(p) => tableRef?.tableApi?.setPageIndex(p - 1)"
       />
     </div>
   </div>
@@ -434,6 +432,16 @@ useBulkActions(computed(() => tableConfig.selectedRowCount.value), {
 const pagination = ref({
   pageIndex: 0,
   pageSize: props.initialPageSize
+})
+
+// Current page for pagination components (1-based)
+const currentPage = computed({
+  get: () => (tableRef.value?.tableApi?.getState().pagination.pageIndex || 0) + 1,
+  set: (page: number) => {
+    if (tableRef.value?.tableApi) {
+      tableRef.value.tableApi.setPageIndex(page - 1)
+    }
+  }
 })
 
 const paginationOptions = {

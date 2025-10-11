@@ -1,0 +1,47 @@
+---
+globs: TODO.md
+description: Rules for managing TODO.md file structure and content
+---
+
+# TODO.md Management Rules
+
+## File Structure Requirements
+
+### Phase Organization
+- Use clear phase headers with priority levels (CRITICAL, HIGH, MEDIUM, LOW)
+- Include objective statements for each phase
+- Group related tasks under logical phases
+- Reference: [TODO.md](mdc:TODO.md)
+
+### Task Format Standards
+```markdown
+- [ ] **Task Title**: Brief description of what needs to be done
+- [ ] **Implementation Details**: Technical requirements and specifications
+- [ ] **Success Criteria**: Measurable outcomes and completion requirements
+```
+
+### Priority Indicators
+- **CRITICAL**: Immediate fixes and blocking issues
+- **HIGH**: Important features and major improvements  
+- **MEDIUM**: Nice-to-have features and optimizations
+- **LOW**: Future enhancements and technical debt
+
+## Content Guidelines
+
+### Technical Requirements
+- Include specific file paths and function names
+- Provide code examples and implementation details
+- Reference related files using `[filename.ext](mdc:filename.ext)` format
+- Include success metrics and measurable outcomes
+
+### Task Lifecycle
+1. **Add**: New tasks with complete technical details
+2. **Update**: Modify tasks as requirements change
+3. **Complete**: Mark with `[x]` and move to CHANGELOG.md
+4. **Remove**: Delete completed tasks to prevent clutter
+
+### Cross-Reference Integration
+- Link to related ROADMAP.md phases
+- Reference PROGRESS.MD milestones
+- Connect to CHANGELOG.md entries for completed work
+- Maintain consistency with project architecture documentation
